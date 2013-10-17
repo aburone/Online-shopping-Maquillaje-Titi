@@ -26,9 +26,53 @@ class Sales < AppController
 
 
   get '/books' do
-    @book = Book.limit(100).order(:id).reverse.all
-    slim :book_records_list, layout: :layout_sales
+    @starting_cash = BookRecord.new.get_last_cash_audit(current_location[:name])[:amount]
+    @records = BookRecord.new.from_last_audit current_location[:name]
+
+    @sales_total = 0
+    @records.select { |record| record.type == "Venta mostrador" }.each { |record| @sales_total += record.amount }
+
+    @commissions = 0
+    @records.select { |record| record.type == "Comisiones" }.each{ |record| @commissions += record.amount}
+
+
+
+    @expenses = 0
+    @records.select { |record| record.type == "Otros gastos" }.each { |record| @expenses += record.amount }
+
+    @downpayments = 0
+    @records.select { |record| record.type == "Pago a proveedor" }.each { |record| @downpayments += record.amount }
+
+
+    surplus = 0
+    @records.select { |record| record.type == "Sobrante de caja" }.each{ |record| surplus += record.amount}
+    deficit = 0
+    @records.select { |record| record.type == "Faltante de caja" }.each{ |record| deficit += record.amount}
+    @diferences =  surplus + deficit
+
+    @finish_cash = 0
+    @records.each { |record| @finish_cash += record.amount }
+
+    slim :book_records, layout: :layout_sales, locals: {sec_nav: :nav_books}
   end
+  get '/books/add' do
+    slim :book_records_add, layout: :layout_sales, locals: {sec_nav: :nav_books}
+  end
+  post '/books/add' do
+
+    record =  BookRecord.new.update_from_hash(params)
+    pp record
+    begin
+      record.save
+    rescue => detail
+      flash[:error] = detail.message
+    end
+    # flash[:error] = record.errors
+    # slim :book_records_add, layout: :layout_sales, locals: {sec_nav: :nav_books}
+    redirect to("/books")
+  end
+
+
 
   get '/products' do
     @products = Product.new.get_saleable_at_location(current_location[:name]).all
@@ -88,7 +132,7 @@ class Sales < AppController
       @order = Order.new.create_or_load_sale
       items = @order.items
       @cart_total = @order.cart_total 
-      Book.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total).save
+      BookRecord.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total).save
       items.each { |item| item.change_status Item::SOLD, @order.o_id }
       @order.change_status Order::FINISHED
       @cart = @order.items_as_cart

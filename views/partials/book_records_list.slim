@@ -1,4 +1,3 @@
-- @title = "Caja"
 
 - focus = true if focus.nil?
 - focus_text = focus ? "focus" : "no_focus"
@@ -8,12 +7,13 @@
 - edit_link ||= "void"
 - can_filter = true if can_filter.nil?
 - quicksearch = " quicksearch" if can_filter
-- if @book.empty?
+- if @records.empty?
   p no tengo registros
 - else
   table class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
     thead
       tr
+        th id
         th Orden
         th Fecha
         th Tipo
@@ -21,12 +21,13 @@
         th Monto
     tfoot
       tr
-        td colspan="5" #{@book.count}
+        td colspan="5" Mostrando #{@records.count} movimientos
     tbody
-      - @book.each do |record|
+      - @records.each do |record|
         tr class="item"
+          td #{record[:r_id]}
           td #{record[:o_id]}
-          td #{record[:created_at]}
+          td = Utils::local_date_format record.created_at
           td #{record[:type]}
           td #{record[:description]}
           td.number #{Utils::money_format record[:amount], 2}

@@ -1,56 +1,351 @@
-/*
-Syntax error: File to import not found or unreadable: reset.
-              Load path: /home/ariel/titi/support
-        on line 14 of ../system/public/sass/backend.scss
+@charset "UTF-8";
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
 
-9: // Elements with keyboard focus
-10: @mixin focused {outline:0; box-shadow: 0 0 12px $focus_emphasis; @include rounded; }
-11: // Indicates the actual location
-12: @mixin current {background-color: lighten($focus_emphasis, 20%); @include rounded; }
-13: 
-14: @import "reset";
-15: @import "plugins";
-16: @import "flexbox";
-17: 
-18: .visually_hidden {visibility: hidden; position: absolute; top: -9999px; left: -9999px;}
-19: 
+html, body, div, span, iframe,
+p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  vertical-align: baseline;
+  font-family: Helvetica, verdana, Frutiger, Univers, arial, helvetica, "lucida grande", geneva, lucida, sans-serif;
+  font-size: 1em; }
 
-Backtrace:
-../system/public/sass/backend.scss:14
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/import_node.rb:67:in `rescue in import'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/import_node.rb:45:in `import'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/import_node.rb:28:in `imported_file'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/import_node.rb:37:in `css_import?'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:217:in `visit_import'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:37:in `visit'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:100:in `visit'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:53:in `block in visit_children'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:53:in `map'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:53:in `visit_children'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:109:in `block in visit_children'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:121:in `with_environment'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:108:in `visit_children'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:37:in `block in visit'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:128:in `visit_root'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:37:in `visit'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:100:in `visit'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:7:in `visit'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/root_node.rb:20:in `render'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/engine.rb:315:in `_render'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/engine.rb:262:in `render'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/plugin/compiler.rb:362:in `update_stylesheet'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/plugin/compiler.rb:203:in `block in update_stylesheets'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/plugin/compiler.rb:201:in `each'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/plugin/compiler.rb:201:in `update_stylesheets'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/plugin/compiler.rb:283:in `block in watch'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/multi_listener.rb:108:in `call'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/multi_listener.rb:108:in `on_change'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/multi_listener.rb:117:in `block in initialize_adapter'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/adapters/polling.rb:56:in `call'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/adapters/polling.rb:56:in `poll'
-/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/adapters/polling.rb:32:in `block in start'
-*/
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "Syntax error: File to import not found or unreadable: reset.\A               Load path: /home/ariel/titi/support\A         on line 14 of ../system/public/sass/backend.scss\A \A 9: // Elements with keyboard focus\A 10: @mixin focused {outline:0; box-shadow: 0 0 12px $focus_emphasis; @include rounded; }\A 11: // Indicates the actual location\A 12: @mixin current {background-color: lighten($focus_emphasis, 20%); @include rounded; }\A 13: \A 14: @import \"reset\";\A 15: @import \"plugins\";\A 16: @import \"flexbox\";\A 17: \A 18: .visually_hidden {visibility: hidden; position: absolute; top: -9999px; left: -9999px;}\A 19: "; }
+body {
+  line-height: 1.6em;
+  color: #333;
+  background: #FFF; }
+
+ol, ul {
+  list-style: none; }
+
+table {
+  border-collapse: separate;
+  border-spacing: 0; }
+
+caption, th, td {
+  text-align: left;
+  font-weight: normal; }
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: ""; }
+
+blockquote, q {
+  quotes: "" ""; }
+
+/* Base */
+strong {
+  font-weight: bold; }
+
+h1 {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 1.5em 0 0.8em 0;
+  color: SaddleBrown; }
+
+h2 {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 1.3em 0 0.5em 0;
+  color: SaddleBrown; }
+
+h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+  color: #ddae20; }
+
+.unauthorized {
+  margin: 150px 0 0;
+  padding-bottom: 50px; }
+
+.not_found {
+  width: 100%;
+  height: 100%;
+  background: #000; }
+
+.not_found img {
+  width: 450px;
+  height: 450px;
+  display: block;
+  margin-left: auto; }
+
+/* Tablesorter */
+table.tablesorter thead tr .header {
+  background-image: url(/media/tablesortBg.gif);
+  background-repeat: no-repeat;
+  background-position: right;
+  cursor: pointer;
+  padding-right: 1em; }
+
+table.tablesorter thead tr .headerSortUp {
+  background-image: url(/media/tablesortAsc.gif); }
+
+table.tablesorter thead tr .headerSortDown {
+  background-image: url(/media/tablesortDesc.gif); }
+
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+  padding: 0.5em 0.1em; }
+
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+  background-color: #def2fa;
+  border-radius: 5px; }
+
+table.tablesorter th {
+  color: black; }
+
+/* Tablesorter */
+@media only screen and (min-width: 65em) {
+  /* la carga necesita este minimo par air a tres cols */
+  .flex_container {
+    /* 2009 */
+    display: -webkit-box;
+    display: -moz-box;
+    /* 2011 */
+    display: -ms-flexbox;
+    /* 2012 */
+    display: -webkit-flex;
+    display: flex; }
+
+  .flex_item {
+    -ms-flex-item-align: stretch;
+    -webkit-align-self: stretch;
+    align-self: stretch; }
+
+  .flex_order_last {
+    /* Flex items are, by default, displayed and laid out in the same order as they appear in the source document.
+    The ‘order’ property can be used to change this ordering.
+    Alters ONLY the visual order, not the logical one */
+    -webkit-box-ordinal-group: 1;
+    -moz-box-ordinal-group: 1;
+    -ms-flex-order: 1;
+    /* 2012. Order: <integer> (default=0, accepts -1) */
+    /* http://www.w3.org/TR/css3-flexbox/#order-property */
+    -webkit-order: 1;
+    order: 1; } }
+.visually_hidden {
+  visibility: hidden;
+  position: absolute;
+  top: -9999px;
+  left: -9999px; }
+
+.number, .money {
+  text-align: right; }
+
+.money:before {
+  content: '$ '; }
+
+.small_content {
+  text-align: center; }
+
+.categories td {
+  padding: 0.5em;
+  vertical-align: top; }
+
+.cat_cell {
+  width: 300px;
+  height: 120px; }
+
+.cat_img {
+  position: absolute;
+  clip: rect(0, 300px, 120px, 0); }
+
+.categories tr:hover .cat_img {
+  position: absolute;
+  clip: rect(120px, 300px, 240px, 0);
+  margin-top: -120px; }
+
+.action, .smallcaps {
+  font-variant: small-caps; }
+
+article, section {
+  margin-left: 1em; }
+
+.aligner {
+  display: inline-block;
+  width: 6em; }
+
+.aligned {
+  display: inline-block;
+  margin-left: 6em; }
+
+.aligner_2 {
+  display: inline-block;
+  width: 10em; }
+
+.aligned_2 {
+  display: inline-block;
+  margin-left: 10em; }
+
+.edit {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background: url(/media/Icon-Edit.png); }
+
+.sm_cell {
+  width: 4em; }
+
+.md_cell {
+  width: 8em; }
+
+.bg_cell {
+  width: 16em; }
+
+body {
+  margin-left: auto;
+  margin-right: auto; }
+
+body:after {
+  content: "";
+  z-index: -1;
+  background: url(/media/colors.png) no-repeat center center fixed;
+  background-size: cover;
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+  opacity: 0.1; }
+
+.product_features {
+  max-width: 25em; }
+
+.items {
+  margin-top: 1em;
+  border: 1px solid rgba(200, 200, 200, 0.3);
+  border-radius: 5px; }
+
+.items th, .items thead td {
+  font-weight: bold; }
+
+.items td {
+  padding: 0.3em 1em 0.1em 0;
+  vertical-align: middle; }
+
+.items tr td:first-child, .items th:first-child {
+  padding-left: 1em; }
+
+.items tr td:first-child.no_padding {
+  padding-left: 0; }
+
+.item td {
+  vertical-align: top; }
+
+.ajax_item:hover {
+  cursor: pointer; }
+
+.tall {
+  border-top: 1px solid silver; }
+
+tbody tr:nth-child(odd) {
+  background: rgba(200, 200, 200, 0.3); }
+
+a {
+  color: darkblue; }
+
+:focus {
+  outline: 0;
+  box-shadow: 0 0 12px skyblue;
+  border-radius: 5px; }
+
+a:hover, a:focus, .items th:hover, .item:hover, .item_hover, .ajax_item:hover {
+  background-color: skyblue;
+  outline: 0;
+  box-shadow: 0 0 12px skyblue;
+  border-radius: 5px; }
+
+.main_nav {
+  margin: 0.5em 0.5em 0.5em 0; }
+  .main_nav dt {
+    display: none; }
+  .main_nav dd, .main_nav dd a {
+    display: inline-block; }
+  .main_nav dd a {
+    padding: 1em 0.5em 1.2em;
+    margin-right: 0.5em; }
+  .main_nav .main_nav .first {
+    padding-left: 0.7em; }
+
+.current {
+  background-color: #def2fa;
+  border-radius: 5px; }
+
+aside {
+  float: right;
+  padding: 1em;
+  margin: 1em;
+  position: relative; }
+
+.flash {
+  padding: 1em;
+  font-weight: bold;
+  margin: 0 1em 1em 0;
+  max-width: 35em; }
+
+.flash_notice {
+  background-color: #a6f1a6;
+  color: DarkGreen;
+  border: 3px solid DarkGreen; }
+
+.flash_warning {
+  background-color: LightYellow;
+  color: #989244;
+  border: 3px solid #989244; }
+
+.flash_error {
+  background-color: #ffdae0;
+  color: #ad102f;
+  border: 3px solid #ad102f; }
+
+.flash dd {
+  padding-left: 1em;
+  font-weight: normal; }
+
+.flash dd:before {
+  content: "⚫ "; }
+
+.toggle_link {
+  cursor: help;
+  color: darkblue;
+  display: inline-block; }
+
+.toggle_link:hover {
+  cursor: help;
+  background-color: skyblue;
+  outline: 0;
+  box-shadow: 0 0 12px skyblue;
+  border-radius: 5px; }
+
+.info.toggle_me {
+  border: 1px solid DarkKhaki;
+  box-shadow: 3px 3px 10px DarkKhaki; }
+
+.debug.toggle_me {
+  border: 1px solid crimson;
+  box-shadow: 3px 3px 10px crimson; }
+
+.confirm_action {
+  border: 1px solid black;
+  margin: 1em;
+  padding: 0 1em 2em 1em; }
+
+.no_padding {
+  padding: 0; }
+
+.v_island_1 {
+  margin-top: 2em;
+  margin-bottom: 2em; }
