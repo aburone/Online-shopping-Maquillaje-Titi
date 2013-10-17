@@ -1,0 +1,49 @@
+-# coding: UTF-8
+== slim :nav_materials
+- if @material.nil?
+  - @title = t.material.not_found
+- else
+  - @title = t.material.editing(@material[:m_name])
+  form action=url("/materials/#{@material[:m_id]}") method="post"
+    == Rack::Csrf.tag(env)
+    input type="hidden" name="_method" value="put"
+    input type="hidden" name="m_id" value="#{@material[:m_id]}"
+
+    label.aligner for="m_name" = t.material.fields.name
+    input autofocus="" type="text" name="m_name" size=50 maxlength=50 value="#{@material[:m_name]}"
+    br
+    label.aligner for="c_id" = t.material.fields.category
+    select name="c_id"
+      -  @materials_categories.each do |cat|
+        - if @material[:c_id] == cat[:c_id]
+          option selected="selected" value="#{cat[:c_id]}" = cat[:c_name]
+        - else
+          option value="#{cat[:c_id]}" = cat[:c_name]
+    br
+    label.aligner for="m_price" = t.material.fields.price
+    input disabled="" type="text" name="m_price" size=50 value="#{Utils::money_format @material[:m_price], 6}"
+    br
+    label.aligner for="m_qty" = t.material.fields.qty
+    input disabled="" type="text" name="m_qty" size=50 value="#{Utils::num_format @material[:m_qty], 2}"
+
+    input.aligned type="submit" value="#{t.actions.apply}"
+
+    - if @bulks.empty?
+      h2 = t.material.bulks_not_found
+    - else
+      h2 = t.material.bulks_list
+      == slim :bulks_list, locals: {focus: false}
+
+  form action=url("/bulks/new") method="post"
+    == Rack::Csrf.tag(env)
+    input type="hidden" name="m_id" value="#{@material[:m_id]}"
+    input type="submit" value="#{t.material.new}"
+
+div#ajax_panel
+
+- if @products.empty?
+  h2 = t.material.products_not_found
+- else
+  h2 = t.material.products_list
+  - @focus = "no_focus"
+  == slim :products_list

@@ -1,0 +1,31 @@
+- if @items.nil? or @items.empty?
+  p = t.items.empty
+- else
+    table.items.tablesorter class=(@quicksearch.nil? or @quicksearch==true ? "quicksearch" : "") data-label="#{t.actions.filter}" data-quicksearch=(@focus.nil? or @focus==true ? "focus" : "no_focus")
+
+      thead
+        tr
+          th = t.item.fields.id
+          th = t.item.fields.status
+          th = t.product.fields.name
+          th = t.item.fields.price
+          th = t.item.fields.price_pro
+          th = t.actions.actions
+      tbody
+        - @items.each do |item|
+          tr.item.ajax_pending
+            td.ajax_pending_id #{item[:i_id]}
+            td = ConstantsTranslator.new(item[:i_status]).t
+            td #{item[:p_name]}
+            td.number #{Utils::money_format item[:i_price], 2}
+            td.number #{Utils::money_format item[:i_price_pro], 2}
+            td
+              form action=url("/production/verify_packaging/#{@order.o_id}/#{item[:i_id]}/void") method="post"
+                == Rack::Csrf.tag(env)
+                input type="hidden" name="i_id" value="#{item[:i_id]}"
+                input.ajax_void_item.ajax data-confirm_message="Esto va a anular la etiqueta y eliminar el item de la orden" type="submit" value="Destruir"
+
+      tfoot
+        tr
+          td.counter colspan="6" = t.items.count(@items.count)
+

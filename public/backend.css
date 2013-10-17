@@ -1,0 +1,56 @@
+/*
+Syntax error: File to import not found or unreadable: reset.
+              Load path: /home/ariel/titi/support
+        on line 14 of ../system/public/sass/backend.scss
+
+9: // Elements with keyboard focus
+10: @mixin focused {outline:0; box-shadow: 0 0 12px $focus_emphasis; @include rounded; }
+11: // Indicates the actual location
+12: @mixin current {background-color: lighten($focus_emphasis, 20%); @include rounded; }
+13: 
+14: @import "reset";
+15: @import "plugins";
+16: @import "flexbox";
+17: 
+18: .visually_hidden {visibility: hidden; position: absolute; top: -9999px; left: -9999px;}
+19: 
+
+Backtrace:
+../system/public/sass/backend.scss:14
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/import_node.rb:67:in `rescue in import'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/import_node.rb:45:in `import'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/import_node.rb:28:in `imported_file'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/import_node.rb:37:in `css_import?'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:217:in `visit_import'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:37:in `visit'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:100:in `visit'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:53:in `block in visit_children'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:53:in `map'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:53:in `visit_children'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:109:in `block in visit_children'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:121:in `with_environment'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:108:in `visit_children'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:37:in `block in visit'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:128:in `visit_root'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/base.rb:37:in `visit'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:100:in `visit'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/visitors/perform.rb:7:in `visit'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/tree/root_node.rb:20:in `render'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/engine.rb:315:in `_render'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/engine.rb:262:in `render'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/plugin/compiler.rb:362:in `update_stylesheet'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/plugin/compiler.rb:203:in `block in update_stylesheets'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/plugin/compiler.rb:201:in `each'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/plugin/compiler.rb:201:in `update_stylesheets'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/lib/sass/plugin/compiler.rb:283:in `block in watch'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/multi_listener.rb:108:in `call'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/multi_listener.rb:108:in `on_change'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/multi_listener.rb:117:in `block in initialize_adapter'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/adapters/polling.rb:56:in `call'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/adapters/polling.rb:56:in `poll'
+/home/ariel/.rvm/gems/ruby-2.0.0-p247/gems/sass-3.2.10/vendor/listen/lib/listen/adapters/polling.rb:32:in `block in start'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Syntax error: File to import not found or unreadable: reset.\A               Load path: /home/ariel/titi/support\A         on line 14 of ../system/public/sass/backend.scss\A \A 9: // Elements with keyboard focus\A 10: @mixin focused {outline:0; box-shadow: 0 0 12px $focus_emphasis; @include rounded; }\A 11: // Indicates the actual location\A 12: @mixin current {background-color: lighten($focus_emphasis, 20%); @include rounded; }\A 13: \A 14: @import \"reset\";\A 15: @import \"plugins\";\A 16: @import \"flexbox\";\A 17: \A 18: .visually_hidden {visibility: hidden; position: absolute; top: -9999px; left: -9999px;}\A 19: "; }

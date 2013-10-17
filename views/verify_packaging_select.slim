@@ -1,0 +1,8 @@
+-# coding: UTF-8
+- @title = t.production.verify_packaging.title
+- @sec_nav = :nav_production
+
+- if @orders.nil? or @orders.empty?
+  p = t.production.packaging_order.empty
+- else
+  == slim :orders_list, locals: {full_row: true, can_edit: true, edit_link: "/admin/production/verify_packaging/o_id"}

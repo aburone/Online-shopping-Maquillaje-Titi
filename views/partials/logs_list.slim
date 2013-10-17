@@ -1,0 +1,37 @@
+- @focus = "focus" if @focus.nil?
+- if @logs.empty?
+  p = t.logs.empty
+- else
+  table.logs.quicksearch.tablesorter.items data-label="#{t.actions.filter}" data-quicksearch="#{@focus}"
+    thead
+      tr
+        th = t.event.fields.at
+        th = t.event.fields.msg
+        th = t.event.fields.u_id
+        th = t.event.fields.l_id
+        th = t.event.fields.lvl
+        th = t.event.fields.b_id
+        th = t.event.fields.m_id
+        th = t.event.fields.i_id_l_id
+        th = t.event.fields.o_id
+        th = t.event.fields.p_id
+    tbody
+      - @logs.each do |event|
+        tr.event.item
+          td.ajax_filter_by_me = Utils::local_date_format event[:at]
+          td.ajax_filter_by_me #{event[:msg]}
+          td.ajax_filter_by_me #{event[:username]}
+          td.ajax_filter_by_me #{ConstantsTranslator.new(event[:l_id]).t}
+          td.ajax_filter_by_me.small_content #{event[:lvl]}
+          td.ajax_filter_by_me #{event[:b_id]}
+          - m_id = event[:m_id] ? "\\#{event[:m_id]}\\" : ""
+          td.ajax_filter_by_me.number #{m_id}
+          td.ajax_filter_by_me #{event[:i_id]}
+          - o_id = event[:o_id] ? "##{event[:o_id]}#" : ""
+          td.ajax_filter_by_me.number #{o_id}
+          - p_id = event[:p_id] ? "*#{event[:p_id]}*" : ""
+          td.ajax_filter_by_me.number #{p_id}
+    tfoot
+      tr
+        td colspan="8" = t.logs.count(@logs.count)
+

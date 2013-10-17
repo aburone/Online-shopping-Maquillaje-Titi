@@ -1,0 +1,137 @@
+@charset "utf-8";
+
+
+// Round borders
+@mixin rounded {border-radius: 5px;}
+// Color of foculed elements
+$focus_emphasis : skyblue;
+$odd_rows: rgba(200,200,200,0.3);
+// Elements with keyboard focus
+@mixin focused {outline:0; box-shadow: 0 0 12px $focus_emphasis; @include rounded; }
+// Indicates the actual location
+@mixin current {background-color: lighten($focus_emphasis, 20%); @include rounded; }
+
+@import "reset";
+@import "plugins";
+@import "flexbox";
+
+.visually_hidden {visibility: hidden; position: absolute; top: -9999px; left: -9999px;}
+
+.number, .money {text-align: right;}
+.money:before {content: '$ '}
+
+.small_content {text-align: center;}
+.categories td {padding: 0.5em; vertical-align: top}
+.cat_cell {width:300px; height: 120px; }
+.cat_img {position: absolute;clip: rect(0, 300px, 120px, 0) }
+.categories tr:hover .cat_img {position: absolute;clip: rect(120px, 300px, 240px, 0); margin-top: -120px }
+.action, .smallcaps {font-variant: small-caps}
+
+article, section {margin-left: 1em;}
+
+.aligner {display:inline-block; width: 6em}
+.aligned {display:inline-block; margin-left: 6em}
+
+.aligner_2 {display:inline-block; width: 10em}
+.aligned_2 {display:inline-block; margin-left: 10em}
+.edit {display:inline-block; width:32px; height:32px; background: url(/media/Icon-Edit.png)}
+
+.sm_cell {width: 4em}
+.md_cell {width: 8em}
+.bg_cell {width: 16em}
+
+body {margin-left:auto; margin-right:auto}
+body:after {
+    content : "";
+    z-index: -1;
+    background: url(/media/colors.png) no-repeat center center fixed;
+    background-size: cover;
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height:100%;
+    opacity : 0.1;
+}
+
+.product_features {max-width: 25em}
+
+.items {margin-top: 1em; border: 1px solid $odd_rows; @include rounded;}
+.items th, .items thead td {font-weight: bold}
+.items td {padding:0.3em 1em 0.1em 0; vertical-align: middle}
+.items tr td:first-child, .items th:first-child{padding-left: 1em}
+.items tr td:first-child.no_padding {padding-left: 0}
+.item td {vertical-align:top}
+.ajax_item:hover {cursor: pointer}
+.tall {border-top: 1px solid silver}
+tbody tr:nth-child(odd) {background: $odd_rows}
+
+a {color: darkblue;}
+:focus {@include focused}
+a:hover, a:focus, .items th:hover, .item:hover, .item_hover, .ajax_item:hover {background-color: $focus_emphasis; @include focused } // el resto de los elementos interactivos
+
+.main_nav {margin:0.5em 0.5em 0.5em 0;
+  dt {display:none}
+  dd, dd a {display:inline-block}
+  dd a {padding:1em 0.5em 1.2em; margin-right: 0.5em;}
+  .main_nav .first {padding-left: 0.7em}
+}
+.current {@include current}
+
+aside {
+  float:right;
+  padding: 1em;
+  margin: 1em;
+  position: relative;
+}
+
+
+.flash {
+  padding: 1em ;
+  font-weight: bold;
+  margin: 0 1em 1em 0;
+  max-width: 35em;
+}
+.flash_notice {
+  background-color: lighten(LightGreen, 5%);
+  color: DarkGreen;
+  border: 3px solid DarkGreen;
+}
+.flash_warning {
+  background-color: LightYellow;
+  color: darken(DarkKhaki, 15%);
+  border: 3px solid darken(DarkKhaki, 15%);
+}
+.flash_error {
+  background-color: lighten( pink, 5% );
+  color: darken(crimson, 10%);
+  border: 3px solid darken(crimson, 10%);
+}
+.flash dd {
+    padding-left:1em;
+    font-weight: normal;
+}
+.flash dd:before{
+    content: "⚫ "
+}
+
+
+.toggle_link {cursor: help; color: darkblue; display:inline-block}
+.toggle_link:hover {cursor: help; background-color: $focus_emphasis; @include focused}
+.info.toggle_me {
+    border:1px solid DarkKhaki;
+    box-shadow: 3px 3px 10px DarkKhaki;
+}
+.debug.toggle_me {
+    border:1px solid crimson;
+    box-shadow: 3px 3px 10px crimson;
+}
+.toggle_me {
+}
+
+.confirm_action {border: 1px solid black; margin:1em; padding:0 1em 2em 1em}
+
+.no_padding {padding: 0}
+
+.v_island_1 {margin-top: 2em; margin-bottom: 2em}

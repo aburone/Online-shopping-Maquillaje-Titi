@@ -1,0 +1,24 @@
+nav.main_nav role="navigation"
+  dl
+    dt Menu
+    - if authorized?
+      dd.lnk
+        a class="first current" href="#" = current_location[:translation] if current_location
+      dd.lnk
+        a class="first current" href="#" = current_user_name if current_user_name
+      dd.lnk
+        a class="#{inside?("/admin/materials")} #{inside?("/admin/bulks")}" href=url('/materials') = t.nav.backend.materials
+      dd.lnk
+        a class="#{inside?("/admin/categories")} #{inside?("/admin/products")}" href=url('/products') = t.nav.backend.products
+      dd.lnk
+        a class="#{inside?("/admin/production")} #{inside?("/admin/logistics")}" href=url('/logistics') = t.nav.backend.logistics
+      dd.lnk
+        a class="#{inside?("/admin/credits")}" href=url('/credits') = t.nav.backend.credits
+      dd.lnk
+        a class="#{inside?("/admin/logs")}" href=url('/logs') = t.nav.backend.logs
+      dd.lnk
+        a href=url('/logout') = t.nav.backend.logout
+    - else
+      dd.lnk
+        a class="#{current?("/admin/login")}" href=url('/login') = t.nav.backend.login
+

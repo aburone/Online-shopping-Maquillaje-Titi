@@ -1,0 +1,30 @@
+- @title = "Seleccion de productos para agregar a envio hacia punto de venta Nº #{@order.o_id}"
+
+- unless @item.empty?
+  == slim :product_details, locals: {product: @product }
+
+
+  form action=url("/logistics/transport/warehouse_pos/#{@order.o_id}/#{@item.i_id}/cancel") method="post"
+    == Rack::Csrf.tag(env)
+    label.aligner for="fake_label" #{t.label.fields.label}
+    input type="text" disabled="disabled" name="fake_label_id" value="#{@item[:i_id]}"
+    input type="hidden" name="i_id" value="#{@item[:i_id]}"
+    input type="hidden" name="p_id" value="#{@product[:p_id]}"
+    input type="hidden" name="o_id" value="#{@order[:o_id]}"
+    br
+    label for="remove_item" Si es incorrecto, podes 
+    input name="remove_item" type="submit" value="#{t.actions.cancel}"
+
+h2 Escanee los items a agregar a la orden
+
+form action=url("/logistics/transport/warehouse_pos/#{@order.o_id}/add") method="post"
+  == Rack::Csrf.tag(env)
+  input type="hidden" name="o_id" value="#{@order.o_id}"
+
+  label.aligner_2 for="label" = t.order.scan_product
+  input.trim_me autofocus="autofocus" required="required" type="text" name="i_id" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"
+  br
+  img src="/media/scan_barcode.jpg"
+
+h2 Items en esta orden
+== slim :items_list

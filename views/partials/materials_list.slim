@@ -1,0 +1,44 @@
+- focus = focus ? "focus" : "no_focus"
+/ - full_row = false if full_row.nil?
+- can_edit = true if can_edit.nil?
+- can_filter = true if can_filter.nil?
+- quicksearch = " quicksearch" if can_filter
+
+
+- if @materials.nil? or @materials.empty?
+  p = t.materials.empty
+- else
+  table class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus}"
+    thead
+      tr
+        th = t.material.fields.category
+        th = t.material.fields.id
+        th = t.material.fields.name
+        th = t.material.fields.qty
+        th = t.material.fields.price
+        - if can_edit
+          th = t.material.fields.actions
+      tr
+        td
+        td
+        td
+        td.small_content colspan="2" = t.bulk.fields.units
+        - if can_edit
+          td
+    tbody
+      - @materials.each do |mat|
+        tr.item.ajax_item
+          td #{mat[:c_name]}
+          td #{mat[:m_id]}
+          td #{mat[:m_name]}
+          td.number == Utils::num_format mat[:m_qty], 0
+          td.number == Utils::money_format mat[:m_price], 2
+          - if can_edit
+            td.small_content
+              a.edit href="/admin/materials/#{mat[:m_id]}"
+                img src="#{t.media.icons.edit}" data-id="#{mat[:m_id]}"
+
+
+    tfoot
+      tr
+        td colspan="5" = t.materials.count(@materials.count)

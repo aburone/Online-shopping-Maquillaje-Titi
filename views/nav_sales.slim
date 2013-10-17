@@ -1,0 +1,26 @@
+nav.main_nav role="navigation"
+  dl
+    dt Menu
+    - if authorized?
+      dd.lnk
+        a class="first current" href="#" = current_location[:translation] if current_location
+      dd.lnk
+        a class="first current" href="#" = current_user_name if current_user_name
+      dd.lnk
+        a class="#{inside?("/sales/make_sale")}" href=url('/make_sale') = t.nav.sales.make_sale
+
+      dd.lnk
+        a class="#{inside?("/sales/products")}" href=url('/products') = t.nav.sales.products
+
+      dd.lnk
+        a class="#{inside?("/books")}" href=url('/books') caja
+
+      / dd.lnk
+      /   a class="#{inside?("/sales/admin")}" href=url('/admin') = t.nav.sales.admin
+
+      dd.lnk
+        a href=url('/logout') = t.nav.sales.logout
+    - else
+      dd.lnk
+        a class="#{current?("/sales/login")}" href=url('/login') = t.nav.sales.login
+

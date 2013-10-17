@@ -1,0 +1,28 @@
+-# coding: UTF-8
+== slim :nav_products
+
+- @title = t.product.not_found
+
+- if @product.nil?
+  - @title = t.product.not_found
+- else
+  - @title = "Editando #{@product[:p_name]}"
+
+- if @product.nil?
+  p No tengo productos con el id especificado
+- else
+  form
+    dl
+      dt Nombre
+      dd
+        input type="text" name="Name" size=50 maxlength=50 value="#{@product[:p_name]}"
+      dt
+        input type="submit" value="Guardar"
+
+
+- if @items.empty?
+  h2 = t.product.items_not_found
+- else
+  h2 = t.product.items_list
+  - @focus = "no_focus"
+  == slim :items_list

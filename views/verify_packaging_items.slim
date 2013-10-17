@@ -1,0 +1,50 @@
+-# coding: UTF-8
+- @title = t.production.verifying_packaging.title @order.o_id
+- @sec_nav = :nav_production
+
+div.ajax_response
+  - unless @current_product.p_id.nil?
+    h2 La etiqueta  #{@current_item.i_id} esta asignada al producto
+    == slim :product_details, locals: {product: @current_product }
+    form action=url("/production/verify_packaging/#{@order.o_id}/#{@current_item.i_id}/void") method="post"
+      == Rack::Csrf.tag(env)
+      input type="hidden" name="i_id" value="#{@current_item.i_id}"
+      p Si es correcto, escanee el siguiente producto a verificar, sino haga click en "Destruir"
+      input.ajax_void_item data-confirm_message="Esto va a anular la etiqueta y eliminar el item de la orden" type="submit" value="Destruir"
+
+- if @pending_items.empty?
+  h2 = t.production.verifying_packaging.empty
+- else
+  h2 = t.production.verifying_packaging.scan_next
+  form action=url("/production/verify_packaging/#{@order.o_id}") method="post"
+    == Rack::Csrf.tag(env)
+    input type="hidden" name="item" id="ajax_selected_label" value="#{params[:item]}"
+    input type="hidden" name="o_id" value="#{@order.o_id}"
+    item.aligner_2 for="i_id" = t.production.verifying_packaging.scan_item
+    input.trim_me autofocus="autofocus" required="required" type="text" name="i_id" id="trim_me" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"
+    input type="submit" value="#{t.actions.ok}"
+  br
+  img src="/media/scan_barcode.jpg"
+
+- @items = @pending_items
+- unless @items.empty?
+  h3 = t.production.verifying_packaging.pending_items
+  == slim :pending_items_list
+
+- @items = @verified_items
+- unless @items.empty?
+  h3 = t.production.verifying_packaging.verified_items
+  == slim :items_list
+
+
+
+form.v_island_1#finish_packaging action=url("/production/verify_packaging/#{@order.o_id}/finish") method="post"
+  == Rack::Csrf.tag(env)
+  input type="hidden" name="o_id" value="#{@order.o_id}"
+  input type="submit" value="#{t.actions.finish_verification}"
+
+
+form.v_island_1#finish_packaging action=url("/production/packaging/#{@order.o_id}/cancel") method="post"
+  == Rack::Csrf.tag(env)
+  input type="hidden" name="o_id" value="#{@order.o_id}"
+  input.ajax_confirm data-confirm_message="#{t.order.sure_to_cancel_load_order}" type="submit" value="#{t.actions.cancel}"

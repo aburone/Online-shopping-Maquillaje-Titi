@@ -1,0 +1,31 @@
+-# coding: UTF-8
+-# TODO
+
+- @title = "categorias"
+
+== slim :nav_products
+
+- if @categories.empty?
+  p No hay categorias cargadas en la base
+- else
+  table.items.categories.quicksearch data-label="#{t.actions.filter}"
+    thead
+      tr
+        td Nombre
+        td Descripción
+        td Foto
+        td Visible?
+        td Editar
+    - @categories.each do |category|
+      tr.item
+        td #{category[:c_name]}
+        td.cat_cell
+          img.cat_img src="/images/#{category[:img]}"
+        td #{category[:description]}
+        td.small_content
+          - text = category[:is_published] ? "Si" : "No"
+          = text
+        td.small_content
+          a href="/admin/products/categories/#{category[:c_id]}"
+            img src="/media/Icon-Edit.png"
+  p #{@categories.count} categorias en total

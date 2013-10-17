@@ -1,0 +1,48 @@
+- focus = false if focus.nil?
+- focus_text = focus ? "focus" : "no_focus"
+- full_row = false if full_row.nil?
+- can_edit = true if can_edit.nil?
+- can_filter = true if can_filter.nil?
+- quicksearch = " quicksearch" if can_filter
+- if @bulks.empty?
+  p = t.bulks.empty
+- else
+  table class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+    thead
+      tr
+        th.md_cell = t.bulk.fields.id
+        - if full_row
+          th.bg_cell = t.bulk.fields.m_name
+        th.sm_cell = t.bulk.fields.qty
+        th.md_cell = t.bulk.fields.price
+        th.md_cell = t.bulk.fields.status
+        th.bg_cell = t.bulk.fields.created_at
+        - if can_edit
+          th.sm_cell = t.bulk.fields.actions
+      tr
+        td
+        - if full_row
+          td
+        td.small_content colspan="2" = t.bulk.fields.units
+        td
+        td
+        - if can_edit
+          td
+    tfoot
+      tr
+        - colspan = full_row ? 7 : 6
+        td colspan="#{colspan}" = t.bulks.count(@bulks.count)
+    tbody
+      - @bulks.each do |bulk|
+        tr.item
+          td.md_cell = bulk.b_id
+          - if full_row
+            td.bg_cell = bulk[:m_name]
+          td.sm_cell = Utils::num_format bulk.b_qty, 2
+          td.md_cell = Utils::money_format bulk.b_price, 6
+          td.md_cell = ConstantsTranslator.new(bulk.b_status).t
+          td.bg_cell = Utils::local_date_format bulk.created_at
+          - if can_edit
+            td
+              a.edit.edit_bulk href="/admin/bulks/#{bulk.b_id}" data-ajax="edit_bulk" data-id="#{bulk.b_id}"
+

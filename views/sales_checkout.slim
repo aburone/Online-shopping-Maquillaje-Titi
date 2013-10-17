@@ -1,0 +1,10 @@
+- @title = "Detalle de la venta"
+
+== slim :items_cart, locals: {can_edit: true, focus: false}
+
+
+form.v_island_1 action=url("/sales/make_sale/finish") method="post"
+  == Rack::Csrf.tag(env)
+  label for="finish" Cobrar venta
+  br
+  input name="finish" type="submit" value="Cobrar #{Utils::money_format @cart_total, 2}"

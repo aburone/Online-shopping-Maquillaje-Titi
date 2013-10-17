@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Regression Runner</title>
+    <meta charset="utf-8"/>
+
+    <link rel="stylesheet" type="text/css" href="csscritic.min.css">
+
+    <script type="text/javascript" src="csscritic.allinone.js"></script>
+
+    <script type="text/javascript">
+        window.onload = function() {
+            csscritic.addReporter(csscritic.BasicHTMLReporter());
+            csscritic.add('http://127.0.0.1:81/404');
+            csscritic.add('http://127.0.0.1:81/admin');
+            csscritic.add('http://127.0.0.1:81/admin/materials');
+            csscritic.add('http://127.0.0.1:81/admin/products');
+            csscritic.execute();
+        };
+    </script>
+
+</head>
+
+<body>
+<button onclick="localStorage.clear(); window.location.reload();">Reset all tests</button>
+</body>
+</html>

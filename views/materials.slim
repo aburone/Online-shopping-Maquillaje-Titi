@@ -1,0 +1,8 @@
+-# coding: UTF-8
+- @title = t.materials.title
+== slim :nav_materials
+
+== slim :materials_list
+  section.new
+    form action=url("/materials/new") method="post"
+      input type="submit" value="#{t.material.new}"

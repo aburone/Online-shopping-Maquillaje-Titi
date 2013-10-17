@@ -1,0 +1,32 @@
+- @title = "Caja"
+
+- focus = true if focus.nil?
+- focus_text = focus ? "focus" : "no_focus"
+- full_row = true if full_row.nil?
+- stock_col = false if stock_col.nil? unless stock_col == true
+- can_edit = true if can_edit.nil?
+- edit_link ||= "void"
+- can_filter = true if can_filter.nil?
+- quicksearch = " quicksearch" if can_filter
+- if @book.empty?
+  p no tengo registros
+- else
+  table class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+    thead
+      tr
+        th Orden
+        th Fecha
+        th Tipo
+        th Descripcion
+        th Monto
+    tfoot
+      tr
+        td colspan="5" #{@book.count}
+    tbody
+      - @book.each do |record|
+        tr class="item"
+          td #{record[:o_id]}
+          td #{record[:created_at]}
+          td #{record[:type]}
+          td #{record[:description]}
+          td.number #{Utils::money_format record[:amount], 2}

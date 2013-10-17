@@ -1,0 +1,16 @@
+-# coding: UTF-8
+- @title = "Editando #{@category[:c_name]}"
+
+== slim :nav_products
+
+- if @category.nil?
+  p No tengo categorías con el id especificado
+- else
+	form
+		dl
+			dt Nombre
+			dd
+				input type="text" name="Name" size=50 maxlength=50 value="#{@category[:c_name]}"
+			dt
+				input type="submit" value="Guardar"
+

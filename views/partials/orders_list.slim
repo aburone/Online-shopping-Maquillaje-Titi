@@ -1,0 +1,66 @@
+- focus = false if focus.nil?
+- focus_text = focus ? "focus" : "no_focus"
+- full_row = false if full_row.nil?
+- can_edit = true if can_edit.nil?
+- edit_link ||= "void"
+- p edit_link
+- can_filter = true if can_filter.nil?
+- quicksearch = " quicksearch" if can_filter
+- if @orders.empty?
+  p = t.orders.empty
+- else
+  table class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+    thead
+      tr
+        th = t.order.fields.id
+        - if full_row
+          th = t.order.fields.type
+          th = t.order.fields.status
+        th = t.order.fields.created_at
+        th = t.order.fields.user
+        - if full_row
+          th = t.order.fields.location
+        - if can_edit
+          th = t.actions.actions
+    tfoot
+      tr
+        - colspan = can_edit ? 5 : 4
+        td colspan="#{colspan}" = t.orders.count(@orders.count)
+    tbody
+      - @orders.each do |order|
+        - ajax_edit = can_edit ? " ajax_item" : ""
+        tr class="item#{ajax_edit}"
+          td = order.o_id
+          - if full_row
+            td = ConstantsTranslator.new(order.type).t
+            td = ConstantsTranslator.new(order.o_status).t
+          td = Utils::local_date_format order.created_at
+          td = order[:username]
+          - if full_row
+             td = ConstantsTranslator.new(order.o_loc).t
+          - if can_edit
+            td
+              - if edit_link == "void"
+                a href="#"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "/admin/logistics/transport/warehouse_pos/order.o_id/add"
+                a href="/admin/logistics/transport/warehouse_pos/#{order.o_id}/add"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "/sales/admin/inventory_review/o_id"
+                a href="/sales/admin/inventory_review/#{order.o_id}"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "/sales/admin/inventory_verification/o_id"
+                a href="/sales/admin/inventory_verification/#{order.o_id}"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "/sales/admin/inventory_imputation/o_id"
+                a href="/sales/admin/inventory_imputation/#{order.o_id}"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "/admin/production/packaging/o_id/add/"
+                a href="/admin/production/packaging/#{order.o_id}/add/"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "/admin/production/verify_packaging/o_id"
+                a href="/admin/production/verify_packaging/#{order.o_id}"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "/admin/production/packaging_orders_allocation/o_id"
+                a href="/admin/production/packaging_orders_allocation/#{order.o_id}"
+                  img src="/media/Icon-Edit.png"

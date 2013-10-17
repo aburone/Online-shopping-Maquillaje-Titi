@@ -1,0 +1,35 @@
+-# coding: UTF-8
+- if @bulk.nil?
+  - @title = t.bulk.not_found
+- else
+  - @title = t.bulk.editing(@bulk[:b_id],@material[:m_name])
+
+- if @bulk.nil?
+    h2 = t.bulk.not_found
+- else
+    td colspan="6"
+      form action=url("/bulks/#{@bulk[:b_id]}") method="post"
+        table
+          tr
+            td.no_padding
+              == Rack::Csrf.tag(env)
+              input type="hidden" name="_method" value="put"
+              input type="hidden" name="m_id" value="#{@bulk[:m_id]}"
+              input.md_cell disabled="" type="text" name="b_id" value="#{@bulk.b_id}"
+            td
+              input.sm_cell autofocus="" type="text" name="b_qty" size=5 maxlength=10 value="#{Utils::num_format @bulk.b_qty, 2, ""}"
+            td
+              input.md_cell type="text" name="b_price" size=4 maxlength=10 value="#{Utils::num_format @bulk.b_price, 3, ""}"
+            td
+              select.md_cell name="b_status"
+                - Bulk::SELECTABLE_STATUS.each do |status|
+                  - if @bulk[:b_status] == status
+                    option selected="selected" value="#{status}" = status
+                  - else
+                    option = status
+            td
+              input.bg_cell disabled="" type="text" name="created_at" value="#{Utils::local_date_format(@bulk[:created_at])}"
+            td
+              input.md_cell type="submit" value="#{t.actions.apply}"
+              a href="/admin/materials/#{@material[:m_id]}" = t.actions.cancel
+

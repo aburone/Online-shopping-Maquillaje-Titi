@@ -1,0 +1,57 @@
+- focus = true if focus.nil?
+- focus_text = focus ? "focus" : "no_focus"
+- full_row = true if full_row.nil?
+- stock_col = false if stock_col.nil? unless stock_col == true
+- can_edit = true if can_edit.nil?
+- edit_link ||= "void"
+- can_filter = true if can_filter.nil?
+- quicksearch = " quicksearch" if can_filter
+- if @products.empty?
+  p = t.products.empty
+- else
+  table class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+    thead
+      tr
+        th = t.product.fields.id
+        th = t.product.fields.category
+        th = t.product.fields.name
+        th = t.product.fields.brand
+        - if full_row
+          th = t.product.fields.price
+        - if full_row
+          th = t.product.fields.price_pro
+        - if stock_col
+          th = t.product.fields.qty
+        - if can_edit
+          th = t.actions.edit
+    tfoot
+      tr
+        - colspan = 4
+        - colspan += 1 if can_edit
+        - colspan += 2 if full_row
+        td colspan="#{colspan}" = t.products.count(@products.count)
+    tbody
+      - ajax_item = can_edit ? " ajax_item" : ""
+      - @products.each do |product|
+        tr class="item#{ajax_item}"
+          td #{product[:p_id]}
+          td #{product[:c_name]}
+          td #{product[:p_name]}
+          td #{product[:brand]}
+          - if full_row
+            td.number #{Utils::money_format product[:price], 2}
+          - if full_row
+            td.number #{Utils::money_format product[:price_pro], 2}
+          - if stock_col
+            td.number #{product[:qty]}
+          - if can_edit
+            td
+              - if edit_link == "void"
+                a href="#"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "edit_product"
+                a href="/admin/products/#{product[:p_id]}"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "sales_inventory_review"
+                a href="/sales/admin/inventory_review/#{order.o_id}/#{product[:p_id]}"
+                  img src="/media/Icon-Edit.png"

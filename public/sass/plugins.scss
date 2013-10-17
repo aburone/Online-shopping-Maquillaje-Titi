@@ -1,0 +1,23 @@
+/* Tablesorter */
+table.tablesorter thead tr .header {
+    background-image: url(/media/tablesortBg.gif);
+    background-repeat: no-repeat;
+    background-position: right;
+    cursor: pointer;
+    padding-right: 1em;
+
+}
+table.tablesorter thead tr .headerSortUp {
+    background-image: url(/media/tablesortAsc.gif);
+}
+table.tablesorter thead tr .headerSortDown {
+    background-image: url(/media/tablesortDesc.gif);
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+    padding: 0.5em 0.1em;
+}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+    @include current
+}
+table.tablesorter th {color:black}
+/* Tablesorter */

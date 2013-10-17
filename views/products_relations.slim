@@ -1,0 +1,32 @@
+-# coding: UTF-8
+== slim :nav_products
+- @title = t.relationships.title
+
+- if @relationships.empty?
+  p = t.relationships.empty
+- else
+  table.items.quicksearch.tablesorter data-label="#{t.actions.filter}" data-quicksearch="#{@focus}"
+    thead
+      tr
+        th = t.product.fields.id
+        th = t.product.fields.category
+        th = t.product.fields.name
+        th Materials
+        th Parts
+    tbody
+      - @relationships.each do |rel|
+        - product = rel[:product]
+        tr.item.tall
+          td #{product[:p_id]}
+          td #{product[:c_name]}
+          td #{product[:p_name]} - #{product[:brand]}
+          - @names = []
+          - rel[:materials].each { |m| @names << "#{Utils::num_format m[:m_qty], 2} x #{m[:m_name]}"}
+          td == @names * "<br>"
+          - @names = []
+          - rel[:parts].each { |p| @names << "#{p[:part_qty]} x #{p[:p_name]}"}
+          td == @names * "<br>"
+    tfoot
+      tr
+        td colspan="6" = t.relationships.count(@relationships.count)
+

@@ -1,0 +1,25 @@
+- if @items.nil? or @items.empty?
+  p = t.items.empty
+- else
+    table.items.tablesorter class=(@quicksearch.nil? or @quicksearch==true ? "quicksearch" : "") data-label="#{t.actions.filter}" data-quicksearch=(@focus.nil? or @focus==true ? "focus" : "no_focus")
+      thead
+        tr
+          th = t.item.fields.id
+          th = t.item.fields.status
+          th ID p
+          th = t.product.fields.name
+          th = t.item.fields.price
+          th = t.item.fields.price_pro
+      tbody
+        - @items.each do |item|
+          tr.item
+            td #{item[:i_id]}
+            td = ConstantsTranslator.new(item[:i_status]).t
+            td #{item[:p_id]}
+            td #{item[:p_name]}
+            td.number #{Utils::money_format item[:i_price], 2}
+            td.number #{Utils::money_format item[:i_price_pro], 2}
+      tfoot
+        tr
+          td.counter colspan="5" = t.items.count(@items.count)
+

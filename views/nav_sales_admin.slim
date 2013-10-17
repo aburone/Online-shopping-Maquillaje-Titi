@@ -1,0 +1,19 @@
+aside
+  nav role="navigation"
+    ul
+      li
+        a class="#{inside?("/sales/admin")}" href=url('/admin') = t.nav.sales.admin
+      li
+        | - 
+        a class="#{inside?("/sales/admin/inventory_review")}" href=url('/admin/inventory_review/select') = t.nav.sales.inventory_review
+      li
+        | - 
+        a class="#{inside?("/sales/admin/inventory_verification")}" href=url('/admin/inventory_verification/select') = t.nav.sales.inventory_verification
+      li
+        | - 
+        a class="#{inside?("/sales/admin/inventory_imputation")}" href=url('/admin/inventory_imputation/select') = t.nav.sales.inventory_imputation
+
+      li
+        | - 
+        a class="#{inside?("/sales/admin/items")}" href=url('/admin/items') = t.nav.sales.items
+
