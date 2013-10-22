@@ -16,7 +16,7 @@
         td #{credit[:description]}
         td #{credit[:status]}
         td.money
-          = Utils::num_format credit[:ammount], 2
+          = Utils::number_format credit[:ammount], 2
         td
           a href="/admin/credits/#{credit[:credit_id]}"
             img src="/media/Icon-Edit.png"

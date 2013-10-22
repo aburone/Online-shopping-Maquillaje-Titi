@@ -21,7 +21,7 @@
           td #{product[:c_name]}
           td #{product[:p_name]} - #{product[:brand]}
           - @names = []
-          - rel[:materials].each { |m| @names << "#{Utils::num_format m[:m_qty], 2} x #{m[:m_name]}"}
+          - rel[:materials].each { |m| @names << "#{Utils::number_format m[:m_qty], 2} x #{m[:m_name]}"}
           td == @names * "<br>"
           - @names = []
           - rel[:parts].each { |p| @names << "#{p[:part_qty]} x #{p[:p_name]}"}

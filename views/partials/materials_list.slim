@@ -31,7 +31,7 @@
           td #{mat[:c_name]}
           td #{mat[:m_id]}
           td #{mat[:m_name]}
-          td.number == Utils::num_format mat[:m_qty], 0
+          td.number == Utils::number_format mat[:m_qty], 0
           td.number == Utils::money_format mat[:m_price], 2
           - if can_edit
             td.small_content

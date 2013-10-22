@@ -24,7 +24,7 @@
     input disabled="" type="text" name="m_price" size=50 value="#{Utils::money_format @material[:m_price], 6}"
     br
     label.aligner for="m_qty" = t.material.fields.qty
-    input disabled="" type="text" name="m_qty" size=50 value="#{Utils::num_format @material[:m_qty], 2}"
+    input disabled="" type="text" name="m_qty" size=50 value="#{Utils::number_format @material[:m_qty], 2}"
 
     input.aligned type="submit" value="#{t.actions.apply}"
 
