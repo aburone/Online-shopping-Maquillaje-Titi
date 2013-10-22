@@ -34,7 +34,7 @@
           - if full_row
             td = ConstantsTranslator.new(order.type).t
             td = ConstantsTranslator.new(order.o_status).t
-          td = Utils::local_date_format order.created_at
+          td = Utils::local_datetime_format order.created_at
           td = order[:username]
           - if full_row
              td = ConstantsTranslator.new(order.o_loc).t

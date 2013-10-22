@@ -94,7 +94,7 @@ class Order < Sequel::Model
     out += "\ttype:  #{@values[:type]}\n"
     out += "\to_status:  #{@values[:o_status]}\n"
     out += "\to_loc:  #{@values[:o_loc]}\n"
-    created = @values[:created_at] ? Utils::local_date_format(@values[:created_at]) : "Never"
+    created = @values[:created_at] ? Utils::local_datetime_format(@values[:created_at]) : "Never"
     out += "\tcreated: #{created}\n"
     out
   end

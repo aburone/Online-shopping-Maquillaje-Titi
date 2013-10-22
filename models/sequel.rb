@@ -32,6 +32,7 @@ Sequel::Model.plugin :skip_create_refresh # necesario por el trigger que regener
 Sequel::Model.plugin :string_stripper
 Sequel::Model.plugin :validation_helpers
 
+
 configure :production do
   Sequel::Model.plugin :prepared_statements
   Sequel::Model.plugin :prepared_statements_associations
@@ -39,3 +40,4 @@ end
 
 DB = Sequel.mysql2('maquillajetiti', encoding: 'utf8', compress: true , host: settings.db_host, user: settings.db_user, password: settings.db_pass)
 
+DB.extension :date_arithmetic

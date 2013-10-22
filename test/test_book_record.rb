@@ -17,4 +17,12 @@ class ItemTest < Test::Unit::TestCase
     records.each {|record| assert_equal record.class, BookRecord }
   end
 
+  def test_shoud_get_all_records_from_given_date
+    date = Date.parse "2013/02/01"
+    records = BookRecord.new.from_date_with_interval(Location::S1, date.iso8601, {days: 1})
+    records.each do |record| 
+      assert_equal record.created_at.to_date.iso8601, date.iso8601
+      assert_equal record.class, BookRecord
+    end
+  end
 end

@@ -18,7 +18,7 @@
     tbody
       - @logs.each do |event|
         tr.event.item
-          td.ajax_filter_by_me = Utils::local_date_format event[:at]
+          td.ajax_filter_by_me = Utils::local_datetime_format event[:at]
           td.ajax_filter_by_me #{event[:msg]}
           td.ajax_filter_by_me #{event[:username]}
           td.ajax_filter_by_me #{ConstantsTranslator.new(event[:l_id]).t}

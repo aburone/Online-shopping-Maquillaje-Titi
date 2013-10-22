@@ -4,7 +4,7 @@ form action=url("/books/add") method="post"
   fieldset
     legend Datos del movimiento de caja a agregar
     == Rack::Csrf.tag(env)
-    p Fecha: #{Utils::local_date_format Time.now}
+    p Fecha: #{Utils::local_datetime_format Time.now}
     dl 
       dt
         label for="type" Tipo:

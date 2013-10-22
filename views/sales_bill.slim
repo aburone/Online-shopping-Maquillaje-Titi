@@ -1,5 +1,5 @@
 - @title = "Remito de venta"
 
-p Fecha: #{Utils::local_date_format Time.now}
+p Fecha: #{Utils::local_datetime_format Time.now}
 == slim :items_cart, locals: {can_edit: true, focus: false}
 

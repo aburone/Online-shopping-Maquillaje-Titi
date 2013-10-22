@@ -1,6 +1,6 @@
 require_relative 'find_templates.rb'
 require_relative 'location.rb'
-require_relative 'number_format.rb'
+require_relative 'format.rb'
 require_relative 'time.rb'
 require_relative 'session.rb'
 require_relative 'utils.rb'

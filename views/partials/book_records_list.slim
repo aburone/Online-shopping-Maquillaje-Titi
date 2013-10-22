@@ -8,7 +8,7 @@
 - can_filter = true if can_filter.nil?
 - quicksearch = " quicksearch" if can_filter
 - if @records.empty?
-  p no tengo registros
+  p No tengo movimientos registrados
 - else
   table class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
     thead
@@ -27,7 +27,7 @@
         tr class="item"
           td #{record[:r_id]}
           td #{record[:o_id]}
-          td = Utils::local_date_format record.created_at
+          td = Utils::local_datetime_format record.created_at
           td #{record[:type]}
           td #{record[:description]}
           td.number #{Utils::money_format record[:amount], 2}

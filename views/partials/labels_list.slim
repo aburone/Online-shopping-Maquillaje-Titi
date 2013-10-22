@@ -12,4 +12,4 @@
         tr.item
           td = label.i_id
           td = ConstantsTranslator.new(label.i_status).t
-          td = Utils::local_date_format(label.created_at)
+          td = Utils::local_datetime_format(label.created_at)

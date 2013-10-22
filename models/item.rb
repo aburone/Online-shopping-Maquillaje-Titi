@@ -217,7 +217,7 @@ class Item < Sequel::Model
     out += @values[:i_price_pro] ? "\ti_price_pro: #{sprintf("%0.2f", @values[:i_price_pro])}\n" : "\ti_price_pro: \n"
     out += "\ti_status: #{@values[:i_status]}\n"
     out += "\ti_loc: #{@values[:i_loc]}\n"
-    created = @values[:created_at] ? Utils::local_date_format(@values[:created_at]) : ""
+    created = @values[:created_at] ? Utils::local_datetime_format(@values[:created_at]) : ""
     out += "\tcreated: #{created}\n"
     out
   end
@@ -273,6 +273,11 @@ class Item < Sequel::Model
       .join(:categories, [:c_id])
       .order(:items__p_name)
       .filter(i_loc: location)
+  end
+
+  def get_in_location_with_status location, status
+    get_list_at_location(location)
+      .filter(i_status: status.to_s)
   end
 
 end

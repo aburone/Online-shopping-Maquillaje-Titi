@@ -41,7 +41,7 @@ class Material < Sequel::Model(:materials)
     out += "\tc_name: " + (@values[:c_name].nil? ? "\n" : @values[:c_name] + "\n")
     out += "\tm_qty: #{sprintf("%0.2f", @values[:m_qty])}\n"
     out += "\tm_price: #{m_price_as_string}\n"
-    out += "\tcreated: #{Utils::local_date_format  @values[:created_at]}\n"
+    out += "\tcreated: #{Utils::local_datetime_format  @values[:created_at]}\n"
     out
   end
 

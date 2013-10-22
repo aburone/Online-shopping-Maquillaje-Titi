@@ -28,7 +28,7 @@
                   - else
                     option = status
             td
-              input.bg_cell disabled="" type="text" name="created_at" value="#{Utils::local_date_format(@bulk[:created_at])}"
+              input.bg_cell disabled="" type="text" name="created_at" value="#{Utils::local_datetime_format(@bulk[:created_at])}"
             td
               input.md_cell type="submit" value="#{t.actions.apply}"
               a href="/admin/materials/#{@material[:m_id]}" = t.actions.cancel

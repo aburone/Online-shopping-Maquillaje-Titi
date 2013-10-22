@@ -26,7 +26,7 @@ class Backend < AppController
 
   get '/products/?' do
     @products = Product.new.get_list.all
-    slim :products, layout: :layout_backend, locals: {can_edit: true, sec_nav: :nav_products}
+    slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, sec_nav: :nav_products}
   end
 
   get '/products/:id/?' do

@@ -1,10 +1,18 @@
-- @title = "Caja"
 
-p Listado de movimientos desde ultimo cierre de caja
+- if @broad
+  p
+    a href="/sales/books/#{@broad[:machine]}" = @broad[:human]
 
-== slim :book_records_list
+p.v_island_1
+  a href="/sales/books/#{@prev[:machine]}" = @prev[:human]
+  = " <<  #{@curr}  >> " 
+  a href="/sales/books/#{@next[:machine]}" = @next[:human]
 
-h2 Resumen del dia
+- if @narrow
+  p
+    a href="/sales/books/#{@narrow[:machine]}" = @narrow[:human]
+
+h2 Resumen del periodo
 table class="items"
   thead
     tr
@@ -34,3 +42,5 @@ table class="items"
       td.number #{Utils::money_format @finish_cash , 2}
 
 
+h2 Detalle del periodo
+== slim :book_records_list

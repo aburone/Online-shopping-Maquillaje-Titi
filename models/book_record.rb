@@ -58,7 +58,14 @@ class BookRecord < Sequel::Model(:book_records)
     r_id = get_last_cash_audit_id(location)
     BookRecord
       .where{Sequel.expr(:r_id) >= r_id}
-      .all
+  end
+
+  def from_date_with_interval location, date, interval
+    # interval = {days: 1}
+    # select * from book_records where created_at >= "2007-07-20" and created_at < date_add("2007-07-20", interval 1 day);
+    date = Date.parse date
+    add = Sequel.date_add(date.iso8601, interval)
+    records = BookRecord.where{Sequel.expr(:created_at) >= date}.where{Sequel.expr(:created_at) < add}
   end
 
   private
