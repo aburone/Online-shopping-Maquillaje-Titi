@@ -348,4 +348,5 @@ sales:
     title: "Imputacion de stock de orden nº %1"
     scan_label: Escanear el item
   make_sale:
-    title: Carrito de compras nº %1
+    title: Carrito de compras nº %1 (%2 items, %3)
+    

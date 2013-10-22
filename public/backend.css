@@ -299,12 +299,14 @@ aside {
 .flash_notice {
   background-color: #a6f1a6;
   color: DarkGreen;
-  border: 3px solid DarkGreen; }
+  border: 3px solid DarkGreen;
+  animation: slow_hide 3s forwards 1s ease; }
 
 .flash_warning {
   background-color: LightYellow;
   color: #989244;
-  border: 3px solid #989244; }
+  border: 3px solid #989244;
+  animation: slow_hide 9s forwards 1s ease; }
 
 .flash_error {
   background-color: #ffdae0;
@@ -317,6 +319,13 @@ aside {
 
 .flash dd:before {
   content: "⚫ "; }
+
+@keyframes slow_hide {
+  from {
+    opacity: 1; }
+
+  to {
+    opacity: 0; } }
 
 .toggle_link {
   cursor: help;
