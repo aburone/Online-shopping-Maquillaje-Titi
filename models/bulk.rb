@@ -63,7 +63,6 @@ class Bulk < Sequel::Model
       .filter(b_printed: 0)
       .filter(b_loc: location.to_s)
       .order(:m_id)
-      .all
   end
 
   def raise_if_changing_void current_user_id, current_location
@@ -113,7 +112,7 @@ class Bulk < Sequel::Model
     end
     out = ""
     labels.each do |label|
-      out += sprintf "\"#{label.b_id}\",\"#{label[:m_name]}\",\"Vto: #{(label.created_at+3.years).strftime("%b %Y")}\"\n"
+      out += sprintf "\"#{label.b_id}\",\"#{label[:m_name]} (x #{Utils::number_format(label[:b_qty], 0)})\",\"Vto: #{(label.created_at+3.years).strftime("%b %Y")}\"\n"
     end
     out
   end
