@@ -64,8 +64,9 @@ class BookRecord < Sequel::Model(:book_records)
     # interval = {days: 1}
     # select * from book_records where created_at >= "2007-07-20" and created_at < date_add("2007-07-20", interval 1 day);
     date = Date.parse date
-    add = Sequel.date_add(date.iso8601, interval)
-    records = BookRecord.where{Sequel.expr(:created_at) >= date}.where{Sequel.expr(:created_at) < add}
+    ART_date = "#{date.iso8601} 03:00"
+    add = Sequel.date_add(ART_date, interval)
+    records = BookRecord.where{Sequel.expr(:created_at) >= ART_date}.where{Sequel.expr(:created_at) < add}
   end
 
   private
