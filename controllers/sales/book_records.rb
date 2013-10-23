@@ -1,4 +1,22 @@
 class Sales < AppController
+  get '/books' do
+    show_day Date.today
+  end
+
+  get '/books/add' do
+    slim :book_records_add, layout: :layout_sales, locals: {sec_nav: :nav_books}
+  end
+  post '/books/add' do
+    record =  BookRecord.new.update_from_hash(params)
+    begin
+      record.save
+    rescue => detail
+      flash[:error] = detail.message
+    end
+    redirect to("/books")
+  end
+
+
   helpers do
     def my_date
       begin
@@ -51,9 +69,6 @@ class Sales < AppController
   get "/books/:year/:month/:day" do
     show_day my_date
   end
-  get '/books' do
-    show_day Date.today
-  end
 
   def view_records location, start_date, interval
     @start_date = Date.parse start_date
@@ -85,19 +100,6 @@ class Sales < AppController
     @finish_cash += @starting_cash
 
     slim :book_records, layout: :layout_sales, locals: {sec_nav: :nav_books}
-  end
-
-  get '/books/add' do
-    slim :book_records_add, layout: :layout_sales, locals: {sec_nav: :nav_books}
-  end
-  post '/books/add' do
-    record =  BookRecord.new.update_from_hash(params)
-    begin
-      record.save
-    rescue => detail
-      flash[:error] = detail.message
-    end
-    redirect to("/books")
   end
 
 end
