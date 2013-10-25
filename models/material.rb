@@ -63,9 +63,20 @@ class Material < Sequel::Model(:materials)
     begin
       Bulk.filter(m_id: @values[:m_id], b_loc: warehouse_name).order(:b_status, :created_at).all
     rescue Exception => @e
+      p @e
       return []
     end
   end
+
+  def bulks_global
+    begin
+      Bulk.filter(m_id: @values[:m_id]).order(:b_status, :created_at).all
+    rescue Exception => @e
+      p @e
+      return []
+    end
+  end
+
 
   def products
     self.products_dataset.join(:categories, [:c_id]).select_append{:c_name}.all
@@ -110,6 +121,7 @@ class Material < Sequel::Model(:materials)
         .join(:materials_categories, [:c_id])
         .select_append{sum(:b1__b_qty).as(m_qty)}
     end
+
 end
 
 # #################################################################################

@@ -1,3 +1,6 @@
 - @title = t.admin.title
 
+-if @message
+  h2 #{@message}
+
 == slim :orders_list, locals: {full_row: true, can_edit: false}

@@ -166,7 +166,7 @@
 
 #     if params[:i_id]
 #       i_id = params[:i_id].to_s.strip
-#       @item = Item.new.get_unverified_by_id i_id
+#       @item = Item.new.get_unverified_by_id i_id, @order.o_id
 
 #       if @item.errors.count > 0 
 #         message = @item.errors.to_a.flatten.join(": ")

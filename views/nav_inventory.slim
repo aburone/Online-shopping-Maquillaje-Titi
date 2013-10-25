@@ -1,0 +1,19 @@
+aside
+  nav role="navigation"
+    ul
+      li
+        a class="#{inside?("/admin/inventory")}" href=url('/inventory') Carga inicial de inventario
+      li
+        | - 
+        a class="#{inside?("/admin/inventory/inventory_review")}" href=url('/inventory/inventory_review/select') Iniciar carga
+      li
+        | - 
+        a class="#{inside?("/admin/inventory/inventory_verification")}" href=url('/inventory/inventory_verification/select') Verificar
+      li
+        | - 
+        a class="#{inside?("/admin/inventory/inventory_imputation")}" href=url('/inventory/inventory_imputation/select') Imputar
+
+      li
+        | - 
+        a class="#{inside?("/admin/inventory/items")}" href=url('/inventory/items') Ver Items
+

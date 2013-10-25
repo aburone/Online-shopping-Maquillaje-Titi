@@ -1,6 +1,7 @@
 -# coding: UTF-8
 - full_row = true if full_row.nil?
 - stock_col = false if stock_col.nil? unless stock_col == true
+- edit_link = nil if edit_link.nil?
 - @title = t.products.title
 
-== slim :products_list, locals: {can_edit: can_edit, full_row: full_row, stock_col: stock_col}
+== slim :products_list, locals: {can_edit: can_edit, full_row: full_row, stock_col: stock_col, edit_link: edit_link}

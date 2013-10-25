@@ -6,6 +6,9 @@ aside
           a class="#{inside?("/admin/production")} #{inside?("/admin/logistics")}" href=url('/logistics') = t.nav.backend.logistics
         li
           | - 
+          a class="#{inside?("/admin/inventory")}" href=url('/inventory') Carga inicial de productos terminados
+        li
+          | - 
           a class="#{inside?("/admin/production")}" href=url('/production') = t.nav.backend.production
         li
           | -- 

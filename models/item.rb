@@ -31,7 +31,7 @@ class Item < Sequel::Model
     self
   end
 
-  def get_unverified_by_id i_id
+  def get_unverified_by_id i_id, o_id
     i_id = i_id.to_s.strip
     item = Item.filter(i_status: Item::MUST_VERIFY, i_id: i_id).first
     if item.nil?
@@ -41,21 +41,26 @@ class Item < Sequel::Model
         errors.add("Error general", message)
         return self
       end
-      if item.i_status == Item::ASSIGNED
-        message = "Este item (#{item.i_id}) ya esta asignado a #{item.p_name}"
-        errors.add("Error general", message)
-      end
-      if item.i_status == Item::VOID
-        message = "Esta etiqueta fue anulada (#{item.i_id}). Tenias que haberla destruido"
-        errors.add("Error general", message)
-      end
-      if item.i_status != Item::MUST_VERIFY
-        message = "Esta etiqueta esta en estado \"#{ConstantsTranslator.new(item.i_status).t}\". No podes usarla en esta orden"
-        errors.add("Error general", message)
+      item_o_id = Item.select(:o_id).filter(i_id: i_id).join(:line_items, [:i_id]).first[:o_id]
+      if item_o_id  == o_id
+        message = "Este item ya esta en la orden actual"
+        errors.add("Error leve", message)
+      else
+        if item.i_status == Item::ASSIGNED
+          message = "Este item (#{item.i_id}) ya esta asignado a #{item.p_name}"
+          errors.add("Error general", message)
+        end
+        if item.i_status == Item::VOID
+          message = "Esta etiqueta fue anulada (#{item.i_id}). Tenias que haberla destruido"
+          errors.add("Error general", message)
+        end
+        if item.i_status != Item::MUST_VERIFY
+          message = "Esta etiqueta esta en estado \"#{ConstantsTranslator.new(item.i_status).t}\". No podes usarla en esta orden"
+          errors.add("Error general", message)
+        end
       end
       if errors.count == 0
-        item = Item.select(:o_id).filter(i_id: i_id).join(:line_items, [:i_id]).first[:o_id]
-        message = "No podes utilizar el item #{item.i_id} la orden actual por que esta en la orden #{o_id}"
+        message = "No podes utilizar el item #{label.i_id} en la orden actual por que esta en la orden #{item_o_id}"
         errors.add("Error general", message)
       end
       return self

@@ -181,6 +181,7 @@ item:
     price: Precio
     price_pro: Precio pro
     status: Estado
+    location: Ubicacion
     created_at: Creado
   invalid: Identificador de item invalido
 cart:
@@ -312,7 +313,7 @@ constant:
   MUST_VERIFY: Necesita Verificacion
   PRINTED: Impreso
   PACKAGING: Envasado
-  INVENTORY: Revision de inventario
+  INVENTORY: Carga inicial de inventario
   IN_USE: En Uso
   EMPTY: Vacio
   NEW: Nuevo
@@ -329,21 +330,21 @@ constant:
 sales:
   title: Punto de venta
   inventory_review_select:
-    title: Ordenes de revision de inventario
+    title: Ordenes de carga de inventario
     empty: No hay ordenes disponibles
     count: "%1 ordenes disponibles"
   inventory_review:
-    title: "Orden de revision de inventario nº %1 (%2 items)"
+    title: "Orden de carga de inventario nº %1 (%2 items)"
     scan_label: Escanear el ID
     select_product: Seleccionar el producto
     assigned: "Etiqueta %1 asignada a %1"
   inventory_verification_select:
-    title: "Verificacion de ordenes de revision de inventario"
+    title: "Verificacion de ordenes de carga de inventario"
   inventory_verification:
-    title: "Verificacion de orden de revision de inventario nº %1 (%2 / %3 items)"
+    title: "Verificacion de orden de carga de inventario nº %1 (%2 / %3 items)"
     scan_label: Escanear el item
   inventory_imputation_select:
-    title: "Imputacion de ordenes de revision de inventario"
+    title: "Imputacion de ordenes de carga de inventario"
   inventory_imputation:
     title: "Imputacion de stock de orden nº %1"
     scan_label: Escanear el item

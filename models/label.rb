@@ -8,7 +8,7 @@ class Label < Item
     Label.filter(i_status: Item::PRINTED).order(:created_at)
   end
 
-  def get_printed_by_id i_id
+  def get_printed_by_id i_id, o_id
     i_id = i_id.to_s.strip
     label = get_printed.filter(i_id: i_id).first
     if label.nil?
@@ -29,12 +29,17 @@ class Label < Item
         # ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, i_id: label.i_id).save
         errors.add("Error general", message)
       end
+
       if errors.count == 0
-        # TODO: soy un pelotudo
-        o_id = Item.select(:o_id).filter(i_id: i_id).join(:line_items, [:i_id]).first[:o_id]
-        message = "No podes utilizar el item #{label.i_id} la orden actual por que esta en la orden #{o_id}"
-        # ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, i_id: label.i_id).save
-        errors.add("Error general", message)
+        item_o_id = Item.select(:o_id).filter(i_id: i_id).join(:line_items, [:i_id]).first[:o_id]
+
+        if item_o_id  == o_id
+          message = "Este item ya esta en la orden actual"
+          errors.add("Error leve", message)
+        else
+          message = "No podes utilizar el item #{label.i_id} en la orden actual por que esta en la orden #{item_o_id}"
+          errors.add("Error general", message)
+        end
       end
       return self
     else

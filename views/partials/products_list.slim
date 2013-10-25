@@ -49,9 +49,12 @@
               - if edit_link == "void"
                 a href="#"
                   img src="/media/Icon-Edit.png"
-              - if edit_link == "edit_product"
+              - if edit_link.to_sym == :edit_product
                 a href="/admin/products/#{product[:p_id]}"
                   img src="/media/Icon-Edit.png"
               - if edit_link == "sales_inventory_review"
                 a href="/sales/admin/inventory_review/#{order.o_id}/#{product[:p_id]}"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "admin_inventory_review"
+                a href="/admin/inventory/inventory_review/#{order.o_id}/#{product[:p_id]}"
                   img src="/media/Icon-Edit.png"

@@ -52,36 +52,37 @@ class ProductTest < Test::Unit::TestCase
   end
 
   # def test_should_get_full_relatinship
-  #   product = Product[193]
-  #   # Label.new.save validate: false
-  #   # label = Label.new.get_rand
-  #   # label.assign_to product
+    # product = Product[193]
+    # # Label.new.save validate: false
+    # # label = Label.new.get_rand
+    # # label.assign_to product
 
-  #   p "Main Product"
-  #   puts product
+    # p "Main Product"
+    # puts product
 
-  #   p "Items"
-  #   items = product.items
-  #   items.each { |i| puts i}
+    # p "Items"
+    # items = product.items
+    # items.each { |i| puts i}
 
-  #   p "Parts"
-  #   parts = product.parts
-  #   puts parts
-  #   p "Materials"
-  #   puts product.materials
+    # p "Parts"
+    # parts = product.parts
+    # puts parts
+    # p "Materials"
+    # puts product.materials
 
-  #   p "First Part and it's Materials"
-  #   part = parts.first
-  #   puts part
-  #   materials = part.materials
-  #   puts materials
-  #   pp materials
-  #   p "First part bulk"
-  #   material = materials.first
-  #   puts material.bulks
+    # p "First Part and it's Materials"
+    # part = parts.first
+    # puts part
+    # materials = part.materials
+    # puts materials
+    # p "First part, first material, bulk"
+    # material = materials.first
+    # puts material
+    # bulks = material.bulks Location::W1
+    # bulks.each{ |bulk| puts bulk}
     
-  #   p "42"
-  #   puts Material.new.get_by_id 42
+    # p "42"
+    # puts Material.new.get_by_id 42
 
   # end
 
@@ -120,4 +121,30 @@ class ProductTest < Test::Unit::TestCase
     assert_equal step1, step3
   end
 
+  def test_should_get_materials_cost
+    product = Product[2]
+    cost = 0
+    product.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
+    assert_equal product.materials_cost, cost
+  end
+
+  def test_should_get_parts_cost
+    product = Product[193]
+    cost = 0
+    product.parts.map { |part| cost += part.materials_cost }
+    assert_equal product.parts_cost, cost
+  end
+
+  def test_should_get_cost
+    p "should_get_cost"
+    p ""
+    p Utils::number_format Product[193].materials_cost, 3
+    p Utils::number_format Product[193].parts_cost, 3
+    p Utils::number_format Product[193].cost, 3
+
+    p ""
+    p Utils::number_format Product[2].materials_cost, 3
+    p Utils::number_format Product[2].parts_cost, 3
+    p Utils::number_format Product[2].cost, 3
+  end
 end

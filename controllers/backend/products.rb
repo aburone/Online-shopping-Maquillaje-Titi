@@ -26,10 +26,16 @@ class Backend < AppController
 
   get '/products/?' do
     @products = Product.new.get_list.all
-    slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, sec_nav: :nav_products}
+    slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product, sec_nav: :nav_products}
   end
 
   get '/products/:id/?' do
+    @product = Product[params[:id].to_i]
+    @items =  @product.items
+    slim :product, layout: :layout_backend
+  end
+  put '/products/:id/?' do
+    flash.now[:notice] = "actua"
     @product = Product[params[:id].to_i]
     @items =  @product.items
     slim :product, layout: :layout_backend

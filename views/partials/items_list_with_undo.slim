@@ -6,22 +6,24 @@
         tr
           th = t.item.fields.id
           th = t.item.fields.status
-          th = t.item.fields.location
           th ID p
           th = t.product.fields.name
           th = t.item.fields.price
           th = t.item.fields.price_pro
+          th = t.actions.actions
+      tfoot
+        tr
+          td.counter colspan="6" = t.items.count(@items.count)
       tbody
         - @items.each do |item|
           tr.item
             td #{item[:i_id]}
             td = ConstantsTranslator.new(item[:i_status]).t
-            td = ConstantsTranslator.new(item[:i_loc]).t
             td #{item[:p_id]}
             td #{item[:p_name]}
             td.number #{Utils::money_format item[:i_price], 2}
             td.number #{Utils::money_format item[:i_price_pro], 2}
-      tfoot
-        tr
-          td.counter colspan="5" = t.items.count(@items.count)
-
+            td
+              form action=url("/inventory/#{action_url}/#{@order.o_id}/#{item.p_id}/#{item.i_id}/undo") method="post"
+                == Rack::Csrf.tag(env)
+                input.aligned type="submit" value="#{t.actions.undo}"

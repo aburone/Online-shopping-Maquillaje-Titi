@@ -11,7 +11,11 @@
 - if @product.nil?
   p No tengo productos con el id especificado
 - else
-  form
+  - puts @product
+  form action=url("/products/#{@product[:p_id]}") method="post"
+    == Rack::Csrf.tag(env)
+    input type="hidden" name="_method" value="put"
+
     dl
       dt Nombre
       dd

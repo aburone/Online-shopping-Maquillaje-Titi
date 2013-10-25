@@ -19,6 +19,9 @@ class Product < Sequel::Model
     Product.limit(1, rnd).first
   end
 
+  def cost
+    parts_cost + materials_cost
+  end
 
   def parts
     # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
@@ -26,9 +29,24 @@ class Product < Sequel::Model
     Product.join( ProductsPart.where{condition}, part_id: :products__p_id).all
   end
 
+  def parts_cost
+    parts_cost = 0
+    self.parts.map { |part| parts_cost += part.materials_cost }
+    parts_cost
+  end
+
   def materials
     condition = "product_id = #{self[:p_id]}"
-    Material.join( ProductsMaterial.where{condition}, [:m_id]).all
+    materials = Material.join( ProductsMaterial.where{condition}, [:m_id])
+    .all
+    materials.each { |mat| mat.m_price = Material.new.get_price(mat.m_id) }
+    materials
+  end
+
+  def materials_cost
+    cost = 0
+    self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
+    cost
   end
 
   def items

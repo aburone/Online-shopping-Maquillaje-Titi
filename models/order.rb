@@ -282,6 +282,12 @@ class Order < Sequel::Model
       .filter(o_loc: location.to_s)
   end
 
+  def get_inventory_review_in_location_with_id location, o_id
+     get_inventory_review_in_location(location)
+      .filter(o_id: o_id.to_i)
+      .first
+  end
+
   def get_inventory_review_in_location_with_status location, status
      get_inventory_review_in_location(location)
       .filter(o_status: status.to_s)
