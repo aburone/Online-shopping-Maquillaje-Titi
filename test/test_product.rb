@@ -135,16 +135,11 @@ class ProductTest < Test::Unit::TestCase
     assert_equal product.parts_cost, cost
   end
 
-  def test_should_get_cost
-    p "should_get_cost"
-    p ""
-    p Utils::number_format Product[193].materials_cost, 3
-    p Utils::number_format Product[193].parts_cost, 3
-    p Utils::number_format Product[193].cost, 3
+  def test_cost_should_be_the_sum_of_parts_plus_materials
+    product = Product[193]
+    assert_equal product.cost, product.materials_cost + product.parts_cost
 
-    p ""
-    p Utils::number_format Product[2].materials_cost, 3
-    p Utils::number_format Product[2].parts_cost, 3
-    p Utils::number_format Product[2].cost, 3
+    product = Product[2]
+    assert_equal product.cost, product.materials_cost + product.parts_cost
   end
 end

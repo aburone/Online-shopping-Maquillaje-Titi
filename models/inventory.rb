@@ -18,6 +18,7 @@ class Inventory
   end
 
   def process_packaging_order order, must_save=true
+    raise TypeError, 'Inexistent order' if order.nil?
     o_id = order.o_id
     DB.transaction do
       @missing_materials = []
