@@ -36,7 +36,7 @@
       h2 = t.products.empty
     - else
       h2 = t.products.list
-      == slim :products_list, locals: {focus: false, full_rows: false, can_edit: false}
+      == slim :products_list, locals: {focus: false, full_rows: false, can_edit: false, item_class: "ajax_product_selector"}
 
   form.v_island_1#finish_packaging action=url("/production/packaging/#{@order.o_id}/finish_load/") method="post"
     == Rack::Csrf.tag(env)

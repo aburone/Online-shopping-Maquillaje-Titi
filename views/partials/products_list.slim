@@ -6,6 +6,7 @@
 - edit_link ||= "void"
 - can_filter = true if can_filter.nil?
 - quicksearch = " quicksearch" if can_filter
+- item_class = "" if item_class.nil?
 - if @products.empty?
   p = t.products.empty
 - else
@@ -33,7 +34,7 @@
     tbody
       - ajax_item = can_edit ? " ajax_item" : ""
       - @products.each do |product|
-        tr class="item#{ajax_item}"
+        tr class="item#{ajax_item} #{item_class}"
           td #{product[:p_id]}
           td #{product[:c_name]}
           td #{product[:p_name]}

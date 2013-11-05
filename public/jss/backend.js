@@ -90,7 +90,7 @@ $(document).ready(function () {
     return false;
   }
   $(".ajax_product_selector").click(function() {
-    $("#product_selector").val( $(this).find(".ajax_p_id").html().trim() );
+    $("#product_selector").val( $(this).find("td").html().trim() );
     $("#product_selector").closest("form").submit();
   });
 
