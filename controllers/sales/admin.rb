@@ -205,7 +205,7 @@ class Sales < AppController
 
   post '/admin/inventory_imputation/:o_id/finish' do
     order = Order.new.get_inventory_imputation.filter(o_id: params[:o_id].to_i).first
-    inventory = Inventory.new(Location::S1)
+    inventory = Inventory.new(current_location[:name])
     messages = inventory.process_inventory_order order
     order.change_status Order::FINISHED
     flash[:notice] = messages

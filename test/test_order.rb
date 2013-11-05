@@ -66,28 +66,44 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_should_get_materials
-    order = Order.new.create_packaging
-    add_new_item order
-    add_new_item order
-    add_new_item order
-    add_new_item order
-    mat = order.materials
-    mat.each do |m|
-      assert( m.class == Material)
+    DB.transaction(rollback: :always) do
+      order = Order.new.create_packaging
+      add_new_item order
+      add_new_item order
+      add_new_item order
+      add_new_item order
+      mat = order.materials
+      mat.each do |m|
+        assert( m.class == Material)
+      end
     end
-
   end
+
+  def test_shoud_get_parts
+    DB.transaction(rollback: :always) do
+      order = Order.new.create_packaging
+      add_new_item_with_parts order
+      add_new_item_with_parts order
+      parts = order.parts
+      assert_equal 10, parts.count
+    end
+  end
+
 
   def test_should_alter_inventory
   end
 
   def add_new_item order
-    DB.transaction(rollback: :always) do
       label = get_printed_label
       Product.new.get_rand.add_item label, order.o_id
       item = Item[label.i_id]
       order.add_item(item)
-    end
   end
 
+  def add_new_item_with_parts order
+    label = get_printed_label
+    Product[193].add_item label, order.o_id
+    item = Item[label.i_id]
+    order.add_item(item)
+  end
 end

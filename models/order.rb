@@ -15,6 +15,10 @@ class Order < Sequel::Model
   FINISHED="FINISHED"
   VOID="VOID"
 
+  def items
+    super
+  end
+
   def materials
     Material
       .select(:materials__m_id, :m_name, :c_id)
@@ -27,6 +31,12 @@ class Order < Sequel::Model
       .select_group(:m_id, :m_name, :c_name, :materials__c_id)
       .select_append{sum(:m_qty).as(m_qty)}
       .all
+  end
+
+  def parts
+    parts = []
+    self.items.each { |item| parts << Product[item.p_id].parts}
+    parts.flatten
   end
 
   def add_item item

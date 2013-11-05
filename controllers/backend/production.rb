@@ -183,8 +183,9 @@ class Backend < AppController
     @order = Order.new.get_order_for_allocation(params[:o_id].to_i, current_location[:name])
     if @order 
       @items = @order.items
-      inventory = Inventory.new(Location::W2)
+      inventory = Inventory.new(current_location[:name])
       inventory.can_complete_order? @order
+      flash.now[:error] = inventory.errors
       @needed_materials = inventory.needed_materials
       @missing_materials = inventory.missing_materials
       @used_bulks = inventory.used_bulks
@@ -200,7 +201,7 @@ class Backend < AppController
       flash[:error] = t.order.missing
       redirect to("/production/packaging_orders_allocation/select")
     end
-    inventory = Inventory.new(Location::W2)
+    inventory = Inventory.new(current_location[:name])
     begin
       inventory.process_packaging_order order
       flash[:notice] = t.production.packaging_order_allocation.ok(order.o_id)
