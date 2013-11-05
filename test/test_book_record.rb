@@ -25,4 +25,9 @@ class ItemTest < Test::Unit::TestCase
       assert_equal record.class, BookRecord
     end
   end
+
+  def test_should_get
+    records = BookRecord.new.from_last_audit Location::S1
+    records.each {|record| assert_equal record.class, BookRecord }
+  end
 end

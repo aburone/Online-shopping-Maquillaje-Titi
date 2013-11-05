@@ -319,6 +319,7 @@ constant:
   NEW: Nuevo
   WH_TO_POS: Deposito -> PDV
   SYSTEM: Interna
+  UNDEFINED: No definida
   WAREHOUSE_1: Deposito 1
   WAREHOUSE_2: Deposito 2
   STORE_1: Local 1
