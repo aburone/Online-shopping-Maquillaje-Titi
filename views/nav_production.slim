@@ -26,9 +26,9 @@ aside
         li
           | - 
           a class="#{inside?("/admin/logistics")}" href=url('/logistics') = t.nav.backend.transport
-        li
-          | -- 
-          a class="#{inside?("/admin/logistics/transport/inter_warehouse")}" href=url('/logistics/transport/inter_warehouse') = t.nav.backend.inter_warehouse
+        / li
+        /   | -- 
+        /   a class="#{inside?("/admin/logistics/transport/inter_warehouse")}" href=url('/logistics/transport/inter_warehouse') = t.nav.backend.inter_warehouse
         li
           | -- 
           a class="#{inside?("/admin/logistics/transport/warehouse_pos")}" href=url('/logistics/transport/warehouse_pos/select') = t.nav.backend.warehouse_pos

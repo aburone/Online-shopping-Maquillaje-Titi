@@ -185,7 +185,7 @@ class Backend < AppController
       @items = @order.items
       inventory = Inventory.new(current_location[:name])
       inventory.can_complete_order? @order
-      flash.now[:error] = inventory.errors
+      flash.now[:error] = inventory.errors unless inventory.errors.empty?
       @needed_materials = inventory.needed_materials
       @missing_materials = inventory.missing_materials
       @used_bulks = inventory.used_bulks
