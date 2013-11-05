@@ -25,7 +25,7 @@ class Backend < AppController
   end
 
   get '/products/?' do
-    @products = Product.new.get_list.all
+    @products = Product.new.get_saleable_at_location(current_location[:name]).all
     slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product, sec_nav: :nav_products}
   end
 
