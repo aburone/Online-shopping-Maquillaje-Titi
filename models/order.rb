@@ -13,6 +13,7 @@ class Order < Sequel::Model
   MUST_VERIFY="MUST_VERIFY"
   VERIFIED="VERIFIED"
   FINISHED="FINISHED"
+  EN_ROUTE="EN_ROUTE"
   VOID="VOID"
 
   def items
@@ -104,6 +105,7 @@ class Order < Sequel::Model
     out += "\ttype:  #{@values[:type]}\n"
     out += "\to_status:  #{@values[:o_status]}\n"
     out += "\to_loc:  #{@values[:o_loc]}\n"
+    out += "\to_dst:  #{@values[:o_dst]}\n"
     created = @values[:created_at] ? Utils::local_datetime_format(@values[:created_at]) : "Never"
     out += "\tcreated: #{created}\n"
     out
@@ -115,7 +117,7 @@ class Order < Sequel::Model
       items.each { |item| item.dissociate @values[:o_id]}
       remove_all_items
       @values[:o_status] = Order::VOID
-      save columns: [:o_id, :type, :o_status, :o_loc, :u_id, :created_at]
+      save columns: [:o_id, :type, :o_status, :o_loc, :o_dst, :u_id, :created_at]
       message = R18n.t.order.void
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save 
     end 
@@ -265,20 +267,35 @@ class Order < Sequel::Model
       .first
   end
 
-  def get_warehouse_pos location
+  def get_warehouse_pos
     Order
-      .select(:o_id, :type, :o_status, :orders__created_at, :u_id, :o_loc, :username)
+      .select(:o_id, :type, :o_status, :orders__created_at, :u_id, :o_loc, :o_dst, :username)
       .filter(type: Order::WH_TO_POS)
-      .filter(o_loc: location.to_s)
       .join(:users, user_id: :u_id)
   end
 
   def get_warehouse_pos__open location
-    get_warehouse_pos(location).filter(o_status: Order::OPEN)
+    get_warehouse_pos
+      .filter(o_loc: location.to_s)
+      .filter(o_status: Order::OPEN)
   end
 
   def get_warehouse_pos__open_by_id o_id, location
-    get_warehouse_pos(location).filter(o_id: o_id.to_i)
+    get_warehouse_pos
+      .filter(o_loc: location.to_s)
+      .filter(o_id: o_id.to_i)
+  end
+
+  def get_warehouse_pos__en_route destination
+    get_warehouse_pos
+      .filter(o_dst: destination.to_s)
+      .filter(o_status: Order::EN_ROUTE)
+  end
+
+  def get_warehouse_pos__en_route_by_id destination, o_id
+    get_warehouse_pos__en_route(destination)
+      .filter(o_id: o_id.to_i)
+      .first
   end
 
   def get_inventory_review

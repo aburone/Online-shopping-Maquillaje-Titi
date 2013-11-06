@@ -65,7 +65,8 @@ nav:
     products: "Productos"
     products_relationships: "Relaciones"
     categories: "Categorias"
-    items: Items
+    items: Items disponibles
+    pendig_items: Items pendientes
     labels: Impresion de etiquetas
     credits: "Notas de Crédito"
     login: "Iniciar sesión"
@@ -91,6 +92,7 @@ nav:
     items: Items
     make_sale: Hacer venta
     products: "Productos"
+    arrivals: Ingresos de mercaderia
 media:
   icons:
     edit: "/media/Icon-Edit.png"
@@ -265,42 +267,6 @@ event:
     p_id: Producto
 logistics:
   title: Logistica
-orders:
-  title: "Orden Nº %1"
-  empty: No hay ordenes para listar
-  count: "%1 ordenes listadas"
-order:
-  type:
-    UNDEFINED: Indefinido
-    PACKAGING: "Envasado y etiquetado"
-    INVENTORY: Inventario
-  fields:
-    id: ID
-    type: Tipo
-    status: Estado
-    user: Usuario
-    location: Ubicacion
-    created_at: Creado
-  title: "Order de tipo %1 Nº %2"
-  new: Crear nueva
-  created: Nueva orden creada %1
-  item_added: "%1 agregado a la orden %2"
-  item_removed: Item eliminado de la orden
-  all_items_removed: Todos los items fueron eliminados de la orden
-  void: Orden invalidada VOID
-  user_is_editing: "%1 esta editando la orden de tipo %2 Nº %3"
-  user_is_editing_nil: "%1 esta tratando de abrir la orden de tipo %2 Nº %3 que no existe"
-  ready_for_verification: "La orden esta lista para ser verificada"
-  user_is_verifying: "%1 esta verificando la orden de tipo %2 Nº %3"
-  user_is_verfying_order_in_invalid_status: "%1 esta intentando verificar una orden de tipo %2 Nº %3 que esta es un estado inválido %4"
-  user_is_verfying_order_of_wrong_type: "%1 esta intentando verificar la orden Nº %2 con estado %3 que es de un tipo inválido %4"
-  sure_to_cancel_load_order: "Esto borrara la orden. Todas las etiquetas y productos seran dissociados."
-  sure_to_cancel_sale_order: "Esto borrara la orden. Todos los items volveran a estar disponibles para la venta"
-  cancelled: "La orden Nº %1 fue cancelada. Todas las etiquetas y productos fueron dissociados."
-  not_a_packaging: Esta no es una orden de carga
-  missing: Orden inexistente o inaccesible desde este modulo
-  scan_label: Escanee el ID
-  scan_product: Escanee el producto
 location:
   title: Ubicacion
 constant:
@@ -324,6 +290,7 @@ constant:
   WAREHOUSE_2: Deposito 2
   STORE_1: Local 1
   STORE_2: Local 2
+  EN_ROUTE: En ruta
   VOID: Invalido
   SALE: Venta
   ON_CART: En carrito
@@ -351,4 +318,43 @@ sales:
     scan_label: Escanear el item
   make_sale:
     title: Carrito de compras nº %1 (%2 items, %3)
-    
+orders:
+  title: "Orden Nº %1"
+  empty: No hay ordenes para listar
+  count: "%1 ordenes listadas"
+order:
+  type:
+    UNDEFINED: Indefinido
+    PACKAGING: "Envasado y etiquetado"
+    INVENTORY: Inventario
+  fields:
+    id: ID
+    type: Tipo
+    status: Estado
+    user: Usuario
+    location: Ubicacion
+    origin: Origen
+    destination: Destino
+    created_at: Creado
+  title: "Order de tipo %1 Nº %2"
+  new: Crear nueva
+  created: Nueva orden creada %1
+  item_added: "%1 agregado a la orden %2"
+  item_removed: Item eliminado de la orden
+  all_items_removed: Todos los items fueron eliminados de la orden
+  void: Orden invalidada VOID
+  user_is_editing: "%1 esta editando la orden de tipo %2 Nº %3"
+  user_is_editing_nil: "%1 esta tratando de abrir la orden de tipo %2 Nº %3 que no existe"
+  ready_for_verification: "La orden esta lista para ser verificada"
+  user_is_verifying: "%1 esta verificando la orden de tipo %2 Nº %3"
+  user_is_verfying_order_in_invalid_status: "%1 esta intentando verificar una orden de tipo %2 Nº %3 que esta es un estado inválido %4"
+  user_is_verfying_order_of_wrong_type: "%1 esta intentando verificar la orden Nº %2 con estado %3 que es de un tipo inválido %4"
+  sure_to_cancel_load_order: "Esto borrara la orden. Todas las etiquetas y productos seran dissociados."
+  sure_to_cancel_sale_order: "Esto borrara la orden. Todos los items volveran a estar disponibles para la venta"
+  cancelled: "La orden Nº %1 fue cancelada. Todas las etiquetas y productos fueron dissociados."
+  not_a_packaging: Esta no es una orden de carga
+  missing: Orden inexistente o inaccesible desde este modulo
+  scan_label: Escanee el ID de item
+  scan_product: Escanee el producto
+  arrival_verification:
+    title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"

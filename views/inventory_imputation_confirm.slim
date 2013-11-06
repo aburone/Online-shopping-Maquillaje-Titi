@@ -6,6 +6,6 @@ form.v_island_1#finish_packaging action=url("/inventory/inventory_imputation/#{@
   == Rack::Csrf.tag(env)
   input type="submit" value="Imputar items al stock"
 
-form.v_island_1#finish_packaging action=url("/inventory/inventory_imputation/#{@order.o_id}/cancel") method="post"
-  == Rack::Csrf.tag(env)
-  input.ajax_confirm data-confirm_message="#{t.order.sure_to_cancel_load_order}" type="submit" value="#{t.actions.cancel}"
+/ form.v_island_1#finish_packaging action=url("/inventory/inventory_imputation/#{@order.o_id}/cancel") method="post"
+/   == Rack::Csrf.tag(env)
+/   input.ajax_confirm data-confirm_message="#{t.order.sure_to_cancel_load_order}" type="submit" value="#{t.actions.cancel}"

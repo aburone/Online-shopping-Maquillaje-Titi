@@ -26,6 +26,21 @@ class Sales < AppController
   Dir["controllers/sales/*.rb"].each { |file| require_relative file }
 
 
+  get '/logs/?' do
+    date = Date.today
+    art_date = "#{date.iso8601} 03:00"
+    add = Sequel.date_add(art_date, {days:1})
+
+    @logs = ActionsLog
+              .select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
+              .join(:users, user_id: :u_id)
+              .where{Sequel.expr(:at) >= art_date}.where{Sequel.expr(:at) < add}
+              .order(:id)
+              .reverse
+              .all
+    slim :logs, layout: :layout_backend
+  end
+
 
   get '/products' do
     @products = Product.new.get_saleable_at_location(current_location[:name]).all

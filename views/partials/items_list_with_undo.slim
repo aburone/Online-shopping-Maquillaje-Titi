@@ -24,6 +24,6 @@
             td.number #{Utils::money_format item[:i_price], 2}
             td.number #{Utils::money_format item[:i_price_pro], 2}
             td
-              form action=url("/inventory/#{action_url}/#{@order.o_id}/#{item.p_id}/#{item.i_id}/undo") method="post"
+              form action=url("#{action_url}/#{@order.o_id}/#{item.p_id}/#{item.i_id}/undo") method="post"
                 == Rack::Csrf.tag(env)
                 input.aligned type="submit" value="#{t.actions.undo}"

@@ -1,0 +1,9 @@
+aside
+  nav role="navigation"
+    ul
+      - if authorized?
+        li
+          a class="#{inside?("/sales/arrivals")}" href=url('/arrivals') = t.nav.sales.arrivals
+        li
+          | - 
+          a class="#{inside?("/sales/arrivals/items")}" href=url('/arrivals/items') Items pendientes de verificacion

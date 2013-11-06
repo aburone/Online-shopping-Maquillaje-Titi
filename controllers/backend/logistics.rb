@@ -4,13 +4,13 @@ class Backend < AppController
     slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_production}
   end
 
-  get '/logistics/transport/inter_warehouse?' do
-    slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_production}
-  end
+  # get '/logistics/transport/inter_warehouse?' do
+  #   slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_production}
+  # end
 
-  get '/logistics/transport/warehouse_pos?' do
-    slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_production}
-  end
+  # get '/logistics/transport/warehouse_pos?' do
+  #   slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_production}
+  # end
 
   get '/logistics/transport/warehouse_pos/select/?' do
     @orders = Order.new.get_warehouse_pos__open(current_location[:name])
@@ -49,7 +49,7 @@ class Backend < AppController
     slim :select_item_to_add_to_transport_order, layout: :layout_backend, locals: {sec_nav: :nav_production}
   end
 
-  post '/logistics/transport/warehouse_pos/:o_id/:i_id/cancel/?' do
+  post '/logistics/transport/warehouse_pos/:o_id/:p_id/:i_id/undo/?' do
     @order = Order.new.get_warehouse_pos__open_by_id(params[:o_id].to_i, current_location[:name]).first
     if @order.nil?
       flash[:error] = t.order.missing
@@ -66,6 +66,27 @@ class Backend < AppController
     @order.remove_item @item
     @item.change_status Item::READY, @order.o_id
     redirect to("/logistics/transport/warehouse_pos/#{@order.o_id}/add")
+  end
+
+  post '/logistics/transport/warehouse_pos/:o_id/move' do
+    order = Order.new.get_warehouse_pos__open_by_id(params[:o_id].to_i, current_location[:name]).first
+    flash[:error] = t.order.missing if order.nil?
+    redirect to('/logistics/transport/warehouse_pos/select') if order.nil?
+    begin
+      DB.transaction do
+        order[:o_dst] = params[:o_dst] if Location.new.valid? params[:o_dst]
+        order.save columns: [:o_dst]
+        order.change_status(Order::EN_ROUTE)
+        order.items.each do |item| 
+          item.i_loc=params[:o_dst] if Location.new.valid? params[:o_dst]
+          item.save
+        end
+
+      end
+    rescue => e
+      flash[:error] = e.message
+    end
+    redirect to '/logistics/transport/warehouse_pos/select'
   end
 end
 

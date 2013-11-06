@@ -66,7 +66,7 @@
 
 
 h2 Items agregados a esta orden
-== slim :items_list_with_undo, locals: {action_url: "inventory_review"}
+== slim :items_list_with_undo, locals: {action_url: "/inventory/inventory_review"}
 
 form.v_island_1#finish_packaging action=url("/inventory/inventory_review/#{@order.o_id}/finish_load") method="post"
   == Rack::Csrf.tag(env)

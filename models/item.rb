@@ -31,67 +31,12 @@ class Item < Sequel::Model
     self
   end
 
-  def get_unverified_by_id i_id, o_id
-    i_id = i_id.to_s.strip
-    item = Item.filter(i_status: Item::MUST_VERIFY, i_id: i_id).first
-    if item.nil?
-      item = Item[i_id]
-      if item.nil?
-        message = "No tengo ningun item con el id #{i_id}"
-        errors.add("Error general", message)
-        return self
-      end
-      item_o_id = Item.select(:o_id).filter(i_id: i_id).join(:line_items, [:i_id]).first[:o_id]
-      if item_o_id  == o_id
-        message = "Este item ya esta en la orden actual"
-        errors.add("Error leve", message)
-      else
-        if item.i_status == Item::ASSIGNED
-          message = "Este item (#{item.i_id}) ya esta asignado a #{item.p_name}"
-          errors.add("Error general", message)
-        end
-        if item.i_status == Item::VOID
-          message = "Esta etiqueta fue anulada (#{item.i_id}). Tenias que haberla destruido"
-          errors.add("Error general", message)
-        end
-        if item.i_status != Item::MUST_VERIFY
-          message = "Esta etiqueta esta en estado \"#{ConstantsTranslator.new(item.i_status).t}\". No podes usarla en esta orden"
-          errors.add("Error general", message)
-        end
-      end
-      if errors.count == 0
-        message = "No podes utilizar el item #{label.i_id} en la orden actual por que esta en la orden #{item_o_id}"
-        errors.add("Error general", message)
-      end
-      return self
-    else
-      return item
-    end
-  end
-
   def current_sale_order
     Order
       .select(:orders__o_id, :type, :o_status, :o_loc, :u_id, :orders__created_at)
       .join(:line_items, line_items__o_id: :orders__o_id, orders__type: Order::SALE)
       .join(:items, line_items__i_id: :items__o_id, line_items__i_id: @values[:i_id])
       .first
-  end
-
-  def get_for_sale i_id, o_id
-    i_id = i_id.to_s.strip
-    p i_id
-    item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
-    return item unless item.nil?
-    return self if missing(i_id)
-    update_from Item[i_id]
-
-    return self if has_been_void 
-    return self if is_from_production
-    return self if is_from_another_location
-    return self if is_on_cart o_id
-    return self if has_been_sold 
-    errors.add("Error inesperado", "Que hacemos?") 
-    return self
   end
 
   def missing i_id
@@ -176,7 +121,7 @@ class Item < Sequel::Model
       raise message
     end
     @values[:i_status] = status
-    @values[:i_loc] = Location::UNDEFINED if status == Item::VOID
+    # @values[:i_loc] = Location::UNDEFINED if status == Item::VOID
     save columns: [:p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc]
     message = R18n.t.actions.changed_status(ConstantsTranslator.new(status).t)
     log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, i_id: @values[:i_id])
@@ -283,6 +228,64 @@ class Item < Sequel::Model
   def get_in_location_with_status location, status
     get_list_at_location(location)
       .filter(i_status: status.to_s)
+  end
+
+  def get_unverified_by_id i_id, o_id
+    i_id = i_id.to_s.strip
+    item = Item.filter(i_status: Item::MUST_VERIFY, i_id: i_id).first
+    if item.nil?
+      item = Item[i_id]
+      if item.nil?
+        message = "No tengo ningun item con el id #{i_id}"
+        errors.add("Error general", message)
+        return self
+      end
+      item_o_id = Item.select(:o_id).filter(i_id: i_id).join(:line_items, [:i_id]).first[:o_id]
+      if item_o_id  == o_id
+        message = "Este item ya esta en la orden actual"
+        errors.add("Error leve", message)
+      else
+        if item.i_status == Item::ASSIGNED
+          message = "Este item (#{item.i_id}) ya esta asignado a #{item.p_name}"
+          errors.add("Error general", message)
+        end
+        if item.i_status == Item::VOID
+          message = "Esta etiqueta fue anulada (#{item.i_id}). Tenias que haberla destruido"
+          errors.add("Error general", message)
+        end
+        if item.i_status == Item::VERIFIED
+          message = "Este item ya fue verificado con anterioridad."
+          errors.add("Error de ingredo", message)
+        elsif item.i_status != Item::MUST_VERIFY
+          message = "Esta etiqueta esta en estado \"#{ConstantsTranslator.new(item.i_status).t}\". No podes usarla en esta orden"
+          errors.add("Error general", message)
+        end
+      end
+      if errors.count == 0
+        message = "No podes utilizar el item #{label.i_id} en la orden actual por que esta en la orden #{item_o_id}"
+        errors.add("Error general", message)
+      end
+      return self
+    else
+      return item
+    end
+  end
+
+  def get_for_sale i_id, o_id
+    i_id = i_id.to_s.strip
+    p i_id
+    item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
+    return item unless item.nil?
+    return self if missing(i_id)
+    update_from Item[i_id]
+
+    return self if has_been_void 
+    return self if is_from_production
+    return self if is_from_another_location
+    return self if is_on_cart o_id
+    return self if has_been_sold 
+    errors.add("Error inesperado", "Que hacemos?") 
+    return self
   end
 
 end

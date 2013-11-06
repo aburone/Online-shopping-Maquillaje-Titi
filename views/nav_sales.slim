@@ -13,7 +13,13 @@ nav.main_nav role="navigation"
         a class="#{inside?("/sales/products")}" href=url('/products') = t.nav.sales.products
 
       dd.lnk
+        a class="#{inside?("/sales/arrivals")}" href=url('/arrivals') = t.nav.sales.arrivals
+
+      dd.lnk
         a class="#{inside?("/books")}" href=url('/books') Caja
+
+      dd.lnk
+        a class="#{inside?("/logs")}" href=url('/logs') Logs
 
       / dd.lnk
       /   a class="#{inside?("/sales/admin")}" href=url('/admin') = t.nav.sales.admin

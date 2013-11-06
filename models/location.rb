@@ -4,6 +4,7 @@ class Location
   W2="WAREHOUSE_2"
   S1="STORE_1"
   S2="STORE_2"
+  ER="EN_ROUTE"
 
   WAREHOUSES = [W1, W2]
   ENABLED_WAREHOUSES = WAREHOUSES
@@ -19,7 +20,7 @@ class Location
   end
 
   def valid? location
-    (ENABLED_WAREHOUSES + ENABLED_STORES).include? location
+    (ENABLED_WAREHOUSES + ENABLED_STORES + [ER]).include? location
   end
 
   def store? location

@@ -3,9 +3,10 @@
 - full_row = false if full_row.nil?
 - can_edit = true if can_edit.nil?
 - edit_link ||= "void"
-- p edit_link
 - can_filter = true if can_filter.nil?
 - quicksearch = " quicksearch" if can_filter
+- list_mode ||= "normal"
+
 - if @orders.empty?
   p = t.orders.empty
 - else
@@ -19,7 +20,11 @@
         th = t.order.fields.created_at
         th = t.order.fields.user
         - if full_row
-          th = t.order.fields.location
+          - if list_mode == "normal"
+            th = t.order.fields.location
+          - if list_mode == "transport"
+            th = t.order.fields.origin
+            th = t.order.fields.destination
         - if can_edit
           th = t.actions.actions
     tfoot
@@ -37,7 +42,11 @@
           td = Utils::local_datetime_format order.created_at
           td = order[:username]
           - if full_row
-             td = ConstantsTranslator.new(order.o_loc).t
+            - if list_mode == "normal"
+              td = ConstantsTranslator.new(order.o_loc).t
+            - if list_mode == "transport"
+              td = ConstantsTranslator.new(order.o_loc).t
+              td = ConstantsTranslator.new(order.o_dst).t
           - if can_edit
             td
               - if edit_link == "void"
@@ -54,6 +63,9 @@
                   img src="/media/Icon-Edit.png"
               - if edit_link == "/sales/admin/inventory_verification/o_id"
                 a href="/sales/admin/inventory_verification/#{order.o_id}"
+                  img src="/media/Icon-Edit.png"
+              - if edit_link == "/sales/arrivals/o_id"
+                a href="/sales/arrivals/#{order.o_id}"
                   img src="/media/Icon-Edit.png"
               - if edit_link == "/admin/inventory/inventory_verification/o_id"
                 a href="/admin/inventory/inventory_verification/#{order.o_id}"
