@@ -29,6 +29,9 @@ table class="items"
       td Comisiones: 
       td.number #{Utils::money_format @commissions, 2}
     tr class="item"
+      td Retiros: 
+      td.number #{Utils::money_format @withdrawals, 2}
+    tr class="item"
       td Gastos: 
       td.number #{Utils::money_format @expenses, 2}
     tr class="item"

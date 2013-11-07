@@ -83,6 +83,9 @@ class Sales < AppController
     @commissions = 0
     @records.select { |record| record.type == "Comisiones" }.each{ |record| @commissions += record.amount}
 
+    @withdrawals = 0
+    @records.select { |record| record.type == "Recaudacion" }.each{ |record| @withdrawals += record.amount}
+
     @expenses = 0
     @records.select { |record| record.type == "Otros gastos" }.each { |record| @expenses += record.amount }
 
