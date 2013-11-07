@@ -36,9 +36,10 @@ $(document).ready(function () {
     field.focus();
   });
 
-
   $(".autoselect").focus().select();
   $(".tablesorter").tablesorter();
+  $('input[name=i_id]').attr('autocomplete','off');
+
 
   $("a.edit").focusin(function() {
     $(this).closest("tr").addClass('item_hover')
