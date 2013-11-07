@@ -182,18 +182,22 @@ class Product < Sequel::Model
  
   def get_saleable
     Product
-      .select(:products__p_id, :products__p_name, :price, :price_pro, :products__img)
-      .select_append(:c_name)
-      .select_append{sum(1).as(qty)}
+      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :products__img, :c_name)
+      .select_append{count(i_id).as(qty)}
       .filter(:can_be_sold)
-      .join(:categories, [:c_id])
-      .join(:items, products__p_id: :items__p_id, i_status: "READY")
+      .left_join(:categories, [:c_id])
+      .left_join(:items, products__p_id: :items__p_id, i_status: "READY")
       .group(:products__p_id, :products__p_name, :price, :price_pro, :products__img, :c_name)
   end
 
   def get_saleable_at_location location
-    get_saleable
-      .filter(i_loc: location.to_s)
+    Product
+      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :products__img, :c_name)
+      .select_append{count(i_id).as(qty)}
+      .filter(:can_be_sold)
+      .left_join(:categories, [:c_id])
+      .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: location.to_s)
+      .group(:products__p_id, :products__p_name, :price, :price_pro, :products__img, :c_name)
   end
 
 end

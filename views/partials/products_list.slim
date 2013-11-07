@@ -44,7 +44,7 @@
           - if full_row
             td.number #{Utils::money_format product[:price_pro], 2}
           - if stock_col
-            td.number #{product[:qty]}
+            td.number #{Utils::number_format product[:qty], 0}
           - if can_edit
             td
               - if edit_link == "void"
