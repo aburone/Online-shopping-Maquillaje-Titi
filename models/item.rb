@@ -67,7 +67,7 @@ class Item < Sequel::Model
     return false unless @values[:i_status] == Item::ON_CART
     order = current_sale_order
     if o_id == current_sale_order.o_id
-      errors.add("Item en el carrito", "Este item ya estaba en la orden actual. Vas a tener que ser mas ordenada.") 
+      errors.add("Error de carga", "Este item ya fue agragado a la orden actual con anterioridad.") 
       return true
     else
       errors.add("Item en otra venta en curso", "Este item pertenece a la orden #{order.o_id}. Que haces agregandolo a esta orden??") 
