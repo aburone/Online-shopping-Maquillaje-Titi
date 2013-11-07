@@ -73,6 +73,12 @@ $(document).ready(function () {
       }
     });
   });
+  $('form').on('keyup','select[name=b_status]', function(e){
+    if(e.keyCode == 13) {
+      $(this).closest("form").submit();
+    }
+  }); 
+
 
   $("#ajax_label_selector").bind("keypress", function (e) {
     if (e.keyCode === 13) {
