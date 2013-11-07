@@ -38,7 +38,7 @@ class Sales < AppController
               .order(:id)
               .reverse
               .all
-    slim :logs, layout: :layout_backend
+    slim :logs, layout: :layout_sales
   end
 
 
