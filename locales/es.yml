@@ -356,5 +356,7 @@ order:
   missing: Orden inexistente o inaccesible desde este modulo
   scan_label: Escanee el ID de item
   scan_product: Escanee el producto
+  transport:
+    title: "Orden de movimiento de items nº %1 (%2 items)"
   arrival_verification:
     title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"

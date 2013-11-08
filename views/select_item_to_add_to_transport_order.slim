@@ -1,4 +1,5 @@
-- @title = "Seleccion de productos para agregar a envio hacia punto de venta Nº #{@order.o_id}"
+- @title = t.order.transport.title(@order.o_id, @items.count)
+
 
 - unless @item.empty?
   == slim :product_details, locals: {product: @product }
