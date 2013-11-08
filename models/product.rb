@@ -125,7 +125,7 @@ class Product < Sequel::Model
     product.p_id = obj[:p_id]
     product.c_id = obj[:c_id]
     product.p_name = obj[:p_name]
-    product.brand = obj[:brand]
+    product.br_name = obj[:br_name]
     product.brand_id = obj[:brand_id]
     product.packaging = obj[:packaging]
     product.stock_store_1 = obj[:stock_store_1]
@@ -152,8 +152,8 @@ class Product < Sequel::Model
     out += "\tp_id:               #{@values[:p_id]}\n"
     out += "\tc_id:               #{@values[:c_id]}\n"
     out += "\tp_name:             #{@values[:p_name]}\n"
-    out += "\tbrand:              #{@values[:brand]}\n"
-    out += "\tbrand_id:           #{@values[:brand_id]}\n"
+    out += "\tbr_name:            #{@values[:br_name]}\n"
+    out += "\tbr_id:              #{@values[:br_id]}\n"
     out += "\tpackaging:          #{@values[:packaging]}\n"
     out += "\tstock_store_1:      #{@values[:stock_store_1]}\n"
     out += "\tideal_stock:        #{@values[:ideal_stock]}\n"
@@ -178,6 +178,8 @@ class Product < Sequel::Model
     Product
       .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
       .join(:categories, [:c_id])
+      .join(:brands, [:br_id])
+      .select_append{:brands__br_name}
       .where(can_be_sold: 1)
   end
  
@@ -188,7 +190,9 @@ class Product < Sequel::Model
       .filter(:can_be_sold)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY")
-      .group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
+      .join(:brands, [:br_id])
+      .select_append{:brands__br_name}
+      .group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name, :br_name)
   end
 
   def get_saleable_at_location location
@@ -198,7 +202,9 @@ class Product < Sequel::Model
       .filter(:can_be_sold)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: location.to_s)
-      .group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
+      .join(:brands, [:br_id])
+      .select_append{:brands__br_name}
+      .group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name, :br_name)
   end
 
 end

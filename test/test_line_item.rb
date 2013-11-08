@@ -32,7 +32,7 @@ class LineItemTest < Test::Unit::TestCase
           if bulk.b_qty >= material[:m_qty]
             bulks_in_use << bulk
           else
-            bulks_in_missing << bulk
+            bulks_missing << bulk
           end
         end
       end

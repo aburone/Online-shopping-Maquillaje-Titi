@@ -30,13 +30,14 @@ class Backend < AppController
   end
 
   get '/products/:id/?' do
-    @product = Product[params[:id].to_i]
-    @items =  @product.items
-    slim :product, layout: :layout_backend
+    edit_product params[:id].to_i
   end
   put '/products/:id/?' do
-    flash.now[:notice] = "actua"
-    @product = Product[params[:id].to_i]
+    flash.now[:notice] = "Actualizado"
+    edit_product params[:id].to_i
+  end
+  def edit_product p_id
+    @product = Product[p_id.to_i]
     @items =  @product.items
     slim :product, layout: :layout_backend
   end
