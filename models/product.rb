@@ -129,7 +129,7 @@ class Product < Sequel::Model
     product.brand_id = obj[:brand_id]
     product.packaging = obj[:packaging]
     product.stock_store_1 = obj[:stock_store_1]
-    product.ideal_stock_store_1 = obj[:ideal_stock_store_1]
+    product.ideal_stock = obj[:ideal_stock]
     product.stock_warehouse_1 = obj[:stock_warehouse_1]
     product.stock_warehouse_2 = obj[:stock_warehouse_2]
     product.cost = obj[:cost]
@@ -156,7 +156,7 @@ class Product < Sequel::Model
     out += "\tbrand_id:           #{@values[:brand_id]}\n"
     out += "\tpackaging:          #{@values[:packaging]}\n"
     out += "\tstock_store_1:      #{@values[:stock_store_1]}\n"
-    out += "\tideal_stock_store_1:#{@values[:ideal_stock_store_1]}\n"
+    out += "\tideal_stock:        #{@values[:ideal_stock]}\n"
     out += "\tstock_warehouse_1:  #{@values[:stock_warehouse_1]}\n"
     out += "\tstock_warehouse_2:  #{@values[:stock_warehouse_2]}\n"
     out += "\tcost:               #{@values[:cost]}\n"
@@ -176,28 +176,29 @@ class Product < Sequel::Model
 
   def get_list
     Product
+      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
       .join(:categories, [:c_id])
       .where(can_be_sold: 1)
   end
  
   def get_saleable
     Product
-      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :products__img, :c_name)
+      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
       .select_append{count(i_id).as(qty)}
       .filter(:can_be_sold)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY")
-      .group(:products__p_id, :products__p_name, :price, :price_pro, :products__img, :c_name)
+      .group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
   end
 
   def get_saleable_at_location location
     Product
-      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :products__img, :c_name)
+      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
       .select_append{count(i_id).as(qty)}
       .filter(:can_be_sold)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: location.to_s)
-      .group(:products__p_id, :products__p_name, :price, :price_pro, :products__img, :c_name)
+      .group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
   end
 
 end

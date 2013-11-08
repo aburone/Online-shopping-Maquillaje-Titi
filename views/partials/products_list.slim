@@ -23,6 +23,7 @@
           th = t.product.fields.price_pro
         - if stock_col
           th = t.product.fields.qty
+          th Ideal
         - if can_edit
           th = t.actions.edit
     tfoot
@@ -45,6 +46,7 @@
             td.number #{Utils::money_format product[:price_pro], 2}
           - if stock_col
             td.number #{Utils::number_format product[:qty], 0}
+            td.number #{Utils::number_format product[:ideal_stock], 0}
           - if can_edit
             td
               - if edit_link == "void"
