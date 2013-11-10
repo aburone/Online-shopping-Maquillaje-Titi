@@ -1,11 +1,8 @@
-require_relative 'prerequisites'
-
 class UserTest < Test::Unit::TestCase
 
-  def setup
-    # @u = User.new
-    # @u[:username] = "aburone"
-    # @u.password="qwe123"
+  setup do
+    @username = "aburone"
+    @password = "qwe123"
   end
 
   def how_to
@@ -29,17 +26,12 @@ class UserTest < Test::Unit::TestCase
     assert_not_equal( u, u2)
   end
 
-  # def test_should_validate_password
-  #   assert( @u.validate "qwe123" )
-  #   assert( (@u.validate "Qwe123") == false)
-  # end
+  def test_should_validate_good_password
+    assert_equal User.new.valid?( @username, @password ), User.new.get_user( @username )
+  end
 
-  # def test_should_create
-  #   u = User.new
-  #   u[:username] = "admin"
-  #   u.password="a"
-  #   u.save
-  # end
-
+  def test_should_reject_password
+    assert_false User.new.valid?( @username, "INVALID" )
+  end
 
 end

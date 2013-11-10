@@ -23,7 +23,6 @@ class UserAuth < Sequel::Model(:users)
     def valid_pass? user, password
       stored = BCrypt::Password.new( user[:password] )
       stored == password
-      true
     end
 
 end
