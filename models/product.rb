@@ -176,7 +176,7 @@ class Product < Sequel::Model
 
   def get_list
     Product
-      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
+      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :brands__br_name, :products__img, :c_name)
       .join(:categories, [:c_id])
       .join(:brands, [:br_id])
       .select_append{:brands__br_name}
