@@ -8,7 +8,7 @@ $odd_rows: rgba(200,200,200,0.3);
 // Elements with keyboard focus
 @mixin focused {outline:0; box-shadow: 0 0 12px $focus_emphasis; @include rounded; }
 // Indicates the actual location
-@mixin current {background-color: lighten($focus_emphasis, 20%); @include rounded; }
+@mixin current {background-color: lighten($focus_emphasis, 20%); @include rounded; color: darkblue;}
 
 @import "reset";
 @import "plugins";
@@ -77,6 +77,8 @@ a:hover, a:focus, .items th:hover, .item:hover, .item_hover, .ajax_item:hover {b
   .main_nav .first {padding-left: 0.7em}
 }
 .current {@include current}
+nav li {padding-left:1em}
+
 
 aside {
   float:right;
