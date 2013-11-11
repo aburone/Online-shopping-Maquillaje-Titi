@@ -28,7 +28,7 @@ module Sinatra
             messages << "#{the_flash}<br>"
           end
         end
-        audio_msg = "<audio src=\"/media/#{error_level}.mp3\" autoplay>Actualiza tu navegador.</audio>\n"
+        audio_msg = error_level != "notice" ? "<audio src=\"/media/#{error_level}.mp3\" autoplay>Actualiza tu navegador.</audio>\n" : ""
         "<div class='flash flash_#{error_level}'>\n" + audio_msg + messages.join + "</div>"
       end
 
