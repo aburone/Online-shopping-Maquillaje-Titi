@@ -42,6 +42,11 @@ h2 Items verificados
 == slim :items_list
 
 
+h2 Items con problemas
+- @items = @void_items
+== slim :items_list
+
+
 form.v_island_1#finish_packaging action=url("#{base}/#{@order.o_id}/finish") method="post"
   == Rack::Csrf.tag(env)
   input type="submit" value="Terminar verificacion"

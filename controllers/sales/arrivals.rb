@@ -107,6 +107,7 @@ class Sales < AppController
     @product = @item.empty? ? Product.new : Product[@item.p_id]
     @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).all
     @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).all
+    @void_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VOID).all
     slim :inventory_verify, layout: :layout_backend, locals: {sec_nav: :nav_inventory} if type == Order::INVENTORY
     slim :wh_to_pos_verify, layout: :layout_sales, locals: {sec_nav: :nav_sales_arrivals} if type == Order::WH_TO_POS
   end
