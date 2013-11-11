@@ -7,22 +7,23 @@ nav.main_nav role="navigation"
       dd.lnk
         a class="first current" href="#" = current_user_name if current_user_name
       dd.lnk
-        a class="#{inside?("/sales/make_sale")}" href=url('/make_sale') = t.nav.sales.make_sale
+        a class="#{inside?("/make_sale")}" href=url('/make_sale') = t.nav.sales.make_sale
 
       dd.lnk
-        a class="#{inside?("/sales/products")}" href=url('/products') = t.nav.sales.products
+        a class="#{inside?("/products")}" href=url('/products') = t.nav.sales.products
 
       dd.lnk
-        a class="#{inside?("/sales/arrivals")}" href=url('/arrivals') = t.nav.sales.arrivals
+        a class="#{inside?("/arrivals")}" href=url('/arrivals') = t.nav.sales.arrivals
 
       dd.lnk
         a class="#{inside?("/books")}" href=url('/books') Caja
 
       dd.lnk
+        a class="#{inside?("/orders")}" href=url('/orders') = t.nav.backend.orders
+
+      dd.lnk
         a class="#{inside?("/logs")}" href=url('/logs') Logs
 
-      / dd.lnk
-      /   a class="#{inside?("/sales/admin")}" href=url('/admin') = t.nav.sales.admin
 
       dd.lnk
         a href=url('/logout') = t.nav.sales.logout

@@ -15,16 +15,17 @@ class Backend < AppController
     Thread.current.thread_variable_set(:root_path, "../admin")
     unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"] 
     protected! unless (request.env["REQUEST_PATH"].nil? or unprotected_routes.include? request.env["REQUEST_PATH"])
-    
+    Thread.current.thread_variable_set(:layout, :layout_backend)
   end
 
   get '/?' do
     protected! # needed by cucumber
-    @orders = Order.new.get_orders.order(:o_id).reverse
-    slim :admin, layout: :layout_backend
+    slim :admin, layout: Thread.current.thread_variable_get(:layout)
   end
 
+
   Dir["controllers/backend/*.rb"].each { |file| require_relative file }
+  Dir["controllers/shared/*.rb"].each { |file| require_relative file }
 
 
   get '/logs/?' do

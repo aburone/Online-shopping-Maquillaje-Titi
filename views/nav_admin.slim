@@ -12,8 +12,8 @@ nav.main_nav role="navigation"
         a class="#{inside?("/admin/categories")} #{inside?("/admin/products")}" href=url('/products') = t.nav.backend.products
       dd.lnk
         a class="#{inside?("/admin/production")} #{inside?("/admin/logistics")}" href=url('/logistics') = t.nav.backend.logistics
-      / dd.lnk
-      /   a class="#{inside?("/admin/credits")}" href=url('/credits') = t.nav.backend.credits
+      dd.lnk
+        a class="#{inside?("/admin/orders")}" href=url('/orders') = t.nav.backend.orders
       dd.lnk
         a class="#{inside?("/admin/logs")}" href=url('/logs') = t.nav.backend.logs
       dd.lnk

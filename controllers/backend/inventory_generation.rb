@@ -11,7 +11,20 @@ class Backend < AppController
     slim :items, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
   end
 
-  get '/inventory/inventory_review/select' do
+
+
+
+
+
+
+
+
+
+
+
+
+
+get '/inventory/inventory_review/select' do
     @orders = Order.new.get_inventory_review.filter(o_status: Order::OPEN)
     slim :inventory_review_select, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
   end
@@ -32,17 +45,6 @@ class Backend < AppController
     redirect to("/inventory/inventory_review/select")
   end
 
-  post '/inventory/inventory_verification/:o_id/cancel' do
-    order = Order.new.get_inventory_review_in_location_with_status_and_id(current_location[:name], Order::MUST_VERIFY, params[:o_id].to_i)
-    if order.nil?
-      flash[:error] = t.order.missing
-    else
-      order.cancel
-      flash[:warning] = t.order.cancelled(params[:o_id].to_i)
-    end
-    redirect to("/inventory/inventory_verification/select")
-  end
-
   post '/inventory/inventory_review/:o_id/finish_load' do
     order = Order.new.get_inventory_review_in_location_with_status_and_id(current_location[:name], Order::OPEN, params[:o_id].to_i)
     if order.nil?
@@ -61,8 +63,8 @@ class Backend < AppController
     inventory_review params
   end
 
-  post '/inventory/inventory_review/:o_id/:p_id/:i_id/undo' do
-    order = Order.new.get_inventory_review_in_location_with_status_and_id(current_location[:name], Order::OPEN, params[:o_id].to_i)
+  post '/inventory/inventory_review/:o_id/:p_id/:i_id/undo', '/inventory/inventory_verification/:o_id/:p_id/:i_id/undo' do
+    order = Order.new.get_orders_in_location_with_type_and_id(current_location[:name], Order::INVENTORY, params[:o_id].to_i)
     product = Product[params[:p_id].to_i]
     item = Item[params[:i_id].to_s.strip]
     order.remove_item item
@@ -72,7 +74,8 @@ class Backend < AppController
     else
       flash[:warning] = "Etiqueta dissociada del producto y la orden. Podes asignarla a otro producto."
     end
-    redirect to("/inventory/inventory_review/#{order.o_id}")
+    middle = request.env['REQUEST_PATH'].include?("inventory_review") ? "inventory_review" : "inventory_verification"
+    redirect to("/inventory/#{middle}/#{order.o_id}")
   end
 
   def inventory_review params
@@ -123,6 +126,33 @@ class Backend < AppController
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  post '/inventory/inventory_verification/:o_id/cancel' do
+    order = Order.new.get_inventory_review_in_location_with_status_and_id(current_location[:name], Order::MUST_VERIFY, params[:o_id].to_i)
+    if order.nil?
+      flash[:error] = t.order.missing
+    else
+      order.cancel
+      flash[:warning] = t.order.cancelled(params[:o_id].to_i)
+    end
+    redirect to("/inventory/inventory_verification/select")
+  end
+
   get '/inventory/inventory_verification/select' do
     @orders = Order.new.get_inventory_verification
     slim :inventory_verification_select, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
@@ -153,23 +183,6 @@ class Backend < AppController
       @order.change_status Order::VERIFIED
       redirect to('/inventory/inventory_imputation/select')
     end
-  end
-
-  post '/inventory/inventory_verification/:o_id/:p_id/:i_id/undo' do
-    order = Order.new.get_inventory_review_in_location_with_id(current_location[:name], params[:o_id].to_i)
-    puts order
-    product = Product[params[:p_id].to_i]
-    puts product
-    item = Item[params[:i_id].to_s.strip]
-    puts item
-    order.remove_item item
-    product.remove_item item
-    if order.errors.count > 0 or product.errors.count > 0
-      fash[:error] = [order.errors, product.errors]
-    else
-      flash[:warning] = "Etiqueta dissociada del producto y la orden. Podes asignarla a otro producto."
-    end
-    redirect to("/inventory/inventory_verification/#{order.o_id}")
   end
 
   def inventory_verification params
@@ -204,6 +217,34 @@ class Backend < AppController
     @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).all
     slim :inventory_verify, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
   end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   get '/inventory/inventory_imputation/select' do
     @orders = Order.new.get_inventory_imputation

@@ -15,6 +15,7 @@ class Sales < AppController
     Thread.current.thread_variable_set(:root_path, "../sales")
     unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"] 
     protected! unless (unprotected_routes.include? request.env["REQUEST_PATH"])
+    Thread.current.thread_variable_set(:layout, :layout_sales)
   end
 
   get '/?' do
@@ -24,6 +25,7 @@ class Sales < AppController
 
 
   Dir["controllers/sales/*.rb"].each { |file| require_relative file }
+  Dir["controllers/shared/*.rb"].each { |file| require_relative file }
 
 
   get '/logs/?' do

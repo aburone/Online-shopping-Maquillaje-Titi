@@ -1,7 +1,7 @@
 -# coding: UTF-8
 - @sec_nav = :nav_production
 - if @order.o_id.nil?
-  - @title = t.order.user_is_editing_nil(current_user_name, Order::TYPE_PACKAGING, params[:o_id].to_i)
+  - @title = t.order.user_is_editing_nil(current_user_name, Order::PACKAGING, params[:o_id].to_i)
 - else
   - @title = t.production.packaging_order.title(@order.o_id)
   section#line_items

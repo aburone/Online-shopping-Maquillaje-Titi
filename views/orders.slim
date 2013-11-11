@@ -1,0 +1,13 @@
+-# coding: UTF-8
+- @title = t.orders.title
+
+- if @orders.nil? and @order.nil?
+  p = t.orders.select_type
+
+- if @orders
+  - list_mode = params[:type] == "WH_TO_POS" ? "transport" : "normal"
+  == slim :orders_list, locals: {full_row: true, list_mode: list_mode, edit_link: "#{base_url}"}
+
+- if @order
+  h2 = t.order.title(ConstantsTranslator.new(@order.type).t, @order.o_id)
+  == slim :items_list, locals: {can_edit: false, focus: false}

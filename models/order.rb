@@ -3,11 +3,11 @@ require 'sequel'
 class Order < Sequel::Model
   many_to_many :items, class: :Item, join_table: :line_items, left_key: :o_id, right_key: :i_id
 
-  TYPE_UNDEFINED="UNDEFINED"
-  TYPE_PACKAGING="PACKAGING"
+  PACKAGING="PACKAGING"
   INVENTORY="INVENTORY"
   WH_TO_POS="WH_TO_POS"
   SALE="SALE"
+  TYPES = [PACKAGING, INVENTORY, WH_TO_POS, SALE]
 
   OPEN="OPEN"
   MUST_VERIFY="MUST_VERIFY"
@@ -15,6 +15,10 @@ class Order < Sequel::Model
   FINISHED="FINISHED"
   EN_ROUTE="EN_ROUTE"
   VOID="VOID"
+
+  def valid_type? type
+    TYPES.include? type
+  end
 
   def items
     super
@@ -159,7 +163,7 @@ class Order < Sequel::Model
   end
 
   def create_packaging
-    create_new Order::TYPE_PACKAGING
+    create_new Order::PACKAGING
   end
 
   def create_or_load_sale
@@ -169,23 +173,37 @@ class Order < Sequel::Model
 
   def get_orders
     Order
-      .select(:o_id, :type, :o_status, :o_loc, :orders__created_at, :u_id, :username)
+      .select(:o_id, :type, :o_status, :o_loc, :o_dst, :orders__created_at, :u_id, :username)
       .join(:users, user_id: :u_id)
   end
 
   def get_orders_in_location location
     get_orders
-      .filter(o_loc: location.to_s)
+      .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
+  end
+
+  def get_orders_with_type type
+    get_orders
+      .filter(type: type)
+  end
+
+  def get_orders_in_location_with_type location, type
+    get_orders_in_location(location)
+      .filter(type: type)
+  end
+
+  def get_orders_in_location_with_type_and_id location, type, o_id
+    get_orders_in_location_with_type(location, type)
+      .filter(o_id: o_id)
+      .first
   end
 
   def get_packaging_orders
-    get_orders
-      .filter(type: Order::TYPE_PACKAGING)
+    get_orders_with_type Order::PACKAGING
   end
 
   def get_packaging_orders_in_location location
-    get_packaging_orders
-      .filter(o_loc: location.to_s)
+    get_orders_in_location_with_type location, Order::PACKAGING
   end
 
   def get_packaging_order o_id, location
@@ -196,35 +214,29 @@ class Order < Sequel::Model
     if order.class == Order
       return order
     else
-      message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::TYPE_PACKAGING, o_id)
+      message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::PACKAGING, o_id)
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR).save 
       return Order.new
     end
   end
 
   def get_open_packaging_orders location
-    get_packaging_orders
+    get_packaging_orders_in_location(location)
       .filter(o_status: Order::OPEN)
-      .filter(o_loc: location.to_s)
   end
 
   def get_unverified_packaging_orders location
-    Order
-      .select(:o_id, :type, :o_status, :o_loc, :orders__created_at, :u_id, :username)
-      .filter(type: Order::TYPE_PACKAGING)
+    get_packaging_orders_in_location(location)
       .filter(o_status: Order::MUST_VERIFY)
-      .filter(o_loc: location.to_s)
-      .join(:users, user_id: :u_id)
   end
 
   def get_packaging_order_for_verification o_id, location, log=true
-    order = get_packaging_orders
+    order = get_packaging_orders_in_location(location)
       .filter(o_status: Order::MUST_VERIFY)
       .filter(o_id: o_id.to_i)
-      .filter(o_loc: location.to_s)
       .first
     if order.class == Order
-      if order.type == Order::TYPE_PACKAGING
+      if order.type == Order::PACKAGING
         if order.o_status == Order::MUST_VERIFY
           message = R18n.t.order.user_is_verifying(User.new.current_user_name, order.type, order.o_id)
           ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::NOTICE, o_id: order.o_id).save if log
@@ -245,7 +257,7 @@ class Order < Sequel::Model
       end
     else
       order = Order.new
-      message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::TYPE_PACKAGING, o_id)
+      message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::PACKAGING, o_id)
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::ERROR).save 
       order = Order.new
       order.errors.add("", message)
@@ -254,35 +266,32 @@ class Order < Sequel::Model
   end
 
   def get_verified_packaging_orders location
-    get_packaging_orders
+    get_packaging_orders_in_location(location)
       .filter(o_status: Order::VERIFIED)
-      .filter(o_loc: location.to_s)
   end
 
   def get_order_for_allocation o_id, location
     get_packaging_orders
       .filter(o_status: Order::VERIFIED)
       .filter(o_id: o_id.to_i)
-      .filter(o_loc: location.to_s)
+      .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
       .first
   end
 
   def get_warehouse_pos
-    Order
-      .select(:o_id, :type, :o_status, :orders__created_at, :u_id, :o_loc, :o_dst, :username)
+    get_orders
       .filter(type: Order::WH_TO_POS)
-      .join(:users, user_id: :u_id)
   end
 
   def get_warehouse_pos__open location
     get_warehouse_pos
-      .filter(o_loc: location.to_s)
+      .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
       .filter(o_status: Order::OPEN)
   end
 
   def get_warehouse_pos__open_by_id o_id, location
     get_warehouse_pos
-      .filter(o_loc: location.to_s)
+      .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
       .filter(o_id: o_id.to_i)
   end
 
@@ -299,14 +308,13 @@ class Order < Sequel::Model
   end
 
   def get_inventory_review
-    get_orders
-      .filter(type: Order::INVENTORY)
+    get_orders_with_type(Order::INVENTORY)
       .order(:o_id).reverse
   end
 
   def get_inventory_review_in_location location
-     get_inventory_review
-      .filter(o_loc: location.to_s)
+    get_orders_in_location_with_type(location, Order::INVENTORY)
+      .order(:o_id).reverse
   end
 
   def get_inventory_review_in_location_with_id location, o_id
@@ -379,5 +387,16 @@ class Order < Sequel::Model
       end
     end
     message
+  end
+
+  def types_at_location location
+    orders = Order.
+      select(:type)
+      .filter( Sequel.or(o_loc: location, o_dst: location) )
+      .group(:type)
+      .all
+    types = []
+    orders.each { |order| types << order.type}
+    types
   end
 end

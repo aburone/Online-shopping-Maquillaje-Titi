@@ -2,7 +2,7 @@ require_relative 'prerequisites'
 
 class OrderTest < Test::Unit::TestCase
 
-  def setup
+  setup do
   end
 
   def test_should_allow_only_one_packaging_order_open_per_user
@@ -89,6 +89,9 @@ class OrderTest < Test::Unit::TestCase
     end
   end
 
+  def test_should_get_types
+    assert Order::TYPES.class == Array 
+  end
 
   def test_should_alter_inventory
   end

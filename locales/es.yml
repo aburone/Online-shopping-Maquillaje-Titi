@@ -18,6 +18,7 @@ actions:
   changed_status: Estado cambiado a %1
 errors:
   nil_params: "Los parametros dados son de un valor nulos"
+  invalid_params: Los parametros dados son invalidos
   must_be_numeric: "Debe ser numérico. %1 (%2) dado"
   must_be_positive: "Debe ser positivo. %1 dado"
   must_be_positive_or_zero: "Debe ser positivo o cero. %1 dado"
@@ -82,6 +83,7 @@ nav:
     transport: Transporte
     inter_warehouse: Entre depositos
     warehouse_pos: Hacia punto de venta
+    orders: Ordenes
   sales:
     admin: Administracion
     inventory_review: Carga de inventario
@@ -319,9 +321,10 @@ sales:
   make_sale:
     title: Carrito de compras nº %1 (%2 items, %3)
 orders:
-  title: "Orden Nº %1"
+  title: Revision de ordenes
   empty: No hay ordenes para listar
   count: "%1 ordenes listadas"
+  select_type: Seleccione el tipo de ordenes a listar
 order:
   type:
     UNDEFINED: Indefinido

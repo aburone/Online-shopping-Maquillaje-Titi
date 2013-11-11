@@ -18,6 +18,9 @@ class Location
   def stores
     translated_list ENABLED_STORES
   end
+  def store_1
+    translated_list [S1]
+  end
 
   def valid? location
     (ENABLED_WAREHOUSES + ENABLED_STORES + [ER]).include? location
