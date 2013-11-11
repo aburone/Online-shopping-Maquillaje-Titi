@@ -66,19 +66,22 @@ class AppController < Sinatra::Base
     set :views, views.map{|view| File.expand_path "../#{view}", __FILE__}
     set :template_engine, :slim
 
-    enable :show_exceptions
-
     #better errors
-    use BetterErrors::Middleware
-    BetterErrors.application_root = File.expand_path('..', __FILE__)
+    # use BetterErrors::Middleware
+    # BetterErrors.application_root = File.expand_path('..', __FILE__)
+
 
   end
 
-  configure :production do
 
+  configure :production do
+    disable :raise_errors
+    disable :show_exceptions
+    # set :dump_errors, false
   end
 
   configure :development do
+    enable :show_exceptions
     require_relative 'models/stdout_logger'
     require 'sinatra/reloader'
     register Sinatra::Reloader
@@ -93,12 +96,18 @@ class AppController < Sinatra::Base
   configure :test do
   end
 
-  errors
   get '/404' do
     slim :not_found, layout: false
   end
   not_found do
     slim :not_found, layout: false
+  end
+  error do
+    pp request.env['sinatra.route']
+    pp request.env['REQUEST_PATH']
+    pp request.env['sinatra.error']
+    @error = request.env['sinatra.error'].message
+    slim :error, layout: :layout_bare
   end
 
   def set_locale
