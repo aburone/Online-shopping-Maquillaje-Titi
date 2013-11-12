@@ -67,6 +67,7 @@ nav:
     products_relationships: "Relaciones"
     categories: "Categorias"
     items: Items disponibles
+    void_items: Invalidacion de items
     pendig_items: Items pendientes
     labels: Impresion de etiquetas
     credits: "Notas de Crédito"
@@ -188,6 +189,11 @@ item:
     location: Ubicacion
     created_at: Creado
   invalid: Identificador de item invalido
+void_items:
+  title: Invalidacion de items
+  write_reason: Escriba la razon de invalidacion
+  reason_example: "ej: Mal etiquetado"
+  sure?: Esto va a invalidar el item. La etiquena no va a servir mas y el item va a eliminarse del stock
 cart:
   fields:
     id: ID
@@ -282,6 +288,7 @@ constant:
   PRINTED: Impreso
   PACKAGING: Envasado
   INVENTORY: Carga inicial de inventario
+  INVALIDATION: Invalidacion de items
   IN_USE: En Uso
   EMPTY: Vacio
   NEW: Nuevo

@@ -1,6 +1,6 @@
 require_relative 'prerequisites'
 
-class ItemTest < Test::Unit::TestCase
+class BookRecordTest < Test::Unit::TestCase
 
   def test_should_get_last_cash_audit
     r_id = BookRecord

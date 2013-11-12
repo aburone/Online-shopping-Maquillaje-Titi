@@ -5,7 +5,8 @@
   p = t.orders.select_type
 
 - if @orders
-  - list_mode = params[:type] == "WH_TO_POS" ? "transport" : "normal"
+  - p params[:type]
+  - list_mode = ((params[:type] == "WH_TO_POS") or (params[:type] == "INVALIDATION")) ? "transport" : "normal"
   == slim :orders_list, locals: {full_row: true, list_mode: list_mode, edit_link: "#{base_url}"}
 
 - if @order

@@ -2,7 +2,7 @@ class Backend < AppController
 
   get '/inventory' do
     @orders = Order.new.get_inventory_review_in_location current_location[:name]
-    @message = "Carga inicial de inventario. Material peligroso. Manipular con cuidado."
+    @message = "Carga inicial de inventario. Esto no resta materiales"
     slim :admin, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
   end
 
@@ -25,7 +25,7 @@ class Backend < AppController
 
 
 get '/inventory/inventory_review/select' do
-    @orders = Order.new.get_inventory_review.filter(o_status: Order::OPEN)
+    @orders = Order.new.get_inventory_review_in_location(current_location[:name]).filter(o_status: Order::OPEN)
     slim :inventory_review_select, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
   end
 

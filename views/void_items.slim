@@ -1,0 +1,24 @@
+-# coding: UTF-8
+- @title = t.void_items.title
+
+form action=url("/products/void_items") method="post"
+  == Rack::Csrf.tag(env)
+  
+  label for="reason" = t.void_items.write_reason
+  br
+  input.aligned autofocus="autofocus" required="required" type="text" name="reason" id="reason" size=30 value="" placeholder="#{t.void_items.reason_example}"
+
+  br
+
+  label for="i_id" = t.order.scan_label
+  br
+  input.aligned required="required" type="text" name="i_id" id="i_id" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"
+  br
+  br
+  input.aligned.ajax_confirm data-confirm_message="#{t.void_items.sure?}"  type="submit" value="#{t.actions.void}"
+
+
+  br
+  br
+  img src="/media/scan_barcode.jpg"
+

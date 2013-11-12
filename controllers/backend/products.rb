@@ -9,6 +9,37 @@ class Backend < AppController
     slim :category, layout: :layout_backend
   end
 
+  def void_items
+    i_id = params[:i_id].to_s.strip
+    item = Item.filter(i_id: i_id).first
+    if item.nil?
+      flash[:error] = "No tengo ningun item con el id #{i_id}"
+      redirect to('/products/void_items')
+    end
+
+    begin
+      message = item.void! params[:reason]
+      flash.now[:notice] = message
+      @title = message
+      @item = item
+      slim :void_item, layout: :layout_backend, locals: {sec_nav: :nav_products}
+    rescue SecurityError => e
+      flash[:error] = e.message
+      redirect to('/products/void_items')
+    rescue => e
+      flash[:error] = e.message
+      redirect to('/products/void_items')
+    end
+  end
+
+  route :get, :post, '/products/void_items' do
+    if params[:i_id].nil? and params[:reason].nil?
+      slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_products} 
+    else
+      void_items
+    end
+  end
+
   get '/products/items/?' do
     @items = Item.new.get_list_at_location current_location[:name]
     slim :items, layout: :layout_backend, locals: {can_edit: true, sec_nav: :nav_products}

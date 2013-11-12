@@ -92,7 +92,6 @@ class Item < Sequel::Model
   end
 
   def has_been_void 
-    p "void"
     if @values[:i_status] == Item::VOID
       errors.add("Item anulado", "Este item fue Invalidado. No podes venderlo.") 
       return true
@@ -100,34 +99,57 @@ class Item < Sequel::Model
     return false
   end
 
-  def get_rand
-    max_pos = Item.filter(i_status: Item::ASSIGNED).count(:i_id)
-    if max_pos > 0
-      rnd = rand(max_pos)
-      return Item.filter(i_status: Item::ASSIGNED).limit(1, rnd).first
-    else
-      raise "No items available"
-    end
-  end
-
-
-  def change_status status, o_id
-    o_id = o_id.to_i
+  def change_status_security_check o_id
     if @values[:i_status] == Item::VOID
       message = R18n.t.errors.modifying_status_of_void_item(@values[:i_id])
       log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, i_id: @values[:i_id])
       log.set(o_id: o_id) unless o_id == 0
       log.save
-      raise message
+      raise SecurityError, message
     end
+  end
+
+  def change_status status, o_id
+    o_id = o_id.to_i
+    change_status_security_check o_id
     @values[:i_status] = status
-    # @values[:i_loc] = Location::UNDEFINED if status == Item::VOID
     save columns: [:p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc]
     message = R18n.t.actions.changed_status(ConstantsTranslator.new(status).t)
     log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, i_id: @values[:i_id])
     log.set(o_id: o_id) unless o_id == 0
-    log.set(p_id: @values[:p_id]) unless @values[:i_id].nil?
+    log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
     log.save
+    message
+  end
+
+  def check_reason reason
+    reason.strip!
+    raise ArgumentError, "Es necesario especificar la razon para invalidar el item" if reason.length < 5
+    reason
+  end
+
+  def void! reason
+    reason = check_reason reason
+    order = Order.new.create_invalidation @values[:i_loc]
+    begin
+      change_status_security_check order.o_id
+    rescue SecurityError => e
+      order.change_status Order::FINISHED
+      raise SecurityError, e.message
+    end
+
+    origin = @values[:i_loc].dup
+    @values[:i_loc] = Location::VOID
+    @values[:i_status] = Item::VOID
+    order.add_item self
+    save
+
+    message = "#{R18n.t.actions.changed_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}" 
+    log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl: ActionsLog::WARN, i_id: @values[:i_id], o_id: order.o_id)
+    log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
+    log.save
+
+    order.change_status Order::FINISHED
     message
   end
 

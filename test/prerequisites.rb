@@ -62,3 +62,28 @@ def get_assigned_item
     Item[label.i_id]
   end
 end
+
+
+class Item
+  def get_rand
+    max_pos = Item.filter(i_status: Item::READY).count(:i_id)
+    if max_pos > 0
+      rnd = rand(max_pos)
+      return Item.filter(i_status: Item::READY).limit(1, rnd).first
+    else
+      raise "No items available"
+    end
+  end
+end
+
+class Order
+  def get_rand
+    max_pos = Order.filter(o_status: Order::FINISHED).count(:o_id)
+    if max_pos > 0
+      rnd = rand(max_pos)
+      return Order.filter(o_status: Order::FINISHED).limit(1, rnd).first
+    else
+      raise "No orders available"
+    end
+  end
+end
