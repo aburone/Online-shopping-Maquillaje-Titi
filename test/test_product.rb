@@ -10,12 +10,12 @@ class ProductTest < Test::Unit::TestCase
     assert_equal(Product, p.class)
   end
 
-  def test_decode
-    require 'htmlentities'
-    coder = HTMLEntities.new
-    p = Product[528]
-    assert_equal("Liquido corporal, colores básicos", p.p_name)
-  end
+  # def test_decode
+  #   require 'htmlentities'
+  #   coder = HTMLEntities.new
+  #   p = Product[528]
+  #   assert_equal("Liquido corporal, colores básicos", p.p_name)
+  # end
 
   # def test_decode_all
   #   require 'htmlentities'
