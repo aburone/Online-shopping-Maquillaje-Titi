@@ -19,8 +19,8 @@ class Product < Sequel::Model
     Product.limit(1, rnd).first
   end
 
-  def cost
-    parts_cost + materials_cost
+  def sale_cost
+    @values[:buy_cost] + parts_cost + materials_cost
   end
 
   def parts
@@ -132,13 +132,14 @@ class Product < Sequel::Model
     product.ideal_stock = obj[:ideal_stock]
     product.stock_warehouse_1 = obj[:stock_warehouse_1]
     product.stock_warehouse_2 = obj[:stock_warehouse_2]
-    product.cost = obj[:cost]
+    product.buy_cost = obj[:buy_cost]
+    product.sale_cost = obj[:sale_cost]
     product.markup = obj[:markup]
     product.price = obj[:price]
     product.price_pro = obj[:price_pro]
-    product.price_is_published = obj[:price_is_published]
-    product.is_published = obj[:is_published]
-    product.can_be_sold = obj[:can_be_sold]
+    product.published = obj[:published]
+    product.published_price = obj[:published_price]
+    product.archived = obj[:archived]
     product.description = obj[:description]
     product.notes = obj[:notes]
     product.img = obj[:img]
@@ -165,20 +166,39 @@ class Product < Sequel::Model
     out += "\tideal_stock:        #{@values[:ideal_stock]}\n"
     out += "\tstock_warehouse_1:  #{@values[:stock_warehouse_1]}\n"
     out += "\tstock_warehouse_2:  #{@values[:stock_warehouse_2]}\n"
-    out += "\tcost:               #{@values[:cost]}\n"
+    out += "\tbuy_cost:           #{Utils::number_format @values[:buy_cost], 2}\n"
+    out += "\tsale_cost:          #{Utils::number_format @values[:sale_cost], 2}\n"
     out += "\tmarkup:             #{@values[:markup]}\n"
     out += "\tprice:              #{Utils::number_format @values[:price], 2}\n"
     out += "\tprice_pro:          #{Utils::number_format @values[:price_pro], 2}\n"
-    out += "\tprice_is_published: #{@values[:price_is_published]}\n"
-    out += "\tis_published:       #{@values[:is_published]}\n"
-    out += "\tcan_be_sold:        #{@values[:can_be_sold]}\n"
+
+    out += "\tpublished:          #{@values[:published]}\n"
+    out += "\tpublished_price:    #{@values[:published_price]}\n"
+    out += "\tarchived:           #{@values[:archived]}\n"
     out += "\tdescription:        #{@values[:description]}\n"
     out += "\tnotes:              #{@values[:notes]}\n"
     out += "\timg:                #{@values[:img]}\n"
     out += "\timg_extra:          #{@values[:img_extra]}\n"
+    out += "\tnotes:              #{@values[:notes]}\n"
     out
   end
 
+  def get p_id
+    product = Product[p_id.to_i]
+    product[:sale_cost] = product.sale_cost
+    product
+  end
+
+
+  def add_cost products
+    begin
+      products.each { |product| @values[:sale_cost] = product.sale_cost }
+      products
+    rescue Exception => @e
+      p @e
+      return []
+    end
+  end
 
   def get_list
     Product
@@ -186,14 +206,14 @@ class Product < Sequel::Model
       .join(:categories, [:c_id])
       .join(:brands, [:br_id])
       .select_append{:brands__br_name}
-      .where(can_be_sold: 1)
+      .where(archived: 0)
   end
  
   def get_saleable
     Product
       .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
       .select_append{count(i_id).as(qty)}
-      .filter(:can_be_sold)
+      .where(archived: 0)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY")
       .join(:brands, [:br_id])
@@ -205,7 +225,7 @@ class Product < Sequel::Model
     Product
       .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
       .select_append{count(i_id).as(qty)}
-      .filter(:can_be_sold)
+      .where(archived: 0)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: location.to_s)
       .join(:brands, [:br_id])

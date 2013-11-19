@@ -217,11 +217,27 @@ product:
     id: ID
     category: Categoría
     name: "Nombre"
+    long_name: "Nombre largo"
+    p_short_name: "Nombre corto"
+    packaging: Presentacion
     brand: Marca
+    size: Tamaño
+    color: Color
+    sku: SKU
+    description: Descripcion
+    notes: Notas internas
     qty: "Cantidad"
+    trimester_ideal_stock: "Stock ideal por trimestre"
+    stock_warehouse_1: "Stock deposito 1"
+    stock_warehouse_2: "Stock deposito 2"
+    stock_store_1: "Stock local 1"
+    buy_cost: "Costo de compra"
+    sale_cost: "Costo de venta"
+    cost: "Costo"
     price: "Precio"
     price_pro: Pro?
-    units: "(cc, gr o cm)"
+    published: Publicar en pagina?
+    published_price: Publicar precio?
     units: "(cc, gr o cm)"
 production:
   title: Proceso productivo

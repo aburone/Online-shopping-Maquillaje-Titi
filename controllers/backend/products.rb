@@ -68,8 +68,15 @@ class Backend < AppController
     edit_product params[:id].to_i
   end
   def edit_product p_id
-    @product = Product[p_id.to_i]
+    @product = Product.new.get p_id
+    puts @product
+    @categories = Category.all
+    @brands = Brand.all
     @items =  @product.items
+    unless params[:p_short_name].nil?
+      puts params
+      puts JSON.parse( params[:brand] )
+    end
     slim :product, layout: :layout_backend
   end
 

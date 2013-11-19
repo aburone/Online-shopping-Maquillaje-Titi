@@ -137,9 +137,9 @@ class ProductTest < Test::Unit::TestCase
 
   def test_cost_should_be_the_sum_of_parts_plus_materials
     product = Product[193]
-    assert_equal product.cost, product.materials_cost + product.parts_cost
+    assert_equal product.sale_cost, product.materials_cost + product.parts_cost
 
     product = Product[2]
-    assert_equal product.cost, product.materials_cost + product.parts_cost
+    assert_equal product.sale_cost, product.materials_cost + product.parts_cost
   end
 end

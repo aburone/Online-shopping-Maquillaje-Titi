@@ -3,9 +3,9 @@ Sequel.migration do
     set_column_type :products, :p_name, String, fixed: true, size: 191, null: false, index: true, default: ""
     set_column_type :products, :packaging, String, fixed: true, size: 50, null: false, default: "INVALID"
 
-    run "ALTER TABLE products ADD `p_short_name` char(255) NOT NULL default 'NEW' after p_name"
+    run "ALTER TABLE products ADD `p_short_name` char(100) NOT NULL default 'NEW' after p_name"
     run "ALTER TABLE products ADD `size` char(10) NOT NULL default ''  after packaging"
-    run "ALTER TABLE products ADD `color` char(40) NOT NULL default ''  after size"
+    run "ALTER TABLE products ADD `color` char(35) NOT NULL default ''  after size"
     run "ALTER TABLE products ADD `sku` char(60) NOT NULL  after color"
   end
 

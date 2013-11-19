@@ -15,6 +15,8 @@ $odd_rows: rgba(200,200,200,0.3);
 @import "flexbox";
 
 .visually_hidden {visibility: hidden; position: absolute; top: -9999px; left: -9999px;}
+[disabled="disabled"] {background-color: #eee; color: #555}
+
 
 .number, .money {text-align: right; white-space: nowrap;}
 .money:before {content: '$ '}
@@ -38,6 +40,7 @@ article, section {margin-left: 1em;}
 .sm_cell {width: 4em}
 .md_cell {width: 8em}
 .bg_cell {width: 16em}
+
 
 body {margin-left:auto; margin-right:auto}
 body:after {
