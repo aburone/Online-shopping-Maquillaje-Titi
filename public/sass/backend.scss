@@ -16,7 +16,7 @@ $odd_rows: rgba(200,200,200,0.3);
 
 .visually_hidden {visibility: hidden; position: absolute; top: -9999px; left: -9999px;}
 
-.number, .money {text-align: right;}
+.number, .money {text-align: right; white-space: nowrap;}
 .money:before {content: '$ '}
 
 .small_content {text-align: center;}
@@ -125,7 +125,6 @@ aside {
   from {
     opacity:1;
   }
-
   to {
     opacity:0;
   }
@@ -150,3 +149,5 @@ aside {
 .no_padding {padding: 0}
 
 .v_island_1 {margin-top: 2em; margin-bottom: 2em}
+
+
