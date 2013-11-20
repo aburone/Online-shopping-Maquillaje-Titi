@@ -484,6 +484,10 @@ table.tablesorter th {
   background-color: #eee;
   color: #555; }
 
+.readonly, [readonly="readonly"] {
+  background-color: #eeeeee !important;
+  color: #555555 !important; }
+
 .number, .money {
   text-align: right;
   white-space: nowrap; }

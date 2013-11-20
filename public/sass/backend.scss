@@ -16,6 +16,7 @@ $odd_rows: rgba(200,200,200,0.3);
 
 .visually_hidden {visibility: hidden; position: absolute; top: -9999px; left: -9999px;}
 [disabled="disabled"] {background-color: #eee; color: #555}
+.readonly, [readonly="readonly"] {background-color: #eee!important; color: #555!important}
 
 
 .number, .money {text-align: right; white-space: nowrap;}

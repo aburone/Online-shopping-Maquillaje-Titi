@@ -19,35 +19,7 @@ class Product < Sequel::Model
     Product.limit(1, rnd).first
   end
 
-  def sale_cost
-    @values[:buy_cost] + parts_cost + materials_cost
-  end
 
-  def parts
-    # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
-    condition = "product_id = #{self[:p_id]}"
-    Product.join( ProductsPart.where{condition}, part_id: :products__p_id).all
-  end
-
-  def parts_cost
-    parts_cost = 0
-    self.parts.map { |part| parts_cost += part.materials_cost }
-    parts_cost
-  end
-
-  def materials
-    condition = "product_id = #{self[:p_id]}"
-    materials = Material.join( ProductsMaterial.where{condition}, [:m_id])
-    .all
-    materials.each { |mat| mat.m_price = Material.new.get_price(mat.m_id) }
-    materials
-  end
-
-  def materials_cost
-    cost = 0
-    self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
-    cost
-  end
 
   def items
     condition = "p_id = #{self[:p_id]}"
@@ -168,7 +140,8 @@ class Product < Sequel::Model
     out += "\tstock_warehouse_2:  #{@values[:stock_warehouse_2]}\n"
     out += "\tbuy_cost:           #{Utils::number_format @values[:buy_cost], 2}\n"
     out += "\tsale_cost:          #{Utils::number_format @values[:sale_cost], 2}\n"
-    out += "\tmarkup:             #{@values[:markup]}\n"
+    out += "\tideal_markup:       #{@values[:ideal_markup]}\n"
+    out += "\treal_markup:        #{@values[:real_markup]}\n"
     out += "\tprice:              #{Utils::number_format @values[:price], 2}\n"
     out += "\tprice_pro:          #{Utils::number_format @values[:price_pro], 2}\n"
 
@@ -186,18 +159,66 @@ class Product < Sequel::Model
   def get p_id
     product = Product[p_id.to_i]
     product[:sale_cost] = product.sale_cost
+    product.update_stocks
+    product.update_real_markup
     product
   end
 
+  def sale_cost
+    @values[:buy_cost] + parts_cost + materials_cost
+  end
 
-  def add_cost products
-    begin
-      products.each { |product| @values[:sale_cost] = product.sale_cost }
-      products
-    rescue Exception => @e
-      p @e
-      return []
-    end
+  def parts_cost
+    parts_cost = 0
+    self.parts.map { |part| parts_cost += part.materials_cost }
+    parts_cost
+  end
+
+  def materials_cost
+    cost = 0
+    self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
+    cost
+  end
+
+  def parts
+    # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
+    condition = "product_id = #{self[:p_id]}"
+    Product.join( ProductsPart.where{condition}, part_id: :products__p_id).all
+  end
+
+  def materials
+    condition = "product_id = #{self[:p_id]}"
+    materials = Material.join( ProductsMaterial.where{condition}, [:m_id])
+    .all
+    materials.each { |mat| mat.m_price = Material.new.get_price(mat.m_id) }
+    materials
+  end
+
+  def update_stocks
+    @values[:stock_store_1] = Product
+      .select{count(i_id).as(stock_store_1)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: Location::S1)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_store_1]
+    @values[:stock_store_2] = Product
+      .select{count(i_id).as(stock_store_2)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: Location::S2)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_store_2]
+    @values[:stock_warehouse_1] = Product
+      .select{count(i_id).as(stock_warehouse_1)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: Location::W1)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_warehouse_1]
+    @values[:stock_warehouse_2] = Product
+      .select{count(i_id).as(stock_warehouse_2)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: Location::W2)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_warehouse_2]
+  end
+
+  def update_real_markup
+    @values[:real_markup] = @values[:price] / @values[:sale_cost]
   end
 
   def get_list

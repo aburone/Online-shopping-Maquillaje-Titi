@@ -12,106 +12,106 @@
   p No tengo productos con el id especificado
 - else
 
-
   form.grid-form action=url("/products/#{@product[:p_id]}") method="post"
     == Rack::Csrf.tag(env)
     input type="hidden" name="_method" value="put"
 
+    fieldset
+      legend Nombre
+      div data-row-span="10"
+        div data-field-span="4"
+          label for="p_short_name" = t.product.fields.p_short_name
+          input type="text" name="p_short_name" size=20 maxlength=100 value="#{@product[:p_short_name]}"
+        div data-field-span="2"
+          label for="brand" = t.product.fields.brand
+          select name="brand"
+            - @brands.each do |brand| 
+              option selected=("selected" if brand.br_id == @product.br_id) value="#{JSON.generate({br_id: brand.br_id, br_name: brand.br_name})}" =  brand.br_name
+        div data-field-span="1"
+          label for="packaging" = t.product.fields.packaging
+          input type="text" name="packaging" size=10 maxlength=50 value="#{@product[:packaging]}"
+        div data-field-span="1"
+          label for="size" = t.product.fields.size
+          input type="text" name="size" size=5 maxlength=10 value="#{@product[:size]}"
 
-      fieldset
-        legend Nombre
-        / div data-row-span="1"
-        /   div data-field-span="1"
-        /     label for="p_name" = t.product.fields.long_name
-        /     input type="text" name="p_name" size=50 maxlength=200 readonly="readonly" value="#{@product[:p_name]}"
+        div data-field-span="1"
+          label for="color" = t.product.fields.color
+          input type="text" name="color" size=10 maxlength=35 value="#{@product[:color]}"
 
-        div data-row-span="10"
-          div data-field-span="4"
-            label for="p_short_name" = t.product.fields.p_short_name
-            input type="text" name="p_short_name" size=20 maxlength=100 value="#{@product[:p_short_name]}"
-          div data-field-span="2"
-            label for="brand" = t.product.fields.brand
-            select name="brand"
-              - @brands.each do |brand| 
-                option selected=("selected" if brand.br_id == @product.br_id) value="#{JSON.generate({br_id: brand.br_id, br_name: brand.br_name})}" =  brand.br_name
-          div data-field-span="1"
-            label for="packaging" = t.product.fields.packaging
-            input type="text" name="packaging" size=10 maxlength=50 value="#{@product[:packaging]}"
-          div data-field-span="1"
-            label for="size" = t.product.fields.size
-            input type="text" name="size" size=5 maxlength=10 value="#{@product[:size]}"
+        div data-field-span="1"
+          label for="sku" = t.product.fields.sku
+          input type="text" name="sku" size=5 maxlength=60 value="#{@product[:sku]}"
 
-          div data-field-span="1"
-            label for="color" = t.product.fields.color
-            input type="text" name="color" size=10 maxlength=35 value="#{@product[:color]}"
+    fieldset
+      legend Valores
+      div data-row-span="6"
+        div data-field-span="1"
+          label for="buy_cost" = t.product.fields.buy_cost
+          input type="text" name="buy_cost" size=5 maxlength=10 value="#{Utils::number_format @product[:buy_cost], 2, 0}"
+        div.readonly data-field-span="1"
+          label for="sale_cost" = t.product.fields.sale_cost
+          input type="text" name="sale_cost" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:sale_cost], 2, 0}"
+        div.readonly data-field-span="1"
+          label for="ideal_markup" = t.product.fields.ideal_markup
+          input type="text" name="ideal_markup" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:ideal_markup], 3, 0}"
+        div.readonly data-field-span="1"
+          label for="real_markup" = t.product.fields.real_markup
+          input type="text" name="real_markup" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:real_markup], 3, 0}"
+        div data-field-span="1"
+          label for="price" = t.product.fields.price
+          input type="text" name="price" size=5 maxlength=10 value="#{Utils::number_format @product[:price], 2, 0}"
+        div data-field-span="1"
+          label for="price_pro" = t.product.fields.price_pro
+          input type="text" name="price_pro" size=5 maxlength=10 value="#{Utils::number_format @product[:price_pro], 2, 0}"
 
-          div data-field-span="1"
-            label for="sku" = t.product.fields.sku
-            input type="text" name="sku" size=5 maxlength=60 value="#{@product[:sku]}"
+      div data-row-span="1"
+        div data-field-span="1"
+          label for="" = t.product.fields.notes
+          textarea name="notes" rows="1" cols="50" = @product[:notes]
 
-      fieldset
-        legend Valores
-        div data-row-span="4"
-          div data-field-span="1"
-            label for="buy_cost" = t.product.fields.buy_cost
-            input type="text" name="buy_cost" size=5 maxlength=10 value="#{Utils::number_format @product[:buy_cost], 2, 0}"
-          div data-field-span="1"
-            label for="sale_cost" = t.product.fields.sale_cost
-            input type="text" name="sale_cost" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:sale_cost], 2, 0}"
-          div data-field-span="1"
-            label for="price" = t.product.fields.price
-            input type="text" name="price" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:price], 2, 0}"
-          div data-field-span="1"
-            label for="price_pro" = t.product.fields.price_pro
-            input type="text" name="price_pro" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:price_pro], 2, 0}"
-
-        div data-row-span="1"
-          div data-field-span="1"
-            label for="" = t.product.fields.notes
-            textarea name="notes" rows="1" cols="50" = @product[:notes]
-
-        div data-row-span="4"
-          div data-field-span="1"
-            label for="ideal_stock" = t.product.fields.trimester_ideal_stock
-            input type="text" name="ideal_stock" size=3 maxlength=4 value="#{Utils::number_format @product[:ideal_stock], 0}"
-
-          div data-field-span="1"
-            label for="stock_warehouse_1" = t.product.fields.stock_warehouse_1
-            input type="text" name="stock_warehouse_1" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_warehouse_1], 0}"
-          div data-field-span="1"
-            label for="stock_warehouse_2" = t.product.fields.stock_warehouse_2
-            input type="text" name="stock_warehouse_2" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_warehouse_2], 0}"
-          div data-field-span="1"
-            label for="stock_store_1" = t.product.fields.stock_store_1
-            input type="text" name="stock_store_1" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_store_1], 0}"
+      div data-row-span="5"
+        div data-field-span="1"
+          label for="ideal_stock" = t.product.fields.trimester_ideal_stock
+          input type="text" name="ideal_stock" size=3 maxlength=4 value="#{Utils::number_format @product[:ideal_stock], 0}"
+        div data-field-span="1"
+          label for="stock_warehouse_1" = t.product.fields.stock_warehouse_1
+          input type="text" name="stock_warehouse_1" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_warehouse_1], 0}"
+        div data-field-span="1"
+          label for="stock_warehouse_2" = t.product.fields.stock_warehouse_2
+          input type="text" name="stock_warehouse_2" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_warehouse_2], 0}"
+        div data-field-span="1"
+          label for="stock_store_1" = t.product.fields.stock_store_1
+          input type="text" name="stock_store_1" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_store_1], 0}"
+        div data-field-span="1"
+          label for="stock_store_2" = t.product.fields.stock_store_2
+          input type="text" name="stock_store_2" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_store_2], 0}"
 
 
+    fieldset
+      legend Atributos para la pagina publica
+      div data-row-span="3"
+        div data-field-span="1"
+          label for="c_id" = t.product.fields.category
+          select name="c_id"
+              - @categories.each do |category| 
+                option selected=("selected" if category.c_id == @product.c_id) value="#{category.c_id}" = category.c_name
 
-      fieldset
-        legend Atributos para la pagina publica
-        div data-row-span="3"
-          div data-field-span="1"
-            label for="c_id" = t.product.fields.category
-            select name="c_id"
-                - @categories.each do |category| 
-                  option selected=("selected" if category.c_id == @product.c_id) value="#{category.c_id}" = category.c_name
+        div data-field-span="1"
+          label for="published" = t.product.fields.published
+          input type="checkbox" name="published" id="published" checked=("checked" if @product.published)
+        div data-field-span="1"
+          label for="published_price" = t.product.fields.published_price
+          input type="checkbox" name="published_price" id="published_price" checked=("checked" if @product.published_price)
+      div data-row-span="1"
+        div data-field-span="1"
+          label for="description" = t.product.fields.description
+          textarea name="description" rows="3" cols="50" = @product[:description]
 
-          div data-field-span="1"
-            label for="published" = t.product.fields.published
-            input type="checkbox" name="published" id="published" checked=("checked" if @product.published)
-          div data-field-span="1"
-            label for="published_price" = t.product.fields.published_price
-            input type="checkbox" name="published_price" id="published_price" checked=("checked" if @product.published_price)
-        div data-row-span="1"
-          div data-field-span="1"
-            label for="description" = t.product.fields.description
-            textarea name="description" rows="3" cols="50" = @product[:description]
-
-      fieldset
-        legend Acciones
-        div data-row-span="1"
-          div data-field-span="1"
-            input type="submit" value="Guardar"
+    fieldset
+      legend Acciones
+      div data-row-span="1"
+        div data-field-span="1"
+          input type="submit" value="Guardar"
 
 
 - if @items.empty?

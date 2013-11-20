@@ -231,9 +231,12 @@ product:
     stock_warehouse_1: "Stock deposito 1"
     stock_warehouse_2: "Stock deposito 2"
     stock_store_1: "Stock local 1"
+    stock_store_2: "Stock local 2"
+    cost: "Costo"
     buy_cost: "Costo de compra"
     sale_cost: "Costo de venta"
-    cost: "Costo"
+    ideal_markup: "Markup ideal"
+    real_markup: "Markup real"
     price: "Precio"
     price_pro: Pro?
     published: Publicar en pagina?
