@@ -140,8 +140,8 @@ class Product < Sequel::Model
     out += "\tstock_warehouse_2:  #{@values[:stock_warehouse_2]}\n"
     out += "\tbuy_cost:           #{Utils::number_format @values[:buy_cost], 2}\n"
     out += "\tsale_cost:          #{Utils::number_format @values[:sale_cost], 2}\n"
-    out += "\tideal_markup:       #{@values[:ideal_markup]}\n"
-    out += "\treal_markup:        #{@values[:real_markup]}\n"
+    out += "\tideal_markup:       #{Utils::number_format @values[:ideal_markup], 3}\n"
+    out += "\treal_markup:        #{Utils::number_format @values[:real_markup], 3}\n"
     out += "\tprice:              #{Utils::number_format @values[:price], 2}\n"
     out += "\tprice_pro:          #{Utils::number_format @values[:price_pro], 2}\n"
 
@@ -155,6 +155,38 @@ class Product < Sequel::Model
     out += "\tnotes:              #{@values[:notes]}\n"
     out
   end
+
+  def create
+    last_p_id = "ERROR"
+    DB.transaction do
+      product = Product.new
+      product.save validate: false
+      last_p_id = DB.fetch( "SELECT last_insert_id() AS p_id" ).first[:p_id]
+      message = R18n.t.product.created
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, p_id: last_p_id).save
+    end
+    last_p_id
+  end
+
+
+  def update_from_hash(hash_values)
+    raise ArgumentError, t.errors.nil_params if hash_values.nil?
+    numerical_keys = [ :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro ]
+    hash_values.select { |key, value| self[key.to_sym]=value.to_s.gsub(',', '.') if numerical_keys.include? key.to_sym unless value.nil?}
+    cast
+
+    alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :published_price, :published, :archived, :description, :notes, :img, :img_extra ]
+    hash_values.select { |key, value| self[key.to_sym]=value.to_s if alpha_keys.include? key.to_sym unless value.nil?}
+
+    brand_json = JSON.parse(hash_values[:brand])
+    brand_keys = [ :br_id, :br_name ]
+    brand_keys.select { |key, value| self[key.to_sym]=brand_json[key.to_s] unless brand_json[key.to_s].nil?}
+
+    self[:p_name] = ""
+    [self[:p_short_name], self[:br_name], self[:packaging], self[:size], self[:color], self[:sku]].map { |part| self[:p_name] += " " + part unless part.empty?}
+    self
+  end
+
 
   def get p_id
     product = Product[p_id.to_i]
@@ -218,7 +250,8 @@ class Product < Sequel::Model
   end
 
   def update_real_markup
-    @values[:real_markup] = @values[:price] / @values[:sale_cost]
+    @values[:real_markup] = 0
+    @values[:real_markup] = @values[:price] / @values[:sale_cost] if @values[:sale_cost] > 0 
   end
 
   def get_list
@@ -254,5 +287,19 @@ class Product < Sequel::Model
       .group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name, :br_name)
   end
 
+  private
+    def cast
+      self[:price] = BigDecimal.new self[:price]
+      self[:price_pro] = BigDecimal.new self[:price_pro]
+      self[:ideal_stock] = BigDecimal.new self[:ideal_stock]
+      self[:stock_store_1] = BigDecimal.new self[:stock_store_1]
+      self[:stock_store_2] = BigDecimal.new self[:stock_store_2]
+      self[:stock_warehouse_1] = BigDecimal.new self[:stock_warehouse_1]
+      self[:stock_warehouse_2] = BigDecimal.new self[:stock_warehouse_2]
+      self[:buy_cost] = BigDecimal.new self[:buy_cost]
+      self[:sale_cost] = BigDecimal.new self[:sale_cost]
+      self[:ideal_markup] = BigDecimal.new self[:ideal_markup]
+      self[:real_markup] = BigDecimal.new self[:real_markup]
+    end
 end
 

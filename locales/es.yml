@@ -64,6 +64,7 @@ nav:
     materials_list: Lista de materiales
     bulks_list: Lista de graneles
     products: "Productos"
+    new_product: "Crear producto"
     products_relationships: "Relaciones"
     categories: "Categorias"
     items: Items disponibles
@@ -213,6 +214,9 @@ product:
   items_list: Items asociados con este producto
   items_not_found: No hay items asociados con este producto
   item_removed: Etiqueta disociada del producto
+  created: "Producto creado con exito"
+  there_can_be_only_one_new:  "Solo puede haber un producto sin completar por vez"
+  updated: "Cambios guardados con exito"
   fields:
     id: ID
     category: Categoría

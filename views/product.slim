@@ -73,18 +73,18 @@
         div data-field-span="1"
           label for="ideal_stock" = t.product.fields.trimester_ideal_stock
           input type="text" name="ideal_stock" size=3 maxlength=4 value="#{Utils::number_format @product[:ideal_stock], 0}"
-        div data-field-span="1"
+        div.readonly data-field-span="1"
           label for="stock_warehouse_1" = t.product.fields.stock_warehouse_1
-          input type="text" name="stock_warehouse_1" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_warehouse_1], 0}"
-        div data-field-span="1"
+          input type="text" name="stock_warehouse_1" size=3 maxlength=4 readonly="readonly" value="#{Utils::number_format @product[:stock_warehouse_1], 0}"
+        div.readonly data-field-span="1"
           label for="stock_warehouse_2" = t.product.fields.stock_warehouse_2
-          input type="text" name="stock_warehouse_2" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_warehouse_2], 0}"
-        div data-field-span="1"
+          input type="text" name="stock_warehouse_2" size=3 maxlength=4 readonly="readonly" value="#{Utils::number_format @product[:stock_warehouse_2], 0}"
+        div.readonly data-field-span="1"
           label for="stock_store_1" = t.product.fields.stock_store_1
-          input type="text" name="stock_store_1" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_store_1], 0}"
-        div data-field-span="1"
+          input type="text" name="stock_store_1" size=3 maxlength=4 readonly="readonly" value="#{Utils::number_format @product[:stock_store_1], 0}"
+        div.readonly data-field-span="1"
           label for="stock_store_2" = t.product.fields.stock_store_2
-          input type="text" name="stock_store_2" size=3 maxlength=4 value="#{Utils::number_format @product[:stock_store_2], 0}"
+          input type="text" name="stock_store_2" size=3 maxlength=4 readonly="readonly" value="#{Utils::number_format @product[:stock_store_2], 0}"
 
 
     fieldset

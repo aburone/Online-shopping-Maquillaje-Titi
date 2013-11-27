@@ -42,12 +42,12 @@ class Backend < AppController
   end
 
   get '/bulks/:id/?' do
-    @bulk = Bulk[params[:id]]
+    @bulk = Bulk[params[:id].to_i]
     @material = @bulk.material if @bulk
     slim :bulk, layout: false
   end
   put '/bulks/:id/?' do
-    bulk = Bulk[params[:id]].update_from_hash(params)
+    bulk = Bulk[params[:id].to_i].update_from_hash(params)
     if bulk.valid?
       bulk.save()
       flash[:notice] = t.bulk.updated

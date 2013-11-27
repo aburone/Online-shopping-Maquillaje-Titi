@@ -60,13 +60,37 @@ class Backend < AppController
     slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product, sec_nav: :nav_products}
   end
 
+  get '/products/new/?' do
+    begin
+      p_id = Product.new.create
+      flash[:notice] = R18n.t.product.created
+      redirect to("/products/#{p_id}")
+    rescue Sequel::UniqueConstraintViolation => e
+      puts e.message
+      product = Product.filter(p_name: "NEW Varias").first
+      flash[:warning] = R18n.t.product.there_can_be_only_one_new
+      redirect to("/products/#{product[:p_id]}")
+    end
+  end
+
   get '/products/:id/?' do
     edit_product params[:id].to_i
   end
+
   put '/products/:id/?' do
-    flash.now[:notice] = "Actualizado"
-    edit_product params[:id].to_i
+    product = Product[params[:id].to_i].update_from_hash(params)
+    if product.valid?
+      product.save()
+      product = Product.new.get product.p_id 
+      product.save()
+      flash[:notice] = R18n.t.product.updated
+    else
+      flash[:error] = product.errors 
+    end
+    redirect to("/products/#{product[:p_id]}")
   end
+
+
   def edit_product p_id
     @product = Product.new.get p_id
     puts @product
