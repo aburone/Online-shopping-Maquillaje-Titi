@@ -65,6 +65,7 @@ nav:
     bulks_list: Lista de graneles
     products: "Productos"
     new_product: "Crear producto"
+    new_material: "Crear material"
     products_relationships: "Relaciones"
     categories: "Categorias"
     items: Items disponibles
@@ -118,6 +119,9 @@ materials:
 material:
   updated: "Cambios guardados con exito"
   new: Crear nuevo
+  created: "Material creado con exito"
+  there_can_be_only_one_new:  "Solo puede haber un material sin completar por vez"
+  updated: "Material actualizado con exito"
   default_name: "! NUEVO MATERIAL"
   not_found: "Material inexistente"
   editing: "Editando %1"

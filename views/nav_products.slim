@@ -5,7 +5,9 @@ aside
         li
           a class="#{current?("/admin/products")}" href=url('/products') = t.nav.backend.products
         li
-          a class="#{current?("/admin/products/new")}" href=url('/products/new') = t.nav.backend.new_product
+          form action=url("/products/new") method="post"
+            == Rack::Csrf.tag(env)
+            input type="submit" value="#{t.nav.backend.new_product}"
         li
           a class="#{current?("/admin/products_relationships")}" href=url('/products_relationships') = t.nav.backend.products_relationships
         li

@@ -8,14 +8,27 @@ class Material < Sequel::Model(:materials)
   many_to_one :MaterialCategory, key: :c_id
   many_to_many :products, left_key: :m_id, right_key: :product_id, join_table: :products_materials
 
+  # def create_default
+  #   begin
+  #     m_id = Material.insert(m_name: R18n::t.material.default_name)
+  #   rescue
+  #     m_id = Material.filter(m_name: R18n::t.material.default_name).first.m_id
+  #   end
+  #   m_id
+  # end
+
   def create_default
-    begin
-      m_id = Material.insert(m_name: R18n::t.material.default_name)
-    rescue
-      m_id = Material.filter(m_name: R18n::t.material.default_name).first.m_id
+    last_m_id = "ERROR"
+    DB.transaction do
+      material = Material.new
+      material.save validate: false
+      last_m_id = DB.fetch( "SELECT last_insert_id() AS m_id" ).first[:m_id]
+      message = R18n.t.material.created
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, m_id: last_m_id).save
     end
-    m_id
+    last_m_id
   end
+
 
   def update_from_hash(hash_values)
     wanted_keys = [ :m_name, :c_id ] # .gsub(',', '.')

@@ -156,7 +156,7 @@ class Product < Sequel::Model
     out
   end
 
-  def create
+  def create_default
     last_p_id = "ERROR"
     DB.transaction do
       product = Product.new

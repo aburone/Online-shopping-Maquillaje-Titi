@@ -60,9 +60,9 @@ class Backend < AppController
     slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product, sec_nav: :nav_products}
   end
 
-  get '/products/new/?' do
+  post '/products/new/?' do
     begin
-      p_id = Product.new.create
+      p_id = Product.new.create_default
       flash[:notice] = R18n.t.product.created
       redirect to("/products/#{p_id}")
     rescue Sequel::UniqueConstraintViolation => e

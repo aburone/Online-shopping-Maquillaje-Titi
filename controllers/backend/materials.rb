@@ -4,6 +4,18 @@ class Backend < AppController
     @materials = Material.new.get_list current_location[:name]
     slim :materials, layout: :layout_backend
   end
+  post '/materials/new/?' do
+    begin
+      m_id = Material.new.create_default
+      flash[:notice] = R18n.t.material.created
+      redirect to("/materials/#{m_id}")
+    rescue Sequel::UniqueConstraintViolation => e
+      puts e.message
+      material = Material.filter(m_name: R18n.t.material.default_name).first
+      flash[:warning] = R18n.t.material.there_can_be_only_one_new
+      redirect to("/materials/#{material[:m_id]}")
+    end
+  end
   get '/materials/:id/?' do
     @material = Material.new.get_by_id params[:id].to_i, current_location[:name]
     @materials_categories = MaterialsCategory.all
@@ -16,10 +28,6 @@ class Backend < AppController
     material.update_from_hash(params).save();
     flash[:notice] = t.material.updated
     redirect to("/materials/#{material[:m_id]}")
-  end
-  post '/materials/new/?' do
-    m_id = Material.new.create_default
-    redirect to("/materials/#{m_id}")
   end
 
 
