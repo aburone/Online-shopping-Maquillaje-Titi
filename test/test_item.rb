@@ -18,6 +18,7 @@ class ItemTest < Test::Unit::TestCase
     @valid_item.created_at = Time.now
   end
 
+
   # # uncomment for multiple setups
   # setup
   # def setup_two
@@ -48,6 +49,12 @@ class ItemTest < Test::Unit::TestCase
   # def self.shutdown
   #   p "shut"
   # end
+
+  def test_should_use_binary_search
+    i_id = Item.first.i_id
+    assert_false Item[i_id].empty?
+    assert Item[i_id.to_i].nil?
+  end
 
   def test_valid_item
     item = @valid_item

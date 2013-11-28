@@ -1,5 +1,6 @@
 require 'sequel'
 require_relative 'order'
+require_relative '../helpers/sequel_binary'
 
 class Item < Sequel::Model
   many_to_one :product, key: :p_id

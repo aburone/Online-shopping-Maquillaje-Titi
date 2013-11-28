@@ -13,9 +13,13 @@ class BulkTest < Test::Unit::TestCase
     @valid_bulk.b_status = Bulk::NEW
     @valid_bulk.b_id = "123.b12345678"
     @valid_bulk.m_id = 1
-
   end
 
+  def test_should_use_binary_search
+    b_id = Bulk.first.b_id
+    assert_false Bulk[b_id].empty?
+    assert Bulk[b_id.to_i].nil?
+  end
 
   def test_should_create_bulk_ignoring_extra_params
     b = Bulk.new

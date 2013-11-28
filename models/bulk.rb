@@ -1,6 +1,6 @@
-require 'bigdecimal'
 require 'sequel'
 require_relative 'material'
+require_relative '../helpers/sequel_binary'
 
 class Bulk < Sequel::Model
   many_to_one :material, key: :m_id
@@ -14,6 +14,10 @@ class Bulk < Sequel::Model
   VOID="VOID"
   STATUS = [UNDEFINED, NEW, IN_USE, VOID]
   SELECTABLE_STATUS = [NEW, IN_USE]
+
+  def empty?
+    return @values[:b_id].nil? ? true : false
+  end
 
   def get_list warehouse_name
     begin
