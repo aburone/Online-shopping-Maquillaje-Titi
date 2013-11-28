@@ -39,9 +39,9 @@ class Material < Sequel::Model(:materials)
 
   def validate
     super
-    errors.add(:name, 'cannot be empty or nil') if !m_name || m_name.empty?
-    errors.add(:m_id, "must be numeric '#{m_id}' (#{m_id.class}) given") unless m_id.class == Fixnum
-    errors.add(:m_id, "must be positive #{m_id} given") unless m_id.class == Fixnum && m_id > 0
+    errors.add(:Nombre, R18n.t.errors.presence) if !m_name || m_name.empty?
+    errors.add(:m_id, R18n.t.errors.numeric_feedback(m_id, m_id.class) ) unless m_id.class == Fixnum
+    errors.add(:m_id, R18n.t.errors.positive_feedback(m_id) ) unless m_id.class == Fixnum && m_id > 0
   end
 
   def to_s

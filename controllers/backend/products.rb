@@ -81,7 +81,7 @@ class Backend < AppController
     product = Product[params[:id].to_i].update_from_hash(params)
     if product.valid?
       product.save()
-      product = Product.new.get product.p_id 
+      product = Product.new.get product.p_id
       product.save()
       flash[:notice] = R18n.t.product.updated
     else

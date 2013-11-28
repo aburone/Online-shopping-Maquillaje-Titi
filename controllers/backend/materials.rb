@@ -25,8 +25,13 @@ class Backend < AppController
   end
   put '/materials/:id/?' do
     material = Material[params[:id].to_i]
-    material.update_from_hash(params).save();
-    flash[:notice] = t.material.updated
+    material.update_from_hash(params)
+    if material.valid?
+      material.save();
+      flash[:notice] = t.material.updated
+    else
+      flash[:error] = material.errors
+    end
     redirect to("/materials/#{material[:m_id]}")
   end
 

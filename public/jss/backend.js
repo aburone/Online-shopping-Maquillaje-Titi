@@ -57,7 +57,7 @@ $(document).ready(function () {
   $('.edit_bulk').click(function(e) {
     e.preventDefault();
     e.stopPropagation();
-    var target = $(this).closest('tr'), url = "/admin/bulks/" + e.target.dataset.id;
+    var target = $(this).closest('tr'), url = "/admin/bulks/" + e.target.dataset.b_id;
     $.ajax({
       type: 'GET',
       url: url,

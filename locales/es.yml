@@ -51,7 +51,9 @@ errors:
   type: "debe ser de tipo %1"
   valid: "no es un %1 válido"
   numeric: "deber ser un número"
+  numeric_feedback: "debe ser un múmero '%1' (%2) dado"
   integer: "debe ser un múmero entero"
+  positive_feedback: "debe ser un múmero positivo '%1' dado"
   string: "no es una cadena de texto"
   sequel_end: sequel_end
 nav:
