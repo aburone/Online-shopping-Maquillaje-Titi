@@ -13,6 +13,7 @@ $odd_rows: rgba(200,200,200,0.3);
 @import "reset";
 @import "plugins";
 @import "flexbox";
+@import "flash";
 
 .visually_hidden {visibility: hidden; position: absolute; top: -9999px; left: -9999px;}
 [disabled="disabled"] {background-color: #eee; color: #555}
@@ -92,47 +93,6 @@ aside {
 }
 
 
-.flash {
-  padding: 1em ;
-  font-weight: bold;
-  margin: 0 1em 1em 0;
-  max-width: 35em;
-}
-.flash_notice {
-  background-color: lighten(LightGreen, 5%);
-  color: DarkGreen;
-  border: 3px solid DarkGreen;
-  animation: slow_hide 3s forwards 1s ease
-}
-.flash_warning {
-  background-color: LightYellow;
-  color: darken(DarkKhaki, 15%);
-  border: 3px solid darken(DarkKhaki, 15%);
-  animation: slow_hide 9s forwards 1s ease
-}
-.flash_error {
-  background-color: lighten( pink, 5% );
-  color: darken(crimson, 10%);
-  border: 3px solid darken(crimson, 10%);
-}
-.flash dd {
-    padding-left:1em;
-    font-weight: normal;
-}
-.flash dd:before{
-    content: "⚫ "
-}
-
-
-@keyframes slow_hide
-{
-  from {
-    opacity:1;
-  }
-  to {
-    opacity:0;
-  }
-}
 
 
 .toggle_link {cursor: help; color: darkblue; display:inline-block}
