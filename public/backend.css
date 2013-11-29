@@ -474,6 +474,43 @@ table.tablesorter th {
     /* http://www.w3.org/TR/css3-flexbox/#order-property */
     -webkit-order: 1;
     order: 1; } }
+.flash {
+  padding: 1em;
+  font-weight: bold;
+  margin: 0 1em 1em 0;
+  max-width: 35em; }
+
+.flash_notice {
+  background-color: #a6f1a6;
+  color: DarkGreen;
+  border: 3px solid DarkGreen;
+  animation: slow_hide 3s forwards 1s ease; }
+
+.flash_warning {
+  background-color: LightYellow;
+  color: #989244;
+  border: 3px solid #989244;
+  animation: slow_hide 9s forwards 1s ease; }
+
+.flash_error {
+  background-color: #ffdae0;
+  color: #ad102f;
+  border: 3px solid #ad102f; }
+
+.flash dd {
+  padding-left: 1em;
+  font-weight: normal; }
+
+.flash dd:before {
+  content: "⚫ "; }
+
+@keyframes slow_hide {
+  from {
+    opacity: 1; }
+
+  to {
+    opacity: 0; } }
+
 .visually_hidden {
   visibility: hidden;
   position: absolute;
@@ -642,43 +679,6 @@ aside {
   margin: 1em;
   position: relative; }
 
-.flash {
-  padding: 1em;
-  font-weight: bold;
-  margin: 0 1em 1em 0;
-  max-width: 35em; }
-
-.flash_notice {
-  background-color: #a6f1a6;
-  color: DarkGreen;
-  border: 3px solid DarkGreen;
-  animation: slow_hide 3s forwards 1s ease; }
-
-.flash_warning {
-  background-color: LightYellow;
-  color: #989244;
-  border: 3px solid #989244;
-  animation: slow_hide 9s forwards 1s ease; }
-
-.flash_error {
-  background-color: #ffdae0;
-  color: #ad102f;
-  border: 3px solid #ad102f; }
-
-.flash dd {
-  padding-left: 1em;
-  font-weight: normal; }
-
-.flash dd:before {
-  content: "⚫ "; }
-
-@keyframes slow_hide {
-  from {
-    opacity: 1; }
-
-  to {
-    opacity: 0; } }
-
 .toggle_link {
   cursor: help;
   color: darkblue;
@@ -710,3 +710,7 @@ aside {
 .v_island_1 {
   margin-top: 2em;
   margin-bottom: 2em; }
+
+/* Disable pointer evets during scroll for faster redraw*/
+.scrolling * {
+  pointer-events: none !important; }

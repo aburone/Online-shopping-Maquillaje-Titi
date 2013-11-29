@@ -1,3 +1,4 @@
+disable_pointer_events_during_scroll();
 $(document).ready(function () {
 
   if( $(".quicksearch tbody tr").length > 0 ) {
@@ -140,3 +141,18 @@ $(document).ready(function () {
   });
 
 });
+
+function disable_pointer_events_during_scroll() {
+  var body = document.body,
+      timer;
+  window.addEventListener('scroll', function() {
+    clearTimeout(timer);
+    if(!body.classList.contains('scrolling')) {
+      body.classList.add('scrolling')
+    }
+    
+    timer = setTimeout(function(){
+      body.classList.remove('scrolling')
+    },500);
+  }, false);
+}

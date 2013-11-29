@@ -114,4 +114,8 @@ aside {
 
 .v_island_1 {margin-top: 2em; margin-bottom: 2em}
 
+/* Disable pointer evets during scroll for faster redraw*/
+.scrolling * {
+  pointer-events: none !important;
+}
 
