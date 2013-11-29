@@ -3,6 +3,7 @@ html lang="es"
   head
     title = @title || "NO TENGO TITULO"
     meta charset="utf-8"
+    == slim :mobile_meta
     - meta_description = @meta_description || "Maquillaje escénico para caracterización, teatro, cine, danzas y televisión; Fiestas infantiles, mimos y halloween; Pestañas, barbas, bigotes y postizos; Efectos especiales."
     meta name="description" content="#{meta_description}"
     meta name="keywords" content="Maquillajes pinturas Pestañas barbas bigotes postizos Efectos especiales"
