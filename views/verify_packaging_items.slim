@@ -18,7 +18,7 @@ div.ajax_response
   h2 = t.production.verifying_packaging.scan_next
   form action=url("/production/verify_packaging/#{@order.o_id}") method="post"
     == Rack::Csrf.tag(env)
-    input type="hidden" name="item" id="ajax_selected_label" value="#{params[:item]}"
+    input type="text" class="visually_hidden" name="item" id="ajax_selected_label" value="#{params[:item]}"
     input type="hidden" name="o_id" value="#{@order.o_id}"
     item.aligner_2 for="i_id" = t.production.verifying_packaging.scan_item
     input.trim_me autofocus="autofocus" required="required" type="text" name="i_id" id="trim_me" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"

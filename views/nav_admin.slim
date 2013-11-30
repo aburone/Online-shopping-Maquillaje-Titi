@@ -3,9 +3,7 @@ nav.main_nav role="navigation"
     dt Menu
     - if authorized?
       dd.lnk
-        a class="first current" href="#" = current_location[:translation] if current_location
-      dd.lnk
-        a class="first current" href="#" = current_user_name if current_user_name
+        span class="current" href="#" = ("#{current_user_name}@#{current_location[:translation]}" if current_user_name and current_location)
       dd.lnk
         a class="#{inside?("/admin/materials")} #{inside?("/admin/bulks")}" href=url('/materials') = t.nav.backend.materials
       dd.lnk

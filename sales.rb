@@ -10,6 +10,7 @@ class Sales < AppController
   helpers ApplicationHelper
 
   before do
+    session.each { |key, value| session.delete(key.to_sym)} if Location.new.warehouses.include? current_location
     set_locale
     Thread.current.thread_variable_set(:login_path, "/sales/login")
     Thread.current.thread_variable_set(:root_path, "../sales")

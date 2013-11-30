@@ -27,10 +27,7 @@ class Backend < AppController
     tmp.unlink
   end
   post '/production/labels/new/?' do
-    tmp = session[:locale]
-    session[:locale] = 'es'
     Label.new.create params[:qty].to_i
-    session[:locale] = tmp
     redirect to("/production/labels")
   end
 
@@ -53,10 +50,7 @@ class Backend < AppController
     end
   end
   post '/production/packaging/new/?' do
-    tmp = session[:locale]
-    session[:locale] = 'es'
     order = Order.new.create_packaging
-    session[:locale] = tmp
     redirect to("/production/packaging/#{order.o_id}/add")
   end
   get '/production/packaging/:o_id/add/?' do
@@ -77,8 +71,6 @@ class Backend < AppController
     slim :confirm_selected_product, layout: :layout_backend
   end
   post '/production/packaging/assign' do
-    tmp = session[:locale]
-    session[:locale] = 'es'
     order = Order.new.get_packaging_order params[:o_id].to_i, current_location[:name]
     the_redir = "/production/packaging/#{order.o_id}/add"
     product = Product[params[:p_id].to_i]
@@ -97,7 +89,6 @@ class Backend < AppController
 
     flash[:notice] = [assigned_msg, added_msg]
 
-    session[:locale] = tmp
     redirect to(the_redir)
   end
   post '/production/packaging/:o_id/finish_load/?' do
@@ -159,11 +150,8 @@ class Backend < AppController
 
   post '/production/packaging/:o_id/cancel/?' do
     order = Order.new.get_packaging_order params[:o_id].to_i, current_location[:name]
-    tmp = session[:locale]
-    session[:locale] = 'es'
     if !order.o_id.nil?
       order.cancel
-      session[:locale] = tmp
       flash[:warning] = t.order.cancelled(params[:o_id].to_i)
       the_redir = "/production/packaging/select"
     else
@@ -216,10 +204,7 @@ class Backend < AppController
 
 
   def get_packaging_order_for_verification params
-    tmp = session[:locale]
-    session[:locale] = 'es'
     order = Order.new.get_packaging_order_for_verification params[:o_id].to_i, current_location[:name], request.env["REQUEST_METHOD"] == 'GET'
-    session[:locale] = tmp
     if order.nil?
       flash[:error] = t.order.missing
       redirect to('/production/verify_packaging/select')

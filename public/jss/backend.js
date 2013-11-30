@@ -153,6 +153,6 @@ function disable_pointer_events_during_scroll() {
     
     timer = setTimeout(function(){
       body.classList.remove('scrolling')
-    },500);
+    },10);
   }, false);
 }

@@ -20,6 +20,10 @@ INSERT INTO  users (username, user_email, password) VALUES ("system", "root@maqu
 INSERT INTO  users (username, user_email, password) VALUES ("aburone", "correo@arielburone.com.ar", "$2a$10$l1MLSp6gZvxX263Z9cxZnOHuaB5XdwaNtmL3819w/U/mov5uRKysu");
 INSERT INTO  users (username, user_email, password) VALUES ("juan", "admin@maquillajetiti.com.ar", "$2a$10$l1MLSp6gZvxX263Z9cxZnOHuaB5XdwaNtmL3819w/U/mov5uRKysu");
 
+INSERT INTO  users (username, user_email, password) VALUES ("cristina", "ventas@maquillajetiti.com.ar", "$2a$10$l1MLSp6gZvxX263Z9cxZnOHuaB5XdwaNtmL3819w/U/mov5uRKysu");
+INSERT INTO  users (username, user_email, password) VALUES ("haydee", "info@maquillajetiti.com.ar", "$2a$10$l1MLSp6gZvxX263Z9cxZnOHuaB5XdwaNtmL3819w/U/mov5uRKysu");
+INSERT INTO  users (username, user_email, password) VALUES ("veronica", "produccion@maquillajetiti.com.ar", "$2a$10$l1MLSp6gZvxX263Z9cxZnOHuaB5XdwaNtmL3819w/U/mov5uRKysu");
+
 
  -- `is_mechanic` tinyint(1) NOT NULL DEFAULT '0',
  -- `is_dangerous` tinyint(1) NOT NULL DEFAULT '0',

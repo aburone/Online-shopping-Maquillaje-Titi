@@ -1,319 +1,319 @@
-actions:
-  finish: Finish
-  finish_load: Finish load
-  finish_verification: Finish verification
-  allocate: Allocate
-  ok: Ok
-  apply: "Apply"
-  cancel: Cancel
-  undo: Undo
-  edit: Edit
-  open: Open
-  verify: Verify
-  void: Void
-  actions: Actions
-  filter: Filter
-  click_to_toggle: Click to view/hide details
-  changed_status: Status changed to %1
-errors:
-  nil_params: "The given parameters are nil"
-  must_be_numeric: "Must be numeric %1 (%2) given"
-  must_be_positive: "Must be positive %1 given"
-  must_be_positive_or_zero: "Must be positive or zero %1 given"
-  bad_label_reading: "Labels must be read with the barcode scanner"
-  inexistent_label: "Inexistent label"
-  inexistent_item: "Inexistent item"
-  inexistent_product: "Inexistent product code"
-  invalid_order: "Invalid order ID"
-  invalid_label: "Invalid label ID"
-  previously_assigned_label: "Label was previously assigned to a different item"
-  void_label: "Void label"
-  invalid_label_status: "Label with invalid status: %1"
-  invalid_item_status: "Item with invalid status: %1"
-  modifying_status_of_void_item: Trying to modify the status of a VOID item %1
-  modifying_status_of_void_label: Trying to modify the status of a VOID label %1
-  modifying_status_of_void_bulk: Trying to modify the status of a VOID bulk %1
-  label_wasnt_printed: "Acording to my records, this label wasn't printed yet"
-  label_from_different_order: This label belongs to another order
-  this_is_not_a_label: This is not a label (%1)
-  this_is_not_an_item: This is not an item (%1)
-nav:
-  frontend:
-    products: "Products"
-    contact: "Contact Us"
-    photos: "Photos & links"
-  backend:
-    materials: "Materials"
-    materials_list: Materials list
-    bulks_list: Bulks list
-    products: "Products"
-    products_relationships: "Relationships"
-    categories: "Categories"
-    items: Items
-    labels: Labels printing
-    credits: "Credit"
-    login: "Start session"
-    logout: "Exit"
-    sec: Subsections
-    production: Production
-    packaging: "Packaging and labeling"
-    verify_packaging: "Orders verification"
-    packaging_orders_allocation: Orders allocation
-    inventory_balance: Inventory balance
-    logs: Logs
-    logistics: Logistics
-    transport: Transport
-    inter_warehouse: Inter_warehouse
-    warehouse_pos: To Point Of Sale
-  sales:
-    admin: Administration
-    inventory_review: Inventory load
-    inventory_verification: Inventory Load verification
-    inventory_imputation: Inventory imputation
-    login: "Start session"
-    logout: "Exit"
-    items: Items
-media:
-  icons:
-    edit: "/media/Icon-Edit.png"
-auth:
-  must_login: "You have to be logged in to access this area"
-  user: User
-  pass: Pass
-  login: Log In
-  invalid: "The username or password you entered are incorrect. Also you must select a location"
-  loggedin: "You are now logged in as %1"
-  loggedout: "You are now logged out"
-  hello: "Hello %1"
-admin:
-  title: Administration
-materials:
-  title: Materials
-  empty: "There are no materials in the database"
-  count: "%1 materials listed"
-material:
-  updated: "Changes saved successfully"
-  new: Create New
-  default_name: "! NEW MATERIAL"
-  not_found: "Material not found"
-  editing: "Editing %1"
-  price_and_qty_explanation: "The price and quantity is by units of the given dimension either grams, cc or cm"
-  products_list: Product associated with this material
-  products_not_found: There are no product associated whith this material
-  bulks_list: Bulks associated with this material
-  bulks_not_found: There are no bulks associated whith this material
-  fields:
-    id: ID
-    category: Category
-    name: "Name"
-    qty: "Quantity"
-    price: "Price"
-    units: "(cc, gr or cm)"
-    edit: Edit
-    actions: Actions
-relationships:
-  title: Relationships
-  empty: "There are no relationships in the database"
-  count: "%1 relationships listed"
-bulks:
-  title: Bulks list
-  empty: There are no bulks available for listing
-  count: "%1 bulks listed"
-bulk:
-  not_found: "Bulk not found"
-  editing: "Editing bulk %1 (%2)"
-  price_and_qty_explanation: "The price and quantity is by units of the given dimension either grams, cc or cm"
-  created: Bulk created
-  updated: "Changes saved successfully"
-  fields:
-    id: ID
-    m_name: Name
-    qty: Quantity
-    price: Price
-    units: "(cc, gr or cm)"
-    status: Status
-    created_at: Created
-    edit: Edit
-    actions: Actions
-labels:
-  title: Products labels
-  empty: There are no labels in the database
-  count: "%1 labels available"
-  list: Available labels
-  download: "Download %1 labels print job"
-label:
-  new: Create New
-  read_placeholder: "i/e: 329.b4d224e4"
-  fields:
-    label: Label
-    id: ID
-    status: Status
-    created_at: Created
-    qty: Quantity
-  created: Label created
-  assigned: "Label %1 assigned to product %2"
-items:
-  title: Items
-  empty: There are no items in the database
-  count: "%1 items listed"
-item:
-  fields:
-    id: ID
-    p_id: Product
-    price: Price
-    price_pro: Price pro
-    status: Status
-    created_at: Created
-  invalid: Identificador de item invalido
-products:
-  title: Products
-  empty: There are no products in the database
-  count: "%1 products available"
-  list: Available products
-product:
-  read_placeholder: "i/e: 4256"
-  not_found: "Product not found"
-  editing: "Editing %1"
-  items_list: Items associated with this product
-  items_not_found: There are no item associated whith this product
-  item_removed: Label dissociated from product
-  fields:
-    id: ID
-    category: Category
-    name: "Name"
-    brand: Brand
-    qty: "Quantity"
-    price: "Price"
-    price_pro: Pro?
-    units: "(cc, gr or cm)"
-production:
-  title: Production process
-  explanation: Brief explanation of the production process
-  invalid_label: "The label %1 is invalid"
-  invalid_status: "The label %1 cannot be assigned to a product (invalid status for the action)"
-  packaging_orders:
-    title: "Packaging & Labeling orders"
-  packaging_order:
-    title: "Packaging & Labeling order # %1"
-    empty: There are no orders in the database
-    count: "%1 orders available"
-    scan_label: Scan the ID
-    scan_product: Scan product
-    assigned: "Label %1 assigned to %1"
-    missing_materials_cant_allocate: Missing materials. Can't allocate order until there are enough open bulks
-  verify_packaging:
-    title: Packaging orders needing verification
-  verifying_packaging:
-    title: "Verifying packaging order #%1"
-    empty: There are no items left to verify
-    scan_item: Scan the ID
-    pending_items: Pending items
-    still_pending_items: There are still pending items
-    verified_items: Verified items
-    scan_next: Scan the next item to verify
-  packaging_orders_allocation:
-    title: "Packaging orders allocaton"
-    empty: There are no orders to allocate
-  packaging_order_allocation:
-    title: "Allocating packaging order #%1"
-    empty: There are no items to allocate
-    allocate: Allocate orden to %1
-    ok: "Order #%1 processed and imputed to the inventory"
-logs:
-  title: Event log
-  empty: "There are no registered events"
-  count: "%1 registered events"
-event:
-  fields:
-    at: when
-    msg: what
-    u_id: who
-    l_id: where
-    lvl: level
-    b_id: Bulk
-    m_id: Material
-    i_id: Item
-    i_id_l_id: Item / Label
-    o_id: Order
-    p_id: Product
-logistics:
-  title: Logistics
-orders:
-  title: "Order # %1"
-  empty: There are no orders to show
-  count: "Showing %1 orders"
-order:
-  type:
-    UNDEFINED: Undefined
-    PACKAGING: "Packaging and labeling"
-    INVENTORY: Inventory
-  fields:
-    id: ID
-    type: Type
-    status: Status
-    user: User
-    location: Location
-    created_at: Created
-  title: "Order of type %1 #%2"
-  new: Create New
-  created: New order created %1
-  item_added: "%1 added to order %2"
-  item_removed: Item removed from order
-  all_items_removed: All item have been removed from order
-  void: Order marked as VOID
-  user_is_editing: "%1 is editing order of type %2 #%3"
-  user_is_editing_nil: "%1 is trying to open an order of type %2 #%3 which doesn't exists"
-  ready_for_verification: "The order is ready for verification"
-  user_is_verifying: "%1 is verifying order of type %2 #%3"
-  user_is_verfying_order_in_invalid_status: "%1 is trying to verify an order of type %2 #%3 which is in and invalid status %4"
-  user_is_verfying_order_of_wrong_type: "%1 is trying to verify order #%2 with status %3 wich is of invalid type %4"
-  sure_to_cancel_load_order: "This will delete the current order. All labels and products will be unasigned"
-  cancelled: "The order # %1 was cancelled. All labels and products have been unasigned"
-  not_a_packaging: This is not a packaging order
-  missing: Order missing or inaccesible from this module
-  scan_label: Scan the ID
-  scan_product: Scan product
-location:
-  title: Location
-constant:
-  title: System Constants
-  OPEN: Open
-  ASSIGNED: Assigned
-  FINISHED: Finished
-  READY: Ready
-  VERIFIED: Verified
-  MUST_VERIFY: Must ve Verified
-  PRINTED: Printed
-  PACKAGING: Packaging
-  INVENTORY: Inventory review
-  IN_USE: In Use
-  EMPTY: Empty
-  NEW: New
-  WH_TO_POS: Warehouse -> POS
-  SYSTEM: Internal
-  WAREHOUSE_1: Warehouse 1
-  WAREHOUSE_2: Warehouse 2
-  STORE_1: Store 1
-  STORE_2: Store 2
-  VOID: Void
-sales:
-  title: Point of Sales
-  inventory_review_select:
-    title: Inventory Review Orders
-    empty: No orders available
-    count: "%1 orders available"
-  inventory_review:
-    title: "Inventory review order # %1 (%2 items)"
-    scan_label: Scan the ID Label
-    select_product: Select product
-    assigned: "Etiqueta %1 asignada a %1"
-  inventory_verification_select:
-    title: "Verification of Inventory review orders"
-  inventory_verification:
-    title: "Inventory review order verification # %1 (%2 / %3 items)"
-    scan_label: Scan next item
-  inventory_imputation_select:
-    title: "imputation of Inventory review orders"
-  inventory_imputation:
-    title: "Inventory review order imputation # %1 (%2 / %3 items)"
-    scan_label: Scan next item
+# actions:
+#   finish: Finish
+#   finish_load: Finish load
+#   finish_verification: Finish verification
+#   allocate: Allocate
+#   ok: Ok
+#   apply: "Apply"
+#   cancel: Cancel
+#   undo: Undo
+#   edit: Edit
+#   open: Open
+#   verify: Verify
+#   void: Void
+#   actions: Actions
+#   filter: Filter
+#   click_to_toggle: Click to view/hide details
+#   changed_status: Status changed to %1
+# errors:
+#   nil_params: "The given parameters are nil"
+#   must_be_numeric: "Must be numeric %1 (%2) given"
+#   must_be_positive: "Must be positive %1 given"
+#   must_be_positive_or_zero: "Must be positive or zero %1 given"
+#   bad_label_reading: "Labels must be read with the barcode scanner"
+#   inexistent_label: "Inexistent label"
+#   inexistent_item: "Inexistent item"
+#   inexistent_product: "Inexistent product code"
+#   invalid_order: "Invalid order ID"
+#   invalid_label: "Invalid label ID"
+#   previously_assigned_label: "Label was previously assigned to a different item"
+#   void_label: "Void label"
+#   invalid_label_status: "Label with invalid status: %1"
+#   invalid_item_status: "Item with invalid status: %1"
+#   modifying_status_of_void_item: Trying to modify the status of a VOID item %1
+#   modifying_status_of_void_label: Trying to modify the status of a VOID label %1
+#   modifying_status_of_void_bulk: Trying to modify the status of a VOID bulk %1
+#   label_wasnt_printed: "Acording to my records, this label wasn't printed yet"
+#   label_from_different_order: This label belongs to another order
+#   this_is_not_a_label: This is not a label (%1)
+#   this_is_not_an_item: This is not an item (%1)
+# nav:
+#   frontend:
+#     products: "Products"
+#     contact: "Contact Us"
+#     photos: "Photos & links"
+#   backend:
+#     materials: "Materials"
+#     materials_list: Materials list
+#     bulks_list: Bulks list
+#     products: "Products"
+#     products_relationships: "Relationships"
+#     categories: "Categories"
+#     items: Items
+#     labels: Labels printing
+#     credits: "Credit"
+#     login: "Start session"
+#     logout: "Exit"
+#     sec: Subsections
+#     production: Production
+#     packaging: "Packaging and labeling"
+#     verify_packaging: "Orders verification"
+#     packaging_orders_allocation: Orders allocation
+#     inventory_balance: Inventory balance
+#     logs: Logs
+#     logistics: Logistics
+#     transport: Transport
+#     inter_warehouse: Inter_warehouse
+#     warehouse_pos: To Point Of Sale
+#   sales:
+#     admin: Administration
+#     inventory_review: Inventory load
+#     inventory_verification: Inventory Load verification
+#     inventory_imputation: Inventory imputation
+#     login: "Start session"
+#     logout: "Exit"
+#     items: Items
+# media:
+#   icons:
+#     edit: "/media/Icon-Edit.png"
+# auth:
+#   must_login: "You have to be logged in to access this area"
+#   user: User
+#   pass: Pass
+#   login: Log In
+#   invalid: "The username or password you entered are incorrect. Also you must select a location"
+#   loggedin: "You are now logged in as %1"
+#   loggedout: "You are now logged out"
+#   hello: "Hello %1"
+# admin:
+#   title: Administration
+# materials:
+#   title: Materials
+#   empty: "There are no materials in the database"
+#   count: "%1 materials listed"
+# material:
+#   updated: "Changes saved successfully"
+#   new: Create New
+#   default_name: "! NEW MATERIAL"
+#   not_found: "Material not found"
+#   editing: "Editing %1"
+#   price_and_qty_explanation: "The price and quantity is by units of the given dimension either grams, cc or cm"
+#   products_list: Product associated with this material
+#   products_not_found: There are no product associated whith this material
+#   bulks_list: Bulks associated with this material
+#   bulks_not_found: There are no bulks associated whith this material
+#   fields:
+#     id: ID
+#     category: Category
+#     name: "Name"
+#     qty: "Quantity"
+#     price: "Price"
+#     units: "(cc, gr or cm)"
+#     edit: Edit
+#     actions: Actions
+# relationships:
+#   title: Relationships
+#   empty: "There are no relationships in the database"
+#   count: "%1 relationships listed"
+# bulks:
+#   title: Bulks list
+#   empty: There are no bulks available for listing
+#   count: "%1 bulks listed"
+# bulk:
+#   not_found: "Bulk not found"
+#   editing: "Editing bulk %1 (%2)"
+#   price_and_qty_explanation: "The price and quantity is by units of the given dimension either grams, cc or cm"
+#   created: Bulk created
+#   updated: "Changes saved successfully"
+#   fields:
+#     id: ID
+#     m_name: Name
+#     qty: Quantity
+#     price: Price
+#     units: "(cc, gr or cm)"
+#     status: Status
+#     created_at: Created
+#     edit: Edit
+#     actions: Actions
+# labels:
+#   title: Products labels
+#   empty: There are no labels in the database
+#   count: "%1 labels available"
+#   list: Available labels
+#   download: "Download %1 labels print job"
+# label:
+#   new: Create New
+#   read_placeholder: "i/e: 329.b4d224e4"
+#   fields:
+#     label: Label
+#     id: ID
+#     status: Status
+#     created_at: Created
+#     qty: Quantity
+#   created: Label created
+#   assigned: "Label %1 assigned to product %2"
+# items:
+#   title: Items
+#   empty: There are no items in the database
+#   count: "%1 items listed"
+# item:
+#   fields:
+#     id: ID
+#     p_id: Product
+#     price: Price
+#     price_pro: Price pro
+#     status: Status
+#     created_at: Created
+#   invalid: Identificador de item invalido
+# products:
+#   title: Products
+#   empty: There are no products in the database
+#   count: "%1 products available"
+#   list: Available products
+# product:
+#   read_placeholder: "i/e: 4256"
+#   not_found: "Product not found"
+#   editing: "Editing %1"
+#   items_list: Items associated with this product
+#   items_not_found: There are no item associated whith this product
+#   item_removed: Label dissociated from product
+#   fields:
+#     id: ID
+#     category: Category
+#     name: "Name"
+#     brand: Brand
+#     qty: "Quantity"
+#     price: "Price"
+#     price_pro: Pro?
+#     units: "(cc, gr or cm)"
+# production:
+#   title: Production process
+#   explanation: Brief explanation of the production process
+#   invalid_label: "The label %1 is invalid"
+#   invalid_status: "The label %1 cannot be assigned to a product (invalid status for the action)"
+#   packaging_orders:
+#     title: "Packaging & Labeling orders"
+#   packaging_order:
+#     title: "Packaging & Labeling order # %1"
+#     empty: There are no orders in the database
+#     count: "%1 orders available"
+#     scan_label: Scan the ID
+#     scan_product: Scan product
+#     assigned: "Label %1 assigned to %1"
+#     missing_materials_cant_allocate: Missing materials. Can't allocate order until there are enough open bulks
+#   verify_packaging:
+#     title: Packaging orders needing verification
+#   verifying_packaging:
+#     title: "Verifying packaging order #%1"
+#     empty: There are no items left to verify
+#     scan_item: Scan the ID
+#     pending_items: Pending items
+#     still_pending_items: There are still pending items
+#     verified_items: Verified items
+#     scan_next: Scan the next item to verify
+#   packaging_orders_allocation:
+#     title: "Packaging orders allocaton"
+#     empty: There are no orders to allocate
+#   packaging_order_allocation:
+#     title: "Allocating packaging order #%1"
+#     empty: There are no items to allocate
+#     allocate: Allocate orden to %1
+#     ok: "Order #%1 processed and imputed to the inventory"
+# logs:
+#   title: Event log
+#   empty: "There are no registered events"
+#   count: "%1 registered events"
+# event:
+#   fields:
+#     at: when
+#     msg: what
+#     u_id: who
+#     l_id: where
+#     lvl: level
+#     b_id: Bulk
+#     m_id: Material
+#     i_id: Item
+#     i_id_l_id: Item / Label
+#     o_id: Order
+#     p_id: Product
+# logistics:
+#   title: Logistics
+# orders:
+#   title: "Order # %1"
+#   empty: There are no orders to show
+#   count: "Showing %1 orders"
+# order:
+#   type:
+#     UNDEFINED: Undefined
+#     PACKAGING: "Packaging and labeling"
+#     INVENTORY: Inventory
+#   fields:
+#     id: ID
+#     type: Type
+#     status: Status
+#     user: User
+#     location: Location
+#     created_at: Created
+#   title: "Order of type %1 #%2"
+#   new: Create New
+#   created: New order created %1
+#   item_added: "%1 added to order %2"
+#   item_removed: Item removed from order
+#   all_items_removed: All item have been removed from order
+#   void: Order marked as VOID
+#   user_is_editing: "%1 is editing order of type %2 #%3"
+#   user_is_editing_nil: "%1 is trying to open an order of type %2 #%3 which doesn't exists"
+#   ready_for_verification: "The order is ready for verification"
+#   user_is_verifying: "%1 is verifying order of type %2 #%3"
+#   user_is_verfying_order_in_invalid_status: "%1 is trying to verify an order of type %2 #%3 which is in and invalid status %4"
+#   user_is_verfying_order_of_wrong_type: "%1 is trying to verify order #%2 with status %3 wich is of invalid type %4"
+#   sure_to_cancel_load_order: "This will delete the current order. All labels and products will be unasigned"
+#   cancelled: "The order # %1 was cancelled. All labels and products have been unasigned"
+#   not_a_packaging: This is not a packaging order
+#   missing: Order missing or inaccesible from this module
+#   scan_label: Scan the ID
+#   scan_product: Scan product
+# location:
+#   title: Location
+# constant:
+#   title: System Constants
+#   OPEN: Open
+#   ASSIGNED: Assigned
+#   FINISHED: Finished
+#   READY: Ready
+#   VERIFIED: Verified
+#   MUST_VERIFY: Must ve Verified
+#   PRINTED: Printed
+#   PACKAGING: Packaging
+#   INVENTORY: Inventory review
+#   IN_USE: In Use
+#   EMPTY: Empty
+#   NEW: New
+#   WH_TO_POS: Warehouse -> POS
+#   SYSTEM: Internal
+#   WAREHOUSE_1: Warehouse 1
+#   WAREHOUSE_2: Warehouse 2
+#   STORE_1: Store 1
+#   STORE_2: Store 2
+#   VOID: Void
+# sales:
+#   title: Point of Sales
+#   inventory_review_select:
+#     title: Inventory Review Orders
+#     empty: No orders available
+#     count: "%1 orders available"
+#   inventory_review:
+#     title: "Inventory review order # %1 (%2 items)"
+#     scan_label: Scan the ID Label
+#     select_product: Select product
+#     assigned: "Etiqueta %1 asignada a %1"
+#   inventory_verification_select:
+#     title: "Verification of Inventory review orders"
+#   inventory_verification:
+#     title: "Inventory review order verification # %1 (%2 / %3 items)"
+#     scan_label: Scan next item
+#   inventory_imputation_select:
+#     title: "imputation of Inventory review orders"
+#   inventory_imputation:
+#     title: "Inventory review order imputation # %1 (%2 / %3 items)"
+#     scan_label: Scan next item

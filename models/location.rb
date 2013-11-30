@@ -11,17 +11,33 @@ class Location
   ENABLED_WAREHOUSES = WAREHOUSES
   STORES = [S1, S2]
   ENABLED_STORES = [S1]
+  LEVEL = {S1 => 1, S2 => 2, W1 => 2, W2 => 2}
 
   def warehouses
     translated_list ENABLED_WAREHOUSES
   end
-
   def stores
     translated_list ENABLED_STORES
   end
   def store_1
     translated_list [S1]
   end
+
+  def level_1
+    translated_list LEVEL_1
+  end
+  def level_2
+    translated_list LEVEL_2
+  end
+  def level_2
+    translated_list LEVEL_3
+  end
+
+
+  def stores
+    translated_list ENABLED_STORES
+  end
+
 
   def valid? location
     (ENABLED_WAREHOUSES + ENABLED_STORES + [ER]).include? location
@@ -39,7 +55,7 @@ class Location
     if name.nil?
       current = {name: "", translation: ""}
     else
-      current = {name: name, translation: ConstantsTranslator.new(name).t}
+      current = {name: name, translation: ConstantsTranslator.new(name).t, level: LEVEL[name]}
     end
     current
   end

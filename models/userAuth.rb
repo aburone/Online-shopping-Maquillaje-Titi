@@ -10,6 +10,10 @@ class UserAuth < Sequel::Model(:users)
     User.where(Sequel.like(:username, username)).first
   end
 
+  def password=(new_password)
+    self[:password] = BCrypt::Password.create(new_password)
+  end
+
   def valid? username, password
     user = get_user username
     if user && (valid_pass? user, password )

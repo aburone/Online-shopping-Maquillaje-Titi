@@ -52,7 +52,14 @@ Then I should see "Imputacion de ordenes al inventario "
 
 When I select a packaging order for allocation
 Then I should see the correct title for the allocation of a packaging order
-And The allocation must take place
+# Then show me the page
+# When I click "Imputar orden a Deposito 2"
+# Then show me the page
+# When I click "Imputar orden a Deposito 2"
+# Then show me the page
+# When I click "Imputar orden a Deposito 2"
+Then The allocation must take place
+# Then show me the page
 
 # And I click "Aceptar"
 # Then show me the page

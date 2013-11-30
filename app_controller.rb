@@ -113,12 +113,16 @@ class AppController < Sinatra::Base
   def set_locale
     # session[:locale] = extract_locale_from_accept_language_header || 'es'
     session[:locale] = 'es'
+    Thread.current.thread_variable_set(:locale, "es")
   end
-  def extract_locale_from_accept_language_header
-    request.env['HTTP_ACCEPT_LANGUAGE'].scan(/^[a-z]{2}/).first
-  rescue
-    ''
-  end
+
+  # def extract_locale_from_accept_language_header
+  #   begin
+  #     request.env['HTTP_ACCEPT_LANGUAGE'].scan(/^[a-z]{2}/).first
+  #   rescue
+  #     'es'
+  #   end
+  # end
 
 end
 

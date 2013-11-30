@@ -10,13 +10,13 @@ class LocationTest < Test::Unit::TestCase
   def test_warehouses
     t = Location.new.warehouses
     assert t.count > 0
-    t.each { |tr| assert_equal tr.keys, [:name, :translation] }
+    t.each { |tr| assert_equal tr.keys, [:name, :translation, :level] }
   end
 
   def test_stores
     t = Location.new.stores
     assert t.count > 0
-    t.each { |tr| assert_equal tr.keys, [:name, :translation] }
+    t.each { |tr| assert_equal tr.keys, [:name, :translation, :level] }
   end
 
   def test_valid

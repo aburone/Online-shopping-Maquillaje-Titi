@@ -25,4 +25,4 @@ p = "(Las cantidades ya tienen restado el uso)"
 
   form.v_island_1 action=url("/production/packaging_orders_allocation/#{@order[:o_id]}") method="post"
     == Rack::Csrf.tag(env)
-    input type="submit" value="Imputar orden a #{current_location[:translation]}"
+    input#impute type="submit" value="Imputar orden a #{current_location[:translation]}"

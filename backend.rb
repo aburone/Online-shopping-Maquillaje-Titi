@@ -10,6 +10,7 @@ class Backend < AppController
   helpers ApplicationHelper
 
   before do
+    session.each { |key, value| session.delete(key.to_sym)} if Location.new.stores.include? current_location
     set_locale
     Thread.current.thread_variable_set(:login_path, "/admin/login")
     Thread.current.thread_variable_set(:root_path, "../admin")

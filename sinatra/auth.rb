@@ -60,7 +60,7 @@ module Sinatra
       app.post '/login' do
         user = User.new.valid?(params[:admin_username], params[:admin_password])
         location = Location.new.valid?(params[:location]) ? Location.new.get(params[:location]) : false
-        if user && location
+        if user && location && user.level >= location[:level]
           set_user user, location
           flash[:notice]  = t.auth.loggedin(user.username)
           if (request.env["REQUEST_PATH"].nil? or request.env["HTTP_HOST"].nil? or request.referer.nil?) and not request.referer.inclue?(request.env["HTTP_HOST"])

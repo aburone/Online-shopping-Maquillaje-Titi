@@ -9,16 +9,10 @@ class User < UserAuth
     out += "\t user_real_name:  #{@values[:user_real_name]}\n"
     out += "\t user_email:  #{@values[:user_email]}\n"
     out += "\t user_real_name:  #{@values[:user_real_name]}\n"
-    out += "\t level_1:  #{@values[:level_1]}\n"
-    out += "\t level_2:  #{@values[:level_2]}\n"
-    out += "\t level_2:  #{@values[:level_2]}\n"
     out += "\t is_active:  #{@values[:is_active]}\n"
     out += "\t session_length:  #{@values[:session_length]}\n"
     out += "\t password:  #{@values[:password]}\n"
-  end
-
-  def password=(new_password)
-    self[:password] = BCrypt::Password.create(new_password)
+    out += "\t level:  #{@values[:level]}\n"
   end
 
   def current_user_id

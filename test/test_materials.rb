@@ -40,7 +40,8 @@ class MaterialTest < Test::Unit::TestCase
     m.m_id = 1
     m.m_name = nil
     assert_equal(false, m.valid?, "The name can't be nil")
-    assert_equal( ["cannot be empty or nil"], m.errors[:name])
+    
+    assert_equal( [R18n.t.errors.presence], m.errors[:Nombre])
     puts "\n" + m.errors.to_s if m.errors.size != 1
   end
 
@@ -49,7 +50,7 @@ class MaterialTest < Test::Unit::TestCase
     m.m_id = 1
     m.m_name = ""
     assert_equal(false, m.valid?, "The name can't be empty")
-    assert_equal( ["cannot be empty or nil"], m.errors[:name])
+    assert_equal( [R18n.t.errors.presence], m.errors[:Nombre])
     puts "\n" + m.errors.to_s if m.errors.size != 1
 end
 
@@ -72,7 +73,7 @@ end
     m.m_name = "test name"
     assert_equal(-1, m.m_id)
     assert_equal(false, m.valid?, "The id can't be negative")
-    assert_equal( ["must be positive -1 given"], m.errors[:m_id])
+    assert_equal( [R18n.t.errors.positive_feedback(-1)], m.errors[:m_id])
     puts "\n" + m.errors.to_s if m.errors.size != 1
 end
 
@@ -82,7 +83,7 @@ end
     m.m_name = "test name"
     assert_equal(0, m.m_id)
     assert_equal(false, m.valid?, "The id must be positive")
-    assert_equal( ["must be positive 0 given"], m.errors[:m_id])
+    assert_equal( [R18n.t.errors.positive_feedback(0)], m.errors[:m_id])
     puts "\n" + m.errors.to_s if m.errors.size != 1
   end
 

@@ -13,9 +13,9 @@ gem "better_errors"
 gem "kss"
 gem "encrypted_cookie"
 gem "rack_csrf"
-gem "sinatra-r18n"
 gem "htmlentities"
 gem "r18n-core"
+gem "sinatra-r18n"
 gem "thin"
 
 group :development, :test do
@@ -27,6 +27,7 @@ group :development, :test do
   gem "cucumber-sinatra"
   gem "shotgun"
   gem "poltergeist"
+  gem 'selenium-webdriver'
   gem "mocha"
   gem "test-unit-full"
 end
