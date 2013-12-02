@@ -3,12 +3,12 @@ class Backend < AppController
   get '/inventory' do
     @orders = Order.new.get_inventory_review_in_location current_location[:name]
     @message = "Carga inicial de inventario. Esto no resta materiales"
-    slim :admin, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
+    slim :admin, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
   get '/inventory/items/?' do
     @items = Item.new.get_list_at_location(current_location[:name]).all
-    slim :items, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
+    slim :items, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
 
@@ -26,7 +26,7 @@ class Backend < AppController
 
 get '/inventory/inventory_review/select' do
     @orders = Order.new.get_inventory_review_in_location(current_location[:name]).filter(o_status: Order::OPEN)
-    slim :inventory_review_select, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
+    slim :inventory_review_select, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
   post '/inventory/inventory_review/new' do
@@ -120,7 +120,7 @@ get '/inventory/inventory_review/select' do
     @item ||= Item.new
     @items = @order.items
 
-    slim :inventory_add, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
+    slim :inventory_add, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
 
@@ -155,7 +155,7 @@ get '/inventory/inventory_review/select' do
 
   get '/inventory/inventory_verification/select' do
     @orders = Order.new.get_inventory_verification
-    slim :inventory_verification_select, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
+    slim :inventory_verification_select, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
   route :get, :post, '/inventory/inventory_verification/:o_id' do
     inventory_verification params
@@ -215,7 +215,7 @@ get '/inventory/inventory_review/select' do
     @product = @item.empty? ? Product.new : Product[@item.p_id]
     @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).all
     @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).all
-    slim :inventory_verify, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
+    slim :inventory_verify, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
 
@@ -248,13 +248,13 @@ get '/inventory/inventory_review/select' do
 
   get '/inventory/inventory_imputation/select' do
     @orders = Order.new.get_inventory_imputation
-    slim :inventory_imputation_select, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
+    slim :inventory_imputation_select, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
   get '/inventory/inventory_imputation/:o_id' do
     @order = Order.new.get_inventory_imputation.filter(o_id: params[:o_id].to_i).first
     @items = @order.items
-    slim :inventory_imputation_confirm, layout: :layout_backend, locals: {sec_nav: :nav_inventory}
+    slim :inventory_imputation_confirm, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
   post '/inventory/inventory_imputation/:o_id/finish' do

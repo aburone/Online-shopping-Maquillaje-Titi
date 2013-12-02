@@ -100,6 +100,8 @@ nav:
     make_sale: Hacer venta
     products: "Productos"
     arrivals: Ingresos de mercaderia
+    arrivals_list: Ordenes por verificar
+    arrivals_verifying: Verificando
 media:
   icons:
     edit: "/media/Icon-Edit.png"

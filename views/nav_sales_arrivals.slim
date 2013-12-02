@@ -1,9 +1,12 @@
 aside
   nav role="navigation"
     ul
-      - if authorized?
+      li
+        span class="#{inside?("/sales/arrivals")}" = t.nav.sales.arrivals
+      li: ul
         li
-          a class="#{inside?("/sales/arrivals")}" href=url('/arrivals') = t.nav.sales.arrivals
+          a class="#{current?("/sales/arrivals")}" href=url('/arrivals') = t.nav.sales.arrivals_list
+        / li
+        /   a class="#{inside?("/sales/arrivals")}" href=url('/arrivals') = t.nav.sales.arrivals_verifying
         li
-          | - 
           a class="#{inside?("/sales/arrivals/items")}" href=url('/arrivals/items') Items pendientes de verificacion

@@ -1,20 +1,20 @@
 class Backend < AppController
   get '/logistics/?' do
     @orders = Order.new.get_packaging_orders.order(:o_id).reverse
-    slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_production}
+    slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
   # get '/logistics/transport/inter_warehouse?' do
-  #   slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_production}
+  #   slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   # end
 
   # get '/logistics/transport/warehouse_pos?' do
-  #   slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_production}
+  #   slim :logistics, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   # end
 
   get '/logistics/transport/warehouse_pos/select/?' do
     @orders = Order.new.get_warehouse_pos__open(current_location[:name])
-    slim :warehouse_pos_select, layout: :layout_backend, locals: {sec_nav: :nav_production}
+    slim :warehouse_pos_select, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
   post '/logistics/transport/warehouse_pos/new/?' do
@@ -46,7 +46,7 @@ class Backend < AppController
     end
     @item ||= Item.new
     @items = @order.items
-    slim :select_item_to_add_to_transport_order, layout: :layout_backend, locals: {sec_nav: :nav_production}
+    slim :select_item_to_add_to_transport_order, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
   post '/logistics/transport/warehouse_pos/:o_id/:p_id/:i_id/undo/?' do

@@ -29,6 +29,7 @@ Then /^I should see (\d+) (.+)$/ do |number, classs|
 end
 
 
+
 When /^I click on "([^\"]+)"$/ do |text|
   matcher = ['*', { :text => text }]
   element = page.find(:css, *matcher)

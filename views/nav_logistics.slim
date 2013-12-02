@@ -1,0 +1,39 @@
+aside
+  nav role="navigation"
+    ul
+      li
+        spam class="#{inside?("/admin/production")} #{inside?("/admin/logistics")} #{inside?("/admin/inventory")}" = t.nav.backend.logistics
+      li: ul
+        li
+          span class="#{inside?("/admin/inventory")}"  Carga inicial de productos terminados
+        li: ul
+          li
+            a class="#{inside?("/admin/inventory/inventory_review")}" href=url('/inventory/inventory_review/select') Iniciar carga
+          li
+            a class="#{inside?("/admin/inventory/inventory_verification")}" href=url('/inventory/inventory_verification/select') Verificar
+          li
+            a class="#{inside?("/admin/inventory/inventory_imputation")}" href=url('/inventory/inventory_imputation/select') Imputar
+          li
+            a class="#{inside?("/admin/inventory/items")}" href=url('/inventory/items') Ver Items
+      li: ul
+        li
+          spam class="#{inside?("/admin/production")}" = t.nav.backend.production
+        li: ul
+          li
+            a class="#{inside?("/admin/production/labels")}" href=url('/production/labels') = t.nav.backend.labels
+          li
+            a class="#{inside?("/admin/production/packaging/")}" href=url('/production/packaging/select') = t.nav.backend.packaging
+          li
+            a class="#{inside?("/admin/production/verify_packaging")}" href=url('/production/verify_packaging/select') = t.nav.backend.verify_packaging
+          li
+            a class="#{inside?("/admin/production/packaging_orders_allocation")}" href=url('/production/packaging_orders_allocation/select') = t.nav.backend.packaging_orders_allocation
+      li: ul
+        li
+          spam class="#{inside?("/admin/logistics/transport")}" = t.nav.backend.transport
+        li: ul
+          / li
+          /   a class="#{inside?("/admin/logistics/transport/inter_warehouse")}" href=url('/logistics/transport/inter_warehouse') = t.nav.backend.inter_warehouse
+          li
+            a class="#{inside?("/admin/logistics/transport/warehouse_pos")}" href=url('/logistics/transport/warehouse_pos/select') = t.nav.backend.warehouse_pos
+
+

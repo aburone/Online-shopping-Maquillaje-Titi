@@ -1,20 +1,20 @@
 class Backend < AppController
 
   get '/production/?' do
-    slim :production, layout: :layout_backend, locals: {sec_nav: :nav_production}
+    slim :production, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
 
   get '/production/labels/?' do
     @labels = Label.new.get_unprinted.all
-    @sec_nav = :nav_production
+    @sec_nav = :nav_logistics
     slim :labels, layout: :layout_backend
   end
   get '/production/labels/list?' do
     unprinted = Label.new.get_unprinted.all
     printed = Label.new.get_printed.all
     @labels = unprinted + printed
-    @sec_nav = :nav_production
+    @sec_nav = :nav_logistics
     slim :labels, layout: :layout_backend
   end
   post '/production/labels/csv/?' do
@@ -33,12 +33,12 @@ class Backend < AppController
 
 
   get '/production/packaging/select/?' do
-    @sec_nav = :nav_production
+    @sec_nav = :nav_logistics
     @orders = Order.new.get_open_packaging_orders current_location[:name]
     slim :packaging_order_select, layout: :layout_backend
   end
   get '/production/packaging/:o_id/?' do
-    @sec_nav = :nav_production
+    @sec_nav = :nav_logistics
     @order = Order.new.get_packaging_order params[:o_id].to_i, current_location[:name]
     if @order.o_id.nil?
       flash[:error] = t.order.missing
@@ -162,12 +162,12 @@ class Backend < AppController
   end
 
   get '/production/packaging_orders_allocation/select/?' do
-    @sec_nav = :nav_production
+    @sec_nav = :nav_logistics
     @orders = Order.new.get_verified_packaging_orders current_location[:name]
     slim :packaging_orders_allocation_select, layout: :layout_backend
   end
   get '/production/packaging_orders_allocation/:o_id/?' do
-    @sec_nav = :nav_production
+    @sec_nav = :nav_logistics
     @order = Order.new.get_order_for_allocation(params[:o_id].to_i, current_location[:name])
     if @order 
       @items = @order.items
