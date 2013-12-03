@@ -11,9 +11,9 @@ end
 
 Then /^I should be rejected$/ do
    page.should have_content "Usuario, password o localizacion incorrectos."
-  
+
 end
-    
+
 
 # AfterStep('@wip') do
 #   print "Press Return to continue"
