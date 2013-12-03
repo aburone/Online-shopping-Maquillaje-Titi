@@ -13,6 +13,8 @@ use Rack::Session::EncryptedCookie, secret: settings.cookie_secret, expire_after
 #https://github.com/baldowl/rack_csrf
 use Rack::Csrf, raise: true, field: 'csrf', key: 'csrf', header: 'X_CSRF_TOKEN' #, :skip => ['POST:/login']
 
+use Rack::Deflater
+
 require './app_controller'
 require './backend'
 require './sales'
