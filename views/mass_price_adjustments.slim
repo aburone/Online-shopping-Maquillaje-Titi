@@ -1,0 +1,13 @@
+-# coding: UTF-8
+- @title =  t.inventory.mass_price_adjustments.title
+p = t.inventory.mass_price_adjustments.intro
+
+form.grid-form action=url("/inventory/mass_price_adjustments") method="post"
+  == Rack::Csrf.tag(env)
+  div data-row-span="4"
+    div data-field-span="1"
+      label for="mod" = t.inventory.mass_price_adjustments.mod_label
+      input type="text" name="mod" id="mod" size=5 maxlength=8 required="required"
+    div data-field-span="1"
+      label for="confirm" = t.actions.confirm
+      input.ajax_confirm2 name="confirm" data-confirm_message="#{t.inventory.mass_price_adjustments.confirm_message}" type="submit" value="#{t.inventory.mass_price_adjustments.submit_text}"

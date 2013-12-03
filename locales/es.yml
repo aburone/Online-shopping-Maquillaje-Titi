@@ -11,6 +11,7 @@ actions:
   edit: Editar
   open: Abrir
   verify: Verificar
+  confirm: Confirmar
   void: Invalidar
   actions: Acciónes
   filter: Filtrar
@@ -89,6 +90,7 @@ nav:
     inter_warehouse: Entre depositos
     warehouse_pos: Hacia punto de venta
     orders: Ordenes
+    mass_price_adjustment: Ajustes de precios
   sales:
     admin: Administracion
     inventory_review: Carga de inventario
@@ -401,3 +403,10 @@ order:
     title: "Orden de movimiento de items nº %1 (%2 items)"
   arrival_verification:
     title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"
+inventory:
+  mass_price_adjustments:
+    title: Ajuste masivo de precios
+    intro: "Esto aplicara un ajuste de precios de venta al publico en todos los productos (excepto Mila Marzy). Si el numero es positivo, el precio aumenta, si es negativo, disminuye."
+    mod_label: Escribir el modificador
+    confirm_message: Estas seguro de modificar todos los precios?
+    submit_text: Actualizar todos los precios de venta

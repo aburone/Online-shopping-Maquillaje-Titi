@@ -1,4 +1,3 @@
-disable_pointer_events_during_scroll();
 $(document).ready(function () {
 
   if( $(".quicksearch tbody tr").length > 0 ) {
