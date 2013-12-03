@@ -12,12 +12,10 @@ html lang="es"
 
     section.messages
       == styled_flash
-
       
     - sec_nav ||= nil
     - if sec_nav
       == slim sec_nav
-
 
     article
       h1=@title
