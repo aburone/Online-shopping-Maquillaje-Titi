@@ -82,7 +82,7 @@ class Backend < AppController
     if product.valid?
       product.save()
       product = Product.new.get product.p_id
-      product.save()
+      product.save columns: Product::COLUMNS
       flash[:notice] = R18n.t.product.updated
     else
       flash[:error] = product.errors 
@@ -93,7 +93,6 @@ class Backend < AppController
 
   def edit_product p_id
     @product = Product.new.get p_id
-    puts @product
     @categories = Category.all
     @brands = Brand.all
     @items =  @product.items

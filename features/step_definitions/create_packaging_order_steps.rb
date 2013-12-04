@@ -13,6 +13,7 @@ end
 
 When /^I verify all items$/ do 
   @o_id = current_path.scan(/\d+/).last.to_i
+  p "Order: #{@o_id}"
   items = Item
             .filter(i_status: Item::MUST_VERIFY)
             .join(:line_items, [:i_id], o_id: @o_id)

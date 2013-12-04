@@ -8,18 +8,10 @@ class Product < Sequel::Model
   many_to_many :materials , left_key: :product_id, right_key: :m_id, join_table: :products_materials
   one_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
 
-
+  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :published_price, :published, :archived, :description, :notes, :img, :img_extra]
   def empty?
     return @values[:p_id].nil? ? true : false
   end
-
-  def get_rand
-    max_pos = Product.count(:p_id)
-    rnd = rand(max_pos)
-    Product.limit(1, rnd).first
-  end
-
-
 
   def items
     condition = "p_id = #{self[:p_id]}"
@@ -187,15 +179,6 @@ class Product < Sequel::Model
     self
   end
 
-
-  def get p_id
-    product = Product[p_id.to_i]
-    product[:sale_cost] = product.sale_cost
-    product.update_stocks
-    product.update_real_markup
-    product
-  end
-
   def sale_cost
     @values[:buy_cost] + parts_cost + materials_cost
   end
@@ -254,9 +237,44 @@ class Product < Sequel::Model
     @values[:real_markup] = @values[:price] / @values[:sale_cost] if @values[:sale_cost] > 0 
   end
 
+  def price_mod mod
+    can_update = true
+    can_update = false if mod <= 0 or mod == 1
+    can_update = false if mod > 1 and mod < 1.01
+    can_update = false if @values[:br_name] == "Mila Marzi"
+    can_update = false if @values[:archived]
+
+    if can_update
+      start_price = @values[:price].dup
+      @values[:price] *= mod
+      frac = @values[:price].abs.modulo(1)
+      if frac > 0 
+        @values[:price] += frac >= 0.5 ? -frac + 1 : -frac + 0.5 
+        @values[:price] += 0.5 if frac < 0.5 and @values[:price] > 100
+      end
+      message = "Precio ajustado de $ #{start_price.to_s("F")} a $ #{@values[:price].to_s("F")}: #{@values[:p_name]}"
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
+    end
+    update_real_markup
+  end
+
+  def get p_id
+    # .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :brands__br_name, :products__img, :products__c_id, :c_name, :products__br_id)
+    product = Product.filter(p_id: p_id.to_i)
+                .join(:categories, [:c_id])
+                .join(:brands, [:br_id])
+                .select_append{:brands__br_name}
+                .select_append{:categories__c_name}
+                .first
+    product[:sale_cost] = product.sale_cost
+    product.update_stocks
+    product.update_real_markup
+    product
+  end
+
   def get_list
     Product
-      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :brands__br_name, :products__img, :c_name)
+      .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :brands__br_name, :products__img, :products__c_id, :c_name, :products__br_id)
       .join(:categories, [:c_id])
       .join(:brands, [:br_id])
       .select_append{:brands__br_name}
@@ -265,26 +283,26 @@ class Product < Sequel::Model
  
   def get_saleable
     Product
-      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
+      .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :c_name, :products__br_id)
       .select_append{count(i_id).as(qty)}
       .where(archived: 0)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY")
       .join(:brands, [:br_id])
       .select_append{:brands__br_name}
-      .group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name, :br_name)
+      .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :c_name, :products__br_id, :br_name)
   end
 
   def get_saleable_at_location location
     Product
-      .select_group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name)
+      .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :c_name, :products__br_id)
       .select_append{count(i_id).as(qty)}
       .where(archived: 0)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: location.to_s)
       .join(:brands, [:br_id])
       .select_append{:brands__br_name}
-      .group(:products__p_id, :products__p_name, :price, :price_pro, :ideal_stock, :products__img, :c_name, :br_name)
+      .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :c_name, :products__br_id, :br_name)
   end
 
   private

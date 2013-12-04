@@ -87,3 +87,11 @@ class Order
     end
   end
 end
+
+class Product
+  def get_rand
+    max_pos = Product.count(:p_id)
+    rnd = rand(max_pos)
+    Product.limit(1, rnd).first
+  end
+end

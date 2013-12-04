@@ -3,6 +3,10 @@ require_relative 'prerequisites'
 class ProductTest < Test::Unit::TestCase
 
   def setup
+    @valid = Product.new
+    @valid.sale_cost = BigDecimal.new 10
+    @valid.price = BigDecimal.new 20
+    @valid.update_real_markup
   end
 
   def test_get_rand
@@ -141,5 +145,107 @@ class ProductTest < Test::Unit::TestCase
 
     product = Product[2]
     assert_equal product.sale_cost, product.materials_cost + product.parts_cost
+  end
+
+  def test_mod_price_should_ignore_zero
+    expected_price = @valid.price
+    @valid.price_mod 0
+    assert_equal expected_price, @valid.price
+  end
+
+  def test_mod_price_should_ignore_one
+    expected_price = @valid.price
+    @valid.price_mod 1
+    assert_equal expected_price, @valid.price
+  end
+
+  def test_mod_price_should_ignore_mila_marzi
+    @valid.br_name = "Mila Marzi"
+    mod = 1.1
+    expected = 20 # 22
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_mod_price_should_ignore_archived
+    @valid.archived = true
+    mod = 1.1
+    expected = 20 # 22
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_mod_price_1_0001
+    mod = 1.009
+    expected = 20 # 20.002
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_mod_price_1_1
+    mod = 1.1
+    expected = 22 # 22
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_mod_price_1_01
+    mod = 1.01
+    expected = 20.5 # 20.2
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_mod_price_1_11
+    mod = 1.11
+    expected = 22.5 # 22.2
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_mod_price_1_13
+    mod = 1.13
+    expected = 23 # 22.6
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_mod_price_1_5
+    mod = 1.5
+    expected = 30 # 30
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_mod_price_0_89
+    mod = 0.89
+    expected = 18 # 17.8
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_mod_price_0_01
+    mod = 0.01
+    expected = 0.5 # 0.2
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_mod_price_5_123
+    mod = 5.123
+    expected = 103 # 102.46
+    expected_price = BigDecimal.new("#{expected}", 2)
+    @valid.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
   end
 end

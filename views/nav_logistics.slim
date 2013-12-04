@@ -35,9 +35,9 @@ aside
           /   a class="#{inside?("/admin/logistics/transport/inter_warehouse")}" href=url('/logistics/transport/inter_warehouse') = t.nav.backend.inter_warehouse
           li
             a class="#{inside?("/admin/logistics/transport/warehouse_pos")}" href=url('/logistics/transport/warehouse_pos/select') = t.nav.backend.warehouse_pos
-      / li: ul
-      /   li
-      /     span class="#{inside?("/admin/inventory/mass_price_adjustments")}" = t.nav.backend.mass_price_adjustment
-      /   li: ul
-      /     li
-      /       a class="#{inside?("/admin/inventory/mass_price_adjustments")}" href=url('/inventory/mass_price_adjustments') Iniciar ajuste
+      li: ul
+        li
+          span class="#{inside?("/admin/inventory/mass_price_adjustments")}" = t.nav.backend.mass_price_adjustment
+        li: ul
+          li
+            a class="#{inside?("/admin/inventory/mass_price_adjustments")}" href=url('/inventory/mass_price_adjustments') Iniciar ajuste
