@@ -1,7 +1,7 @@
 class Backend < AppController
 
   get '/materials/?' do
-    @materials = Material.new.get_list current_location[:name]
+    @materials = Material.new.get_list(current_location[:name])
     slim :materials, layout: :layout_backend
   end
   post '/materials/new/?' do
@@ -37,7 +37,7 @@ class Backend < AppController
 
 
   get '/bulks/?' do
-    @bulks = Bulk.new.get_list(current_location[:name]).all
+    @bulks = Bulk.new.get_list(current_location[:name]).order(:m_name).all
     @count = 0
     @bulks.map do |bulk| @count += 1 unless bulk.b_printed
       p bulk.b_printed

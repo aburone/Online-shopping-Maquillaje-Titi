@@ -46,7 +46,7 @@ class Backend < AppController
   end
 
   get '/products_relationships/?' do
-    products = Product.new.get_list.all
+    products = Product.new.get_list.order(:c_name, :p_name).all
     @relationships = []
     products.each do |p|
       relationship = {product: p, materials: p.materials, parts: p.parts}
@@ -56,7 +56,7 @@ class Backend < AppController
   end
 
   get '/products/?' do
-    @products = Product.new.get_saleable_at_location(current_location[:name]).all
+    @products = Product.new.get_saleable_at_location(current_location[:name]).order(:c_name, :p_name).all
     slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product, sec_nav: :nav_products}
   end
 

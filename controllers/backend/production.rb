@@ -55,7 +55,7 @@ class Backend < AppController
   end
   get '/production/packaging/:o_id/add/?' do
     @labels = Label.new.get_printed.all
-    @products = Product.new.get_list.all
+    @products = Product.new.get_list.order(:c_name, :p_name).all
     @order = Order.new.get_packaging_order params[:o_id].to_i, current_location[:name]
     @items = @order.items
     slim :select_label_and_item_to_add_to_packaging_order, layout: :layout_backend

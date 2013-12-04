@@ -114,7 +114,7 @@ get '/inventory/inventory_review/select' do
         flash[:notice] = [assigned_msg, added_msg]
       end
     else
-      @products = Product.new.get_list.all
+      @products = Product.new.get_list.order(:c_name, :p_name).all
     end
 
     @item ||= Item.new

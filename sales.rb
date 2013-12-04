@@ -46,7 +46,7 @@ class Sales < AppController
 
 
   get '/products' do
-    @products = Product.new.get_saleable_at_location(current_location[:name]).all
+    @products = Product.new.get_saleable_at_location(current_location[:name]).order(:c_name, :p_name).all
     slim :products, layout: :layout_sales, locals: {full_row: true, stock_col: true, can_edit: false, sec_nav: :nav_products}
   end
 

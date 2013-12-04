@@ -104,7 +104,7 @@ class Material < Sequel::Model(:materials)
   def get_list warehouse_name
     begin
       materials = base_query(warehouse_name)
-        .order(:m_name)
+        .order(:c_name, :m_name)
         .all
       materials.each { |mat| mat.m_price = Material.new.get_price(mat.m_id) }
       materials
