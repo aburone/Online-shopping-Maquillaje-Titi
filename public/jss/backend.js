@@ -80,28 +80,15 @@ $(document).ready(function () {
     }
   }); 
 
-  $('form').on('keyup','#ajax_edit_product_price', function(e){
-      console.log(e.keyCode);
-      if( keyCode_is_numeric(e.keyCode) || keyCode_is_backspace_or_delete(e.keyCode)) {
-        $("#ajax_product_exact_price").val($(this).val());
+  $('#ajax_edit_product_price').on({'focus': function(e){
+        this.original_value = this.value;
+      },'keyup': function(e){
+        this.value = this.value.replace(/[^0-9\.\,]/g,'');
+        if( this.original_value != this.value) {
+          $("#ajax_product_exact_price").val(this.value);
+        }
       }
   }); 
-
-  function keyCode_is_numeric(keyCode) {
-    if( (keyCode >= 96 && keyCode <=105) || keyCode == 110 || keyCode == 188 || keyCode == 190) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  function keyCode_is_backspace_or_delete(keyCode) {
-    if( keyCode == 8 || keyCode == 46 ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
   $("#ajax_label_selector").bind("keypress", function (e) {
     if (e.keyCode === 13) {
