@@ -252,6 +252,7 @@ product:
     sale_cost: "Costo de venta"
     ideal_markup: "Markup ideal"
     real_markup: "Markup real"
+    exact_price: "Precio exacto"
     price: "Precio"
     price_pro: Pro?
     published: Publicar en pagina?

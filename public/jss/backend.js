@@ -80,6 +80,28 @@ $(document).ready(function () {
     }
   }); 
 
+  $('form').on('keyup','#ajax_edit_product_price', function(e){
+      console.log(e.keyCode);
+      if( keyCode_is_numeric(e.keyCode) || keyCode_is_backspace_or_delete(e.keyCode)) {
+        $("#ajax_product_exact_price").val($(this).val());
+      }
+  }); 
+
+  function keyCode_is_numeric(keyCode) {
+    if( (keyCode >= 96 && keyCode <=105) || keyCode == 110 || keyCode == 188 || keyCode == 190) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function keyCode_is_backspace_or_delete(keyCode) {
+    if( keyCode == 8 || keyCode == 46 ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   $("#ajax_label_selector").bind("keypress", function (e) {
     if (e.keyCode === 13) {
@@ -140,18 +162,3 @@ $(document).ready(function () {
   });
 
 });
-
-function disable_pointer_events_during_scroll() {
-  var body = document.body,
-      timer;
-  window.addEventListener('scroll', function() {
-    clearTimeout(timer);
-    if(!body.classList.contains('scrolling')) {
-      body.classList.add('scrolling')
-    }
-    
-    timer = setTimeout(function(){
-      body.classList.remove('scrolling')
-    },10);
-  }, false);
-}

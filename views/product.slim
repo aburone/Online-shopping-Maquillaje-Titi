@@ -44,7 +44,7 @@
 
     fieldset
       legend Valores
-      div data-row-span="6"
+      div data-row-span="7"
         div data-field-span="1"
           label for="buy_cost" = t.product.fields.buy_cost
           input type="text" name="buy_cost" size=5 maxlength=10 value="#{Utils::number_format @product[:buy_cost], 2, 0}"
@@ -57,9 +57,12 @@
         div.readonly data-field-span="1"
           label for="real_markup" = t.product.fields.real_markup
           input type="text" name="real_markup" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:real_markup], 3, 0}"
+        div.readonly data-field-span="1"
+          label for="exact_price" = t.product.fields.exact_price
+          input type="text" name="exact_price" id="ajax_product_exact_price" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:exact_price], 5, 0}"
         div data-field-span="1"
           label for="price" = t.product.fields.price
-          input type="text" name="price" size=5 maxlength=10 value="#{Utils::number_format @product[:price], 2, 0}"
+          input type="text" name="price" id="ajax_edit_product_price" size=5 maxlength=10 value="#{Utils::number_format @product[:price], 2, 0}"
         div data-field-span="1"
           label for="price_pro" = t.product.fields.price_pro
           input type="text" name="price_pro" size=5 maxlength=10 value="#{Utils::number_format @product[:price_pro], 2, 0}"
