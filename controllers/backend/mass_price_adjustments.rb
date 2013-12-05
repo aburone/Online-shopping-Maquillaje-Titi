@@ -7,11 +7,13 @@ class Backend < AppController
     products = Product.new.get_list
                 .select(:p_id)
                 .order(:c_name, :p_name)
+                .limit(10)
                 .all
     products.map do |pr|
       product = Product.new.get(pr.p_id)
       product.price_mod(mod)
       product.save columns: Product::COLUMNS if save
+      puts product
       final_products << product
     end
     final_products

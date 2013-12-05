@@ -8,7 +8,7 @@ class Product < Sequel::Model
   many_to_many :materials , left_key: :product_id, right_key: :m_id, join_table: :products_materials
   one_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
 
-  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :published_price, :published, :archived, :description, :notes, :img, :img_extra]
+  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :description, :notes, :img, :img_extra]
   def empty?
     return @values[:p_id].nil? ? true : false
   end
@@ -99,6 +99,7 @@ class Product < Sequel::Model
     product.buy_cost = obj[:buy_cost]
     product.sale_cost = obj[:sale_cost]
     product.markup = obj[:markup]
+    product.exact_price = obj[:exact_price]
     product.price = obj[:price]
     product.price_pro = obj[:price_pro]
     product.published = obj[:published]
@@ -134,7 +135,8 @@ class Product < Sequel::Model
     out += "\tsale_cost:          #{Utils::number_format @values[:sale_cost], 2}\n"
     out += "\tideal_markup:       #{Utils::number_format @values[:ideal_markup], 3}\n"
     out += "\treal_markup:        #{Utils::number_format @values[:real_markup], 3}\n"
-    out += "\tprice:              #{Utils::number_format @values[:price], 2}\n"
+    out += "\texact_price:        #{Utils::number_format @values[:exact_price], 5}\n"
+    out += "\tprice:              #{Utils::number_format @values[:price], 5}\n"
     out += "\tprice_pro:          #{Utils::number_format @values[:price_pro], 2}\n"
 
     out += "\tpublished:          #{@values[:published]}\n"
@@ -245,8 +247,9 @@ class Product < Sequel::Model
     can_update = false if @values[:archived]
 
     if can_update
-      start_price = @values[:price].dup
-      @values[:price] *= mod
+      start_price = @values[:exact_price].dup
+      @values[:exact_price] *= mod
+      @values[:price] = @values[:exact_price].dup
       frac = @values[:price].abs.modulo(1)
       if frac > 0 
         @values[:price] += frac >= 0.5 ? -frac + 1 : -frac + 0.5 
