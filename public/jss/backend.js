@@ -90,6 +90,15 @@ $(document).ready(function () {
       }
   }); 
 
+  $('form').on('keyup','input[type=tel].number', function(e){
+    console.log("hola");
+    this.value = this.value.replace(/[^0-9\.\,\-]/g,'');
+    this.value = this.value.replace(/[\,]/g,'.');
+    if(this.classList.contains("positive")) {
+      this.value = this.value.replace(/[\-]/g,'');
+    }
+  });
+
   $("#ajax_label_selector").bind("keypress", function (e) {
     if (e.keyCode === 13) {
       return move_focus_and_toggle_if_necesary();

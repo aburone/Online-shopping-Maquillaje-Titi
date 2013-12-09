@@ -7,7 +7,8 @@ class Backend < AppController
                 .filter(Sequel.negate(products__br_name: "Mila Marzi"))
                 .select(:p_id)
                 .order(:c_name, :p_name)
-                .all
+    products = Sinatra::Base.development? ? products.limit(10) : products.all
+
     products.map do |pr|
       product = Product.new.get(pr.p_id)
       product.price_mod(mod)

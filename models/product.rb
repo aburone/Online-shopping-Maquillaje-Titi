@@ -181,6 +181,7 @@ class Product < Sequel::Model
 
     self[:p_name] = ""
     [self[:p_short_name], self[:br_name], self[:packaging], self[:size], self[:color], self[:sku]].map { |part| self[:p_name] += " " + part unless part.empty?}
+    cast
     self
   end
 
@@ -314,6 +315,7 @@ class Product < Sequel::Model
 
   private
     def cast
+      self[:exact_price] = BigDecimal.new self[:exact_price]
       self[:price] = BigDecimal.new self[:price]
       self[:price_pro] = BigDecimal.new self[:price_pro]
       self[:ideal_stock] = BigDecimal.new self[:ideal_stock]
