@@ -6,7 +6,9 @@ html lang="es"
     meta charset="utf-8"
     link rel="shortcut icon" href="/media/favicon.ico"
     == slim :mobile_meta
-    link rel="stylesheet" href="/backend.css"
+    - date = Time.now.strftime("%Y%m%d")
+
+    link rel="stylesheet" href="/backend.css?#{date}"
   body
     == slim :nav_admin
 
@@ -25,4 +27,4 @@ html lang="es"
       footer
         script src="/jquery-2.0.3.min.js"
         script src="/jquery.plugins-min.js"
-        script src="/backend-min.js"
+        script src="/backend-min.js?#{date}"
