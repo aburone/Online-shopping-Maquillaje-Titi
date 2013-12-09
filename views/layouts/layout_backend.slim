@@ -7,7 +7,6 @@ html lang="es"
     link rel="shortcut icon" href="/media/favicon.ico"
     == slim :mobile_meta
     - date = Time.now.strftime("%Y%m%d")
-
     link rel="stylesheet" href="/backend.css?#{date}"
   body
     == slim :nav_admin
