@@ -62,7 +62,7 @@
           input type="text" name="exact_price" id="ajax_product_exact_price" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:exact_price], 5, 0}"
         div data-field-span="1"
           label for="price" = t.product.fields.price
-          input type="number" name="price" id="ajax_edit_product_price" size=5 maxlength=10 value="#{Utils::number_format @product[:price], 2, 0}"
+          input type="number" name="price" id="ajax_edit_product_price" step=0.1 size=5 maxlength=10 value="#{Utils::number_format(@product[:price], 2, 0).gsub(',', '.') }"
         div data-field-span="1"
           label for="price_pro" = t.product.fields.price_pro
           input type="text" name="price_pro" size=5 maxlength=10 value="#{Utils::number_format @product[:price_pro], 2, 0}"
