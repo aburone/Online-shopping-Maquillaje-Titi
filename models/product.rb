@@ -169,8 +169,11 @@ class Product < Sequel::Model
     hash_values.select { |key, value| self[key.to_sym]=value.to_s.gsub(',', '.') if numerical_keys.include? key.to_sym unless value.nil?}
     cast
 
-    alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :published_price, :published, :archived, :description, :notes, :img, :img_extra ]
+    alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :archived, :description, :notes, :img, :img_extra ]
     hash_values.select { |key, value| self[key.to_sym]=value.to_s if alpha_keys.include? key.to_sym unless value.nil?}
+
+    checkbox_keys = [:published_price, :published]
+    checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }
 
     brand_json = JSON.parse(hash_values[:brand])
     brand_keys = [ :br_id, :br_name ]
