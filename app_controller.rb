@@ -61,8 +61,9 @@ class AppController < Sinatra::Base
 
     #slim
     Slim::Engine.set_default_options pretty: true, sort_attrs: false
+    set :static, true
     set :public_folder, "#{File.expand_path '../public', __FILE__}"
-    set :static_cache_control, [:public, max_age: 60 * 60 * 24 * 365]
+    set :static_cache_control, [:public, {max_age: 60 * 60 * 24 * 365}]
     views = ['views', 'views/layouts', 'views/pages', 'views/partials', 'views/ajax']
     set :views, views.map{|view| File.expand_path "../#{view}", __FILE__}
     set :template_engine, :slim
