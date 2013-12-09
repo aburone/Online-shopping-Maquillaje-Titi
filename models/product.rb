@@ -262,12 +262,13 @@ class Product < Sequel::Model
   end
 
   def get p_id
-    # .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :brands__br_name, :products__img, :products__c_id, :c_name, :products__br_id)
-    product = Product.filter(p_id: p_id.to_i)
+    product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra)
+                .filter(p_id: p_id.to_i)
                 .join(:categories, [:c_id])
                 .join(:brands, [:br_id])
                 .select_append{:brands__br_name}
                 .select_append{:categories__c_name}
+                .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra, :brands__br_name, :categories__c_name)
                 .first
     product[:sale_cost] = product.sale_cost
     product.update_stocks
