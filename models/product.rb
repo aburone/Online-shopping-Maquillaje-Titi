@@ -1,4 +1,5 @@
 require 'sequel'
+require 'json'
 require_relative 'item'
 
 class Product < Sequel::Model
@@ -251,6 +252,7 @@ class Product < Sequel::Model
     can_update = false if @values[:archived]
 
     if can_update
+      # @values[:exact_price] = BigDecimal.new 0 if @values[:exact_price].nil?
       start_price = @values[:exact_price].dup
       @values[:exact_price] *= mod
       @values[:price] = @values[:exact_price].dup
@@ -267,9 +269,9 @@ class Product < Sequel::Model
 
   def get p_id
     product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra)
-                .filter(p_id: p_id.to_i)
-                .join(:categories, [:c_id])
-                .join(:brands, [:br_id])
+                .filter(products__p_id: p_id.to_i)
+                .left_join(:categories, [:c_id])
+                .left_join(:brands, [:br_id])
                 .select_append{:brands__br_name}
                 .select_append{:categories__c_name}
                 .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra, :brands__br_name, :categories__c_name)

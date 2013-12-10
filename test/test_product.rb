@@ -6,6 +6,7 @@ class ProductTest < Test::Unit::TestCase
     @valid = Product.new
     @valid.sale_cost = BigDecimal.new 10
     @valid.price = BigDecimal.new 20
+    @valid.exact_price = BigDecimal.new 19.54, 5
     @valid.update_real_markup
   end
 
@@ -243,9 +244,18 @@ class ProductTest < Test::Unit::TestCase
 
   def test_mod_price_5_123
     mod = 5.123
-    expected = 103 # 102.46
+    expected = 101 # 100.10342
     expected_price = BigDecimal.new("#{expected}", 2)
     @valid.price_mod mod
     assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+  end
+
+  def test_should_handle_invalid_numerical_values
+    DB.transaction(rollback: :always) do
+      product = Product.new.get_rand
+      hash = {ideal_stock: nil}
+      product.update_from_hash hash
+      pust product
+    end
   end
 end
