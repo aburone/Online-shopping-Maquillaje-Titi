@@ -166,7 +166,7 @@ class Product < Sequel::Model
   def update_from_hash(hash_values)
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
     numerical_keys = [ :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro ]
-    hash_values.select { |key, value| self[key.to_sym]=value.to_s.gsub(',', '.') if numerical_keys.include? key.to_sym unless value.nil?}
+    hash_values.select { |key, value| self[key.to_sym] = (value.nil? or value.empty?) ? 0 : value.to_s.gsub(',', '.')  if numerical_keys.include? key.to_sym }
     cast
 
     alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :archived, :description, :notes, :img, :img_extra ]
