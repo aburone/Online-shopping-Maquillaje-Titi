@@ -188,7 +188,7 @@ class ProductTest < Test::Unit::TestCase
 
   def test_mod_price_1_1
     mod = 1.1
-    expected = 22 # 22
+    expected = 21.5 # 21.494
     expected_price = BigDecimal.new("#{expected}", 2)
     @valid.price_mod mod
     assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
@@ -196,7 +196,7 @@ class ProductTest < Test::Unit::TestCase
 
   def test_mod_price_1_01
     mod = 1.01
-    expected = 20.5 # 20.2
+    expected = 20 # 19.7354
     expected_price = BigDecimal.new("#{expected}", 2)
     @valid.price_mod mod
     assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
@@ -204,7 +204,7 @@ class ProductTest < Test::Unit::TestCase
 
   def test_mod_price_1_11
     mod = 1.11
-    expected = 22.5 # 22.2
+    expected = 22 # 21.6894
     expected_price = BigDecimal.new("#{expected}", 2)
     @valid.price_mod mod
     assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
@@ -212,7 +212,7 @@ class ProductTest < Test::Unit::TestCase
 
   def test_mod_price_1_13
     mod = 1.13
-    expected = 23 # 22.6
+    expected = 22.5 # 22.0802
     expected_price = BigDecimal.new("#{expected}", 2)
     @valid.price_mod mod
     assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
@@ -220,7 +220,7 @@ class ProductTest < Test::Unit::TestCase
 
   def test_mod_price_1_5
     mod = 1.5
-    expected = 30 # 30
+    expected = 29.5 # 29.31
     expected_price = BigDecimal.new("#{expected}", 2)
     @valid.price_mod mod
     assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
@@ -228,7 +228,7 @@ class ProductTest < Test::Unit::TestCase
 
   def test_mod_price_0_89
     mod = 0.89
-    expected = 18 # 17.8
+    expected = 17.5 # 17.3906
     expected_price = BigDecimal.new("#{expected}", 2)
     @valid.price_mod mod
     assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
@@ -236,7 +236,7 @@ class ProductTest < Test::Unit::TestCase
 
   def test_mod_price_0_01
     mod = 0.01
-    expected = 0.5 # 0.2
+    expected = 0.5 # 0.1954
     expected_price = BigDecimal.new("#{expected}", 2)
     @valid.price_mod mod
     assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
@@ -250,12 +250,25 @@ class ProductTest < Test::Unit::TestCase
     assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
   end
 
-  def test_should_handle_invalid_numerical_values
+  def test_should_reject_invalid_numerical_values
     DB.transaction(rollback: :always) do
       product = Product.new.get_rand
+      product.ideal_stock = 10
       hash = {ideal_stock: nil}
       product.update_from_hash hash
-      pust product
+      assert_equal 10, product.ideal_stock
+
+      product = Product.new.get_rand
+      product.ideal_stock=10
+      hash = {ideal_stock: "a"}
+      product.update_from_hash hash
+      assert_equal 10, product.ideal_stock
+
+      product = Product.new.get_rand
+      product.ideal_stock=10
+      hash = {ideal_stock: "1..1"}
+      product.update_from_hash hash
+      assert_equal 10, product.ideal_stock
     end
   end
 end

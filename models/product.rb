@@ -167,7 +167,9 @@ class Product < Sequel::Model
   def update_from_hash(hash_values)
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
     numerical_keys = [ :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro ]
-    hash_values.select { |key, value| self[key.to_sym] = (value.nil? or value.empty?) ? 0 : value.to_s.gsub(',', '.')  if numerical_keys.include? key.to_sym }
+    hash_values.select do |key, value|
+      self[key.to_sym] = (value.empty?) ? 0 : value.to_s.gsub(',', '.')  if numerical_keys.include? key.to_sym unless value.nil? or (not value.empty? and not value.to_s.gsub(',', '.').is_a? Numeric)
+    end
     cast
 
     alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :archived, :description, :notes, :img, :img_extra ]
@@ -176,9 +178,11 @@ class Product < Sequel::Model
     checkbox_keys = [:published_price, :published]
     checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }
 
-    brand_json = JSON.parse(hash_values[:brand])
-    brand_keys = [ :br_id, :br_name ]
-    brand_keys.select { |key, value| self[key.to_sym]=brand_json[key.to_s] unless brand_json[key.to_s].nil?}
+    unless hash_values[:brand].nil?
+      brand_json = JSON.parse(hash_values[:brand])
+      brand_keys = [ :br_id, :br_name ]
+      brand_keys.select { |key, value| self[key.to_sym]=brand_json[key.to_s] unless brand_json[key.to_s].nil?}
+    end
 
     self[:p_name] = ""
     [self[:p_short_name], self[:br_name], self[:packaging], self[:size], self[:color], self[:sku]].map { |part| self[:p_name] += " " + part unless part.empty?}
