@@ -81,7 +81,7 @@ $(document).ready(function () {
   }); 
 
   $('form').on('keyup','#ajax_product_buy_cost', function(e){
-    update_real_markup_and_sale_cost();
+    update_markup_and_sale_cost();
   });
 
 
@@ -91,7 +91,7 @@ $(document).ready(function () {
       original_price = this.value;
     },
     'keyup': function(e){
-      update_real_markup_and_sale_cost();
+      update_markup_and_sale_cost();
       if(parseFloat(this.value.replace(/[\,]/g,'.')) != Number(this.value.replace(/[\,]/g,'.')) ) {
         this.value = original_price;
         exact_price.value = original_exact_price;
@@ -107,7 +107,7 @@ $(document).ready(function () {
     return Number(value.replace(/[\,]/g,'.'));
   }
 
-  function update_real_markup_and_sale_cost() {
+  function update_markup_and_sale_cost() {
     buy_cost = document.getElementById("ajax_product_buy_cost");
     parts_cost = document.getElementById("ajax_product_parts_cost");
     materials_cost = document.getElementById("ajax_product_materials_cost");
@@ -117,7 +117,7 @@ $(document).ready(function () {
     price = document.getElementById("ajax_product_price");
 
     real_markup.value = as_number(price.value) / ( as_number(buy_cost.value) + as_number(parts_cost.value) + as_number(materials_cost.value));
-    if (ideal_markup.value == "" || ideal_markup.value == Infinity) {
+    if (ideal_markup.value == "" || ideal_markup.value == 0 || ideal_markup.value == Infinity || ideal_markup.value == NaN) {
       ideal_markup.value = real_markup.value;
     }
     sale_cost.value = as_number(buy_cost.value) + as_number(parts_cost.value) + as_number(materials_cost.value);
