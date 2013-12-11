@@ -80,20 +80,51 @@ $(document).ready(function () {
     }
   }); 
 
-  $('#ajax_edit_product_price').on({'focus': function(e){
-        this.original_value = this.value;
-      },'keyup': function(e){
-        this.value = this.value.replace(/[^0-9\.\,]/g,'');
-        if( this.original_value != this.value) {
-          $("#ajax_product_exact_price").val(this.value);
+  $('form').on('keyup','#ajax_product_buy_cost', function(e){
+    update_real_markup_and_sale_cost();
+  });
+
+
+  $('#ajax_product_price').on({'focus': function(e){
+      exact_price = document.getElementById("ajax_product_exact_price");
+      original_exact_price = exact_price.value;
+      original_price = this.value;
+    },
+    'keyup': function(e){
+      update_real_markup_and_sale_cost();
+      if(parseFloat(this.value.replace(/[\,]/g,'.')) != Number(this.value.replace(/[\,]/g,'.')) ) {
+        this.value = original_price;
+        exact_price.value = original_exact_price;
+      } else {
+        if( this.value.length > 0 && parseFloat(this.value.replace(/[\,]/g,'.')) == Number(this.value.replace(/[\,]/g,'.')) && original_price != this.value) {
+          exact_price.value = this.value;
         }
       }
+    }
   }); 
 
+  function as_number(value) {
+    return Number(value.replace(/[\,]/g,'.'));
+  }
+
+  function update_real_markup_and_sale_cost() {
+    buy_cost = document.getElementById("ajax_product_buy_cost");
+    parts_cost = document.getElementById("ajax_product_parts_cost");
+    materials_cost = document.getElementById("ajax_product_materials_cost");
+    sale_cost = document.getElementById("ajax_product_sale_cost");
+    ideal_markup = document.getElementById("ajax_product_ideal_markup");
+    real_markup = document.getElementById("ajax_product_real_markup");
+    price = document.getElementById("ajax_product_price");
+
+    real_markup.value = as_number(price.value) / ( as_number(buy_cost.value) + as_number(parts_cost.value) + as_number(materials_cost.value));
+    if (ideal_markup.value == "" || ideal_markup.value == Infinity) {
+      ideal_markup.value = real_markup.value;
+    }
+    sale_cost.value = as_number(buy_cost.value) + as_number(parts_cost.value) + as_number(materials_cost.value);
+  }
+
   $('form').on('keyup','input[type=tel].number', function(e){
-    console.log("hola");
     this.value = this.value.replace(/[^0-9\.\,\-]/g,'');
-    this.value = this.value.replace(/[\,]/g,'.');
     if(this.classList.contains("positive")) {
       this.value = this.value.replace(/[\-]/g,'');
     }
