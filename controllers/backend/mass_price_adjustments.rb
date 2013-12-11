@@ -7,7 +7,7 @@ class Backend < AppController
                 .filter(Sequel.negate(products__br_name: "Mila Marzi"))
                 .select(:p_id)
                 .order(:c_name, :p_name)
-    products = Sinatra::Base.development? ? products.limit(10) : products.all
+    products = Sinatra::Base.development? ? products.limit(10) : produc
 
     if save
       message = "Actualizancion masiva de precios de productos. multiplicador: #{mod.to_f}"
