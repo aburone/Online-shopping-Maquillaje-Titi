@@ -284,51 +284,51 @@ class Product < Sequel::Model
       .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :c_name, :products__br_id, :br_name)
   end
 
-  def validate
-    super
-    validates_schema_types [:p_id, :p_id]
-    validates_schema_types [:c_id, :c_id]
-    validates_schema_types [:p_name, :p_name]
-    validates_schema_types [:p_short_name, :p_short_name]
-    validates_schema_types [:br_name, :br_name]
-    validates_schema_types [:br_id, :br_id]
-    validates_schema_types [:packaging, :packaging]
-    validates_schema_types [:size, :size]
-    validates_schema_types [:color, :color]
-    validates_schema_types [:sku, :sku]
-    validates_schema_types [:ideal_stock, :ideal_stock]
-    validates_schema_types [:stock_store_1, :stock_store_1]
-    validates_schema_types [:stock_store_2, :stock_store_2]
-    validates_schema_types [:stock_warehouse_1, :stock_warehouse_1]
-    validates_schema_types [:stock_warehouse_2, :stock_warehouse_2]
-    validates_schema_types [:buy_cost, :buy_cost]
-    validates_schema_types [:sale_cost, :sale_cost]
-    validates_schema_types [:ideal_markup, :ideal_markup]
-    validates_schema_types [:real_markup, :real_markup]
-    validates_schema_types [:exact_price, :exact_price]
-    validates_schema_types [:price, :price]
-    validates_schema_types [:price_pro, :price_pro]
-    validates_schema_types [:published_price, :published_price]
-    validates_schema_types [:published, :published]
-    validates_schema_types [:archived, :archived]
-    validates_schema_types [:description, :description]
-    validates_schema_types [:notes, :notes]
-    validates_schema_types [:img, :img]
-    validates_schema_types [:img_extra, :img_extra]
+  # def validate
+  #   super
+  #   validates_schema_types [:p_id, :p_id]
+  #   validates_schema_types [:c_id, :c_id]
+  #   validates_schema_types [:p_name, :p_name]
+  #   validates_schema_types [:p_short_name, :p_short_name]
+  #   validates_schema_types [:br_name, :br_name]
+  #   validates_schema_types [:br_id, :br_id]
+  #   validates_schema_types [:packaging, :packaging]
+  #   validates_schema_types [:size, :size]
+  #   validates_schema_types [:color, :color]
+  #   validates_schema_types [:sku, :sku]
+  #   validates_schema_types [:ideal_stock, :ideal_stock]
+  #   validates_schema_types [:stock_store_1, :stock_store_1]
+  #   validates_schema_types [:stock_store_2, :stock_store_2]
+  #   validates_schema_types [:stock_warehouse_1, :stock_warehouse_1]
+  #   validates_schema_types [:stock_warehouse_2, :stock_warehouse_2]
+  #   validates_schema_types [:buy_cost, :buy_cost]
+  #   validates_schema_types [:sale_cost, :sale_cost]
+  #   validates_schema_types [:ideal_markup, :ideal_markup]
+  #   validates_schema_types [:real_markup, :real_markup]
+  #   validates_schema_types [:exact_price, :exact_price]
+  #   validates_schema_types [:price, :price]
+  #   validates_schema_types [:price_pro, :price_pro]
+  #   validates_schema_types [:published_price, :published_price]
+  #   validates_schema_types [:published, :published]
+  #   validates_schema_types [:archived, :archived]
+  #   validates_schema_types [:description, :description]
+  #   validates_schema_types [:notes, :notes]
+  #   validates_schema_types [:img, :img]
+  #   validates_schema_types [:img_extra, :img_extra]
 
-    validates_presence [:p_name, :p_short_name, :br_name, :br_id, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :exact_price, :price]
+  #   validates_presence [:p_name, :p_short_name, :br_name, :br_id, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :exact_price, :price]
 
-    errors.add("El costo", "no puede ser cero" ) if @values[:buy_cost] + @values[:sale_cost] == 0
+  #   errors.add("El costo", "no puede ser cero" ) if @values[:buy_cost] + @values[:sale_cost] == 0
 
-    errors.add("El markup ideal", "no puede ser cero" ) if @values[:ideal_markup] == 0
-    if @values[:real_markup] == 0
-      errors.add("El markup real", "no puede ser cero" ) 
-      puts self
-    end
+  #   errors.add("El markup ideal", "no puede ser cero" ) if @values[:ideal_markup] == 0
+  #   if @values[:real_markup] == 0
+  #     errors.add("El markup real", "no puede ser cero" ) 
+  #     puts self
+  #   end
 
-    errors.add("El precio exacto", "no puede ser cero" ) if @values[:exact_price] == 0
-    errors.add("El precio", "no puede ser cero" ) if @values[:price] == 0
-  end
+  #   errors.add("El precio exacto", "no puede ser cero" ) if @values[:exact_price] == 0
+  #   errors.add("El precio", "no puede ser cero" ) if @values[:price] == 0
+  # end
 
 
 
