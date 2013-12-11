@@ -81,6 +81,7 @@ class Backend < AppController
     product = Product[params[:id].to_i].update_from_hash(params)
     if product.valid?
       product.save()
+      puts product
       product = Product.new.get product.p_id
       product.save columns: Product::COLUMNS
       flash[:notice] = R18n.t.product.updated
@@ -93,6 +94,10 @@ class Backend < AppController
 
   def edit_product p_id
     @product = Product.new.get p_id
+    if @product.empty?
+      flash[:error] = R18n.t.product.not_found
+      redirect to("/products")
+    end
     @categories = Category.all
     @brands = Brand.all
     @items =  @product.items

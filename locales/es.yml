@@ -249,6 +249,8 @@ product:
     stock_store_2: "Stock local 2"
     cost: "Costo"
     buy_cost: "Costo de compra"
+    parts_cost: "Partes"
+    materials_cost: "Materiales"
     sale_cost: "Costo de venta"
     ideal_markup: "Markup ideal"
     real_markup: "Markup real"
@@ -334,6 +336,7 @@ constant:
   WAREHOUSE_2: Deposito 2
   STORE_1: Local 1
   STORE_2: Local 2
+  GLOBAL: Global
   EN_ROUTE: En ruta
   VOID: Invalido
   SALE: Venta
