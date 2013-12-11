@@ -17,7 +17,7 @@ class Backend < AppController
     products.map do |pr|
       product = Product.new.get(pr.p_id)
       product.price_mod(mod)
-      product.save columns: Product::COLUMNS if save
+      product.save verify: false, columns: Product::COLUMNS if save
       final_products << product
     end
 
