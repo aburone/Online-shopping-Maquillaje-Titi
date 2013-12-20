@@ -207,7 +207,7 @@ void_items:
   title: Invalidacion de items
   write_reason: Escriba la razon de invalidacion
   reason_example: "ej: Mal etiquetado"
-  sure?: Esto va a invalidar el item. La etiquena no va a servir mas y el item va a eliminarse del stock
+  sure?: Esto va a invalidar el item. La etiqueta no va a servir mas y el item va a eliminarse del stock
 cart:
   fields:
     id: ID
