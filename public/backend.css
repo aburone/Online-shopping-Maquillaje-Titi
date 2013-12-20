@@ -493,13 +493,13 @@ table.tablesorter th {
   background-color: #a6f1a6;
   color: DarkGreen;
   border: 3px solid DarkGreen;
-  animation: slow_hide 3s forwards 1s ease; }
+  animation: slow_hide 5s forwards 3s ease; }
 
 .flash_warning {
   background-color: LightYellow;
   color: #989244;
   border: 3px solid #989244;
-  animation: slow_hide 9s forwards 1s ease; }
+  animation: slow_hide 9s forwards 3s ease; }
 
 .flash_error {
   background-color: #ffdae0;
@@ -583,7 +583,7 @@ article, section {
   display: inline-block;
   margin-left: 10em; }
 
-.edit {
+a.edit {
   display: inline-block;
   width: 32px;
   height: 32px;

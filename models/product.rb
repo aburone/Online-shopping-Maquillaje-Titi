@@ -9,7 +9,7 @@ class Product < Sequel::Model
   many_to_many :materials , left_key: :product_id, right_key: :m_id, join_table: :products_materials
   one_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
 
-  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :description, :notes, :img, :img_extra]
+  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :description, :notes, :products__img, :img_extra]
   def empty?
     return @values[:p_id].nil? ? true : false
   end
@@ -147,6 +147,7 @@ class Product < Sequel::Model
 
   def parts
     # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
+    return [] unless self[:p_id].to_i > 0
     condition = "product_id = #{self[:p_id]}"
     Product.join( ProductsPart.where{condition}, part_id: :products__p_id).all
   end
@@ -234,6 +235,7 @@ class Product < Sequel::Model
   end
 
   def get p_id
+    return Product.new unless p_id.to_i > 0
     product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra)
                 .filter(products__p_id: p_id.to_i)
                 .left_join(:categories, [:c_id])

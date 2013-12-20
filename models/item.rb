@@ -16,6 +16,58 @@ class Item < Sequel::Model
   ON_CART="ON_CART"
   SOLD="SOLD"
 
+  def split_input_into_ids input
+    ids = []
+    input.split("\n").map { |id| ids << id.to_s.strip unless id.to_s.strip.empty?}
+    ids
+  end
+
+  def check_io input, output
+    return [] if input.count == output.count
+    output.each { |item| input.delete(item.i_id)}
+    input
+  end
+
+  def check_reason reason
+    reason.strip!
+    raise ArgumentError, "Es necesario especificar la razon para invalidar el item" if reason.length < 5
+    reason
+  end
+
+  def void! reason
+    reason = check_reason reason
+    begin
+      DB.transaction do
+        self.orders.dup.each do |order|
+          order.remove_item self unless order.o_status == Order::VOID or order.o_status == Order::FINISHED
+        end
+      end
+      order = Order.new.create_invalidation @values[:i_loc]
+      change_status_security_check Item::VOID, order.o_id
+    rescue SecurityError => e
+      order.change_status Order::FINISHED
+      raise SecurityError, e.message
+    end
+
+    origin = @values[:i_loc].dup
+    @values[:i_loc] = Location::VOID
+    @values[:i_status] = Item::VOID
+    order.add_item self
+    save validate: false
+
+    message = "#{R18n.t.actions.changed_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}" 
+    log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl: ActionsLog::WARN, i_id: @values[:i_id], o_id: order.o_id)
+    log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
+    log.save
+
+    order.change_status Order::FINISHED
+    message
+  end
+
+
+
+
+
   def empty?
     return @values[:i_id].nil? ? true : false
   end
@@ -100,9 +152,16 @@ class Item < Sequel::Model
     return false
   end
 
-  def change_status_security_check o_id
+  def change_status_security_check status, o_id
     if @values[:i_status] == Item::VOID
       message = R18n.t.errors.modifying_status_of_void_item(@values[:i_id])
+      log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, i_id: @values[:i_id])
+      log.set(o_id: o_id) unless o_id == 0
+      log.save
+      raise SecurityError, message
+    end
+    if @values[:p_id].nil? and not @values[:i_status] == Item::NEW and not status == Item::VOID
+      message = R18n.t.errors.modifying_status_of_nil_product_item(@values[:i_id])
       log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, i_id: @values[:i_id])
       log.set(o_id: o_id) unless o_id == 0
       log.save
@@ -112,7 +171,7 @@ class Item < Sequel::Model
 
   def change_status status, o_id
     o_id = o_id.to_i
-    change_status_security_check o_id
+    change_status_security_check status, o_id
     @values[:i_status] = status
     save columns: [:p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc]
     message = R18n.t.actions.changed_status(ConstantsTranslator.new(status).t)
@@ -120,37 +179,6 @@ class Item < Sequel::Model
     log.set(o_id: o_id) unless o_id == 0
     log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
     log.save
-    message
-  end
-
-  def check_reason reason
-    reason.strip!
-    raise ArgumentError, "Es necesario especificar la razon para invalidar el item" if reason.length < 5
-    reason
-  end
-
-  def void! reason
-    reason = check_reason reason
-    order = Order.new.create_invalidation @values[:i_loc]
-    begin
-      change_status_security_check order.o_id
-    rescue SecurityError => e
-      order.change_status Order::FINISHED
-      raise SecurityError, e.message
-    end
-
-    origin = @values[:i_loc].dup
-    @values[:i_loc] = Location::VOID
-    @values[:i_status] = Item::VOID
-    order.add_item self
-    save
-
-    message = "#{R18n.t.actions.changed_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}" 
-    log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl: ActionsLog::WARN, i_id: @values[:i_id], o_id: order.o_id)
-    log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
-    log.save
-
-    order.change_status Order::FINISHED
     message
   end
 

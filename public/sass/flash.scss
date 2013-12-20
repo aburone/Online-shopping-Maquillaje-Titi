@@ -9,13 +9,13 @@
   background-color: lighten(LightGreen, 5%);
   color: DarkGreen;
   border: 3px solid DarkGreen;
-  animation: slow_hide 3s forwards 1s ease
+  animation: slow_hide 5s forwards 3s ease
 }
 .flash_warning {
   background-color: LightYellow;
   color: darken(DarkKhaki, 15%);
   border: 3px solid darken(DarkKhaki, 15%);
-  animation: slow_hide 9s forwards 1s ease
+  animation: slow_hide 9s forwards 3s ease
 }
 .flash_error {
   background-color: lighten( pink, 5% );
@@ -29,7 +29,6 @@
 .flash dd:before{
     content: "⚫ "
 }
-
 
 @keyframes slow_hide
 {

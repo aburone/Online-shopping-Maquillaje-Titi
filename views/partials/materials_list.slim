@@ -3,12 +3,12 @@
 - can_edit = true if can_edit.nil?
 - can_filter = true if can_filter.nil?
 - quicksearch = " quicksearch" if can_filter
-
+- id = "" if id.nil?
 
 - if @materials.nil? or @materials.empty?
   p = t.materials.empty
 - else
-  table class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus}"
+  table id="#{id}" class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus}"
     thead
       tr
         th = t.material.fields.category
@@ -30,11 +30,11 @@
         tr.item.ajax_item
           td #{mat[:c_name]}
           td #{mat[:m_id]}
-          td #{mat[:m_name]}
-          td.number == Utils::number_format mat[:m_qty], 0
+          td.m_name #{mat[:m_name]}
+          td.number.m_qty == Utils::number_format mat[:m_qty], 0
           td.number == Utils::money_format mat[:m_price], 2
           - if can_edit
-            td.small_content
+            td.small_content.edit
               a.edit href="/admin/materials/#{mat[:m_id]}"
                 img src="/media/Icon-Edit.png" width="32" height="32" data-id="#{mat[:m_id]}"
 

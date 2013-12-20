@@ -209,4 +209,33 @@ class ItemTest < Test::Unit::TestCase
     label[:i_loc] = Location::S1
     label.change_status(Item::READY, 0)
   end
+
+  def test_split
+    input = "
+     \t348-fba3ee06
+    348-fc1d5f02
+    351-2c9e4d19 
+    "
+    assert_equal ["348-fba3ee06", "348-fc1d5f02", "351-2c9e4d19"], Item.new.split_input_into_ids(input)
+  end
+
+  def test_multi_check
+    input = "
+     \t348-fba3ee06
+    348-fc1d5f02
+    351-2c9e4d19INVALID 
+    "
+    i_ids = Item.new.split_input_into_ids(input)
+    items = Item.filter(i_id: i_ids).all
+    assert_equal ["351-2c9e4d19INVALID"], Item.new.check_io(i_ids, items)
+
+    input = "
+     \t348-fba3ee06
+    348-fc1d5f02
+    351-2c9e4d19
+    "
+    i_ids = Item.new.split_input_into_ids(input)
+    items = Item.filter(i_id: i_ids).all
+    assert Item.new.check_io i_ids, items
+  end
 end
