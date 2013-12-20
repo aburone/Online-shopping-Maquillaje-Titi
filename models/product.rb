@@ -376,18 +376,18 @@ class Product < Sequel::Model
 
   private
     def cast
-      self[:exact_price] = BigDecimal.new self[:exact_price], 5 if self[:exact_price]
-      self[:price] = BigDecimal.new self[:price], 2 if self[:price]
-      self[:price_pro] = BigDecimal.new self[:price_pro], 2 if self[:price_pro]
+      self[:exact_price] = BigDecimal.new self[:exact_price], 0 if self[:exact_price]
+      self[:price] = BigDecimal.new self[:price], 0 if self[:price]
+      self[:price_pro] = BigDecimal.new self[:price_pro], 0 if self[:price_pro]
       self[:ideal_stock] = BigDecimal.new self[:ideal_stock], 0 if self[:ideal_stock]
       self[:stock_store_1] = BigDecimal.new self[:stock_store_1], 0 if self[:stock_store_1]
       self[:stock_store_2] = BigDecimal.new self[:stock_store_2], 0 if self[:stock_store_2]
       self[:stock_warehouse_1] = BigDecimal.new self[:stock_warehouse_1], 0 if self[:stock_warehouse_1]
       self[:stock_warehouse_2] = BigDecimal.new self[:stock_warehouse_2], 0 if self[:stock_warehouse_2]
-      self[:buy_cost] = BigDecimal.new self[:buy_cost], 2 if self[:buy_cost]
-      self[:sale_cost] = BigDecimal.new self[:sale_cost], 2 if self[:sale_cost]
-      self[:ideal_markup] = BigDecimal.new self[:ideal_markup], 3 if self[:ideal_markup]
-      self[:real_markup] = BigDecimal.new self[:real_markup], 3 if self[:real_markup]
+      self[:buy_cost] = BigDecimal.new self[:buy_cost], 0 if self[:buy_cost]
+      self[:sale_cost] = BigDecimal.new self[:sale_cost], 0 if self[:sale_cost]
+      self[:ideal_markup] = BigDecimal.new self[:ideal_markup], 0 if self[:ideal_markup]
+      self[:real_markup] = BigDecimal.new self[:real_markup], 0 if self[:real_markup]
     end
 end
 
