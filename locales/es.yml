@@ -409,7 +409,7 @@ order:
   not_a_packaging: Esta no es una orden de carga
   missing: Orden inexistente o inaccesible desde este modulo
   scan_label: Escanee el ID de item
-  scan_labels: Escanee lo ID de items (uno por linea)
+  scan_labels: Escanee los ID de items (uno por linea)
   scan_product: Escanee el producto
   select_other_product: Seleccionar un producto distinto
   transport:
