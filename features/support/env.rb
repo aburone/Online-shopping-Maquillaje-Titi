@@ -1,11 +1,12 @@
 # IN_BROWSER=true bundle exec cucumber
+# RACK_ENV=test bundle exec cucumber
+
+#sniplets
+# unless ENV['IN_BROWSER']
 
 require 'sinatra'
-# require 'sinatra/base'
 require 'sinatra/config_file'
 require 'sinatra/r18n'
-
-
 config_file '../../../config.yml'
 
 
@@ -16,16 +17,12 @@ config_file '../../../config.yml'
 # use Rack::Csrf, raise: true, field: 'csrf', key: 'csrf', header: 'X_CSRF_TOKEN' #, :skip => ['POST:/login']
 
 register Sinatra::R18n
-R18n.default_places { File.expand_path '../locales', __FILE__ }
+R18n.default_places { File.expand_path '../../locales', __FILE__ }
 set :root, File.dirname(__FILE__)
 R18n::I18n.default = 'es'
 include R18n::Helpers
 R18n.set('es', './locales/es.yml')
 
-
-ENV['RACK_ENV'] = 'test'
-
-# require File.join(File.dirname(__FILE__), '..', '..', 'backend.rb')
 
 require 'rspec'
 require 'rspec/expectations'
@@ -70,4 +67,15 @@ end
 
 World do
   BackendWorld.new
+end
+
+
+def t
+  @i18n = R18n::I18n.new('es', File.expand_path('../../../locales', __FILE__) ) if @i18n.nil?
+  @i18n
+end
+
+def l input
+  @es = R18n.locale('es') if @es.nil?
+  @es.localize input
 end

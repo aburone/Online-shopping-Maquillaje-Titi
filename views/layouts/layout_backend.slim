@@ -1,8 +1,8 @@
 doctype 5
 html lang="es"
   head
-    - title = title || "NO TENGO TITULO"
-    title = @title || title
+    - title = title || @title
+    title = title || "NO TENGO TITULO"
     meta charset="utf-8"
     link rel="shortcut icon" href="/media/favicon.ico"
     == slim :mobile_meta
@@ -19,10 +19,12 @@ html lang="es"
       == slim sec_nav
 
     article
-      h1=@title
+      h1=title
       section.main
         == yield
       footer
         script src="/jquery-2.0.3.min.js"
         script src="/jquery.plugins-min.js"
         script src="/backend-min.js"
+
+

@@ -40,9 +40,7 @@ class AppController < Sinatra::Base
     session[:current_location]
   end
 
-  configure :production, :development do
-    enable :logging
-
+  configure :production, :development, :test do
     #rack protection
     set :protection, :origin_whitelist => ['http://www.maquillajetiti.com.ar']
 
@@ -67,13 +65,11 @@ class AppController < Sinatra::Base
     set :views, views.map{|view| File.expand_path "../#{view}", __FILE__}
     set :template_engine, :slim
 
-    #better errors
-    # use BetterErrors::Middleware
-    # BetterErrors.application_root = File.expand_path('..', __FILE__)
-
-
   end
 
+  configure :production, :development do
+    enable :logging
+  end
 
   configure :production do
     disable :raise_errors
@@ -83,6 +79,11 @@ class AppController < Sinatra::Base
 
   configure :development do
     enable :show_exceptions
+
+    #better errors
+    # use BetterErrors::Middleware
+    # BetterErrors.application_root = File.expand_path('..', __FILE__)
+
     require_relative 'models/stdout_logger'
     require 'sinatra/reloader'
     register Sinatra::Reloader

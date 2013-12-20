@@ -10,7 +10,7 @@ Given /^I am logged-in into (.+) with location (.+)$/ do |page_name, location|
   end
 end
 
-Then /^show me the page$/ do
+Then /^Show me the page$/ do
   puts body
 end
 

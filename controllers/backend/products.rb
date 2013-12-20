@@ -1,28 +1,23 @@
 class Backend < AppController
 
-  get '/products/categories/?' do
-    @categories = Category.all
-    slim :categories, layout: :layout_backend
-  end
-  get '/products/categories/:id/?' do
-    @category = Category[params[:id].to_i]
-    slim :category, layout: :layout_backend
-  end
-
   def void_items
-    i_id = params[:i_id].to_s.strip
-    item = Item.filter(i_id: i_id).first
-    if item.nil?
-      flash[:error] = "No tengo ningun item con el id #{i_id}"
+    i_ids = Item.new.split_input_into_ids(params[:i_ids])
+    items = Item.filter(i_id: i_ids).all
+    errors = Item.new.check_io(i_ids, items)
+    unless errors.empty?
+      flash[:error] = "Algunos ID especificados son invalidos #{errors.flatten.to_s}"
       redirect to('/products/void_items')
+      return false
     end
 
     begin
-      message = item.void! params[:reason]
-      flash.now[:notice] = message
-      @title = message
-      @item = item
-      slim :void_item, layout: :layout_backend, locals: {sec_nav: :nav_products}
+      messages = []
+
+      items.each { |item| messages << item.void!(params[:reason]) }
+      flash.now[:notice] = messages.flatten.to_s
+      @title = "Anulacion correcta"
+      @items = items
+      slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_products}
     rescue SecurityError => e
       flash[:error] = e.message
       redirect to('/products/void_items')
@@ -32,13 +27,81 @@ class Backend < AppController
     end
   end
 
+  def redirect_void_item_if_nil item
+    if item.nil?
+      flash[:error] = "No tengo ningun item con el id "
+      redirect to('/products/void_items')
+    end
+  end
+
   route :get, :post, '/products/void_items' do
-    if params[:i_id].nil? and params[:reason].nil?
+    if params[:i_ids].nil? and params[:reason].nil?
       slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_products} 
     else
       void_items
     end
   end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  get '/products/categories/?' do
+    @categories = Category.all
+    slim :categories, layout: :layout_backend
+  end
+  get '/products/categories/:id/?' do
+    @category = Category[params[:id].to_i]
+    slim :category, layout: :layout_backend
+  end
+
+
+  # def void_item
+  #   i_id = params[:i_id].to_s.strip
+  #   item = Item.filter(i_id: i_id).first
+  #   if item.nil?
+  #     flash[:error] = "No tengo ningun item con el id #{i_id}"
+  #     redirect to('/products/void_items')
+  #   end
+
+  #   begin
+  #     message = item.void! params[:reason]
+  #     flash.now[:notice] = message
+  #     @title = message
+  #     @item = item
+  #     slim :void_item, layout: :layout_backend, locals: {sec_nav: :nav_products}
+  #   rescue SecurityError => e
+  #     flash[:error] = e.message
+  #     redirect to('/products/void_items')
+  #   rescue => e
+  #     flash[:error] = e.message
+  #     redirect to('/products/void_items')
+  #   end
+  # end
+
+  # route :get, :post, '/products/void_item' do
+  #   if params[:i_id].nil? and params[:reason].nil?
+  #     slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_products} 
+  #   else
+  #     void_items
+  #   end
+  # end
 
   get '/products/items/?' do
     @items = Item.new.get_list_at_location current_location[:name]

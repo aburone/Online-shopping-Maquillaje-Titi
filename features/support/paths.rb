@@ -22,8 +22,11 @@ module NavigationHelpers
       '/admin/production/labels'
     when /packaging_list/
       '/admin/production/packaging/select'
-    when /packaging_verification_list/
-      '/admin/production/verify_packaging/select'
+    when /verification_list/
+      '/admin/production/verification/select'
+    when /allocation_list/
+      '/admin/production/allocation/select'
+      
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:

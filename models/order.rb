@@ -41,7 +41,9 @@ class Order < Sequel::Model
 
   def parts
     parts = []
-    self.items.each { |item| parts << Product[item.p_id].parts}
+    self.items.each do |item| 
+      parts << Product.new.get(item.p_id).parts
+    end
     parts.flatten
   end
 
@@ -172,7 +174,7 @@ class Order < Sequel::Model
     order
   end
 
-  def create_packaging
+  def create_packaging #TODO: eliminar de los test y borrar
     create_new Order::PACKAGING
   end
 
@@ -200,6 +202,17 @@ class Order < Sequel::Model
   def get_orders_in_location_with_type location, type
     get_orders_in_location(location)
       .filter(type: type)
+  end
+
+  def get_orders_in_location_with_type_and_status location, type, o_status
+    get_orders_in_location_with_type( location, type)
+      .where( o_status: o_status)
+  end
+
+  def get_orders_in_location_with_type_status_and_id location, type, o_status, o_id
+    get_orders_in_location_with_type_and_status( location, type, o_status)
+      .filter(o_id: o_id)
+      .first
   end
 
   def get_orders_in_location_with_type_and_id location, type, o_id

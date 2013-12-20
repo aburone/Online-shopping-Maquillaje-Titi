@@ -1,0 +1,37 @@
+-# coding: UTF-8
+
+
+
+- if mode == :packaging
+  - @title = t.production.packaging_select.title
+
+  - if @orders.nil? or @orders.empty?
+    p = t.production.packaging_select.empty
+  - else
+    == slim :orders_list, locals: {full_row: true, can_edit: true, edit_link: "/admin/production/packaging/o_id"}
+
+  form action=url("/production/packaging/new") method="post"
+    == Rack::Csrf.tag(env)
+    input type="submit" value="#{t.order.new}"
+
+
+
+
+- if mode == :verification
+  - @title = t.production.verification_select.title
+
+  - if @orders.nil? or @orders.empty?
+    p = t.production.verification_select.empty
+  - else
+    == slim :orders_list, locals: {full_row: true, can_edit: true, edit_link: "/admin/production/verification/o_id"}
+
+
+
+
+- if mode == :allocation
+  - @title = t.production.allocation_select.title
+
+  - if @orders.nil? or @orders.empty?
+    p = t.production.allocation_select.empty
+  - else
+    == slim :orders_list, locals: {full_row: true, can_edit: true, edit_link: "/admin/production/allocation/o_id"}

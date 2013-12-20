@@ -23,7 +23,6 @@ class Inventory
     DB.transaction do
       @missing_materials = []
       @used_bulks = []
-
       process_packaging_order_materials(order, must_save)
       process_packaging_order_parts(order, must_save)
 
