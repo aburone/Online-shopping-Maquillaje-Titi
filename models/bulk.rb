@@ -161,7 +161,7 @@ class Bulk < Sequel::Model
     end
 
     if b_qty.class != BigDecimal
-      errors.add("Cantidad", "Debe ser numérico. #{b_qty} (#{b_qty.class}) dado" )
+      errors.add("Cantidad de bulk", "Debe ser numérico. #{b_qty} (#{b_qty.class}) dado" )
     else
       errors.add("Cantidad", "Debe ser positivo o cero. #{b_qty.round(3).to_s("F")} dado" ) if b_qty < 0
     end
