@@ -99,7 +99,7 @@ class Inventory
             message = "Utilizando #{qty} #{bulk[:m_name]}"
             ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, b_id: bulk.b_id, m_id: bulk.m_id, o_id: o_id).save      
             bulk.change_status(Bulk::EMPTY, o_id) if bulk[:b_qty] == 0
-            bulk.save columns: [:b_qty] 
+            bulk.save validate: false, columns: [:b_qty] 
           end
         end
         raise R18n::t.production.packaging_order.missing_materials_cant_allocate if must_save and (material[:m_qty] > 0)
