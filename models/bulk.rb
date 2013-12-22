@@ -155,15 +155,15 @@ class Bulk < Sequel::Model
     end
 
     if b_price.class != BigDecimal
-      errors.add("Precio", "Debe ser numérico. #{b_price} (#{b_price.class}) dado" )
+      errors.add("Precio", "Debe ser numérico. #{b_price} (#{b_price.class}) dado. Intentando editar el bulk #{b_id}" )
     else
-      errors.add("Precio", "Debe ser positivo. #{b_price.round(3).to_s("F")} dado" ) if b_price <= 0
+      errors.add("Precio", "Debe ser positivo. #{b_price.round(3).to_s("F")} dado. Intentando editar el bulk #{b_id}" ) if b_price <= 0
     end
 
     if b_qty.class != BigDecimal
-      errors.add("Cantidad de bulk", "Debe ser numérico. #{b_qty} (#{b_qty.class}) dado" )
+      errors.add("Cantidad", "Debe ser numérico. #{b_qty} (#{b_qty.class}) dado. Intentando editar el bulk #{b_id}" )
     else
-      errors.add("Cantidad", "Debe ser positivo o cero. #{b_qty.round(3).to_s("F")} dado" ) if b_qty < 0
+      errors.add("Cantidad", "Debe ser positivo o cero. #{b_qty.round(3).to_s("F")} dado. Intentando editar el bulk #{b_id}" ) if b_qty < 0
     end
   end
 
