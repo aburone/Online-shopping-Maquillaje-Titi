@@ -30,14 +30,12 @@ class Backend < AppController
 
 
   get '/logs/?' do
-    date = Date.today
-    art_date = "#{date.iso8601} 03:00"
-    add = Sequel.date_add(art_date, {days:1})
-
+    art_date = Time.now.getlocal("-03:00").to_date.iso8601
+    sub = Sequel.date_sub(art_date, {days:1})
     @logs = ActionsLog
               .select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
               .join(:users, user_id: :u_id)
-              .where{Sequel.expr(:at) >= art_date}.where{Sequel.expr(:at) < add}
+              .where{Sequel.expr(:at) >= sub}
               .order(:id)
               .reverse
               .all
