@@ -14,6 +14,16 @@ class Product < Sequel::Model
     return @values[:p_id].nil? ? true : false
   end
 
+  def save (opts=OPTS)
+    super
+    message = "Actualizancion de precio de todos los items de #{@values[:p_name]}"
+    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
+    DB.run "UPDATE items
+    JOIN products using(p_id)
+    SET items.i_price = products.price, items.i_price_pro = products.price_pro, items.p_name = products.p_name
+    WHERE p_id = #{@values[:p_id]} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
+  end
+
   def items
     condition = "p_id = #{self[:p_id]}"
     Item.select(:i_id, :items__p_id, :items__p_name, :i_price, :i_price_pro, :i_status, :i_loc, :items__created_at).join( Product.where{condition}, [:p_id]).all
@@ -217,7 +227,6 @@ class Product < Sequel::Model
     can_update = false if mod <= 0 or mod == 1
     can_update = false if mod > 1 and mod < 1.01
     can_update = false if @values[:br_name] == "Mila Marzi"
-    can_update = false if @values[:archived]
 
     if can_update
       start_price = @values[:exact_price].dup

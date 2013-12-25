@@ -3,7 +3,6 @@ class Backend < AppController
 
     final_products = []
     products = Product.new.get_list
-                .filter(archived: false)
                 .filter(Sequel.negate(products__br_name: "Mila Marzi"))
                 .select(:p_id)
                 .order(:c_name, :p_name)
@@ -24,11 +23,10 @@ class Backend < AppController
     if save
         message = "Actualizancion masiva de todos los items en proceso o listos para ser vendidos. Multiplicador: #{mod.to_f}"
         ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
-        DB.run 'UPDATE items
+        DB.run "UPDATE items
         JOIN products using(p_id)
-        SET items.i_price = products.price
-        WHERE i_status IN ( "ASSIGNED", "MUST_VERIFY", "VERIFIED", "READY" )
-      '
+        SET items.i_price = products.price, items.i_price_pro = products.price_pro
+        WHERE i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
     end
     final_products
   end
