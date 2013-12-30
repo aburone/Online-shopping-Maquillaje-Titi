@@ -2,9 +2,6 @@ require_relative 'prerequisites'
 
 class OrderTest < Test::Unit::TestCase
 
-  setup do
-  end
-
   def test_should_allow_only_one_packaging_order_open_per_user
     DB.transaction(rollback: :always) do
       assert_equal Order.new.create_packaging.o_id, Order.new.create_packaging.o_id

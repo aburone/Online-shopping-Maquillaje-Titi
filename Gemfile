@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
+gem "rake"
 gem "tilt"
 gem "temple"
 gem "slim"
@@ -9,8 +10,8 @@ gem "bcrypt-ruby"
 gem "mysql2"
 gem "sequel"
 gem "sass"
-gem "better_errors"
-gem "kss"
+# gem "better_errors"
+# gem "kss"
 gem "encrypted_cookie"
 gem "rack-contrib"
 gem "rack_csrf"
@@ -18,6 +19,7 @@ gem "htmlentities"
 gem "r18n-core"
 gem "sinatra-r18n"
 gem "thin"
+gem "rubytree"
 
 group :development, :test do
   gem "rspec"
@@ -26,9 +28,11 @@ group :development, :test do
   gem "launchy"
   gem "cucumber"
   gem "cucumber-sinatra"
-  gem "shotgun"
+  # gem "shotgun"
   gem "poltergeist"
-  gem 'selenium-webdriver'
-  gem "mocha"
+  # gem 'selenium-webdriver'
+  # gem "mocha"
+  gem 'test-unit','= 2.5.5' 
   gem "test-unit-full"
+  # gem "rdoc"
 end

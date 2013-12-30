@@ -3,7 +3,14 @@
 class Frontend < AppController
   set :name, "Frontend"
   helpers ApplicationHelper
-
+  # aggresive caching for frontend
+  set :start_time, Time.now
+  before do
+    last_modified settings.start_time
+    etag settings.start_time.to_s
+    cache_control :public, :must_revalidate
+  end
+    
   get '/' do
     slim :home, layout: :layout_frontend
   end

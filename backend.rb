@@ -4,6 +4,9 @@ require_relative 'sinatra/auth'
 require_relative 'sinatra/my_flash'
 
 class Backend < AppController
+  register Sinatra::ConfigFile
+  config_file File.expand_path '../config.yml', __FILE__
+
   register Sinatra::Auth
   register Sinatra::Flash
   set :name, "Backend"

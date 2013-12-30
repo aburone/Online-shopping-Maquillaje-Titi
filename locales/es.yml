@@ -43,6 +43,10 @@ errors:
   label_from_different_order: Esta etiqueta pertenece a otra orden.
   this_is_not_a_label: Esto no es una etiqueta (%1)
   this_is_not_an_item: Esto no es un item (%1)
+  empty_transaction: La transaccion no puede estar vacia
+  inexistent_account: No existe ninguna cuenta llamada "%1"
+  invalid_account: La cuenta "%1" no acepta operaciones
+  accounts_of_same_group: No se permiten operaciones en las que las cuentas pertenecen al mismo grupo "%1", "%2"
   sequel_start: sequel_start
   joiner: " , "
   exact_length: "debe tener exactamente %1 caracteres"
@@ -60,6 +64,8 @@ errors:
   positive_feedback: "debe ser un múmero positivo '%1' dado"
   string: "no es una cadena de texto"
   sequel_end: sequel_end
+fields:
+  t_desc: "La descripcion de la transaccion"
 nav:
   frontend:
     products: "Productos"
@@ -94,6 +100,7 @@ nav:
     warehouse_pos: Hacia punto de venta
     orders: Ordenes
     mass_price_adjustment: Ajustes de precios
+    accounts: Plan de cuentas
   sales:
     admin: Administracion
     inventory_review: Carga de inventario
@@ -424,3 +431,6 @@ inventory:
     confirm_message: Estas seguro de modificar todos los precios?
     submit_text: Actualizar todos los precios de venta
     test: Ejecucion de prueba
+accounts:
+  plan:
+    title: Plan de cuentas
