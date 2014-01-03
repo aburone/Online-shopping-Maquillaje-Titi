@@ -85,23 +85,40 @@ $(document).ready(function () {
   });
 
 
+  $('input[type=tel].number.positive').on({'focus': function(e){
+      original = this.value;
+    }, 'keyup': function(e){
+      if( ~this.value.indexOf('-') ) {
+        this.value = this.value.replace(/[\-]/g,'');
+      }
+      if( !is_number(this.value) ) {
+        this.value = original;
+      }
+    }
+  });
+
   $('#ajax_product_price').on({'focus': function(e){
       exact_price = document.getElementById("ajax_product_exact_price");
       original_exact_price = exact_price.value;
       original_price = this.value;
     },
     'keyup': function(e){
-      update_markup_and_sale_cost();
-      if(parseFloat(this.value.replace(/[\,]/g,'.')) != Number(this.value.replace(/[\,]/g,'.')) ) {
-        this.value = original_price;
-        exact_price.value = original_exact_price;
-      } else {
-        if( this.value.length > 0 && parseFloat(this.value.replace(/[\,]/g,'.')) == Number(this.value.replace(/[\,]/g,'.')) && original_price != this.value) {
+      if (this.value.length > 0) {
+        update_markup_and_sale_cost();
+        if( !is_number(this.value) ) {
+          this.value = original_price;
+          exact_price.value = original_exact_price;
+        } else if( !is_number(this.value) && original_price != this.value) {
           exact_price.value = this.value;
         }
       }
     }
   }); 
+
+
+  function is_number(value) {
+    return parseFloat(value.replace(/[\,]/g,'.')) == Number(value.replace(/[\,]/g,'.'));
+  }
 
   function as_number(value) {
     return Number(value.replace(/[\,]/g,'.'));
@@ -116,40 +133,16 @@ $(document).ready(function () {
     real_markup = document.getElementById("ajax_product_real_markup");
     price = document.getElementById("ajax_product_price");
 
-    real_markup.value = as_number(price.value) / ( as_number(buy_cost.value) + as_number(parts_cost.value) + as_number(materials_cost.value));
+    var full_real_markup = as_number(price.value) / ( as_number(buy_cost.value) + as_number(parts_cost.value) + as_number(materials_cost.value));
+    var round_real_markup = Math.round(full_real_markup*1000)/1000;
+    real_markup.value = round_real_markup;
     if (ideal_markup.value == "" || ideal_markup.value == 0 || ideal_markup.value == Infinity || ideal_markup.value == NaN) {
       ideal_markup.value = real_markup.value;
     }
-    sale_cost.value = as_number(buy_cost.value) + as_number(parts_cost.value) + as_number(materials_cost.value);
+    var full_sale_cost = as_number(buy_cost.value) + as_number(parts_cost.value) + as_number(materials_cost.value);
+    var round_sale_cost = Math.round(full_sale_cost*1000)/1000;
+    sale_cost.value = round_sale_cost;
   }
-
-  $('form').on('keyup','input[type=tel].number', function(e){
-    this.value = this.value.replace(/[^0-9\.\,\-]/g,'');
-    if(this.classList.contains("positive")) {
-      this.value = this.value.replace(/[\-]/g,'');
-    }
-  });
-
-  // $("#ajax_label_selector").bind("keypress", function (e) {
-  //   if (e.keyCode === 13) {
-  //     return move_focus_and_toggle_if_necesary();
-  //   }
-  // });
-  // function move_focus_and_toggle_if_necesary() {
-  //   var input = $('#ajax_label_selector').val();
-  //   if (input !== '') {
-  //     $("#prod_list_selector").toggle('slow');
-  //     $("#finish_packaging").toggle('slow');
-  //     $("#ajax_selected_label").val(input.trim());
-  //     $("#product_selector").focus();
-  //   }
-  //   return false;
-  // }
-  // $(".ajax_product_selector").click(function() {
-  //   $("#product_selector").val( $(this).find("td").html().trim() );
-  //   $("#product_selector").closest("form").submit();
-  // });
-
 
   $('.ajax_void_item').click(function(e) {
     e.preventDefault();
