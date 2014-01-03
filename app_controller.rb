@@ -86,7 +86,6 @@ class AppController < Sinatra::Base
     also_reload "helpers/*.rb"
     also_reload "sinatra/*.rb"
     also_reload "./*.rb"
-    also_reload "locales/*.yml"
     Sinatra::Application.reset!
   end
 

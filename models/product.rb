@@ -222,7 +222,8 @@ class Product < Sequel::Model
     BigDecimal.new(@values[:buy_cost] + @values[:parts_cost] + @values[:materials_cost], 2)
   end
 
-  def price_mod mod
+  def price_mod mod, log=true
+    mod = BigDecimal.new(mod, 15)
     can_update = true
     can_update = false if mod <= 0 or mod == 1
     can_update = false if mod > 1 and mod < 1.01
@@ -238,8 +239,10 @@ class Product < Sequel::Model
         @values[:price] += 0.5 if frac < 0.5 and @values[:price] > 100
       end
       update_markups
-      message = "Precio ajustado de $ #{start_price.to_s("F")} a $ #{@values[:price].to_s("F")}: #{@values[:p_name]}"
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
+      if log
+        message = "Precio ajustado *#{mod.to_s("F")} de $ #{start_price.to_s("F")} a $ #{@values[:price].to_s("F")}: #{@values[:p_name]}"
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
+      end
     end
   end
 
@@ -333,7 +336,7 @@ class Product < Sequel::Model
 
     errors.add("El markup ideal", "no puede ser cero" ) if @values[:ideal_markup] == 0
     if @values[:real_markup] == 0
-      errors.add("El markup real", "no puede ser cero" ) 
+      errors.add("El markup real", "no puede ser cero. Producto #{@values[:p_id]}" ) 
       puts self
     end
 
