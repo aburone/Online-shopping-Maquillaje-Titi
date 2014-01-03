@@ -52,25 +52,25 @@
 
         div.readonly data-field-span="1"
           label for="parts_cost" = t.product.fields.parts_cost
-          input.positive.number type="tel"  name="parts_cost" id="ajax_product_parts_cost" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:parts_cost], 2, 0}"
+          input.positive.number type="tel"  name="parts_cost" id="ajax_product_parts_cost" size=5 maxlength=10 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:parts_cost], 2, 0}"
 
         div.readonly data-field-span="1"
           label for="materials_cost" = t.product.fields.materials_cost
-          input.positive.number type="tel"  name="materials_cost" id="ajax_product_materials_cost" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:materials_cost], 2, 0}"
+          input.positive.number type="tel"  name="materials_cost" id="ajax_product_materials_cost" size=5 maxlength=10 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:materials_cost], 2, 0}"
 
 
         div.readonly data-field-span="1"
           label for="sale_cost" = t.product.fields.sale_cost
-          input.positive.number type="tel"  name="sale_cost" id="ajax_product_sale_cost" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:sale_cost], 2, 0}"
+          input.positive.number type="tel"  name="sale_cost" id="ajax_product_sale_cost" size=5 maxlength=10 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:sale_cost], 2, 0}"
         div data-field-span="1"
           label for="ideal_markup" = t.product.fields.ideal_markup
           input.positive.number type="tel" name="ideal_markup" id="ajax_product_ideal_markup" size=5 maxlength=10 required="required" value="#{Utils::number_format @product[:ideal_markup], 3, ""}"
         div.readonly data-field-span="1"
           label for="real_markup" = t.product.fields.real_markup
-          input.positive.number type="tel" name="real_markup" id="ajax_product_real_markup" size=5 maxlength=10 readonly="readonly" value="#{Utils::number_format @product[:real_markup], 3, ""}"
+          input.positive.number type="tel" name="real_markup" id="ajax_product_real_markup" size=5 maxlength=10 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:real_markup], 3, ""}"
         div.readonly data-field-span="1"
           label for="exact_price" = t.product.fields.exact_price
-          input.positive.number type="tel"  name="exact_price" id="ajax_product_exact_price" size=5 maxlength=10 readonly="readonly" required="required" value="#{Utils::number_format @product[:exact_price], 5, ""}"
+          input.positive.number type="tel"  name="exact_price" id="ajax_product_exact_price" size=5 maxlength=10 readonly="readonly" tabindex="-1" required="required" value="#{Utils::number_format @product[:exact_price], 5, ""}"
         div data-field-span="1"
           label for="price" = t.product.fields.price
           input.positive.number type="tel" name="price" id="ajax_product_price" size=5 maxlength=10 required="required" value="#{Utils::number_format(@product[:price], 2, "") }"
@@ -89,16 +89,16 @@
           input.positive.number type="tel" name="ideal_stock" size=3 maxlength=6 required="required" value="#{Utils::number_format @product[:ideal_stock], 0, 0}"
         div.readonly data-field-span="1"
           label for="stock_warehouse_1" = t.product.fields.stock_warehouse_1
-          input.positive.number type="tel" name="stock_warehouse_1" size=3 maxlength=4 readonly="readonly" value="#{Utils::number_format @product[:stock_warehouse_1], 0, 0}"
+          input.positive.number type="tel" name="stock_warehouse_1" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:stock_warehouse_1], 0, 0}"
         div.readonly data-field-span="1"
           label for="stock_warehouse_2" = t.product.fields.stock_warehouse_2
-          input.positive.number type="tel" name="stock_warehouse_2" size=3 maxlength=4 readonly="readonly" value="#{Utils::number_format @product[:stock_warehouse_2], 0, 0}"
+          input.positive.number type="tel" name="stock_warehouse_2" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:stock_warehouse_2], 0, 0}"
         div.readonly data-field-span="1"
           label for="stock_store_1" = t.product.fields.stock_store_1
-          input.positive.number type="tel" name="stock_store_1" size=3 maxlength=4 readonly="readonly" value="#{Utils::number_format @product[:stock_store_1], 0, 0}"
+          input.positive.number type="tel" name="stock_store_1" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:stock_store_1], 0, 0}"
         div.readonly data-field-span="1"
           label for="stock_store_2" = t.product.fields.stock_store_2
-          input.positive.number type="tel" name="stock_store_2" size=3 maxlength=4 readonly="readonly" value="#{Utils::number_format @product[:stock_store_2], 0, 0}"
+          input.positive.number type="tel" name="stock_store_2" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:stock_store_2], 0, 0}"
 
 
     fieldset
