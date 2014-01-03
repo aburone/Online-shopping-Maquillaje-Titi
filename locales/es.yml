@@ -47,6 +47,9 @@ errors:
   inexistent_account: No existe ninguna cuenta llamada "%1"
   invalid_account: La cuenta "%1" no acepta operaciones
   accounts_of_same_group: No se permiten operaciones en las que las cuentas pertenecen al mismo grupo "%1", "%2"
+  record_without_transaction: "El registro de operacion no esta asociado a ninguna transaccion"
+  record_without_origin: "El registro de operacion no tiene cuenta de origen (haber)"
+  record_without_destination: "El registro de operacion no tiene cuenta de destino (debe)"
   sequel_start: sequel_start
   joiner: " , "
   exact_length: "debe tener exactamente %1 caracteres"
@@ -65,6 +68,7 @@ errors:
   string: "no es una cadena de texto"
   sequel_end: sequel_end
 fields:
+  t_id: "El ID de la transaccion"
   t_desc: "La descripcion de la transaccion"
 nav:
   frontend:
