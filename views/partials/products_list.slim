@@ -1,7 +1,11 @@
 - focus = true if focus.nil?
 - focus_text = focus ? "focus" : "no_focus"
 - full_row = true if full_row.nil?
+- price_pro_col = true if price_pro_col.nil?
 - stock_col = false if stock_col.nil? unless stock_col == true
+- multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
+- markup_deviation_col = false if markup_deviation_col.nil? unless markup_deviation_col == true
+
 - can_edit = true if can_edit.nil?
 - edit_link ||= "void"
 - can_filter = true if can_filter.nil?
@@ -16,16 +20,18 @@
         th = t.product.fields.id
         th = t.product.fields.category
         th = t.product.fields.name
-        th = t.product.fields.brand
+        th.md_cell = t.product.fields.brand
         - if full_row
-          th = t.product.fields.price
-        - if full_row
-          th = t.product.fields.price_pro
+          th.sm_cell = t.product.fields.price
+        - if full_row and price_pro_col
+          th.sm_cell = t.product.fields.price_pro
+        - if markup_deviation_col
+          th.sm_cell = t.product.fields.markup_deviation
         - if stock_col
-          th = t.product.fields.qty
-          th Ideal
+          th.sm_cell = t.product.fields.qty
+          th.sm_cell Ideal
         - if can_edit
-          th = t.actions.edit
+          th.sm_cell = t.actions.edit
     tfoot
       tr
         - colspan = 4
@@ -42,8 +48,11 @@
           td #{product[:br_name]}
           - if full_row
             td.number #{Utils::money_format product[:price], 2}
-          - if full_row
+          - if full_row and price_pro_col
             td.number #{Utils::money_format product[:price_pro], 2}
+          - if markup_deviation_col
+            - col_class = (product[:markup_deviation] > 1.1) ? "number overpriced" : (product[:markup_deviation] < 0.9) ? "number underpriced" : "number"
+            td class="#{col_class}" #{Utils::number_format product[:markup_deviation], 2}
           - if stock_col
             td.number #{Utils::number_format product[:qty], 0}
             td.number #{Utils::number_format product[:ideal_stock], 0}

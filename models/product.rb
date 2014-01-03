@@ -270,6 +270,7 @@ class Product < Sequel::Model
       .join(:brands, [:br_id])
       .select_append{:brands__br_name}
       .select_append{:categories__c_name}
+      .select_append{ Sequel.lit('real_markup / ideal_markup').as(markup_deviation)}
       .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra, :brands__br_name, :categories__c_name)
       .where(archived: 0)
   end
@@ -282,6 +283,8 @@ class Product < Sequel::Model
       .join(:brands, [:br_id])
       .join(:items, products__p_id: :items__p_id, i_status: "READY")
       .select_append{:brands__br_name}
+      .select_append{:categories__c_name}
+      .select_append{ Sequel.lit('real_markup / ideal_markup').as(markup_deviation)}
       .group(:products__p_id, :products__p_name, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :c_name, :products__br_id, :br_name)
       .where(archived: 0)
   end
@@ -294,6 +297,8 @@ class Product < Sequel::Model
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: location.to_s)
       .join(:brands, [:br_id])
       .select_append{:brands__br_name}
+      .select_append{:categories__c_name}
+      .select_append{ Sequel.lit('real_markup / ideal_markup').as(markup_deviation)}
       .select_append{count(i_id).as(qty)}
       .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :c_name, :products__br_id, :br_name)
   end

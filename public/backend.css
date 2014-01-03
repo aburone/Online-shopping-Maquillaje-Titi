@@ -648,6 +648,14 @@ body:after {
 tbody tr:nth-child(odd) {
   background: rgba(200, 200, 200, 0.3); }
 
+.overpriced {
+  color: #c8a61e;
+  font-weight: bold; }
+
+.underpriced {
+  color: #ff6464;
+  font-weight: bold; }
+
 a {
   color: darkblue; }
 
@@ -719,10 +727,6 @@ aside {
 .v_island_1 {
   margin-top: 2em;
   margin-bottom: 2em; }
-
-/* Disable pointer evets during scroll for faster redraw*/
-.scrolling * {
-  pointer-events: none !important; }
 
 .level1 {
   padding-left: 2em; }

@@ -37,7 +37,16 @@ aside
             a class="#{inside?("/admin/logistics/transport/warehouse_pos")}" href=url('/logistics/transport/warehouse_pos/select') = t.nav.backend.warehouse_pos
       li: ul
         li
-          span class="#{inside?("/admin/inventory/mass_price_adjustments")}" = t.nav.backend.mass_price_adjustment
+          span class="#{inside?("/admin/inventory/reports")}" Informes
         li: ul
           li
-            a class="#{inside?("/admin/inventory/mass_price_adjustments")}" href=url('/inventory/mass_price_adjustments') Iniciar ajuste
+            a class="#{inside?("/admin/inventory/reports/markups")}" href=url('/inventory/reports/markups') Desviacion de markup
+
+      li: ul
+        li
+          span class="#{inside?("/admin/inventory/adjustments")}" Ajustes
+        li: ul
+          li
+            a class="#{inside?("/admin/inventory/adjustments/mass_price_adjustments")}" href=url('/inventory/adjustments/mass_price_adjustments') = t.nav.backend.mass_price_adjustment
+
+

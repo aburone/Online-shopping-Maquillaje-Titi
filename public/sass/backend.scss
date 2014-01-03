@@ -70,6 +70,9 @@ body:after {
 .ajax_item:hover {cursor: pointer}
 .tall {border-top: 1px solid silver}
 tbody tr:nth-child(odd) {background: $odd_rows}
+.overpriced {color: rgb(200, 166, 30); font-weight: bold}
+.underpriced {color: rgb(255, 100, 100); font-weight: bold}
+
 
 a {color: darkblue;}
 :focus {@include focused}
@@ -113,11 +116,6 @@ aside {
 .no_padding {padding: 0}
 
 .v_island_1 {margin-top: 2em; margin-bottom: 2em}
-
-/* Disable pointer evets during scroll for faster redraw*/
-.scrolling * {
-  pointer-events: none !important;
-}
 
 .level1 {padding-left: 2em}
 .level2 {padding-left: 4em}
