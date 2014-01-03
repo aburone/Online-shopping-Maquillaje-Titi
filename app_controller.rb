@@ -7,8 +7,7 @@ require 'slim'
 require 'pp'
 require 'sinatra/r18n'
 require "sinatra/multi_route"
-require "better_errors"
-
+# require "better_errors"
 
 
 
@@ -19,7 +18,9 @@ class AppController < Sinatra::Base
 
   register Sinatra
   register Sinatra::ConfigFile
-  config_file File.expand_path '../config.yml', __FILE__
+  config_file '../config.yml'
+  $settings = Settings.new '../config.yml'
+
   register Sinatra::MultiRoute
 
   register Sinatra::R18n
@@ -48,14 +49,6 @@ class AppController < Sinatra::Base
     before do
       cache_control :no_cache, :no_store, :must_revalidate, :proxy_revalidate
     end
-
-    # aggresive caching for frontend
-    # set :start_time, Time.now
-    # before do
-    #   last_modified settings.start_time
-    #   etag settings.start_time.to_s
-    #   cache_control :public, :must_revalidate
-    # end
 
     #slim
     Slim::Engine.set_default_options pretty: true, sort_attrs: false
@@ -90,9 +83,10 @@ class AppController < Sinatra::Base
     register Sinatra::Reloader
     enable :reload_templates
     also_reload "models/*.rb"
-    also_reload "__FILE__/../helpers/*.rb"
-    also_reload "__FILE__/../sinatra/*.rb"
-    also_reload "__FILE__/../*.rb"
+    also_reload "helpers/*.rb"
+    also_reload "sinatra/*.rb"
+    also_reload "./*.rb"
+    also_reload "locales/*.yml"
     Sinatra::Application.reset!
   end
 

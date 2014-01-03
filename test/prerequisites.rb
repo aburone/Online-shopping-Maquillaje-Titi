@@ -1,12 +1,13 @@
 require 'test/unit'
 require 'rack/test'
-require 'mocha/setup'
+# require 'mocha/setup'
 require 'sequel'
 require 'pp'
 require 'sinatra'
 require 'sinatra/r18n'
 require 'sinatra/config_file'
 config_file '../../config.yml'
+require 'tree'
 ENV["TZ"] = "GMT"
 
 register Sinatra::R18n
@@ -24,6 +25,9 @@ use Rack::Session::EncryptedCookie, secret: settings.cookie_secret, expire_after
 require_relative '../helpers/init'
 require_relative '../models/init'
 # require_relative '../models/stdout_logger'
+
+$settings = Settings.new '../config.yml'
+
 
 module Test::Unit::Assertions
   def assert_false(object, message="")

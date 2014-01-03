@@ -1,10 +1,6 @@
 require_relative 'prerequisites'
 
 class ItemTest < Test::Unit::TestCase
-  # def self.startup
-  #   p "start"
-  #   @@only_once = "only_once, can make several with different names"
-  # end
 
   def setup
     @valid_item = Item.new
@@ -17,38 +13,6 @@ class ItemTest < Test::Unit::TestCase
     @valid_item.i_price_pro = 8
     @valid_item.created_at = Time.now
   end
-
-
-  # # uncomment for multiple setups
-  # setup
-  # def setup_two
-  #   p "s2"
-  # end
-
-  # def test_needing_startup_n_teardown
-  #   p "needy test"
-  #   assert true
-  #   notify("Debug")
-  #   p " yadda "
-  #   notify("/Debug")
-  #   # pend()
-  #   # omit("pete")
-  #   # omit_if(cond, "msg")
-  #   # omit_unless(cond, "msg")
-  # end
-
-  # def teardown
-  #   p "t1"
-  # end
-
-  # teardown
-  # def teardown_two
-  #   p "t2"
-  # end
-
-  # def self.shutdown
-  #   p "shut"
-  # end
 
   def test_should_use_binary_search
     i_id = Item.first.i_id

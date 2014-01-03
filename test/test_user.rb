@@ -1,6 +1,6 @@
 class UserTest < Test::Unit::TestCase
 
-  setup do
+  def setup
     @username = "aburone"
     @password = "qwe123"
   end
