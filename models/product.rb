@@ -274,24 +274,10 @@ class Product < Sequel::Model
       .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra, :brands__br_name, :categories__c_name)
       .where(archived: 0)
   end
- 
-  def get_saleable
-    Product
-      .select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra)
-      .select_append{count(i_id).as(qty)}
-      .join(:categories, [:c_id])
-      .join(:brands, [:br_id])
-      .join(:items, products__p_id: :items__p_id, i_status: "READY")
-      .select_append{:brands__br_name}
-      .select_append{:categories__c_name}
-      .select_append{ Sequel.lit('real_markup / ideal_markup').as(markup_deviation)}
-      .group(:products__p_id, :products__p_name, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :c_name, :products__br_id, :br_name)
-      .where(archived: 0)
-  end
 
   def get_saleable_at_location location
     Product
-      .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :c_name, :products__br_id)
+      .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :products__br_id)
       .where(archived: 0)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: location.to_s)
@@ -300,7 +286,13 @@ class Product < Sequel::Model
       .select_append{:categories__c_name}
       .select_append{ Sequel.lit('real_markup / ideal_markup').as(markup_deviation)}
       .select_append{count(i_id).as(qty)}
-      .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :c_name, :products__br_id, :br_name)
+      .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :categories__c_name, :products__br_id, :brands__br_name)
+  end
+
+  def get_saleable_at_all_locations
+    products = get_list.order(:categories__c_name, :products__p_name)
+    products.each { |product| product.update_stocks }
+    products
   end
 
   def validate
@@ -358,17 +350,9 @@ class Product < Sequel::Model
       if numerical_keys.include? key.to_sym 
         unless value.nil? or (value.class == String and value.length == 0)
           if Utils::is_numeric? value.to_s.gsub(',', '.')
-            # p "IN: #{key} #{value}, out: #{value.to_s.gsub(',', '.')}, nil: #{value.nil?}, class: #{value.class}, inspect: #{value.inspect}, Numeric: #{Utils::is_numeric? value.to_s.gsub(',', '.')}"
             self[key.to_sym] = Utils::as_number value
-            # p "res: #{self[key.to_sym]}"
-          else
-            # p "#{key}: #{value.to_s.gsub(',', '.')} is not numeric"
           end
-        else
-          # p "#{key}: #{value} is nil"
         end
-      else
-        # p "#{key}: #{value} is not a numerical_key"
       end
     end
     cast

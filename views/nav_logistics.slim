@@ -37,10 +37,13 @@ aside
             a class="#{inside?("/admin/logistics/transport/warehouse_pos")}" href=url('/logistics/transport/warehouse_pos/select') = t.nav.backend.warehouse_pos
       li: ul
         li
-          span class="#{inside?("/admin/inventory/reports")}" Informes
+          span class="#{inside?("/admin/reports")}" Informes
         li: ul
           li
-            a class="#{inside?("/admin/inventory/reports/markups")}" href=url('/inventory/reports/markups') Desviacion de markup
+            a class="#{inside?("/admin/reports/markups")}" href=url('/reports/markups') Desviacion de markup
+        li: ul
+          li
+            a class="#{inside?("/admin/reports/stocks")}" href=url('/reports/stocks') Existencias
 
       li: ul
         li

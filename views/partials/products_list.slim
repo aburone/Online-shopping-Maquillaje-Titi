@@ -4,7 +4,6 @@
 - price_pro_col = true if price_pro_col.nil?
 - stock_col = false if stock_col.nil? unless stock_col == true
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
-
 - real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
 - markup_deviation_col = false if markup_deviation_col.nil? unless markup_deviation_col == true
 
@@ -33,6 +32,12 @@
           th.sm_cell = t.product.fields.markup_deviation
         - if stock_col
           th.sm_cell = t.product.fields.qty
+        - if multi_stock_col
+          th.sm_cell = t.locations.short.STORE_1
+          th.sm_cell = t.locations.short.STORE_2
+          th.sm_cell = t.locations.short.WAREHOUSE_1
+          th.sm_cell = t.locations.short.WAREHOUSE_2
+        - if stock_col or multi_stock_col
           th.sm_cell Ideal
         - if can_edit
           th.sm_cell = t.actions.edit
@@ -62,6 +67,12 @@
             td class="#{col_class}" #{markup_deviation}
           - if stock_col
             td.number #{Utils::number_format product[:qty], 0}
+          - if multi_stock_col
+            td.number #{Utils::number_format product[:stock_store_1], 0}
+            td.number #{Utils::number_format product[:stock_store_2], 0}
+            td.number #{Utils::number_format product[:stock_warehouse_1], 0}
+            td.number #{Utils::number_format product[:stock_warehouse_2], 0}
+          - if stock_col or multi_stock_col
             td.number #{Utils::number_format product[:ideal_stock], 0}
           - if can_edit
             td
