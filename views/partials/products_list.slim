@@ -39,6 +39,8 @@
           th.sm_cell = t.locations.short.STORE_2
         - if stock_col or multi_stock_col
           th.sm_cell Ideal
+        - if multi_stock_col
+          th.sm_cell Desvio
         - if can_edit
           th.sm_cell = t.actions.edit
     tfoot
@@ -74,6 +76,8 @@
             td.number #{Utils::number_format product[:stock_store_2], 0}
           - if stock_col or multi_stock_col
             td.number #{Utils::number_format product[:ideal_stock], 0}
+          - if multi_stock_col
+            td.number #{Utils::number_format product[:stock_deviation], 0}
           - if can_edit
             td
               - if edit_link == "void"

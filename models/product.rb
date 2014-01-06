@@ -9,7 +9,7 @@ class Product < Sequel::Model
   many_to_many :materials , left_key: :product_id, right_key: :m_id, join_table: :products_materials
   one_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
 
-  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :description, :notes, :products__img, :img_extra]
+  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :description, :notes, :products__img, :img_extra]
   def empty?
     return @values[:p_id].nil? ? true : false
   end
@@ -117,10 +117,11 @@ class Product < Sequel::Model
     out += "\tsku:                #{@values[:sku]}\n"
 
     out += "\tideal_stock:        #{@values[:ideal_stock]}\n"
-    out += "\tstock_store_1:      #{@values[:stock_store_1]}\n"
-    out += "\tstock_store_2:      #{@values[:stock_store_2]}\n"
+    out += "\tstock_deviation:    #{@values[:stock_deviation]}\n"
     out += "\tstock_warehouse_1:  #{@values[:stock_warehouse_1]}\n"
     out += "\tstock_warehouse_2:  #{@values[:stock_warehouse_2]}\n"
+    out += "\tstock_store_1:      #{@values[:stock_store_1]}\n"
+    out += "\tstock_store_2:      #{@values[:stock_store_2]}\n"
     out += "\tbuy_cost:           #{Utils::number_format @values[:buy_cost], 2}\n"
     out += "\tparts_cost:         #{Utils::number_format @values[:parts_cost], 2}\n"
     out += "\tmaterials_cost:     #{Utils::number_format @values[:materials_cost], 2}\n"
@@ -191,6 +192,12 @@ class Product < Sequel::Model
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: Location::W2)
       .where(products__p_id: @values[:p_id])
       .first[:stock_warehouse_2]
+    update_stock_deviation
+  end
+
+  def update_stock_deviation
+    @values[:stock_deviation] = @values[:ideal_stock]*2 - (@values[:stock_warehouse_1] + @values[:stock_warehouse_2] + @values[:stock_store_1]) 
+    @values[:stock_deviation] *= -1
   end
 
   def update_markups
@@ -248,13 +255,13 @@ class Product < Sequel::Model
 
   def get p_id
     return Product.new unless p_id.to_i > 0
-    product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra)
+    product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra)
                 .filter(products__p_id: p_id.to_i)
                 .left_join(:categories, [:c_id])
                 .left_join(:brands, [:br_id])
                 .select_append{:brands__br_name}
                 .select_append{:categories__c_name}
-                .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra, :brands__br_name, :categories__c_name)
+                .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra, :brands__br_name, :categories__c_name)
                 .first
     return Product.new if product.nil?
     product.update_stocks
@@ -265,19 +272,19 @@ class Product < Sequel::Model
 
   def get_list
     Product
-      .select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra)
+      .select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra)
       .join(:categories, [:c_id])
       .join(:brands, [:br_id])
       .select_append{:brands__br_name}
       .select_append{:categories__c_name}
       .select_append{ Sequel.lit('real_markup / ideal_markup').as(markup_deviation)}
-      .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra, :brands__br_name, :categories__c_name)
+      .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra, :brands__br_name, :categories__c_name)
       .where(archived: 0)
   end
 
   def get_saleable_at_location location
     Product
-      .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :products__br_id)
+      .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :stock_deviation, :products__img, :products__c_id, :products__br_id)
       .where(archived: 0)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: location.to_s)
@@ -286,13 +293,17 @@ class Product < Sequel::Model
       .select_append{:categories__c_name}
       .select_append{ Sequel.lit('real_markup / ideal_markup').as(markup_deviation)}
       .select_append{count(i_id).as(qty)}
-      .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :products__img, :products__c_id, :categories__c_name, :products__br_id, :brands__br_name)
+      .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :stock_deviation, :products__img, :products__c_id, :categories__c_name, :products__br_id, :brands__br_name)
   end
 
   def get_saleable_at_all_locations
     products = get_list.order(:categories__c_name, :products__p_name)
-    products.each { |product| product.update_stocks }
-    products
+    new_products = []
+    products.map do |product| 
+      product.update_stocks 
+      new_products << product
+    end
+    new_products
   end
 
   def validate
@@ -308,6 +319,7 @@ class Product < Sequel::Model
     validates_schema_types [:color, :color]
     validates_schema_types [:sku, :sku]
     validates_schema_types [:ideal_stock, :ideal_stock]
+    validates_schema_types [:stock_deviation, :stock_deviation]
     validates_schema_types [:stock_store_1, :stock_store_1]
     validates_schema_types [:stock_store_2, :stock_store_2]
     validates_schema_types [:stock_warehouse_1, :stock_warehouse_1]
