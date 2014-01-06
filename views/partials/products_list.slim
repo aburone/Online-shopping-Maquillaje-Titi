@@ -4,6 +4,8 @@
 - price_pro_col = true if price_pro_col.nil?
 - stock_col = false if stock_col.nil? unless stock_col == true
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
+
+- real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
 - markup_deviation_col = false if markup_deviation_col.nil? unless markup_deviation_col == true
 
 - can_edit = true if can_edit.nil?
@@ -25,6 +27,8 @@
           th.sm_cell = t.product.fields.price
         - if full_row and price_pro_col
           th.sm_cell = t.product.fields.price_pro
+        - if real_markup_col
+          th.sm_cell = t.product.fields.real_markup
         - if markup_deviation_col
           th.sm_cell = t.product.fields.markup_deviation
         - if stock_col
@@ -50,9 +54,12 @@
             td.number #{Utils::money_format product[:price], 2}
           - if full_row and price_pro_col
             td.number #{Utils::money_format product[:price_pro], 2}
+          - if real_markup_col
+            td.number #{Utils::number_format product[:real_markup], 2}
           - if markup_deviation_col
             - col_class = (product[:markup_deviation] > 1.1) ? "number overpriced" : (product[:markup_deviation] < 0.9) ? "number underpriced" : "number"
-            td class="#{col_class}" #{Utils::number_format product[:markup_deviation], 2}
+            - markup_deviation = product[:markup_deviation] == 1 ? "-" : Utils::number_format(product[:markup_deviation], 2)
+            td class="#{col_class}" #{markup_deviation}
           - if stock_col
             td.number #{Utils::number_format product[:qty], 0}
             td.number #{Utils::number_format product[:ideal_stock], 0}

@@ -7,6 +7,7 @@ class Backend < AppController
       full_row: true,
       price_pro_col: false,
       stock_col: false,
+      real_markup_col: true,
       markup_deviation_col: true
     }
   end
