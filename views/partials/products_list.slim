@@ -41,6 +41,7 @@
           th.sm_cell Ideal
         - if multi_stock_col
           th.sm_cell Desvio
+          th.sm_cell %
         - if can_edit
           th.sm_cell = t.actions.edit
     tfoot
@@ -79,6 +80,7 @@
           - if multi_stock_col
             - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
             td.number #{stock_deviation}
+            td.number #{Utils::number_format product.stock_deviation_percentile, 1} %
           - if can_edit
             td
               - if edit_link == "void"
