@@ -255,6 +255,8 @@ product:
     description: Descripcion
     notes: Notas internas
     qty: "Cantidad"
+    materials: "Materiales"
+    parts: "Partes"
     trimester_ideal_stock: "Stock ideal por trimestre"
     stock_warehouse_1: "Stock deposito 1"
     stock_warehouse_2: "Stock deposito 2"

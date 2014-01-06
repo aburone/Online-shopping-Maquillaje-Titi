@@ -11,8 +11,8 @@
         th = t.product.fields.id
         th = t.product.fields.category
         th = t.product.fields.name
-        th Materials
-        th Parts
+        th = t.product.fields.materials
+        th = t.product.fields.parts
     tbody
       - @relationships.each do |rel|
         - product = rel[:product]
