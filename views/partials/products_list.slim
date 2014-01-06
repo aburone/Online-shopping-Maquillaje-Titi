@@ -33,10 +33,10 @@
         - if stock_col
           th.sm_cell = t.product.fields.qty
         - if multi_stock_col
-          th.sm_cell = t.locations.short.STORE_1
-          th.sm_cell = t.locations.short.STORE_2
           th.sm_cell = t.locations.short.WAREHOUSE_1
           th.sm_cell = t.locations.short.WAREHOUSE_2
+          th.sm_cell = t.locations.short.STORE_1
+          th.sm_cell = t.locations.short.STORE_2
         - if stock_col or multi_stock_col
           th.sm_cell Ideal
         - if can_edit
@@ -68,10 +68,10 @@
           - if stock_col
             td.number #{Utils::number_format product[:qty], 0}
           - if multi_stock_col
-            td.number #{Utils::number_format product[:stock_store_1], 0}
-            td.number #{Utils::number_format product[:stock_store_2], 0}
             td.number #{Utils::number_format product[:stock_warehouse_1], 0}
             td.number #{Utils::number_format product[:stock_warehouse_2], 0}
+            td.number #{Utils::number_format product[:stock_store_1], 0}
+            td.number #{Utils::number_format product[:stock_store_2], 0}
           - if stock_col or multi_stock_col
             td.number #{Utils::number_format product[:ideal_stock], 0}
           - if can_edit
