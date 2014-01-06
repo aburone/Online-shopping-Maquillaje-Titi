@@ -652,8 +652,12 @@ tbody tr:nth-child(odd) {
   color: #c8a61e;
   font-weight: bold; }
 
-.underpriced {
+.understocked, .underpriced {
   color: #ff6464;
+  font-weight: bold; }
+
+.overstocked {
+  color: #c8a61e;
   font-weight: bold; }
 
 a {

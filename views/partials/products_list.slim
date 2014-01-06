@@ -78,9 +78,12 @@
           - if stock_col or multi_stock_col
             td.number #{Utils::number_format product[:ideal_stock], 0}
           - if multi_stock_col
+            - col_class = (product[:stock_deviation] > 0) ? "number overstocked" : (product[:stock_deviation] < 0) ? "number understocked" : "number"
             - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
-            td.number #{stock_deviation}
-            td.number #{Utils::number_format product.stock_deviation_percentile, 1} %
+            td class="#{col_class}" #{stock_deviation}
+            - col_class = (product.stock_deviation_percentile > 0) ? "number overstocked" : (product.stock_deviation_percentile < 0) ? "number understocked" : "number"
+            - stock_deviation_percentile = product.stock_deviation_percentile.nan? ? "-" : "#{Utils::number_format product.stock_deviation_percentile, 1} %"
+            td class="#{col_class}" #{stock_deviation_percentile}
           - if can_edit
             td
               - if edit_link == "void"

@@ -71,8 +71,8 @@ body:after {
 .tall {border-top: 1px solid silver}
 tbody tr:nth-child(odd) {background: $odd_rows}
 .overpriced {color: rgb(200, 166, 30); font-weight: bold}
-.underpriced {color: rgb(255, 100, 100); font-weight: bold}
-
+.understocked, .underpriced {color: rgb(255, 100, 100); font-weight: bold}
+.overstocked { color: rgb(200, 166, 30); font-weight: bold}
 
 a {color: darkblue;}
 :focus {@include focused}
