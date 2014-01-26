@@ -9,7 +9,8 @@ form action=url("/books/add") method="post"
       dt
         label for="type" Tipo:
       dd 
-        select name="type" id="type" 
+        select name="type" id="type" required="required"
+          option value="" 
           option value="" disabled="disabled" ----------------
           option value="Caja inicial" disabled="disabled" Caja inicial
           
@@ -30,7 +31,7 @@ form action=url("/books/add") method="post"
       dt 
         label for="amount" Monto:
       dd 
-        input type="text" size="40" id="amount" name="amount" value='' maxlength="50"
+        input type="text" size="40" id="amount" name="amount" value='' maxlength="50" required="required"
 
       dt
       dd

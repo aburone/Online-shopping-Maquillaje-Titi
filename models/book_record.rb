@@ -36,6 +36,7 @@ class BookRecord < Sequel::Model(:book_records)
     elsif amount.class != BigDecimal
       errors.add("El monto", "debe ser numérico. #{amount} (#{amount.class}) dado" )
     end
+    errors.add("El tipo de movimiento", "no puede estar vacio" ) if type.empty?
 
   end
 
