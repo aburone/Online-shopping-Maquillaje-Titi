@@ -3,7 +3,6 @@ class Backend < AppController
 
     final_products = []
     products = Product.new.get_list
-                .filter(Sequel.negate(products__br_name: "Mila Marzi"))
                 .select(:p_id)
                 .order(:c_name, :p_name)
     products = Sinatra::Base.development? ? products.limit(10) : products.all

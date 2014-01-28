@@ -242,7 +242,6 @@ class Product < Sequel::Model
     can_update = true
     can_update = false if mod <= 0 or mod == 1
     can_update = false if mod > 1 and mod < 1.01
-    can_update = false if @values[:br_name] == "Mila Marzi"
 
     if can_update
       start_price = @values[:exact_price].dup

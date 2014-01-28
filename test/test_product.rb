@@ -161,10 +161,10 @@ class ProductTest < Test::Unit::TestCase
     assert_equal expected_price, @valid.price
   end
 
-  def test_mod_price_should_ignore_mila_marzi
+  def test_mod_price_should_include_mila_marzi
     @valid.br_name = "Mila Marzi"
     mod = 1.1
-    expected = 20 # 22
+    expected = 21.5 # 21.494
     expected_price = BigDecimal.new("#{expected}", 2)
     @valid.price_mod mod
     assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
