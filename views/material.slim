@@ -10,7 +10,7 @@
     input type="hidden" name="m_id" value="#{@material[:m_id]}"
 
     label.aligner for="m_name" = t.material.fields.name
-    input autofocus="" type="text" name="m_name" size=50 maxlength=50 required="required" value="#{@material[:m_name]}"
+    input autofocus="" type="text" name="m_name" size=50 maxlength=80 required="required" value="#{@material[:m_name]}"
     br
     label.aligner for="c_id" = t.material.fields.category
     select name="c_id"
