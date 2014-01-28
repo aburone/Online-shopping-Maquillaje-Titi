@@ -80,11 +80,6 @@ $(document).ready(function () {
     }
   }); 
 
-  $('form').on('keyup','#ajax_product_buy_cost', function(e){
-    update_markup_and_sale_cost();
-  });
-
-
   $('input[type=tel].number.positive').on({'focus': function(e){
       original = this.value;
     }, 'keyup': function(e){
@@ -97,20 +92,17 @@ $(document).ready(function () {
     }
   });
 
+  $('form').on('keyup','#ajax_product_buy_cost', function(e){
+    update_markup_and_sale_cost();
+  });
+
   $('#ajax_product_price').on({'focus': function(e){
-      exact_price = document.getElementById("ajax_product_exact_price");
-      original_exact_price = exact_price.value;
-      original_price = this.value;
+      original_price = document.getElementById("ajax_product_price").value;
     },
     'keyup': function(e){
-      if (this.value.length > 0) {
+      if (this.value.length > 0 && this.value != original_price) {
         update_markup_and_sale_cost();
-        if( !is_number(this.value) ) {
-          this.value = original_price;
-          exact_price.value = original_exact_price;
-        } else if( !is_number(this.value) && original_price != this.value) {
-          exact_price.value = this.value;
-        }
+        update_exact_price();
       }
     }
   }); 
@@ -142,6 +134,12 @@ $(document).ready(function () {
     var full_sale_cost = as_number(buy_cost.value) + as_number(parts_cost.value) + as_number(materials_cost.value);
     var round_sale_cost = Math.round(full_sale_cost*1000)/1000;
     sale_cost.value = round_sale_cost;
+  }
+
+  function update_exact_price() {
+    exact_price = document.getElementById("ajax_product_exact_price");
+    price = document.getElementById("ajax_product_price");
+    exact_price.value = price.value;
   }
 
   $('.ajax_void_item').click(function(e) {
