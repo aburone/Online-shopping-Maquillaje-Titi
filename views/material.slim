@@ -46,4 +46,4 @@ div#ajax_panel
 - else
   h2 = t.material.products_list
   - @focus = "no_focus"
-  == slim :products_list
+  == slim :products_list, locals: {edit_link: "edit_product"}
