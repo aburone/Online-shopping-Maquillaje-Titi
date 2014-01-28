@@ -96,7 +96,6 @@ class Backend < AppController
     puts params
     if product.valid?
       product.save()
-      # puts product
       product = Product.new.get product.p_id
       product.save columns: Product::COLUMNS
       flash[:notice] = R18n.t.product.updated
@@ -115,11 +114,6 @@ class Backend < AppController
     end
     @categories = Category.all
     @brands = Brand.all
-    @items =  @product.items
-    unless params[:p_short_name].nil?
-      puts params
-      puts JSON.parse( params[:brand] )
-    end
     slim :product, layout: :layout_backend
   end
 

@@ -128,9 +128,3 @@
           input type="submit" value="Guardar"
 
 
-- if @items.empty?
-  h2 = t.product.items_not_found
-- else
-  h2 = t.product.items_list
-  - @focus = "no_focus"
-  == slim :items_list
