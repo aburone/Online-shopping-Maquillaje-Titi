@@ -443,7 +443,7 @@ order:
 inventory:
   mass_price_adjustments:
     title: Ajuste masivo de precios
-    intro: "Esto aplicara un ajuste de precios de venta al publico en todos los productos (excepto Mila Marzi). Si el numero es positivo, el precio aumenta, si es negativo, disminuye."
+    intro: "Esto aplicara un ajuste de precios de venta al publico en todos los productos. Si el numero es positivo, el precio aumenta, si es negativo, disminuye. 0 y 1 son ignorados por no tener sentido en este contexto"
     mod_label: Escribir el modificador
     confirm_message: Estas seguro de modificar todos los precios?
     submit_text: Actualizar todos los precios de venta

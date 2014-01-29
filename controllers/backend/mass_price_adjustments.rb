@@ -33,8 +33,8 @@ class Backend < AppController
   route :get, :post, '/inventory/adjustments/mass_price_adjustments' do
     @mod =  BigDecimal.new(params[:mod], 2) unless params[:mod].nil? or params[:mod].to_f == 0 or params[:mod].to_f == 1
     if params[:mod] == "0" or params[:mod] == "1"
-      flash[:error] = "Que queres romper?"
-      redirect to("/inventory/mass_price_adjustments")
+      flash[:error] = "0 y 1 no tienen sentido en este contexto."
+      redirect to("/inventory/adjustments/mass_price_adjustments")
     else
       @products = update_prices(@mod, params[:confirm] == R18n.t.inventory.mass_price_adjustments.submit_text) if @mod
       flash.now[:notice] = "Precios actualizados con un indice de #{@mod.to_f}" if params[:confirm] == R18n.t.inventory.mass_price_adjustments.submit_text and @mod
