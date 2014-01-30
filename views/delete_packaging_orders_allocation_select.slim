@@ -1,7 +1,0 @@
--# coding: UTF-8
-- @title = t.production.packaging_orders_allocation.title
-
-- if @orders.nil? or @orders.empty?
-  p = t.production.packaging_orders_allocation.empty
-- else
-  == slim :orders_list, locals: {full_row: true, can_edit: true, edit_link: "/admin/production/packaging_orders_allocation/o_id"}
