@@ -84,14 +84,6 @@ class Item < Sequel::Model
     self
   end
 
-  def current_sale_order
-    Order
-      .select(:orders__o_id, :type, :o_status, :o_loc, :u_id, :orders__created_at)
-      .join(:line_items, line_items__o_id: :orders__o_id, orders__type: Order::SALE)
-      .join(:items, line_items__i_id: :items__o_id, line_items__i_id: @values[:i_id])
-      .first
-  end
-
   def missing i_id
     if Item[i_id].nil?
       errors.add("Item invalido", "No tengo ningun item con el id #{i_id}") 
@@ -116,11 +108,19 @@ class Item < Sequel::Model
     return false
   end
 
+  def current_sale_order
+    Order
+      .select(:orders__o_id, :type, :o_status, :o_loc, :u_id, :orders__created_at)
+      .join(:line_items, line_items__o_id: :orders__o_id, orders__type: Order::SALE)
+      .join(:items, line_items__i_id: :items__o_id, line_items__i_id: @values[:i_id])
+      .first
+  end
+
   def is_on_cart o_id
     return false unless @values[:i_status] == Item::ON_CART
     order = current_sale_order
     if o_id == current_sale_order.o_id
-      errors.add("Error de carga", "Este item ya fue agragado a la orden actual con anterioridad.") 
+      errors.add("Error de carga", "Este item ya fue agregado a la orden actual con anterioridad.") 
       return true
     else
       errors.add("Item en otra venta en curso", "Este item pertenece a la orden #{order.o_id}. Que haces agregandolo a esta orden??") 
@@ -128,12 +128,21 @@ class Item < Sequel::Model
     end
   end
 
-  def is_on_my_sale
-    if @values[:i_status] == Item::ON_CART
-      errors.add("Item vendido anteriormente", "Este item ya fue vendido. Que hace en el local otra vez?") 
-      return true
-    end
-    return false
+  def last_order
+    Order
+      .select(:orders__o_id, :type, :o_status, :o_loc, :u_id, :orders__created_at)
+      .join(:line_items, line_items__o_id: :orders__o_id)
+      .join(:items, line_items__i_id: :items__o_id, line_items__i_id: @values[:i_id])
+      .order(:o_id)
+      .last
+  end
+
+  def is_on_some_order o_id
+    return false if @values[:i_status] == Item::READY
+    last = last_order
+    errors.add("Error de carga", "Este item ya fue agregado a la orden actual con anterioridad.") if last.o_id == o_id
+    errors.add("Error de carga", "Este item pertenece a la orden. #{last.o_id}") if last.o_id != o_id
+    return true
   end
 
   def has_been_sold 
@@ -324,7 +333,6 @@ class Item < Sequel::Model
 
   def get_for_sale i_id, o_id
     i_id = i_id.to_s.strip
-    p i_id
     item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
     return item unless item.nil?
     return self if missing(i_id)
@@ -335,6 +343,19 @@ class Item < Sequel::Model
     return self if is_from_another_location
     return self if is_on_cart o_id
     return self if has_been_sold 
+    errors.add("Error inesperado", "Que hacemos?") 
+    return self
+  end
+
+  def get_for_transport i_id, o_id
+    i_id = i_id.to_s.strip
+    item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
+    return item unless item.nil?
+    return self if missing(i_id)
+    update_from Item[i_id]
+    return self if has_been_void 
+    return self if is_from_another_location
+    return self if is_on_some_order o_id
     errors.add("Error inesperado", "Que hacemos?") 
     return self
   end

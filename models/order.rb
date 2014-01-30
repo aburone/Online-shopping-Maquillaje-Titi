@@ -6,9 +6,11 @@ class Order < Sequel::Model
   PACKAGING="PACKAGING"
   INVENTORY="INVENTORY"
   WH_TO_POS="WH_TO_POS"
+  POS_TO_WH="POS_TO_WH"
+  WH_TO_WH="WH_TO_WH"
   SALE="SALE"
   INVALIDATION="INVALIDATION"
-  TYPES = [PACKAGING, INVENTORY, WH_TO_POS, SALE, INVALIDATION]
+  TYPES = [PACKAGING, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION]
 
   OPEN="OPEN"
   MUST_VERIFY="MUST_VERIFY"
@@ -328,40 +330,6 @@ class Order < Sequel::Model
     get_warehouse_pos__en_route(destination)
       .filter(o_id: o_id.to_i)
       .first
-  end
-
-  def get_inventory_review
-    get_orders_with_type(Order::INVENTORY)
-      .order(:o_id).reverse
-  end
-
-  def get_inventory_review_in_location location
-    get_orders_in_location_with_type(location, Order::INVENTORY)
-      .order(:o_id).reverse
-  end
-
-  def get_inventory_review_in_location_with_id location, o_id
-     get_inventory_review_in_location(location)
-      .filter(o_id: o_id.to_i)
-      .first
-  end
-
-  def get_inventory_review_in_location_with_status location, status
-     get_inventory_review_in_location(location)
-      .filter(o_status: status.to_s)
-  end
-
-  def get_inventory_review_in_location_with_status_and_id location, status, o_id
-    get_inventory_review_in_location_with_status(location, status)
-      .filter(o_id: o_id.to_i)
-      .first
-  end
-
-  def get_inventory_verification
-    get_orders
-      .filter(type: Order::INVENTORY)
-      .filter(o_status: Order::MUST_VERIFY)
-      .order(:o_id).reverse
   end
 
   def get_inventory_imputation

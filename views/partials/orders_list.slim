@@ -54,6 +54,8 @@
 
               - if edit_link == "/admin/logistics/transport/warehouse_pos/order.o_id/add"
                 a href="/admin/logistics/transport/warehouse_pos/#{order.o_id}/add" : img src="/media/Icon-Edit.png" width="32" height="32"
+              - if edit_link == "/admin/logistics/transport/wh_to_wh/order.o_id/add"
+                a href="/admin/logistics/transport/wh_to_wh/#{order.o_id}/add" : img src="/media/Icon-Edit.png" width="32" height="32"
 
               - if edit_link == "/sales/admin/inventory_review/o_id"
                 a href="/sales/admin/inventory_review/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
@@ -66,6 +68,9 @@
 
               - if edit_link == "/sales/arrivals/o_id"
                 a href="/sales/arrivals/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+              - if edit_link == "/admin/logistics/transport/arrivals/o_id"
+                a href="/admin/logistics/transport/arrivals/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+
 
               - if edit_link == "/admin/inventory/inventory_verification/o_id"
                 a href="/admin/inventory/inventory_verification/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"

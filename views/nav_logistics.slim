@@ -3,18 +3,6 @@ aside
     ul
       li
         spam class="#{inside?("/admin/production")} #{inside?("/admin/logistics")} #{inside?("/admin/inventory")}" = t.nav.backend.logistics
-      / li: ul
-      /   li
-      /     span class="#{inside?("/admin/inventory/inventory")}"  Carga inicial de productos terminados
-      /   li: ul
-      /     li
-      /       a class="#{inside?("/admin/inventory/inventory_review")}" href=url('/inventory/inventory_review/select') Iniciar carga
-      /     li
-      /       a class="#{inside?("/admin/inventory/inventory_verification")}" href=url('/inventory/inventory_verification/select') Verificar
-      /     li
-      /       a class="#{inside?("/admin/inventory/inventory_imputation")}" href=url('/inventory/inventory_imputation/select') Imputar
-      /     li
-      /       a class="#{inside?("/admin/inventory/items")}" href=url('/inventory/items') Ver Items
       li: ul
         li
           spam class="#{inside?("/admin/production")}" = t.nav.backend.production
@@ -31,10 +19,14 @@ aside
         li
           spam class="#{inside?("/admin/logistics/transport")}" = t.nav.backend.transport
         li: ul
-          / li
-          /   a class="#{inside?("/admin/logistics/transport/inter_warehouse")}" href=url('/logistics/transport/inter_warehouse') = t.nav.backend.inter_warehouse
+          li
+            a class="#{inside?("/admin/logistics/transport/wh_to_wh")}" href=url('/logistics/transport/wh_to_wh/select') = t.nav.backend.wh_to_wh
           li
             a class="#{inside?("/admin/logistics/transport/warehouse_pos")}" href=url('/logistics/transport/warehouse_pos/select') = t.nav.backend.warehouse_pos
+          li
+            a class="#{inside?("/admin/logistics/transport/arrivals")}" href=url('/logistics/transport/arrivals') = t.nav.backend.arrivals
+          li
+            a class="#{inside?("/admin/logistics/transport/pending_items")}" href=url('/logistics/transport/pending_items') Items pendientes de verificacion
       li: ul
         li
           span class="#{inside?("/admin/reports")}" Informes

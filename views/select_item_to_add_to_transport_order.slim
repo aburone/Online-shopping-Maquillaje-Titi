@@ -1,11 +1,11 @@
 - @title = t.order.transport.title(@order.o_id, @items.count)
 
 
-- unless @item.empty?
+- unless @item.empty? or @item.errors.size > 0
   == slim :product_details, locals: {product: @product }
 
 
-  form action=url("/logistics/transport/warehouse_pos/#{@order.o_id}/#{@item.p_id}/#{@item.i_id}/undo") method="post"
+  form action=url("/logistics/transport/#{@route}/#{@order.o_id}/#{@item.p_id}/#{@item.i_id}/undo") method="post"
     == Rack::Csrf.tag(env)
     label.aligner for="fake_label" #{t.label.fields.label}
     input type="text" disabled="disabled" name="fake_label_id" value="#{@item[:i_id]}"
@@ -18,7 +18,7 @@
 
 h2 Escanee los items a agregar a la orden
 
-form action=url("/logistics/transport/warehouse_pos/#{@order.o_id}/add") method="post"
+form action=url("/logistics/transport/#{@route}/#{@order.o_id}/add") method="post"
   == Rack::Csrf.tag(env)
   input type="hidden" name="o_id" value="#{@order.o_id}"
 
@@ -28,12 +28,19 @@ form action=url("/logistics/transport/warehouse_pos/#{@order.o_id}/add") method=
   img src="/media/scan_barcode.jpg"
 
 h2 Items en esta orden
-== slim :items_list_with_undo, locals: {action_url: "/logistics/transport/warehouse_pos"}
+== slim :items_list_with_undo, locals: {action_url: "/logistics/transport/#{@route}"}
 
 
-form.v_island_1#finish_packaging action=url("/logistics/transport/warehouse_pos/#{@order.o_id}/move") method="post"
-  == Rack::Csrf.tag(env)
-  input type="hidden" name="o_dst" value="STORE_1"
-  input.ajax_confirm data-confirm_message="Esto va a cerrar definitivamente la orden. Solo va a poder ser abierta nuevamente en el Local 1" type="submit" value="Cerrar la orden y transportar a Local 1"
+- if @route == "warehouse_pos"
+  form.v_island_1#finish_packaging action=url("/logistics/transport/#{@route}/#{@order.o_id}/move") method="post"
+    == Rack::Csrf.tag(env)
+    input type="hidden" name="o_dst" value="STORE_1"
+    input.ajax_confirm data-confirm_message="Esto va a cerrar definitivamente la orden. Solo va a poder ser abierta nuevamente en el Local 1" type="submit" value="Cerrar la orden y transportar a Local 1"
 
-  
+- if @route == "wh_to_wh"
+  - dest = Location::WAREHOUSES.dup; dest.delete current_location[:name]; dest = dest.join
+  form.v_island_1#finish_packaging action=url("/logistics/transport/#{@route}/#{@order.o_id}/move") method="post"
+    == Rack::Csrf.tag(env)
+    input type="hidden" name="o_dst" value="#{dest}"
+    input.ajax_confirm data-confirm_message="Esto va a cerrar definitivamente la orden. Solo va a poder ser abierta nuevamente en el #{ConstantsTranslator.new(dest).t}" type="submit" value="Cerrar la orden y transportar a #{ConstantsTranslator.new(dest).t}"
+

@@ -100,11 +100,14 @@ nav:
     logs: Logs
     logistics: Logistica
     transport: Transporte
-    inter_warehouse: Entre depositos
+    wh_to_wh: Entre depositos
     warehouse_pos: Hacia punto de venta
     orders: Ordenes
     mass_price_adjustment: Ajustes de precios
     accounts: Plan de cuentas
+    arrivals: Ingresos de mercaderia
+    arrivals_list: Ordenes por verificar
+    arrivals_verifying: Verificando
   sales:
     admin: Administracion
     inventory_review: Carga de inventario
@@ -349,6 +352,7 @@ constant:
   IN_USE: En Uso
   EMPTY: Vacio
   NEW: Nuevo
+  WH_TO_WH: Deposito -> Deposito
   WH_TO_POS: Deposito -> PDV
   SYSTEM: Interna
   UNDEFINED: No definida
@@ -440,6 +444,10 @@ order:
     title: "Orden de movimiento de items nº %1 (%2 items)"
   arrival_verification:
     title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"
+  wh_to_pos:
+    title: "Transporte de mercaderia entre deposito y punto de venta"
+  wh_to_wh:
+    title: "Transporte de mercaderia entre depositos"
 inventory:
   mass_price_adjustments:
     title: Ajuste masivo de precios
