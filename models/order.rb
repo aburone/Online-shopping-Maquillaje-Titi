@@ -196,6 +196,11 @@ class Order < Sequel::Model
       .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
   end
 
+  def get_orders_in_destination location
+    get_orders
+      .filter( o_dst: location.to_s)
+  end
+
   def get_orders_with_type type
     get_orders
       .filter(type: type)
@@ -208,7 +213,13 @@ class Order < Sequel::Model
 
   def get_orders_in_location_with_type_and_status location, type, o_status
     get_orders_in_location_with_type( location, type)
-      .where( o_status: o_status)
+      .filter( o_status: o_status)
+  end
+
+  def get_orders_in_destination_with_type_and_status location, type, o_status
+    get_orders_in_destination( location )
+      .filter(type: type)
+      .filter( o_status: o_status)
   end
 
   def get_orders_in_location_with_type_status_and_id location, type, o_status, o_id

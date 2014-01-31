@@ -90,7 +90,7 @@ class Sales < AppController
   end
 
   route :get, ["/arrivals", "/arrivals/select"] do
-    @orders = Order.new.get_orders_in_location_with_type_and_status(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE).all
+    @orders = Order.new.get_orders_in_destination_with_type_and_status(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE).all
     slim :orders_list, layout: :layout_sales, locals: {title: "Ingresos", sec_nav: :nav_sales_arrivals, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/sales/arrivals/o_id"}
   end
 
@@ -126,7 +126,7 @@ class Backend < AppController
   end
 
   route :get, ["/logistics/transport/arrivals", "/logistics/transport/arrivals/select"] do
-    @orders = Order.new.get_orders_in_location_with_type_and_status(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE).all
+    @orders = Order.new.get_orders_in_destination_with_type_and_status(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE).all
     slim :orders_list, layout: :layout_backend, locals: {title: "Ingresos", sec_nav: :nav_logistics, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/admin/logistics/transport/arrivals/o_id"}
   end
 
