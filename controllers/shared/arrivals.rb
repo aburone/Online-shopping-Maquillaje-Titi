@@ -21,10 +21,14 @@ module Arrivals
   end
 
 
-  def verify order, type, i_id = nil
+  def verify order, type, id = nil
     redir_if_erroneous_order order, type
-    if i_id
-      i_id = i_id.to_s.strip
+    if id
+      id = id.to_s.strip
+      puts id
+      puts id.size
+
+      i_id = id
       @item = Item.new.get_unverified_by_id i_id, order.o_id
       redir_if_erroneous_item order, @item
       begin    
@@ -52,7 +56,7 @@ module Arrivals
 
     @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: order.o_id).filter(i_status: Item::MUST_VERIFY).all
     if @pending_items.count > 0
-      flash[:error] = t.production.verifying_packaging.still_pending_items
+      flash[:error] = t.production.verification.still_pending_items
       redir = "/arrivals/#{order.o_id}" if order.type == Order::WH_TO_POS
       redir = "/logistics/transport/arrivals/#{order.o_id}" if order.type == Order::WH_TO_WH or order.type == Order::POS_TO_WH
       redirect to(redir)
@@ -135,14 +139,14 @@ class Backend < AppController
     verify order, Order::WH_TO_WH, params[:i_id]
   end
 
-  post '/arrivals/:o_id/:i_id/void' do 
+  post '/logistics/transport/arrivals/:o_id/:i_id/void' do 
     @item = Item[params[:i_id].to_s.strip]
     begin
       @item.change_status(Item::VOID, params[:o_id].to_i)
     rescue => detail
       flash.now[:error] = detail.message
     end
-    slim :void_item, layout: :layout_backend, locals: {base_route: "/logistics/transport/arrivals"}
+    slim :void_item, layout: :layout_backend, locals: {base_route: "/admin/logistics/transport/arrivals"}
   end
 
   post '/logistics/transport/arrivals/:o_id/finish' do 
