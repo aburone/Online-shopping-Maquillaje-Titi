@@ -15,13 +15,16 @@ class Product < Sequel::Model
   end
 
   def save (opts=OPTS)
-    super columns: Product::COLUMNS 
-    message = "Actualizancion de precio de todos los items de #{@values[:p_name]}"
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
-    DB.run "UPDATE items
-    JOIN products using(p_id)
-    SET items.i_price = products.price, items.i_price_pro = products.price_pro, items.p_name = products.p_name
-    WHERE p_id = #{@values[:p_id]} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
+    opts = opts.merge({columns: Product::COLUMNS})
+    super opts
+    if @values[:p_name] 
+      message = "Actualizancion de precio de todos los items de #{@values[:p_name]}"
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
+      DB.run "UPDATE items
+      JOIN products using(p_id)
+      SET items.i_price = products.price, items.i_price_pro = products.price_pro, items.p_name = products.p_name
+      WHERE p_id = #{@values[:p_id]} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
+    end
   end
 
   def items
@@ -148,6 +151,7 @@ class Product < Sequel::Model
     last_p_id = "ERROR"
     DB.transaction do
       product = Product.new
+      pp product
       product.save validate: false
       last_p_id = DB.fetch( "SELECT last_insert_id() AS p_id" ).first[:p_id]
       message = R18n.t.product.created
