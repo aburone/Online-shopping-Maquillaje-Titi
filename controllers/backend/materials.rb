@@ -37,11 +37,9 @@ class Backend < AppController
 
 
   get '/bulks/?' do
-    @bulks = Bulk.new.get_list(current_location[:name]).order(:m_name).all
+    @bulks = Bulk.new.get_bulks_at_location(current_location[:name]).order(:m_name).all
     @count = 0
-    @bulks.map do |bulk| @count += 1 unless bulk.b_printed
-      p bulk.b_printed
-    end
+    @bulks.map { |bulk| @count += 1 unless bulk.b_printed }
     slim :bulks, layout: :layout_backend
   end
   post '/bulks/labels/csv/?' do

@@ -19,9 +19,9 @@ module Orders
     unless params.empty?
       check params
       if params[:o_id].nil?
-        @orders = Order.new.get_orders_in_location_with_type(params[:location], params[:type]).all
+        @orders = Order.new.get_orders_at_location_with_type(params[:location], params[:type]).all
       elsif params[:o_id].to_i > 0
-        @order = Order.new.get_orders_in_location_with_type_and_id(params[:location], params[:type], params[:o_id])
+        @order = Order.new.get_orders_at_location_with_type_and_id(params[:location], params[:type], params[:o_id])
         @items = @order.items
       end
     end

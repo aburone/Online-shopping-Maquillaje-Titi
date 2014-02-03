@@ -11,6 +11,17 @@ module Arrivals
     end
   end
 
+  def redir_if_erroneous_bulk order, bulk
+    if bulk.errors.count > 0 
+      message = bulk.errors.to_a.flatten.join(": ")
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, m_id: bulk.m_id).save
+      flash[:error_add_bulk] = bulk.errors
+      redir = "/arrivals/#{order.o_id}" if order.type == Order::WH_TO_POS
+      redir = "/logistics/transport/arrivals/#{order.o_id}" if order.type == Order::WH_TO_WH or order.type == Order::POS_TO_WH
+      redirect to(redir)
+    end
+  end
+
   def redir_if_erroneous_order order, type
     if order.nil?
       flash[:error] = t.order.missing
@@ -25,17 +36,22 @@ module Arrivals
     redir_if_erroneous_order order, type
     if id
       id = id.to_s.strip
-      puts id
-      puts id.size
-
-      i_id = id
-      @item = Item.new.get_unverified_by_id i_id, order.o_id
-      redir_if_erroneous_item order, @item
-      begin    
-        @item.change_status Item::VERIFIED, order.o_id
-      rescue => detail
-        flash.now[:error] = detail.message
-        @item = Item.new
+      if id.size == 12
+        @item = Item.new.get_for_verification id, order.o_id
+        redir_if_erroneous_item order, @item
+        begin    
+          @item.change_status Item::VERIFIED, order.o_id
+        rescue => detail
+          flash.now[:error] = detail.message
+        end
+      elsif id.size == 13
+        @bulk = Bulk.new.get_for_verification id, order.o_id
+        redir_if_erroneous_bulk order, @bulk
+        begin    
+          @bulk.change_status Bulk::VERIFIED, order.o_id
+        rescue => detail
+          flash.now[:error] = detail.message
+        end
       end
     end
 
@@ -44,10 +60,15 @@ module Arrivals
     @product = @item.empty? ? Product.new : Product[@item.p_id]
     @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).all
     @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).all
-    @void_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VOID).all
+    @void_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::ERROR).all
+
+    @bulk ||= Bulk.new
+    @pending_bulks = Bulk.join(:line_bulks, [:b_id]).filter(o_id: @order.o_id).filter(b_status: Bulk::MUST_VERIFY).all
+    @verified_bulks = Bulk.join(:line_bulks, [:b_id]).filter(o_id: @order.o_id).filter(b_status: Bulk::VERIFIED).all
+    @void_bulks = Bulk.join(:line_bulks, [:b_id]).filter(o_id: @order.o_id).filter(b_status: Bulk::ERROR).all
 
     slim :verify_transport_order, layout: :layout_sales, locals: {sec_nav: :nav_sales_arrivals} if type == Order::WH_TO_POS
-    slim :verify_transport_order, layout: :layout_backend, locals: {sec_nav: :nav_logistics, base_route: "/logistics/transport/arrivals"} if type == Order::WH_TO_WH or type == Order::POS_TO_WH
+    slim :verify_transport_order, layout: :layout_backend, locals: {sec_nav: :nav_logistics, base_route: "/logistics/transport/arrivals", include_bulks: true} if type == Order::WH_TO_WH or type == Order::POS_TO_WH
   end
 
 
@@ -55,7 +76,8 @@ module Arrivals
   def finish_verification order
 
     @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: order.o_id).filter(i_status: Item::MUST_VERIFY).all
-    if @pending_items.count > 0
+    @pending_bulks = Bulk.join(:line_bulks, [:b_id]).filter(o_id: order.o_id).filter(b_status: Bulk::MUST_VERIFY).all
+    if @pending_items.count > 0 or @pending_bulks.count > 0
       flash[:error] = t.production.verification.still_pending_items
       redir = "/arrivals/#{order.o_id}" if order.type == Order::WH_TO_POS
       redir = "/logistics/transport/arrivals/#{order.o_id}" if order.type == Order::WH_TO_WH or order.type == Order::POS_TO_WH
@@ -64,10 +86,13 @@ module Arrivals
       begin
         DB.transaction do
           if order.type == Order::WH_TO_POS or order.type == Order::WH_TO_WH or order.type == Order::POS_TO_WH
-            order.change_status Order::VERIFIED
             order.items.each do |item| 
               item.change_status(Item::READY, order.o_id).save if item.i_status == Item::VERIFIED
             end
+            order.bulks.each do |bulk| 
+              bulk.change_status(Bulk::NEW, order.o_id).save if bulk.b_status == Bulk::VERIFIED
+            end
+            order.change_status Order::VERIFIED
           end
         end
       rescue => e
@@ -88,25 +113,25 @@ class Sales < AppController
   include Arrivals
 
   get '/arrivals/items/?' do
-    @pending_items = Item.new.get_in_location_with_status current_location[:name], Item::MUST_VERIFY
-    @void_items = Item.new.get_in_location_with_status current_location[:name], Item::VOID
-    slim :arrivals_items, layout: :layout_sales, locals: {sec_nav: :nav_sales_arrivals}
+    @pending_items = Item.new.get_items_at_location_with_status current_location[:name], Item::MUST_VERIFY
+    @void_items = Item.new.get_items_at_location_with_status current_location[:name], Item::ERROR
+    slim :pending_arrivals_verifications, layout: :layout_sales, locals: {sec_nav: :nav_sales_arrivals}
   end
 
   route :get, ["/arrivals", "/arrivals/select"] do
-    @orders = Order.new.get_orders_in_destination_with_type_and_status(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE).all
+    @orders = Order.new.get_orders_at_destination_with_type_and_status(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE).all
     slim :orders_list, layout: :layout_sales, locals: {title: "Ingresos", sec_nav: :nav_sales_arrivals, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/sales/arrivals/o_id"}
   end
 
   route :get, :post, '/arrivals/:o_id/?' do
-    order = Order.new.get_orders_in_location_with_type_status_and_id(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE, params[:o_id])
+    order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE, params[:o_id])
     verify order, Order::WH_TO_POS, params[:i_id]
   end
 
   post '/arrivals/:o_id/:i_id/void' do 
     @item = Item[params[:i_id].to_s.strip]
     begin
-      @item.change_status(Item::VOID, params[:o_id].to_i)
+      @item.change_status(Item::ERROR, params[:o_id].to_i)
     rescue => detail
       flash.now[:error] = detail.message
     end
@@ -114,7 +139,7 @@ class Sales < AppController
   end
 
   post '/arrivals/:o_id/finish' do 
-    finish_verification Order.new.get_orders_in_location_with_type_status_and_id(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE, params[:o_id])
+    finish_verification Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE, params[:o_id])
   end
 end
 
@@ -123,26 +148,29 @@ end
 class Backend < AppController
   include Arrivals
 
-  get '/logistics/transport/pending_items' do
-    @pending_items = Item.new.get_in_location_with_status current_location[:name], Item::MUST_VERIFY
-    @void_items = Item.new.get_in_location_with_status current_location[:name], Item::VOID
-    slim :arrivals_items, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
+  get '/logistics/transport/pending' do
+    @pending_items = Item.new.get_items_at_location_with_status current_location[:name], Item::MUST_VERIFY
+    @void_items = Item.new.get_items_at_location_with_status current_location[:name], Item::ERROR
+
+    @pending_bulks = Bulk.new.get_bulks_in_orders_for_location_and_status(current_location[:name], Bulk::MUST_VERIFY).all
+    @void_bulks = Bulk.new.get_bulks_in_orders_for_location_and_status(current_location[:name], Bulk::ERROR).all
+    slim :pending_arrivals_verifications, layout: :layout_backend, locals: {sec_nav: :nav_logistics, include_bulks: true}
   end
 
   route :get, ["/logistics/transport/arrivals", "/logistics/transport/arrivals/select"] do
-    @orders = Order.new.get_orders_in_destination_with_type_and_status(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE).all
+    @orders = Order.new.get_orders_at_destination_with_type_and_status(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE).all
     slim :orders_list, layout: :layout_backend, locals: {title: "Ingresos", sec_nav: :nav_logistics, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/admin/logistics/transport/arrivals/o_id"}
   end
 
   route :get, :post, '/logistics/transport/arrivals/:o_id' do
-    order = Order.new.get_orders_in_location_with_type_status_and_id(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE, params[:o_id])
+    order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE, params[:o_id])
     verify order, Order::WH_TO_WH, params[:i_id]
   end
 
   post '/logistics/transport/arrivals/:o_id/:i_id/void' do 
     @item = Item[params[:i_id].to_s.strip]
     begin
-      @item.change_status(Item::VOID, params[:o_id].to_i)
+      @item.change_status(Item::ERROR, params[:o_id].to_i)
     rescue => detail
       flash.now[:error] = detail.message
     end
@@ -150,6 +178,6 @@ class Backend < AppController
   end
 
   post '/logistics/transport/arrivals/:o_id/finish' do 
-    finish_verification Order.new.get_orders_in_location_with_type_status_and_id(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE, params[:o_id])
+    finish_verification Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE, params[:o_id])
   end
 end

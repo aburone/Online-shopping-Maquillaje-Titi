@@ -27,13 +27,6 @@ class Backend < AppController
     end
   end
 
-  def redirect_void_item_if_nil item
-    if item.nil?
-      flash[:error] = "No tengo ningun item con el id "
-      redirect to('/products/void_items')
-    end
-  end
-
   route :get, :post, '/products/void_items' do
     if params[:i_ids].nil? and params[:reason].nil?
       slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_products} 
@@ -55,7 +48,7 @@ class Backend < AppController
 
 
   get '/products/items/?' do
-    @items = Item.new.get_list_at_location current_location[:name]
+    @items = Item.new.get_items_at_location current_location[:name]
     slim :items, layout: :layout_backend, locals: {can_edit: true, sec_nav: :nav_products}
   end
 
@@ -93,7 +86,6 @@ class Backend < AppController
 
   put '/products/:id/?' do
     product = Product[params[:id].to_i].update_from_hash(params)
-    puts params
     if product.valid?
       product.save()
       product = Product.new.get product.p_id

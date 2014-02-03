@@ -12,6 +12,7 @@ class Item < Sequel::Model
   MUST_VERIFY="MUST_VERIFY"
   VERIFIED="VERIFIED"
   READY="READY"
+  ERROR="ERROR"
   VOID="VOID"
   ON_CART="ON_CART"
   SOLD="SOLD"
@@ -155,7 +156,7 @@ class Item < Sequel::Model
 
   def has_been_void 
     if @values[:i_status] == Item::VOID
-      errors.add("Item anulado", "Este item fue Invalidado. No podes venderlo.") 
+      errors.add("Item anulado", "Este item fue Invalidado. No podes operar sobre el.") 
       return true
     end
     return false
@@ -270,27 +271,24 @@ class Item < Sequel::Model
   end
 
 
-  def get_list
+  def get_items
     Item
       .join(:products, [:p_id])
       .join(:categories, [:c_id])
       .order(:items__p_name)
   end
 
-  def get_list_at_location location
-    Item
-      .join(:products, [:p_id])
-      .join(:categories, [:c_id])
-      .order(:items__p_name)
+  def get_items_at_location location
+    get_items
       .filter(i_loc: location)
   end
 
-  def get_in_location_with_status location, status
-    get_list_at_location(location)
+  def get_items_at_location_with_status location, status
+    get_items_at_location(location)
       .filter(i_status: status.to_s)
   end
 
-  def get_unverified_by_id i_id, o_id
+  def get_for_verification i_id, o_id
     i_id = i_id.to_s.strip
     item = Item.filter(i_status: Item::MUST_VERIFY, i_id: i_id).first
     if item.nil?

@@ -80,6 +80,18 @@ class Item
   end
 end
 
+class Bulk
+  def get_rand
+    max_pos = Bulk.filter(b_status: [Bulk::NEW, Bulk::IN_USE]).count(:b_id)
+    if max_pos > 0
+      rnd = rand(max_pos)
+      return Bulk.filter(b_status: [Bulk::NEW, Bulk::IN_USE]).limit(1, rnd).first
+    else
+      raise "No bulks available"
+    end
+  end
+end
+
 class Order
   def get_rand
     max_pos = Order.filter(o_status: Order::FINISHED).count(:o_id)

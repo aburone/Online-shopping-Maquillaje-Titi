@@ -10,7 +10,7 @@ class Inventory
   end
 
   def bulks status = :all
-    Bulk.new.get_list(@location)
+    Bulk.new.get_bulks_at_location(@location)
   end
 
   def can_complete_order? order

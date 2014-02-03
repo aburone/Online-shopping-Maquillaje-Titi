@@ -35,7 +35,7 @@ class Sales < AppController
   end
 
   get '/products/items/?' do
-    @items = Item.new.get_in_location_with_status current_location[:name], Item::READY
+    @items = Item.new.get_items_at_location_with_status current_location[:name], Item::READY
     slim :items, layout: :layout_sales, locals: {can_edit: false, sec_nav: :nav_products}
   end
 

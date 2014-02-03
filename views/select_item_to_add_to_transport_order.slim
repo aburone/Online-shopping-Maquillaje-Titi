@@ -25,11 +25,13 @@ form action=url("/logistics/transport/#{@route}/#{@order.o_id}/add") method="pos
   label.aligner_2 for="label" = t.order.scan_label
   input.trim_me autofocus="autofocus" required="required" type="text" name="i_id" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"
   br
-  img src="/media/scan_barcode.jpg"
+  img src="/media/scan_barcode.jpg" width="100" height="100"
 
 h2 Items en esta orden
 == slim :items_list_with_undo, locals: {action_url: "/logistics/transport/#{@route}"}
 
+h2 Graneles en esta orden
+== slim :bulks_list_with_undo, locals: {action_url: "/logistics/transport/#{@route}"}
 
 - if @route == "warehouse_pos"
   form.v_island_1#finish_packaging action=url("/logistics/transport/#{@route}/#{@order.o_id}/move") method="post"

@@ -4,6 +4,7 @@ class Location
   W2="WAREHOUSE_2"
   S1="STORE_1"
   S2="STORE_2"
+  SYS="SYSTEM"
   ER="EN_ROUTE"
   VOID="VOID"
 

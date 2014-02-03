@@ -8,15 +8,6 @@ class Material < Sequel::Model(:materials)
   many_to_one :MaterialCategory, key: :c_id
   many_to_many :products, left_key: :m_id, right_key: :product_id, join_table: :products_materials
 
-  # def create_default
-  #   begin
-  #     m_id = Material.insert(m_name: R18n::t.material.default_name)
-  #   rescue
-  #     m_id = Material.filter(m_name: R18n::t.material.default_name).first.m_id
-  #   end
-  #   m_id
-  # end
-
   def create_default
     last_m_id = "ERROR"
     DB.transaction do

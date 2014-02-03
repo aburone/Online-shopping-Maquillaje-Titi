@@ -2,6 +2,7 @@ require 'sequel'
 
 class Order < Sequel::Model
   many_to_many :items, class: :Item, join_table: :line_items, left_key: :o_id, right_key: :i_id
+  many_to_many :bulks, class: :Bulk, join_table: :line_bulks, left_key: :o_id, right_key: :b_id
 
   PACKAGING="PACKAGING"
   INVENTORY="INVENTORY"
@@ -24,6 +25,10 @@ class Order < Sequel::Model
   end
 
   def items
+    super
+  end
+
+  def bulks
     super
   end
 
@@ -84,15 +89,69 @@ class Order < Sequel::Model
     end
   end
 
+  def add_bulk bulk
+    current_user_id = User.new.current_user_id
+    current_location = User.new.current_location[:name]
+    if bulk.nil?
+      message = R18n::t.errors.inexistent_bulk
+      ActionsLog.new.set(msg: "#{message}", u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR).save
+      errors.add "General", message
+      return message
+    end
+    if bulk.class != Bulk
+      message = R18n::t.errors.this_is_not_a_bulk(bulk.class)
+      ActionsLog.new.set(msg: "#{message}", u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR).save
+      errors.add "General", message
+      return message
+    end
+    if bulk.b_status == Bulk::UNDEFINED
+      message = R18n::t.errors.bulk_in_undefined_status
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR, b_id: bulk.b_id, m_id: bulk.m_id).save
+      errors.add "General", message
+      return message
+    end
+    if @values[:type] != Order::WH_TO_WH
+      message = R18n::t.errors.not_a_inter_warehouse_order
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR, b_id: bulk.b_id, m_id: bulk.m_id, o_id: @values[:o_id]).save
+      errors.add "General", message
+      return message
+    end
+
+    begin
+      if super
+        added_msg = R18n::t.order.bulk_added(bulk.m_id, @values[:o_id])
+        ActionsLog.new.set(msg: added_msg, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::NOTICE, b_id: bulk.b_id, m_id: bulk.m_id, o_id: @values[:o_id]).save
+        return added_msg
+      else
+        ActionsLog.new.set(msg: this.errors.to_s, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR, b_id: bulk.b_id, m_id: bulk.m_id).save
+        return this.errors.to_s
+      end
+    rescue => detail
+      print detail.message
+    end
+  end
+
   def remove_item item
     super
     message = R18n::t.order.item_removed
     ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, i_id: item.i_id, p_id: item.p_id, o_id: @values[:o_id]).save
   end
 
+  def remove_bulk bulk
+    super
+    message = R18n::t.order.bulk_removed
+    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, b_id: bulk.b_id, m_id: bulk.m_id, o_id: @values[:o_id]).save
+  end
+
   def remove_all_items
     super
     message = R18n::t.order.all_items_removed
+    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+  end
+
+  def remove_all_bulks
+    super
+    message = R18n::t.order.all_bulks_removed
     ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
   end
 
@@ -191,12 +250,12 @@ class Order < Sequel::Model
       .join(:users, user_id: :u_id)
   end
 
-  def get_orders_in_location location
+  def get_orders_at_location location
     get_orders
       .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
   end
 
-  def get_orders_in_destination location
+  def get_orders_at_destination location
     get_orders
       .filter( o_dst: location.to_s)
   end
@@ -206,30 +265,30 @@ class Order < Sequel::Model
       .filter(type: type)
   end
 
-  def get_orders_in_location_with_type location, type
-    get_orders_in_location(location)
+  def get_orders_at_location_with_type location, type
+    get_orders_at_location(location)
       .filter(type: type)
   end
 
-  def get_orders_in_location_with_type_and_status location, type, o_status
-    get_orders_in_location_with_type( location, type)
+  def get_orders_at_location_with_type_and_status location, type, o_status
+    get_orders_at_location_with_type( location, type)
       .filter( o_status: o_status)
   end
 
-  def get_orders_in_destination_with_type_and_status location, type, o_status
-    get_orders_in_destination( location )
+  def get_orders_at_destination_with_type_and_status location, type, o_status
+    get_orders_at_destination( location )
       .filter(type: type)
       .filter( o_status: o_status)
   end
 
-  def get_orders_in_location_with_type_status_and_id location, type, o_status, o_id
-    get_orders_in_location_with_type_and_status( location, type, o_status)
+  def get_orders_at_location_with_type_status_and_id location, type, o_status, o_id
+    get_orders_at_location_with_type_and_status( location, type, o_status)
       .filter(o_id: o_id)
       .first
   end
 
-  def get_orders_in_location_with_type_and_id location, type, o_id
-    get_orders_in_location_with_type(location, type)
+  def get_orders_at_location_with_type_and_id location, type, o_id
+    get_orders_at_location_with_type(location, type)
       .filter(o_id: o_id)
       .first
   end
@@ -239,7 +298,7 @@ class Order < Sequel::Model
   end
 
   def get_packaging_orders_in_location location
-    get_orders_in_location_with_type location, Order::PACKAGING
+    get_orders_at_location_with_type location, Order::PACKAGING
   end
 
   def get_packaging_order o_id, location

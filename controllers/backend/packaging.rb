@@ -1,7 +1,7 @@
 class Backend < AppController
 
   get '/production/packaging/select' do
-    @orders = Order.new.get_orders_in_location_with_type_and_status(current_location[:name], Order::PACKAGING, Order::OPEN)
+    @orders = Order.new.get_orders_at_location_with_type_and_status(current_location[:name], Order::PACKAGING, Order::OPEN)
     slim :production_select, layout: :layout_backend, locals: {sec_nav: :nav_logistics, mode: :packaging}
   end
 
@@ -11,8 +11,8 @@ class Backend < AppController
   end
 
   post '/production/:o_id/cancel' do
-    order = Order.new.get_orders_in_location_with_type_and_id(current_location[:name], Order::PACKAGING, params[:o_id].to_i)
-    redirect_if_nil_order order, "packaging"
+    order = Order.new.get_orders_at_location_with_type_and_id(current_location[:name], Order::PACKAGING, params[:o_id].to_i)
+    poor_redirect_if_nil_order order, "packaging"
     destination = destination order
     order.cancel
     flash[:warning] = t.order.cancelled( order.o_id )
@@ -20,8 +20,8 @@ class Backend < AppController
   end
 
   post '/production/packaging/:o_id/finish' do
-    order = Order.new.get_orders_in_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::OPEN, params[:o_id].to_i)
-    redirect_if_nil_order order, "packaging"
+    order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::OPEN, params[:o_id].to_i)
+    poor_redirect_if_nil_order order, "packaging"
 
     order.finish_load
     if order.errors.count > 0 
@@ -34,8 +34,8 @@ class Backend < AppController
 
 
   route :get, :post, '/production/packaging/:o_id/item/remove' do
-    @order = Order.new.get_orders_in_location_with_type_and_id(current_location[:name], Order::PACKAGING, params[:o_id].to_i)
-    redirect_if_nil_order @order, "packaging"
+    @order = Order.new.get_orders_at_location_with_type_and_id(current_location[:name], Order::PACKAGING, params[:o_id].to_i)
+    poor_redirect_if_nil_order @order, "packaging"
 
     if params[:i_id].nil?
       slim :production_remove, layout: :layout_backend, locals: {sec_nav: :nav_logistics, title: t.production.remotion.title(@order.o_id)}
@@ -93,8 +93,8 @@ class Backend < AppController
   end
 
   def packaging params
-    @order = Order.new.get_orders_in_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::OPEN, params[:o_id].to_i)
-    redirect_if_nil_order @order, "packaging"
+    @order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::OPEN, params[:o_id].to_i)
+    poor_redirect_if_nil_order @order, "packaging"
     @product = []
     @products = []
     if params[:p_id]
@@ -134,7 +134,7 @@ class Backend < AppController
     slim :production_add, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
 
-  def redirect_if_nil_order order, step
+  def poor_redirect_if_nil_order order, step
     if order.nil?
       flash[:error] = t.order.missing
       redirect to("/production/#{step}/select")
@@ -145,13 +145,13 @@ class Backend < AppController
 
 
   get '/production/verification/select' do
-    @orders = Order.new.get_orders_in_location_with_type_and_status(current_location[:name], Order::PACKAGING, Order::MUST_VERIFY)
+    @orders = Order.new.get_orders_at_location_with_type_and_status(current_location[:name], Order::PACKAGING, Order::MUST_VERIFY)
     slim :production_select, layout: :layout_backend, locals: {sec_nav: :nav_logistics, mode: :verification}
   end
 
   route :get, :post, '/production/verification/:o_id/?' do
-    @order = Order.new.get_orders_in_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::MUST_VERIFY, params[:o_id].to_i)
-    redirect_if_nil_order @order, "verification"
+    @order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::MUST_VERIFY, params[:o_id].to_i)
+    poor_redirect_if_nil_order @order, "verification"
 
     @current_item = params[:i_id] ? Item[params[:i_id].to_s.strip] : nil
     if @current_item.nil?
@@ -173,8 +173,8 @@ class Backend < AppController
   end
 
   post '/production/verification/:o_id/finish' do 
-    @order = Order.new.get_orders_in_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::MUST_VERIFY, params[:o_id].to_i)
-    redirect_if_nil_order @order, "verification"
+    @order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::MUST_VERIFY, params[:o_id].to_i)
+    poor_redirect_if_nil_order @order, "verification"
 
     @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).all
     if @pending_items.count > 0
@@ -198,7 +198,7 @@ class Backend < AppController
 
 
   get '/production/allocation/select' do
-    @orders = Order.new.get_orders_in_location_with_type_and_status(current_location[:name], Order::PACKAGING, Order::VERIFIED)
+    @orders = Order.new.get_orders_at_location_with_type_and_status(current_location[:name], Order::PACKAGING, Order::VERIFIED)
     slim :production_select, layout: :layout_backend, locals: {sec_nav: :nav_logistics, mode: :allocation}
   end
 
@@ -207,8 +207,8 @@ class Backend < AppController
 
 
   get '/production/allocation/:o_id/?' do
-    @order = Order.new.get_orders_in_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::VERIFIED, params[:o_id].to_i)
-    redirect_if_nil_order @order, "allocation"
+    @order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::VERIFIED, params[:o_id].to_i)
+    poor_redirect_if_nil_order @order, "allocation"
 
     @items = @order.items
     inventory = Inventory.new(current_location[:name])
@@ -220,8 +220,8 @@ class Backend < AppController
     slim :production_allocation, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
   end
   post '/production/allocation/:o_id/?' do
-    order = Order.new.get_orders_in_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::VERIFIED, params[:o_id].to_i)
-    redirect_if_nil_order order, "allocation"
+    order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::VERIFIED, params[:o_id].to_i)
+    poor_redirect_if_nil_order order, "allocation"
 
     inventory = Inventory.new(current_location[:name])
     begin

@@ -8,9 +8,12 @@ class Bulk < Sequel::Model
   # plugin :auto_validations
 
   UNDEFINED="UNDEFINED"
+  MUST_VERIFY="MUST_VERIFY"
+  VERIFIED="VERIFIED"
   NEW="NEW"
   IN_USE="IN_USE"
   EMPTY="EMPTY"
+  ERROR="ERROR"
   VOID="VOID"
   STATUS = [UNDEFINED, NEW, IN_USE, VOID]
   SELECTABLE_STATUS = [NEW, IN_USE]
@@ -19,12 +22,136 @@ class Bulk < Sequel::Model
     return @values[:b_id].nil? ? true : false
   end
 
-  def get_list warehouse_name
+  def missing b_id
+    if Bulk[b_id].nil?
+      errors.add("Bulk invalido", "No tengo ningun granel con el id #{b_id}") 
+      return true
+    end
+    return false
+  end
+
+  def has_been_void 
+    if @values[:b_status] == Bulk::VOID
+      errors.add("Bulk invalido", "Este bulk fue Invalidado. No podes operar sobre el.") 
+      return true
+    end
+    return false
+  end
+
+  def has_been_verified
+    if @values[:b_status] == Bulk::VERIFIED
+      errors.add("Error de usuario", "Este granel ya fue verificado anteriormente.") 
+      return true
+    end
+    return false
+  end
+
+  def is_from_another_location
+    if @values[:b_loc] != User.new.current_location[:name]
+      errors.add("Bulk fuera de lugar", "Este granel pertenece a \"#{ConstantsTranslator.new(@values[:b_loc]).t}\". Ni siquiera deberia estar aqui.") 
+      return true
+    end
+    return false
+  end
+
+  def is_from_current_location
+    if @values[:b_loc] == User.new.current_location[:name]
+      errors.add("Bulk fuera de lugar", "Estas intentando mover un granel desntro del mismo deposito") 
+      return true
+    end
+    return false
+  end
+
+  def last_order
+    Order
+      .select(:orders__o_id, :type, :o_status, :o_loc, :u_id, :orders__created_at)
+      .join(:line_bulks, line_bulks__o_id: :orders__o_id)
+      .join(:bulks, line_bulks__b_id: :bulks__b_id, line_bulks__b_id: @values[:b_id])
+      .order(:o_id)
+      .last
+  end
+
+  def is_on_some_order o_id
+    return false if @values[:b_status] != Bulk::MUST_VERIFY and @values[:b_status] != Bulk::VERIFIED
+    last = last_order
+    errors.add("Error de carga", "Este bulk ya fue agregado a la orden actual con anterioridad.") if last.o_id == o_id
+    errors.add("Error de carga", "Este bulk pertenece a la orden. #{last.o_id}") if last.o_id != o_id
+    return true
+  end
+
+  def update_from bulk
+    @values[:b_id] = bulk.b_id
+    @values[:m_id] = bulk.m_id
+    @values[:b_qty] = bulk.b_qty
+    @values[:b_price] = bulk.b_price
+    @values[:b_status] = bulk.b_status
+    @values[:b_loc] = bulk.b_loc
+    @values[:created_at] = bulk.created_at
+    self
+  end
+
+  def get_for_transport b_id, o_id
+    b_id = b_id.to_s.strip
+    bulk = Bulk.filter(b_status: Bulk::SELECTABLE_STATUS, b_loc: User.new.current_location[:name], b_id: b_id).first
+    return bulk unless bulk.nil?
+    return self if missing(b_id)
+    update_from Bulk[b_id]
+    return self if has_been_void 
+    return self if is_from_another_location
+    return self if is_on_some_order o_id
+    errors.add("Error inesperado", "Que hacemos?") 
+    return self
+  end
+
+  def get_for_verification b_id, o_id
+    b_id = b_id.to_s.strip
+    bulk = Bulk.filter(b_status: Bulk::MUST_VERIFY, b_id: b_id).first
+    return bulk unless bulk.nil?
+    return self if missing(b_id)
+    update_from Bulk[b_id]
+    return self if has_been_void 
+    return self if has_been_verified
+    return self if is_from_current_location
+    errors.add("Error inesperado", "Que hacemos?") 
+    return self
+  end
+
+  def get_bulks_in_orders
+    Bulk
+      .left_join(:materials, [:m_id])
+      .join(:line_bulks, [:b_id])
+      .join(:orders, [:o_id])
+      .select(:b_id, :b_qty, :b_price, :b_status, :b_printed, :bulks__created_at, :b_loc )
+      .select_append{:m_name}
+      .order(:m_name, :bulks__created_at)
+  end
+
+  def get_bulks_in_orders_for_location location
+    get_bulks_in_orders
+      .filter(o_dst: location)
+  end
+
+  def get_bulks_in_orders_for_location_and_status location, b_status
+    p ""
+    p ""
+    p ""
+    p ""
+    p ""
+    p ""
+    p ""
+    p ""
+    p ""
+    p ""
+    get_bulks_in_orders_for_location(location)
+      .filter(b_status: b_status)
+  end
+
+  def get_bulks_at_location location
     begin
       Bulk.select(:b_id, :b_qty, :b_price, :b_status, :b_printed, :bulks__created_at, :b_loc )
           .left_join(:materials, [:m_id])
           .select_append{:m_name}
-          .where(b_loc: warehouse_name)
+          .where(b_loc: location)
           .order(:m_name, :bulks__created_at)
     rescue Exception => @e
       p @e
@@ -32,13 +159,18 @@ class Bulk < Sequel::Model
     end
   end
 
-  def create m_id, b_price, warehouse_name
+  def get_bulks_at_location_with_status location, status
+    get_bulks_at_location(location)
+      .filter(b_status: status.to_s)
+  end
+
+  def create m_id, b_price, location
     b_price = BigDecimal.new b_price, 3
     DB.transaction do
       bulk = Bulk.new
       bulk[:m_id] = m_id.to_i
       bulk[:b_price] = sprintf("%0.#{3}f", b_price.round(3))
-      bulk[:b_loc] = warehouse_name
+      bulk[:b_loc] = location
       bulk[:b_status] = Bulk::NEW
       bulk.save validate: false
       last_b_id = DB.fetch( "SELECT @last_b_id" ).first[:@last_b_id]
