@@ -241,21 +241,23 @@ class Product < Sequel::Model
     BigDecimal.new(@values[:buy_cost] + @values[:parts_cost] + @values[:materials_cost], 2)
   end
 
+  def price_round exact_price
+    price = exact_price
+    frac = price.abs.modulo(1)
+    if frac > 0
+      price += frac >= 0.5 ? -frac + 1 : -frac + 0.5
+      price += 0.5 if frac < 0.5 and price > 100
+    end
+    price
+  end
+
   def price_mod mod, log=true
     mod = BigDecimal.new(mod.to_s.gsub(',', '.'), 15)
-    can_update = true
-    can_update = false if mod <= 0 or mod == 1
-    can_update = false if mod > 1 and mod < 1.01
-
-    if can_update
+    if mod > 0
       start_price = @values[:exact_price].dup
       @values[:exact_price] *= mod
-      @values[:price] = @values[:exact_price].dup
-      frac = @values[:price].abs.modulo(1)
-      if frac > 0 
-        @values[:price] += frac >= 0.5 ? -frac + 1 : -frac + 0.5 
-        @values[:price] += 0.5 if frac < 0.5 and @values[:price] > 100
-      end
+      @values[:price] = price_round @values[:exact_price]
+      @values[:price_pro] = price_round(@values[:price]*0.7) if @values[:br_name] == "Mila Marzi"
       update_markups
       if log
         message = "Precio ajustado *#{mod.to_s("F")} de $ #{start_price.to_s("F")} a $ #{@values[:price].to_s("F")}: #{@values[:p_name]}"
