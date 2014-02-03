@@ -270,6 +270,96 @@ class ProductTest < Test::Unit::TestCase
     end
   end
 
+  def test_mod_price_with_comma_1_0001
+    DB.transaction(rollback: :always) do
+      mod = "1,009"
+      expected = 20 # 20.002
+      expected_price = BigDecimal.new("#{expected}", 2)
+      @valid.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+    end
+  end
+
+  def test_mod_price_with_comma_1_1
+    DB.transaction(rollback: :always) do
+      mod = "1,1"
+      expected = 21.5 # 21.494
+      expected_price = BigDecimal.new("#{expected}", 2)
+      @valid.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+    end
+  end
+
+  def test_mod_price_with_comma_1_01
+    DB.transaction(rollback: :always) do
+      mod = "1,01"
+      expected = 20 # 19.7354
+      expected_price = BigDecimal.new("#{expected}", 2)
+      @valid.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+    end
+  end
+
+  def test_mod_price_with_comma_1_11
+    DB.transaction(rollback: :always) do
+      mod = "1,11"
+      expected = 22 # 21.6894
+      expected_price = BigDecimal.new("#{expected}", 2)
+      @valid.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+    end
+  end
+
+  def test_mod_price_with_comma_1_13
+    DB.transaction(rollback: :always) do
+      mod = "1,13"
+      expected = 22.5 # 22.0802
+      expected_price = BigDecimal.new("#{expected}", 2)
+      @valid.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+    end
+  end
+
+  def test_mod_price_with_comma_1_5
+    DB.transaction(rollback: :always) do
+      mod = "1,5"
+      expected = 29.5 # 29.31
+      expected_price = BigDecimal.new("#{expected}", 2)
+      @valid.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+    end
+  end
+
+  def test_mod_price_with_comma_0_89
+    DB.transaction(rollback: :always) do
+      mod = "0,89"
+      expected = 17.5 # 17.3906
+      expected_price = BigDecimal.new("#{expected}", 2)
+      @valid.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+    end
+  end
+
+  def test_mod_price_with_comma_0_01
+    DB.transaction(rollback: :always) do
+      mod = "0,01"
+      expected = 0.5 # 0.1954
+      expected_price = BigDecimal.new("#{expected}", 2)
+      @valid.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+    end
+  end
+
+  def test_mod_price_with_comma_5_123
+    DB.transaction(rollback: :always) do
+      mod = "5,123"
+      expected = 101 # 100.10342
+      expected_price = BigDecimal.new("#{expected}", 2)
+      @valid.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+    end
+  end
+
   def test_should_reject_nil_numerical_values
     DB.transaction(rollback: :always) do
       product = Product.new.get_rand

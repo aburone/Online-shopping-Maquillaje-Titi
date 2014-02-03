@@ -242,7 +242,7 @@ class Product < Sequel::Model
   end
 
   def price_mod mod, log=true
-    mod = BigDecimal.new(mod, 15)
+    mod = BigDecimal.new(mod.to_s.gsub(',', '.'), 15)
     can_update = true
     can_update = false if mod <= 0 or mod == 1
     can_update = false if mod > 1 and mod < 1.01
@@ -329,12 +329,6 @@ class Product < Sequel::Model
     validates_schema_types [:size, :size]
     validates_schema_types [:color, :color]
     validates_schema_types [:sku, :sku]
-    # validates_schema_types [:ideal_stock, :ideal_stock]
-    # validates_schema_types [:stock_deviation, :stock_deviation]
-    # validates_schema_types [:stock_store_1, :stock_store_1]
-    # validates_schema_types [:stock_store_2, :stock_store_2]
-    # validates_schema_types [:stock_warehouse_1, :stock_warehouse_1]
-    # validates_schema_types [:stock_warehouse_2, :stock_warehouse_2]
     validates_schema_types [:buy_cost, :buy_cost]
     validates_schema_types [:sale_cost, :sale_cost]
     validates_schema_types [:ideal_markup, :ideal_markup]
