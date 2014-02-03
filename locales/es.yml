@@ -28,6 +28,7 @@ errors:
   bad_label_reading: "Las etiquetas deben ser leidas con el lector"
   inexistent_label: "Etiqueta inexistente"
   inexistent_item: "Item inexistente"
+  inexistent_bulk: "Bulk inexistente"
   inexistent_product: "Código de producto inexistente"
   invalid_order: "Identificador de orden inválido"
   invalid_label: "Etiqueta inválida"
@@ -40,9 +41,12 @@ errors:
   modifying_status_of_void_bulk: Intento de modificacion de estado de un granel ANULADO %1
   modifying_status_of_nil_product_item: Intento de modificacion de estado de un item que no tiene ningun producto asignado %1
   label_wasnt_printed: "Segun mis regitros, la etiqueta todavia no fue impresa"
+  bulk_in_undefined_status: Este bulk esta en un estado indefinido
+  not_a_inter_warehouse_order: Esta operacion solo se puede efectuar en ordenes de movimiento entre depositos
   label_from_different_order: Esta etiqueta pertenece a otra orden.
   this_is_not_a_label: Esto no es una etiqueta (%1)
   this_is_not_an_item: Esto no es un item (%1)
+  this_is_not_a_bulk: Esto no es un bulk (%1)
   empty_transaction: La transaccion no puede estar vacia
   inexistent_account: No existe ninguna cuenta llamada "%1"
   invalid_account: La cuenta "%1" no acepta operaciones
@@ -176,6 +180,7 @@ bulk:
   price_and_qty_explanation: "El precio es por unidad de la cantidad dada, ya sea gramos, cc o cm"
   created: Granel creado
   updated: "Cambios guardados con exito"
+  missing: No tengo ningun granel con el identificador dado (%1)
   fields:
     id: ID
     m_name: Nombre
@@ -217,6 +222,7 @@ item:
     location: Ubicacion
     created_at: Creado
   invalid: Identificador de item invalido
+  missing: No tengo ningun item con el identificador dado (%1)
 void_items:
   title: Invalidacion de items
   write_reason: Escriba la razon de invalidacion
@@ -423,7 +429,11 @@ order:
   created: Nueva orden creada %1
   item_added: "%1 agregado a la orden %2"
   item_removed: Item eliminado de la orden
+  bulk_removed: Granel eliminado de la orden
+  bulk_added: "%1 agregado a la orden %2"
+  bulk_removed: Bulk eliminado de la orden
   all_items_removed: Todos los items fueron eliminados de la orden
+  all_bulks_removed: Todos los graneles fueron eliminados de la orden
   void: Orden invalidada VOID
   user_is_editing: "%1 esta editando la orden de tipo %2 Nº %3"
   user_is_editing_nil: "%1 esta tratando de abrir la orden de tipo %2 Nº %3 que no existe"
@@ -435,7 +445,7 @@ order:
   sure_to_cancel_sale_order: "Esto borrara la orden. Todos los items volveran a estar disponibles para la venta"
   cancelled: "La orden Nº %1 fue cancelada. Todas las etiquetas y productos fueron dissociados."
   not_a_packaging: Esta no es una orden de carga
-  missing: Orden inexistente o inaccesible desde este modulo
+  missing: Orden %1 inexistente o inaccesible desde este modulo
   scan_label: Escanee el ID de item
   scan_labels: Escanee los ID de items (uno por linea)
   scan_product: Escanee el producto
@@ -451,7 +461,7 @@ order:
 inventory:
   mass_price_adjustments:
     title: Ajuste masivo de precios
-    intro: "Esto aplicara un ajuste de precios de venta al publico en todos los productos. Si el numero es positivo, el precio aumenta, si es negativo, disminuye. 0 y 1 son ignorados por no tener sentido en este contexto"
+    intro: "Esto aplicara un ajuste de precios de venta al publico en todos los productos. Los precios se multiplican por el factor ingresado."
     mod_label: Escribir el modificador
     confirm_message: Estas seguro de modificar todos los precios?
     submit_text: Actualizar todos los precios de venta

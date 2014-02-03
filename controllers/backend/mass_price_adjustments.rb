@@ -31,9 +31,19 @@ class Backend < AppController
   end
 
   route :get, :post, '/inventory/adjustments/mass_price_adjustments' do
-    @mod =  BigDecimal.new(params[:mod], 2) unless params[:mod].nil? or params[:mod].to_f == 0 or params[:mod].to_f == 1
-    if params[:mod] == "0" or params[:mod] == "1"
-      flash[:warning] = "0 y 1 no tienen sentido en este contexto."
+    params[:mod] = params[:mod].to_s.gsub(',', '.') unless params[:mod].nil?
+    @mod =  BigDecimal.new(params[:mod], 2) unless params[:mod].nil? or params[:mod].to_f <= 0
+    if !params[:mod].nil? && params[:mod].empty?
+      flash[:warning] = "Tenes que decirme por cuanto multiplicar."
+      redirect to("/inventory/adjustments/mass_price_adjustments")
+    elsif !params[:mod].nil? && params[:mod] == "0" 
+      flash[:warning] = "Multiplicar por cero no es una buena idea."
+      redirect to("/inventory/adjustments/mass_price_adjustments")
+    elsif !params[:mod].nil? && params[:mod] <= "0" 
+      flash[:warning] = "Que estas intentando probar?."
+      redirect to("/inventory/adjustments/mass_price_adjustments")
+    elsif !params[:mod].nil? && @mod.nil?
+      flash[:warning] = "Anda a jugar al medio de la autopista."
       redirect to("/inventory/adjustments/mass_price_adjustments")
     else
       @products = update_prices(@mod, params[:confirm] == R18n.t.inventory.mass_price_adjustments.submit_text) if @mod
