@@ -1,8 +1,0 @@
-p
-  |Lee la etiqueta del item a remover de la orden
-
-form action=url("/production/packaging/#{@order.o_id}/item/remove") method="post"
-  == Rack::Csrf.tag(env)
-  label.aligner_2 for="i_id" = t.sales.inventory_review.scan_label
-  input.aligned autofocus="autofocus" required="required" type="text" name="i_id" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"
-  input type="submit" value="#{t.actions.ok}"

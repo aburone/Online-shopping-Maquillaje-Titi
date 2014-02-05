@@ -174,6 +174,7 @@ class Order < Sequel::Model
     out += "\to_status:  #{@values[:o_status]}\n"
     out += "\to_loc:  #{@values[:o_loc]}\n"
     out += "\to_dst:  #{@values[:o_dst]}\n"
+    out += "\tu_id:   #{@values[:u_id]}\n"
     created = @values[:created_at] ? Utils::local_datetime_format(@values[:created_at]) : "Never"
     out += "\tcreated: #{created}\n"
     out
@@ -373,31 +374,31 @@ class Order < Sequel::Model
       .first
   end
 
-  def get_warehouse_pos
+  def get_wh_to_pos
     get_orders
       .filter(type: Order::WH_TO_POS)
   end
 
-  def get_warehouse_pos__open location
-    get_warehouse_pos
+  def get_wh_to_pos__open location
+    get_wh_to_pos
       .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
       .filter(o_status: Order::OPEN)
   end
 
-  def get_warehouse_pos__open_by_id o_id, location
-    get_warehouse_pos
+  def get_wh_to_pos__open_by_id o_id, location
+    get_wh_to_pos
       .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
       .filter(o_id: o_id.to_i)
   end
 
-  def get_warehouse_pos__en_route destination
-    get_warehouse_pos
+  def get_wh_to_pos__en_route destination
+    get_wh_to_pos
       .filter(o_dst: destination.to_s)
       .filter(o_status: Order::EN_ROUTE)
   end
 
-  def get_warehouse_pos__en_route_by_id destination, o_id
-    get_warehouse_pos__en_route(destination)
+  def get_wh_to_pos__en_route_by_id destination, o_id
+    get_wh_to_pos__en_route(destination)
       .filter(o_id: o_id.to_i)
       .first
   end

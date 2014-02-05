@@ -37,10 +37,10 @@ class Backend < AppController
     @order = Order.new.get_orders_at_location_with_type_and_id(current_location[:name], Order::PACKAGING, params[:o_id].to_i)
     poor_redirect_if_nil_order @order, "packaging"
 
-    if params[:i_id].nil?
-      slim :production_remove, layout: :layout_backend, locals: {sec_nav: :nav_logistics, title: t.production.remotion.title(@order.o_id)}
+    if params[:id].nil?
+      slim :remove_item, layout: :layout_backend, locals: {sec_nav: :nav_logistics, action_url: "/production/packaging/#{@order.o_id}/item/remove", title: t.production.remotion.title(@order.o_id)}
     else
-      item = Item[params[:i_id].to_s.strip]
+      item = Item[params[:id].to_s.strip]
       if item.nil?
         flash[:error] = "No tengo ningun item con ese ID"
         middle = destination @order
@@ -160,6 +160,7 @@ class Backend < AppController
     else
       begin    
         @current_item.change_status Item::VERIFIED, params[:o_id].to_i
+        flash.now[:notice] = "Verificado"
       rescue => detail
         flash.now[:error] = detail.message
         @current_item = Item.new

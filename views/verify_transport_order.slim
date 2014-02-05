@@ -1,12 +1,13 @@
 - @title = t.order.arrival_verification.title(@order.o_id, @verified_items.count, @pending_items.count+@verified_items.count )
 
-- base_route ||= "/arrivals"
+- base_route ||= "/transport/arrivals"
 
 - if @product.empty?
   form action=url("#{base_route}/#{@order.o_id}") method="post"
     == Rack::Csrf.tag(env)
     label.aligner_2 for="i_id" = t.order.scan_label
-    input.aligned autofocus="autofocus" required="required" type="text" name="i_id" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"
+    input.aligned autofocus="autofocus" required="required" type="text" id="i_id" name="i_id" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"
+    input type="submit" value="#{t.actions.ok}"
 
 
 - unless @product.empty?

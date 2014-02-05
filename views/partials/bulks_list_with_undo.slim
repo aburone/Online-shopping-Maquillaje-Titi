@@ -31,6 +31,6 @@
             td.md_cell = Utils::money_format bulk.b_price, 6
             td.bg_cell = Utils::local_datetime_format bulk.created_at
             td
-              form action=url("#{action_url}/#{@order.o_id}/#{bulk.m_id}/#{bulk.b_id}/undo") method="post"
+              form action=url("#{action_url}/#{@order.o_id}/#{bulk.b_id}/undo") method="post"
                 == Rack::Csrf.tag(env)
                 input.aligned type="submit" value="#{t.actions.undo}"

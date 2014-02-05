@@ -22,20 +22,11 @@ When /^I remove one item I should see one less$/ do
   if @count > 0
     id = all('.item').first.first('td').text 
     click_link( "Remover un item de la orden" ) 
-    fill_in 'i_id', with: id
+    fill_in 'id', with: id
     click_button("Aceptar")
     with_scope('.flash') { page.should have_content("Etiqueta dissociada del producto y la orden") }
     all('.item').count.should == @count - 1
     @count = @count - 1
-  end
-end
-
-When /^I verify all items$/ do 
-  i_ids = []
-  all('.item').each { |item| i_ids <<  item.first('td').text }
-  i_ids.each do |i_id|
-    fill_in 'i_id', with: "#{i_id}"
-    click_button("Aceptar")
   end
 end
 

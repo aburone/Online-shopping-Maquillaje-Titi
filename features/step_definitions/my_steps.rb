@@ -1,3 +1,21 @@
+
+When /^I verify all items$/ do 
+  i_ids = []
+  all('.item').each { |item| i_ids <<  item.first('td').text }
+  i_ids.each do |i_id|
+    fill_in 'i_id', with: "#{i_id}"
+    click_button("Aceptar")
+    with_scope('.flash') { page.should have_content("Verificado") }
+    # page.should have_content( "Verificando ingreso de mercaderia" ) 
+  end
+end
+
+
+When /^I logout from backend$/ do
+  logout(:aburone)
+  visit path_to("backend_logout")
+end
+
 Given /^I am logged-in into (.+) with location (.+)$/ do |page_name, location|
   visit path_to(page_name)
   # puts body

@@ -26,7 +26,23 @@ module NavigationHelpers
       '/admin/production/verification/select'
     when /allocation_list/
       '/admin/production/allocation/select'
+
+    when /departure_wh_to_wh/
+      "/admin/transport/departures/wh_to_wh/select"
+    when /departure_wh_to_pos/
+      "/admin/transport/departures/wh_to_pos/select"
+    when /departure_pos_to_wh/
+      "/sales/transport/departures/pos_to_wh/select"
+    when /warehouse_arrivals/
+      "/admin/transport/arrivals/select"
+
       
+    when /sales/
+      '/ventas'
+    when /store_arrivals/
+      "/sales/transport/arrivals/select"
+
+
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:

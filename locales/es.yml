@@ -19,6 +19,7 @@ actions:
   filter: Filtrar
   click_to_toggle: Click para ver/ocultar detalles
   changed_status: Estado cambiado a %1
+  scan_label: Escanee el ID
 errors:
   nil_params: "Los parametros dados son de un valor nulos"
   invalid_params: Los parametros dados son invalidos
@@ -105,7 +106,7 @@ nav:
     logistics: Logistica
     transport: Transporte
     wh_to_wh: Entre depositos
-    warehouse_pos: Hacia punto de venta
+    wh_to_pos: Hacia punto de venta
     orders: Ordenes
     mass_price_adjustment: Ajustes de precios
     accounts: Plan de cuentas
@@ -122,9 +123,14 @@ nav:
     items: Items
     make_sale: Hacer venta
     products: "Productos"
+    transport: Transporte de mercaderia
     arrivals: Ingresos de mercaderia
     arrivals_list: Ordenes por verificar
+    pending_orders: Ordenes por verificar
+    pending_items: Items por verificar
     arrivals_verifying: Verificando
+    departures: Salidas de mercaderia
+    pos_to_wh: Transporte de mercaderia desde local hacia deposito
 media:
   icons:
     edit: "/media/Icon-Edit.png"
@@ -322,6 +328,8 @@ production:
     ok: "Orden Nº %1 procesada e imputada al inventario"
   remotion:
     title: Eliminacion de item de la orden de carga Nº %1
+  bulk_remotion:
+    title: Eliminacion de granel de la orden de carga Nº %1
 logs:
   title: Registro de eventos
   empty: "No hay eventos registrados"
@@ -360,6 +368,7 @@ constant:
   NEW: Nuevo
   WH_TO_WH: Deposito -> Deposito
   WH_TO_POS: Deposito -> PDV
+  POS_TO_WH: PDV -> Deposito
   SYSTEM: Interna
   UNDEFINED: No definida
   WAREHOUSE_1: Deposito 1
@@ -458,6 +467,8 @@ order:
     title: "Transporte de mercaderia entre deposito y punto de venta"
   wh_to_wh:
     title: "Transporte de mercaderia entre depositos"
+  pos_to_wh: 
+    title: Transporte de mercaderia desde local hacia deposito
 inventory:
   mass_price_adjustments:
     title: Ajuste masivo de precios

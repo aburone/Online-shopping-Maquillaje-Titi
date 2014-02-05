@@ -422,18 +422,4 @@ class ProductTest < Test::Unit::TestCase
     end
   end
 
-
-  def test_valid_products
-    DB.transaction(rollback: :always) do
-      products = Product.new.get_list
-      invalid = []
-      products.each do |product| 
-        invalid << product unless product.valid?
-        product.save validate: false, columns: Product::COLUMNS
-      end
-      invalid.each { |product| pp product.errors.full_messages }
-    end
-  end
-
-
 end

@@ -1,3 +1,4 @@
+@packaging
 Feature: New packaging
 
 Scenario: Create new packaging order

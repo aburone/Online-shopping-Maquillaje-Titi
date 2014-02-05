@@ -1,4 +1,10 @@
 module ApplicationHelper
+  def redirect_if_has_errors object, redirect
+    if object.errors.size > 0
+      flash[:error] = object.errors.to_a.flatten.join(": ") 
+      redirect to redirect
+    end
+  end
 
   def redirect_if_nil_item item, i_id, route
     if item.nil?
@@ -25,11 +31,9 @@ module ApplicationHelper
     case env["sinatra.route"] 
     when /wh_to_wh/
       Order::WH_TO_WH 
-    when /warehouse_pos/ # TODO: warehouse_pos -> wh_to_pos
-      Order::WH_TO_POS
     when /wh_to_pos/
       Order::WH_TO_POS
-    when /pos_to_hq/
+    when /pos_to_wh/
       Order::POS_TO_WH
     end
   end

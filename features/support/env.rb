@@ -23,7 +23,6 @@ R18n::I18n.default = 'es'
 include R18n::Helpers
 R18n.set('es', './locales/es.yml')
 
-
 require 'rspec'
 require 'rspec/expectations'
 require 'capybara'

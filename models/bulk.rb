@@ -74,8 +74,8 @@ class Bulk < Sequel::Model
   def is_on_some_order o_id
     return false if @values[:b_status] != Bulk::MUST_VERIFY and @values[:b_status] != Bulk::VERIFIED
     last = last_order
-    errors.add("Error de carga", "Este bulk ya fue agregado a la orden actual con anterioridad.") if last.o_id == o_id
-    errors.add("Error de carga", "Este bulk pertenece a la orden. #{last.o_id}") if last.o_id != o_id
+    errors.add("Error de carga", "Este granel ya fue agregado a la orden actual con anterioridad.") if last.o_id == o_id
+    errors.add("Error de carga", "Este granel pertenece a la orden. #{last.o_id}") if last.o_id != o_id
     return true
   end
 
@@ -116,6 +116,20 @@ class Bulk < Sequel::Model
     return self
   end
 
+  def get_for_removal b_id, o_id
+    b_id = b_id.to_s.strip
+    bulk = Bulk.filter(b_loc: User.new.current_location[:name], b_id: b_id).join(:line_bulks, [:b_id]).filter(o_id: o_id).first
+    return bulk unless bulk.nil?
+    return self if missing(b_id)
+    update_from Bulk[b_id]
+    return self if has_been_void 
+    return self if is_from_another_location
+    return self if is_on_some_order o_id
+    errors.add("Error inesperado", "Que hacemos?") 
+    return self
+  end
+
+
   def get_bulks_in_orders
     Bulk
       .left_join(:materials, [:m_id])
@@ -132,16 +146,6 @@ class Bulk < Sequel::Model
   end
 
   def get_bulks_in_orders_for_location_and_status location, b_status
-    p ""
-    p ""
-    p ""
-    p ""
-    p ""
-    p ""
-    p ""
-    p ""
-    p ""
-    p ""
     get_bulks_in_orders_for_location(location)
       .filter(b_status: b_status)
   end

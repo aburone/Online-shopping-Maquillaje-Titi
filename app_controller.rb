@@ -78,7 +78,7 @@ class AppController < Sinatra::Base
     # use BetterErrors::Middleware
     # BetterErrors.application_root = File.expand_path('..', __FILE__)
 
-    require_relative 'models/stdout_logger'
+    # require_relative 'models/stdout_logger'
     require 'sinatra/reloader'
     register Sinatra::Reloader
     enable :reload_templates

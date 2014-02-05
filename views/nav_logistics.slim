@@ -2,7 +2,7 @@ aside
   nav role="navigation"
     ul
       li
-        spam class="#{inside?("/admin/production")} #{inside?("/admin/logistics")} #{inside?("/admin/inventory")}" = t.nav.backend.logistics
+        spam class="#{inside?("/admin/production")} #{inside?("/admin/logistics")} #{inside?("/admin/inventory")} #{inside?("/admin/transport")}" = t.nav.backend.logistics
       li: ul
         li
           spam class="#{inside?("/admin/production")}" = t.nav.backend.production
@@ -20,13 +20,13 @@ aside
           spam class="#{inside?("/admin/logistics/transport")}" = t.nav.backend.transport
         li: ul
           li
-            a class="#{inside?("/admin/logistics/transport/wh_to_wh")}" href=url('/logistics/transport/wh_to_wh/select') = t.nav.backend.wh_to_wh
+            a class="#{inside?("/admin/transport/departures/wh_to_wh")}" href=url('/transport/departures/wh_to_wh/select') = t.nav.backend.wh_to_wh
           li
-            a class="#{inside?("/admin/logistics/transport/warehouse_pos")}" href=url('/logistics/transport/warehouse_pos/select') = t.nav.backend.warehouse_pos
+            a class="#{inside?("/admin/transport/departures/wh_to_pos")}" href=url('/transport/departures/wh_to_pos/select') = t.nav.backend.wh_to_pos
           li
-            a class="#{inside?("/admin/logistics/transport/arrivals")}" href=url('/logistics/transport/arrivals') = t.nav.backend.arrivals
+            a class="#{inside?("/admin/transport/arrivals")}" href=url('/transport/arrivals') = t.nav.backend.arrivals
           li
-            a class="#{inside?("/admin/logistics/transport/pending")}" href=url('/logistics/transport/pending') Pendientes
+            a class="#{inside?("/admin/transport/pending")}" href=url('/transport/pending') Pendientes
       li: ul
         li
           span class="#{inside?("/admin/reports")}" Informes

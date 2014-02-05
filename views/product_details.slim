@@ -8,5 +8,5 @@
       p #{product[:description]}
     section.flex_item
       - @img = (product[:img] != "") ? "/images/#{product[:img]}" : '/media/not_found.png'
-      img src="#{@img}"
+      img width="150" height="120" src="#{@img}"
 

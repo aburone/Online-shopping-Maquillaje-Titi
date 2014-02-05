@@ -87,7 +87,7 @@ class Item < Sequel::Model
 
   def missing i_id
     if Item[i_id].nil?
-      errors.add("Item invalido", "No tengo ningun item con el id #{i_id}") 
+      errors.add("Etiqueta inválida", "No tengo ningun item con el id '#{i_id}'") 
       return true
     end
     return false
@@ -148,7 +148,7 @@ class Item < Sequel::Model
 
   def has_been_sold 
     if @values[:i_status] == Item::SOLD
-      errors.add("Item vendido anteriormente", "Este item ya fue vendido. Que hace en el local otra vez?") 
+      errors.add("Item vendido anteriormente", "Este item ya fue vendido. Que hace aqui otra vez?") 
       return true
     end
     return false
@@ -353,6 +353,21 @@ class Item < Sequel::Model
     update_from Item[i_id]
     return self if has_been_void 
     return self if is_from_another_location
+    return self if has_been_sold # TODO: anulacion de venta
+    return self if is_on_some_order o_id
+    errors.add("Error inesperado", "Que hacemos?") 
+    return self
+  end
+
+  def get_for_removal i_id, o_id
+    i_id = i_id.to_s.strip
+    item = Item.filter(i_loc: User.new.current_location[:name], i_id: i_id).join(:line_items, [:i_id]).filter(o_id: o_id).first
+    return item unless item.nil?
+    return self if missing(i_id)
+    update_from Item[i_id]
+    return self if has_been_void 
+    return self if is_from_another_location
+    return self if has_been_sold # TODO: anulacion de venta
     return self if is_on_some_order o_id
     errors.add("Error inesperado", "Que hacemos?") 
     return self
