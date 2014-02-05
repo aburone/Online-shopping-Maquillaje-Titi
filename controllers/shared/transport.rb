@@ -87,6 +87,10 @@ class Backend < AppController
           item.i_loc=params[:o_dst] if Location.new.valid? params[:o_dst]
           item.save
         end
+        order.bulks.each do |bulk| 
+          bulk.b_loc=params[:o_dst] if Location.new.valid? params[:o_dst]
+          bulk.save
+        end
       end
     rescue => e
       flash[:error] = e.message
