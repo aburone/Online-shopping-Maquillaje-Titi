@@ -12,8 +12,10 @@ module Logs
                 .all
     else
       @logs = ActionsLog
+      pp params
       params.each do |key, value|
-        @logs = @logs.where( key.to_sym => value) if ["at", "msg", "lvl", "b_id", "m_id", "i_id", "p_id", "o_id", "u_id", "l_id", "username"].include? key
+        pp value.nil? or value.to_s.strip.empty?
+        @logs = @logs.where( key.to_sym => value) if ["at", "msg", "lvl", "b_id", "m_id", "i_id", "p_id", "o_id", "u_id", "l_id"].include? key unless value.nil? or value.to_s.strip.empty?
       end
       @logs = @logs
                 .limit(5000)

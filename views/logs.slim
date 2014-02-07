@@ -1,6 +1,17 @@
 -# coding: UTF-8
 - @title = t.logs.title
 
+form.grid-form method="GET" action="#{request.env['REQUEST_PATH']}"
+  fieldset
+    legend Busqueda en logs
+    - fields = {b_id: "ID Bulk", m_id: "ID Material", i_id: "ID Item", p_id: "ID Producto", o_id: "ID Orden", u_id: "ID Usuario"}
+    div data-row-span="10"
+      - fields.each do |field, label| 
+        div data-field-span="1"
+          label for="#{field}" =  "#{label}: "
+          input type="text" name="#{field}" size=10 value="#{params[field.to_sym]}"
+  input type="submit" value="Buscar"
+
 - if @logs.empty?
   p = t.logs.empty
 - else
