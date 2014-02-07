@@ -204,6 +204,18 @@ class Backend < AppController
     slim :verify_packaging, layout: :layout_backend, locals: {sec_nav: :nav_production}
   end
 
+  post '/production/verification/:o_id/:i_id/void' do 
+    @order = Order[params[:o_id].to_i]
+    @item = Item[params[:i_id].to_s.strip]
+    @order.remove_item(@item)
+    begin
+      @item.change_status(Item::VOID, params[:o_id].to_i)
+    rescue => detail
+      flash.now[:error] = detail.message
+    end
+    slim :void_item, layout: false, locals: {show_backtrack: false}
+  end
+
   post '/production/verification/:o_id/finish' do 
     @order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::MUST_VERIFY, params[:o_id].to_i)
     poor_redirect_if_nil_order @order, "verification"

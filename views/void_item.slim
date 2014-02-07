@@ -9,4 +9,5 @@ p
 
 p.action El producto tiene que ser reetiquetado para poder ser vendido nuevamente.
 
-a href="#{base_route}/#{params[:o_id].to_i}" Volver a la orden
+- unless show_backtrack.nil? or show_backtrack == false
+  a href="#{base_route}/#{params[:o_id].to_i}" Volver a la orden
