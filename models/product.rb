@@ -9,13 +9,14 @@ class Product < Sequel::Model
   many_to_many :materials , left_key: :product_id, right_key: :m_id, join_table: :products_materials
   one_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
 
-  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :description, :notes, :products__img, :img_extra]
+  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :products__img, :img_extra]
   def empty?
     return @values[:p_id].nil? ? true : false
   end
 
   def save (opts=OPTS)
     opts = opts.merge({columns: Product::COLUMNS})
+    @values[:end_of_life] = false if @values[:archived]
     super opts
     if @values[:p_name] 
       message = "Actualizancion de precio de todos los items de #{@values[:p_name]}"
@@ -138,6 +139,9 @@ class Product < Sequel::Model
 
     out += "\tpublished:          #{@values[:published]}\n"
     out += "\tpublished_price:    #{@values[:published_price]}\n"
+    out += "\ttercerized:         #{@values[:tercerized]}\n"
+    out += "\ton_request:         #{@values[:on_request]}\n"
+    out += "\tend_of_life:        #{@values[:end_of_life]}\n"
     out += "\tarchived:           #{@values[:archived]}\n"
     out += "\tdescription:        #{@values[:description]}\n"
     out += "\tnotes:              #{@values[:notes]}\n"
@@ -268,13 +272,13 @@ class Product < Sequel::Model
 
   def get p_id
     return Product.new unless p_id.to_i > 0
-    product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra)
+    product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra)
                 .filter(products__p_id: p_id.to_i)
                 .left_join(:categories, [:c_id])
                 .left_join(:brands, [:br_id])
                 .select_append{:brands__br_name}
                 .select_append{:categories__c_name}
-                .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra, :brands__br_name, :categories__c_name)
+                .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra, :brands__br_name, :categories__c_name)
                 .first
     return Product.new if product.nil?
     product.update_stocks
@@ -285,13 +289,13 @@ class Product < Sequel::Model
 
   def get_list
     Product
-      .select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra)
+      .select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra)
       .join(:categories, [:c_id])
       .join(:brands, [:br_id])
       .select_append{:brands__br_name}
       .select_append{:categories__c_name}
       .select_append{ Sequel.lit('real_markup / ideal_markup').as(markup_deviation)}
-      .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :notes, :img_extra, :brands__br_name, :categories__c_name)
+      .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra, :brands__br_name, :categories__c_name)
       .where(archived: 0)
   end
 
@@ -309,8 +313,8 @@ class Product < Sequel::Model
       .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :stock_deviation, :products__img, :products__c_id, :categories__c_name, :products__br_id, :brands__br_name)
   end
 
-  def get_saleable_at_all_locations
-    products = get_list.order(:categories__c_name, :products__p_name)
+  def get_saleable_at_all_locations products = nil
+    products = get_list.order(:categories__c_name, :products__p_name) if products.nil?
     new_products = []
     products.map do |product| 
       product.update_stocks 
@@ -364,7 +368,7 @@ class Product < Sequel::Model
 
   def update_from_hash(hash_values)
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
-    numerical_keys = [ :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro ]
+    numerical_keys = [ :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
     hash_values.select do |key, value|
       if numerical_keys.include? key.to_sym 
         unless value.nil? or (value.class == String and value.length == 0)
@@ -376,11 +380,14 @@ class Product < Sequel::Model
     end
     cast
 
-    alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :archived, :description, :notes, :img, :img_extra ]
+    alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :description, :notes, :img, :img_extra ]
     hash_values.select { |key, value| self[key.to_sym]=value.to_s if alpha_keys.include? key.to_sym unless value.nil?}
 
-    checkbox_keys = [:published_price, :published]
+    checkbox_keys = [:published_price, :published, :archived, :on_request, :end_of_life]
     checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }
+
+    true_false_keys = [:tercerized]
+    true_false_keys.each { |key| self[key.to_sym] = hash_values[key] == "true" ? 1 : 0 }
 
     unless hash_values[:brand].nil?
       brand_json = JSON.parse(hash_values[:brand])

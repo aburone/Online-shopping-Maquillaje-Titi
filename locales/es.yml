@@ -291,6 +291,12 @@ product:
     published: Publicar en pagina?
     published_price: Publicar precio?
     units: "(cc, gr o cm)"
+    archived: Archivado
+    tercerized: Comprable / Envasable
+    is_tercerized: Comprable
+    non_tercerized: Envasable
+    on_request: Por pedido
+    end_of_life: Fin de vida
 production:
   title: Proceso productivo
   explanation: Explicación del proceso productivo

@@ -102,6 +102,31 @@
 
 
     fieldset
+      legend Flags especiales
+      div data-row-span="5"
+        div data-field-span="1"
+
+          label for="is_tercerized" = t.product.fields.is_tercerized
+          input type="radio" name="tercerized" id="is_tercerized" value="true" checked=("checked" if @product.tercerized) 
+
+        div data-field-span="1"
+          label for="non_tercerized" = t.product.fields.non_tercerized
+          input type="radio" name="tercerized" id="non_tercerized" value="false" checked=("checked" if !@product.tercerized)
+
+        div data-field-span="1"
+          label for="on_request" = t.product.fields.on_request
+          input type="checkbox" name="on_request" id="on_request" checked=("checked" if @product.on_request)
+
+        div data-field-span="1"
+          label for="end_of_life" = t.product.fields.end_of_life
+          input type="checkbox" name="end_of_life" id="end_of_life" checked=("checked" if @product.end_of_life)
+
+        div data-field-span="1"
+          label for="archived" = t.product.fields.archived
+          input type="checkbox" name="archived" id="archived" checked=("checked" if @product.archived)
+
+
+    fieldset
       legend Atributos para la pagina publica
       div data-row-span="3"
         div data-field-span="1"
