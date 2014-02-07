@@ -82,8 +82,8 @@ nav:
     photos: "Fotos y links"
   backend:
     materials: "Materiales"
-    materials_list: Lista de materiales
-    bulks_list: Lista de graneles
+    materials_list: Materiales
+    bulks_list: Graneles disponibles
     products: "Productos"
     new_product: "Crear producto"
     new_material: "Crear material"
@@ -105,7 +105,7 @@ nav:
     logs: Logs
     logistics: Logistica
     transport: Transporte
-    wh_to_wh: Entre depositos
+    wh_to_wh: Hacia otro deposito
     wh_to_pos: Hacia punto de venta
     orders: Ordenes
     mass_price_adjustment: Ajustes de precios

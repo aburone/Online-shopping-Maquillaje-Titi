@@ -48,7 +48,7 @@ class Backend < AppController
     else
       @products = update_prices(@mod, params[:confirm] == R18n.t.inventory.mass_price_adjustments.submit_text) if @mod
       flash.now[:notice] = "Precios actualizados con un indice de #{@mod.to_f}" if params[:confirm] == R18n.t.inventory.mass_price_adjustments.submit_text and @mod
-      slim :mass_price_adjustments, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
+      slim :mass_price_adjustments, layout: :layout_backend, locals: {sec_nav: :nav_administration}
     end
   end
 end

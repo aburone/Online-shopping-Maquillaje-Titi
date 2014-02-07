@@ -1,0 +1,62 @@
+aside
+  nav role="navigation"
+    ul
+      li: ul
+        li
+          spam class="#{inside?("/admin/production")}" = t.nav.backend.production
+        li: ul
+          li
+            a class="#{inside?("/admin/production/labels")}" href=url('/production/labels') = t.nav.backend.labels
+          li
+            a class="#{inside?("/admin/production/packaging")}" href=url('/production/packaging/select') = t.nav.backend.packaging
+          li
+            a class="#{inside?("/admin/production/verification")}" href=url('/production/verification/select') = t.nav.backend.verify_packaging
+          li
+            a class="#{inside?("/admin/production/allocation")}" href=url('/production/allocation/select') = t.nav.backend.packaging_orders_allocation
+
+      li: ul
+        li
+          span class="#{inside?("/admin/reports")}" Informes
+        li: ul
+          li
+            a class="#{inside?("/admin/reports/stocks")}" href=url('/reports/stocks') Existencias
+
+
+      li: ul
+        li
+          span class="#{inside?("/admin/products")}" Productos
+        li: ul
+          li
+            a class="#{current?("/admin/products")}" href=url('/products') = t.nav.backend.products
+          li
+            a class="#{inside?("/admin/products/items")}" href=url('/products/items') = t.nav.backend.items
+
+      li: ul
+        li
+          span class="#{inside?("/admin/materials")}" Materiales
+        li: ul
+          li
+            a class="#{current?("/admin/materials")}" href=url('/materials') = t.nav.backend.materials_list
+          li
+            a class="#{current?("/admin/bulks")}" href=url('/bulks') = t.nav.backend.bulks_list
+
+
+      li: ul
+        li
+          spam class="#{inside?("/admin/transport")}" = t.nav.backend.transport
+        li: ul
+          li
+            span class="#{inside?("/admin/transport/departures")}" Salidas
+          li: ul
+            li
+              a class="#{inside?("/admin/transport/departures/wh_to_wh")}" href=url('/transport/departures/wh_to_wh/select') = t.nav.backend.wh_to_wh
+            li
+              a class="#{inside?("/admin/transport/departures/wh_to_pos")}" href=url('/transport/departures/wh_to_pos/select') = t.nav.backend.wh_to_pos
+          li
+            span class="#{inside?("/admin/transport/arrivals")}" Entradas
+          li: ul
+            li
+              a class="#{inside?("/admin/transport/arrivals/select")}" href=url('/transport/arrivals/select') Ordenes en entrada
+            li
+              a class="#{inside?("/admin/transport/arrivals/pending")}" href=url('/transport/arrivals/pending') Lista de items por verificar
+

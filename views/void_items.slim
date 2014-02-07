@@ -1,7 +1,7 @@
 -# coding: UTF-8
 - @title = t.void_items.title
 - if @items.nil?
-  form action=url("/products/void_items") method="post"
+  form action=url("/inventory/void_items") method="post"
     == Rack::Csrf.tag(env)
     
     label for="reason" = t.void_items.write_reason

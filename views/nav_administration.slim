@@ -1,0 +1,49 @@
+aside
+  nav role="navigation"
+    ul
+      li: ul
+        li
+          span class="#{inside?("/admin/reports")}" Informes
+
+      li: ul
+        li
+          span class="#{inside?("/admin/inventory")} " Ajustes
+        li: ul
+          li
+            a class="#{inside?("/admin/inventory/adjustments/mass_price_adjustments")}" href=url('/inventory/adjustments/mass_price_adjustments') = t.nav.backend.mass_price_adjustment
+          li
+            a class="#{inside?("/admin/inventory/void_items")}" href=url('/inventory/void_items') = t.nav.backend.void_items
+
+      li: ul
+        li
+          span class="#{inside?("/admin/products")}" Productos
+        li: ul
+          li
+            a class="#{current?("/admin/products")}" href=url('/products') = t.nav.backend.products
+          li
+            form action=url("/products/new") method="post"
+              == Rack::Csrf.tag(env)
+              input type="submit" value="#{t.nav.backend.new_product}"
+          li
+            a class="#{current?("/admin/products_relationships")}" href=url('/products_relationships') = t.nav.backend.products_relationships
+          li
+            a class="#{inside?("/admin/products/categories")}" href=url('/products/categories') = t.nav.backend.categories
+
+      li: ul
+        li
+          span class="#{inside?("/admin/materials")}" Materiales
+        li: ul
+          li
+            a class="#{current?("/admin/materials")}" href=url('/materials') = t.nav.backend.materials_list
+          li
+            form action=url("/materials/new") method="post"
+              == Rack::Csrf.tag(env)
+              input type="submit" value="#{t.nav.backend.new_material}"
+
+      - if settings.accounts_enabled
+        li: ul
+          li
+            span class="#{inside?("/admin/materials")}" Contabilidad
+          li: ul
+            li
+              a class="#{inside?("/admin/accounts")}" href=url('/accounts') = t.nav.backend.accounts

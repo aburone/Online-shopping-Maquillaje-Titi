@@ -6,7 +6,7 @@ class Backend < AppController
     errors = Item.new.check_io(i_ids, items)
     unless errors.empty?
       flash[:error] = "Algunos ID especificados son invalidos #{errors.flatten.to_s}"
-      redirect to('/products/void_items')
+      redirect to('/inventory/void_items')
       return false
     end
 
@@ -17,19 +17,19 @@ class Backend < AppController
       flash.now[:notice] = messages.flatten.to_s
       @title = "Anulacion correcta"
       @items = items
-      slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_products}
+      slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_administration} 
     rescue SecurityError => e
       flash[:error] = e.message
-      redirect to('/products/void_items')
+      redirect to('/inventory/void_items')
     rescue => e
       flash[:error] = e.message
-      redirect to('/products/void_items')
+      redirect to('/inventory/void_items')
     end
   end
 
-  route :get, :post, '/products/void_items' do
+  route :get, :post, '/inventory/void_items' do
     if params[:i_ids].nil? and params[:reason].nil?
-      slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_products} 
+      slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_administration} 
     else
       void_items
     end

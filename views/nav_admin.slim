@@ -4,19 +4,18 @@ nav.main_nav role="navigation"
     - if authorized?
       dd.lnk
         span class="current" href="#" = ("#{current_user_name}@#{current_location[:translation]}" if current_user_name and current_location)
+
       dd.lnk
-        a class="#{inside?("/admin/materials")} #{inside?("/admin/bulks")}" href=url('/materials') = t.nav.backend.materials
+        a class="#{inside?("/admin/production")}" href=url('/production') Produccion
+
       dd.lnk
-        a class="#{inside?("/admin/categories")} #{inside?("/admin/products")}" href=url('/products') = t.nav.backend.products
-      dd.lnk
-        a class="#{inside?("/admin/production")} #{inside?("/admin/logistics")} #{inside?("/admin/inventory")} #{inside?("/admin/transport")}" href=url('/logistics') = t.nav.backend.logistics
+        a class="#{inside?("/admin/administration")}" href=url('/administration') Administracion
+
+
       dd.lnk
         a class="#{inside?("/admin/orders")}" href=url('/orders') = t.nav.backend.orders
       dd.lnk
         a class="#{inside?("/admin/logs")}" href=url('/logs') = t.nav.backend.logs
-      - if settings.accounts_enabled
-        dd.lnk
-          a class="#{inside?("/admin/accounts")}" href=url('/accounts') = t.nav.backend.accounts
       dd.lnk
         a href=url('/logout') = t.nav.backend.logout
     - else

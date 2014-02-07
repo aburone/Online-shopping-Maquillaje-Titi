@@ -1,8 +1,39 @@
+
 class Backend < AppController
+  get '/production' do
+    slim :admin, layout: Thread.current.thread_variable_get(:layout), locals: {sec_nav: :nav_production}
+  end
+
+  get '/production/labels/?' do
+    @labels = Label.new.get_unprinted.all
+    @sec_nav = :nav_production
+    slim :labels, layout: :layout_backend
+  end
+  get '/production/labels/list?' do
+    unprinted = Label.new.get_unprinted.all
+    printed = Label.new.get_printed.all
+    @labels = unprinted + printed
+    @sec_nav = :nav_production
+    slim :labels, layout: :layout_backend
+  end
+  post '/production/labels/csv/?' do
+    require 'tempfile'
+    barcodes = Label.new.get_as_csv
+    tmp = Tempfile.new(["barcodes", ".csv"])
+    tmp << barcodes
+    tmp.close
+    send_file tmp.path, filename: 'barcodes.csv', type: 'octet-stream', disposition: 'attachment'
+    tmp.unlink
+  end
+  post '/production/labels/new/?' do
+    Label.new.create params[:qty].to_i
+    redirect to("/production/labels")
+  end
+
 
   get '/production/packaging/select' do
     @orders = Order.new.get_orders_at_location_with_type_and_status(current_location[:name], Order::PACKAGING, Order::OPEN)
-    slim :production_select, layout: :layout_backend, locals: {sec_nav: :nav_logistics, mode: :packaging}
+    slim :production_select, layout: :layout_backend, locals: {sec_nav: :nav_production, mode: :packaging}
   end
 
   post '/production/packaging/new' do
@@ -38,7 +69,7 @@ class Backend < AppController
     poor_redirect_if_nil_order @order, "packaging"
 
     if params[:id].nil?
-      slim :remove_item, layout: :layout_backend, locals: {sec_nav: :nav_logistics, action_url: "/production/packaging/#{@order.o_id}/item/remove", title: t.production.remotion.title(@order.o_id)}
+      slim :remove_item, layout: :layout_backend, locals: {sec_nav: :nav_production, action_url: "/production/packaging/#{@order.o_id}/item/remove", title: t.production.remotion.title(@order.o_id)}
     else
       item = Item[params[:id].to_s.strip]
       if item.nil?
@@ -131,7 +162,7 @@ class Backend < AppController
     @item ||= Item.new
     @items = @order.items
 
-    slim :production_add, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
+    slim :production_add, layout: :layout_backend, locals: {sec_nav: :nav_production}
   end
 
   def poor_redirect_if_nil_order order, step
@@ -146,7 +177,7 @@ class Backend < AppController
 
   get '/production/verification/select' do
     @orders = Order.new.get_orders_at_location_with_type_and_status(current_location[:name], Order::PACKAGING, Order::MUST_VERIFY)
-    slim :production_select, layout: :layout_backend, locals: {sec_nav: :nav_logistics, mode: :verification}
+    slim :production_select, layout: :layout_backend, locals: {sec_nav: :nav_production, mode: :verification}
   end
 
   route :get, :post, '/production/verification/:o_id/?' do
@@ -170,7 +201,7 @@ class Backend < AppController
 
     @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).all
     @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).all
-    slim :production_verification, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
+    slim :production_verification, layout: :layout_backend, locals: {sec_nav: :nav_production}
   end
 
   post '/production/verification/:o_id/finish' do 
@@ -187,25 +218,10 @@ class Backend < AppController
     end
   end
 
-
-
-
-
-
-
-
-
-
-
-
   get '/production/allocation/select' do
     @orders = Order.new.get_orders_at_location_with_type_and_status(current_location[:name], Order::PACKAGING, Order::VERIFIED)
-    slim :production_select, layout: :layout_backend, locals: {sec_nav: :nav_logistics, mode: :allocation}
+    slim :production_select, layout: :layout_backend, locals: {sec_nav: :nav_production, mode: :allocation}
   end
-
-
-
-
 
   get '/production/allocation/:o_id/?' do
     @order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::VERIFIED, params[:o_id].to_i)
@@ -218,7 +234,7 @@ class Backend < AppController
     @needed_materials = inventory.needed_materials
     @missing_materials = inventory.missing_materials
     @used_bulks = inventory.used_bulks
-    slim :production_allocation, layout: :layout_backend, locals: {sec_nav: :nav_logistics}
+    slim :production_allocation, layout: :layout_backend, locals: {sec_nav: :nav_production}
   end
   post '/production/allocation/:o_id/?' do
     order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::VERIFIED, params[:o_id].to_i)
