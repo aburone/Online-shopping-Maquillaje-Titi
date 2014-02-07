@@ -483,8 +483,6 @@ inventory:
     confirm_message: Estas seguro de modificar todos los precios?
     submit_text: Actualizar todos los precios de venta
     test: Ejecucion de prueba
-item:
-  missing: Item inexistente %1
 accounts:
   plan:
     title: Plan de cuentas

@@ -17,7 +17,7 @@ When I click "Terminar carga"
 Then I should see "La orden esta lista para ser verificada" within ".flash"
 
 When I select a packaging order for verification
-Then I should see "Verificando orden de carga"
+Then I should see "Verificacion de orden de envasado"
 And I should see 4 item
 
 When I remove one item I should see one less
