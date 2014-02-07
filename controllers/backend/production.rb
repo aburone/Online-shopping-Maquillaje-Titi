@@ -201,7 +201,7 @@ class Backend < AppController
 
     @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).all
     @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).all
-    slim :production_verification, layout: :layout_backend, locals: {sec_nav: :nav_production}
+    slim :verify_packaging, layout: :layout_backend, locals: {sec_nav: :nav_production}
   end
 
   post '/production/verification/:o_id/finish' do 

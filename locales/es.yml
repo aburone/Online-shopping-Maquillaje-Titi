@@ -311,7 +311,7 @@ production:
     title: Ordenes de envasado a verificar
     empty: No hay ordenes pendientes por verificar
   verification:
-    title: "Verificando orden de carga Nº %1"
+    title: "Verificacion de orden de envasado nº %1 (%2 / %3 items)"
     empty: No hay items pendientes de verificacion
     scan_item: Escanee el ID
     pending_items: Items pendientes

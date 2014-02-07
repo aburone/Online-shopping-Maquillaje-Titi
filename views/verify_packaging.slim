@@ -1,5 +1,5 @@
 -# coding: UTF-8
-- @title = t.production.verification.title @order.o_id
+- @title = t.production.verification.title(@order.o_id, @verified_items.count, @pending_items.count+@verified_items.count )
 
 div.ajax_response
   - unless @current_product.p_id.nil?
