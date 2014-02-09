@@ -65,8 +65,12 @@
           - if real_markup_col
             td.number #{Utils::number_format product[:real_markup], 2}
           - if markup_deviation_col
-            - col_class = (product[:markup_deviation] > 1.1) ? "number overpriced" : (product[:markup_deviation] < 0.9) ? "number underpriced" : "number"
-            - markup_deviation = product[:markup_deviation] == 1 ? "-" : Utils::number_format(product[:markup_deviation], 2)
+            - unless product[:markup_deviation].nil?
+              - col_class = (product[:markup_deviation] > 1.1) ? "number overpriced" : (product[:markup_deviation] < 0.9) ? "number underpriced" : "number"
+              - markup_deviation = product[:markup_deviation] == 1 ? "-" : Utils::number_format(product[:markup_deviation], 2)
+            - else
+              - col_class = "number underpriced"
+              - markup_deviation = "Invalido"
             td class="#{col_class}" #{markup_deviation}
           - if stock_col
             td.number #{Utils::number_format product[:qty], 0}
