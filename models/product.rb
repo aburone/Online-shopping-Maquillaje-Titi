@@ -17,6 +17,7 @@ class Product < Sequel::Model
   def save (opts=OPTS)
     opts = opts.merge({columns: Product::COLUMNS})
     @values[:end_of_life] = false if @values[:archived]
+    @values[:ideal_stock] = 0 if @values[:on_request] or @values[:archived] or @values[:end_of_life]
     super opts
     if @values[:p_name] 
       message = "Actualizancion de precio de todos los items de #{@values[:p_name]}"

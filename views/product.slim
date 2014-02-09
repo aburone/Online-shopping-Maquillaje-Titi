@@ -104,8 +104,20 @@
     fieldset
       legend Flags especiales
       div data-row-span="5"
-        div data-field-span="1"
+        div data-field-span="2"
+          p 
+            | Por definicion un producto debe ser o bien "Comprable" o bien "Envasable", son mutuamente exclusivos.
+            br
+            | Este flag es independiente de cualquier otro.
 
+        div data-field-span="1"
+          p "Por pedido" es independiente de cualquier otro. Setearlo va a forzar el stock ideal a 0.
+
+        div data-field-span="2"
+          p "Fin de vida" y "Archivado" son mutuamente exclusivos. Para productos en produccion, no van a estar seteados. Son independientes de cualquier otro. Setearlos va a forzar el stock ideal a 0.
+
+      div data-row-span="5"
+        div data-field-span="1"
           label for="is_tercerized" = t.product.fields.is_tercerized
           input type="radio" name="tercerized" id="is_tercerized" value="true" checked=("checked" if @product.tercerized) 
 
