@@ -58,16 +58,16 @@
       - ajax_item = can_edit ? " ajax_item" : ""
       - @products.each do |product|
         tr class="item#{ajax_item} #{item_class}"
-          td #{product[:p_id]}
-          td #{product[:c_name]}
-          td #{product[:p_name]}
-          td #{product[:br_name]}
+          td.sm_cell #{product[:p_id]}
+          td.md_cell #{product[:c_name]}
+          td.bg_cell #{product[:p_name]}
+          td.md_cell #{product[:br_name]}
           - if full_row
-            td.number #{Utils::money_format product[:price], 2}
+            td.sm_cell.number #{Utils::money_format product[:price], 2}
           - if full_row and price_pro_col
-            td.number #{Utils::money_format product[:price_pro], 2}
+            td.sm_cell.number #{Utils::money_format product[:price_pro], 2}
           - if real_markup_col
-            td.number #{Utils::number_format product[:real_markup], 2}
+            td.sm_cell.number #{Utils::number_format product[:real_markup], 2}
           - if markup_deviation_col
             - unless product[:markup_deviation].nil?
               - col_class = (product[:markup_deviation] > 1.1) ? "number overpriced" : (product[:markup_deviation] < 0.9) ? "number underpriced" : "number"
@@ -75,25 +75,25 @@
             - else
               - col_class = "number underpriced"
               - markup_deviation = "Invalido"
-            td class="#{col_class}" #{markup_deviation}
+            td.sm_cell class="#{col_class}" #{markup_deviation}
           - if stock_col
-            td.number #{Utils::number_format product[:qty], 0}
+            td.sm_cell.number #{Utils::number_format product[:qty], 0}
           - if multi_stock_col
-            td.number #{Utils::number_format product[:stock_warehouse_1], 0}
-            td.number #{Utils::number_format product[:stock_warehouse_2], 0}
-            td.number #{Utils::number_format product[:stock_store_1], 0}
-            td.number #{Utils::number_format product[:stock_store_2], 0}
+            td.sm_cell.number #{Utils::number_format product[:stock_warehouse_1], 0}
+            td.sm_cell.number #{Utils::number_format product[:stock_warehouse_2], 0}
+            td.sm_cell.number #{Utils::number_format product[:stock_store_1], 0}
+            td.sm_cell.number #{Utils::number_format product[:stock_store_2], 0}
           - if stock_col or multi_stock_col
-            td.number #{Utils::number_format product[:ideal_stock], 0}
+            td.sm_cell.number #{Utils::number_format product[:ideal_stock], 0}
           - if multi_stock_col
             - col_class = (product[:stock_deviation] > 0) ? "number overstocked" : (product[:stock_deviation] < 0) ? "number understocked" : "number"
             - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
-            td class="#{col_class}" #{stock_deviation}
+            td.sm_cell class="#{col_class}" #{stock_deviation}
             - col_class = (product.stock_deviation_percentile > 0) ? "number overstocked" : (product.stock_deviation_percentile < 0) ? "number understocked" : "number"
             - stock_deviation_percentile = product.stock_deviation_percentile.nan? ? "-" : "#{Utils::number_format product.stock_deviation_percentile, 1} %"
-            td class="#{col_class}" #{stock_deviation_percentile}
+            td.sm_cell class="#{col_class}" #{stock_deviation_percentile}
           - if can_edit
-            td
+            td.sm_cell
               - if edit_link == "void"
                 a href="#"
                   img src="/media/Icon-Edit.png" width="32" height="32"

@@ -102,7 +102,9 @@ aside {
 .floating_header {
   position: fixed;
   top: 0;
-  visibility: hidden;
+}
+.normal_header {
+  position: relative;
 }
 
 

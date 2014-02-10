@@ -712,8 +712,10 @@ aside {
 
 .floating_header {
   position: fixed;
-  top: 0;
-  visibility: hidden; }
+  top: 0; }
+
+.normal_header {
+  position: relative; }
 
 .toggle_link {
   cursor: help;

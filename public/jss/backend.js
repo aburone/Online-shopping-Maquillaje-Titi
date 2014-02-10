@@ -180,40 +180,26 @@ $(document).ready(function () {
   });
 
   function UpdateTableHeaders() {
-     $(".persist_area").each(function() {
-     
-         var el             = $(this),
-             offset         = el.offset(),
-             scrollTop      = $(window).scrollTop(),
-             floating_header = $(".floating_header", this)
-         
-         if ((scrollTop > offset.top) && (scrollTop < offset.top + el.height())) {
-             floating_header.css({
-              "visibility": "visible"
-             });
-         } else {
-             floating_header.css({
-              "visibility": "hidden"
-             });      
-         };
-     });
+    $(".persist_area").each(function() {
+      var el             = $(this),
+      offset         = el.offset(),
+      scrollTop      = $(window).scrollTop();
+      if ((scrollTop > offset.top) && (scrollTop < offset.top + el.height())) {
+        $(".persist_header:not([class*='floating_header'])", el).addClass("floating_header");
+      } else {
+        $(".persist_header", el).removeClass("floating_header");
+      };
+    });
   }
-
   // DOM Ready      
   $(function() {
-     var clonedHeaderRow;
      $(".persist_area").each(function() {
-         clonedHeaderRow = $(".persist_header", this);
-         clonedHeaderRow
-           .before(clonedHeaderRow.clone())
-           .css("width", clonedHeaderRow.width())
-           .addClass("floating_header");
-           
+         floating_header = $(".persist_header", this);
+         floating_header.css("width", $(this).width() );
      });
-     
-     $(window)
-      .scroll(UpdateTableHeaders)
-      .trigger("scroll");
+    $(window)
+    .scroll(UpdateTableHeaders)
+    .trigger("scroll");
   });
 
 });
