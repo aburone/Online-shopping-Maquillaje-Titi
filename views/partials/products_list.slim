@@ -4,9 +4,10 @@
 - price_pro_col = true if price_pro_col.nil?
 - stock_col = false if stock_col.nil? unless stock_col == true
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
+- stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
 - real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
 - markup_deviation_col = false if markup_deviation_col.nil? unless markup_deviation_col == true
-
+- to_move_col = false if to_move_col.nil? unless to_move_col == true
 - can_edit = true if can_edit.nil?
 - edit_link ||= "void"
 - can_filter = true if can_filter.nil?
@@ -42,9 +43,11 @@
           th.sm_cell = t.locations.short.STORE_1
         - if stock_col or multi_stock_col
           th.sm_cell Ideal
-        - if multi_stock_col
+        - if stock_deviation_col
           th.sm_cell Desvio
           th.sm_cell %
+        - if to_move_col
+          th.sm_cell Enviar
         - if can_edit
           th.sm_cell = t.actions.edit
     tfoot
@@ -83,13 +86,15 @@
             td.sm_cell.number #{Utils::number_format product[:stock_store_1], 0}
           - if stock_col or multi_stock_col
             td.sm_cell.number #{Utils::number_format product[:ideal_stock], 0}
-          - if multi_stock_col
+          - if stock_deviation_col
             - col_class = (product[:stock_deviation] > 0) ? "number overstocked" : (product[:stock_deviation] < 0) ? "number understocked" : "number"
             - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
             td.sm_cell class="#{col_class}" #{stock_deviation}
             - col_class = (product.stock_deviation_percentile > 0) ? "number overstocked" : (product.stock_deviation_percentile < 0) ? "number understocked" : "number"
             - stock_deviation_percentile = product.stock_deviation_percentile.nan? ? "-" : "#{Utils::number_format product.stock_deviation_percentile, 1} %"
             td.sm_cell class="#{col_class}" #{stock_deviation_percentile}
+          - if to_move_col
+            td.sm_cell.number #{Utils::number_format product[:to_move], 0}
           - if can_edit
             td.sm_cell
               - if edit_link == "void"

@@ -19,7 +19,9 @@ aside
           span class="#{inside?("/admin/reports")}" Informes
         li: ul
           li
-            a class="#{inside?("/admin/reports/stocks")}" href=url('/reports/stocks') Productos a envasar
+            a class="#{inside?("/admin/reports/stocks")}" href=url('/reports/stocks') Productos por envasar
+          li
+            a class="#{inside?("/admin/reports/to_move")}" href=url('/reports/to_move') Productos por enviar
 
 
       li: ul

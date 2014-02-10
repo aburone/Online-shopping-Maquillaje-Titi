@@ -284,7 +284,7 @@ product:
     sale_cost: "Costo de venta"
     ideal_markup: "Markup ideal"
     real_markup: "Markup real"
-    markup_deviation: Desviacion de markup
+    markup_deviation: Desvio
     exact_price: "Precio exacto"
     price: "Precio"
     price_pro: Pro?
