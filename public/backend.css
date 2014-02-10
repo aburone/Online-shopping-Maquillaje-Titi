@@ -700,6 +700,12 @@ aside {
   margin: 1em;
   position: relative; }
 
+.bullet {
+  list-style: disc outside none; }
+
+.bullet li {
+  margin-left: 1em; }
+
 .toggle_link {
   cursor: help;
   color: darkblue;

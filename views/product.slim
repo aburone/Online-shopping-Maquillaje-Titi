@@ -105,16 +105,28 @@
       legend Flags especiales
       div data-row-span="5"
         div data-field-span="2"
-          p 
-            | Por definicion un producto debe ser o bien "Comprable" o bien "Envasable", son mutuamente exclusivos.
-            br
-            | Este flag es independiente de cualquier otro.
+          ul.bullet
+            li Flag obligatorio, Un producto debe ser o bien "Comprable" o bien "Envasable"
+            li Independiente de cualquier otro.
 
         div data-field-span="1"
-          p "Por pedido" es independiente de cualquier otro. Setearlo va a forzar el stock ideal a 0.
+          ul.bullet
+            li Se utiliza para productos que normalmente no tienen disponibilidad ni en deposito ni en local.
+            li Si hay stock en deposito y no en local, el sistema va a pedir su transferencia (aun no implementado, hay un issue en el Pivotal esperando respuesta)
+            li Setearlo va a forzar el stock ideal a 0
+            li Independiente de cualquier otro.
 
         div data-field-span="2"
-          p "Fin de vida" y "Archivado" son mutuamente exclusivos. Para productos en produccion, no van a estar seteados. Son independientes de cualquier otro. Setearlos va a forzar el stock ideal a 0.
+          ul.bullet
+            li Son dos flags independientes pero relacionados.
+            li Para productos en produccion no deben ser seteados.
+            li "Fin de vida" indica que un producto debe seguir vendiendose hasta agotar existencias.
+            li Si hay stock en deposito y no en local, el sistema va a pedir su transferencia (aun no implementado, hay un issue en el Pivotal esperando respuesta)
+            li Una vez agotadas las existencias, sera "Archivado" automaticamente (aun no implementado)
+            li "Archivado" se utiliza cuando un producto no se desea seguir comercializando. No figurara mas en ningun reporte de produccion o compra.
+            li "Fin de vida" y "Archivado" son mutuamente excluyentes. Teniendo "Archivado" precedencia.
+            li Setear alguno de ellos va a forzar el stock ideal a 0.
+            li Independientes de cualquier otro.
 
       div data-row-span="5"
         div data-field-span="1"
