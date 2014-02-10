@@ -63,6 +63,7 @@ body:after {
 
 .items {margin-top: 1em; border: 1px solid $odd_rows; @include rounded;}
 .items th, .items thead td {font-weight: bold}
+.items thead {background-color: white; border: 1px solid $odd_rows}
 .items td {padding:0.3em 1em 0.1em 0; vertical-align: middle}
 .items tr td:first-child, .items th:first-child{padding-left: 1em}
 .items tr td:first-child.no_padding {padding-left: 0}
@@ -97,6 +98,13 @@ aside {
 
 .bullet {list-style: disc outside none}
 .bullet li {margin-left: 1em}
+
+.floating_header {
+  position: fixed;
+  top: 0;
+  visibility: hidden;
+}
+
 
 .toggle_link {cursor: help; color: darkblue; display:inline-block}
 .toggle_link:hover {cursor: help; background-color: $focus_emphasis; @include focused}

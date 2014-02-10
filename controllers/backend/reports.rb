@@ -35,7 +35,9 @@ class Backend < AppController
       full_row: true,
       price_pro_col: false,
       stock_col: false,
-      multi_stock_col: true
+      multi_stock_col: true,
+      persistent_headers: true
     }
   end
+
 end

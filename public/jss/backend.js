@@ -179,4 +179,41 @@ $(document).ready(function () {
     });
   });
 
+  function UpdateTableHeaders() {
+     $(".persist_area").each(function() {
+     
+         var el             = $(this),
+             offset         = el.offset(),
+             scrollTop      = $(window).scrollTop(),
+             floating_header = $(".floating_header", this)
+         
+         if ((scrollTop > offset.top) && (scrollTop < offset.top + el.height())) {
+             floating_header.css({
+              "visibility": "visible"
+             });
+         } else {
+             floating_header.css({
+              "visibility": "hidden"
+             });      
+         };
+     });
+  }
+
+  // DOM Ready      
+  $(function() {
+     var clonedHeaderRow;
+     $(".persist_area").each(function() {
+         clonedHeaderRow = $(".persist_header", this);
+         clonedHeaderRow
+           .before(clonedHeaderRow.clone())
+           .css("width", clonedHeaderRow.width())
+           .addClass("floating_header");
+           
+     });
+     
+     $(window)
+      .scroll(UpdateTableHeaders)
+      .trigger("scroll");
+  });
+
 });
