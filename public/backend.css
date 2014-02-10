@@ -592,6 +592,12 @@ a.edit {
 .sm_cell {
   width: 4em; }
 
+th.sm_cell {
+  white-space: nowrap; }
+
+.smm_cell {
+  width: 6em; }
+
 .md_cell {
   width: 8em; }
 

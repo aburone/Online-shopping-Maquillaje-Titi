@@ -27,9 +27,9 @@
         th.bg_cell = t.product.fields.name
         th.md_cell = t.product.fields.brand
         - if full_row
-          th.sm_cell = t.product.fields.price
+          th.smm_cell = t.product.fields.price
         - if full_row and price_pro_col
-          th.sm_cell = t.product.fields.price_pro
+          th.smm_cell = t.product.fields.price_pro
         - if real_markup_col
           th.sm_cell = t.product.fields.real_markup
         - if markup_deviation_col
@@ -40,7 +40,6 @@
           th.sm_cell = t.locations.short.WAREHOUSE_1
           th.sm_cell = t.locations.short.WAREHOUSE_2
           th.sm_cell = t.locations.short.STORE_1
-          th.sm_cell = t.locations.short.STORE_2
         - if stock_col or multi_stock_col
           th.sm_cell Ideal
         - if multi_stock_col
@@ -63,9 +62,9 @@
           td.bg_cell #{product[:p_name]}
           td.md_cell #{product[:br_name]}
           - if full_row
-            td.sm_cell.number #{Utils::money_format product[:price], 2}
+            td.smm_cell.number #{Utils::money_format product[:price], 2}
           - if full_row and price_pro_col
-            td.sm_cell.number #{Utils::money_format product[:price_pro], 2}
+            td.smm_cell.number #{Utils::money_format product[:price_pro], 2}
           - if real_markup_col
             td.sm_cell.number #{Utils::number_format product[:real_markup], 2}
           - if markup_deviation_col
@@ -82,7 +81,6 @@
             td.sm_cell.number #{Utils::number_format product[:stock_warehouse_1], 0}
             td.sm_cell.number #{Utils::number_format product[:stock_warehouse_2], 0}
             td.sm_cell.number #{Utils::number_format product[:stock_store_1], 0}
-            td.sm_cell.number #{Utils::number_format product[:stock_store_2], 0}
           - if stock_col or multi_stock_col
             td.sm_cell.number #{Utils::number_format product[:ideal_stock], 0}
           - if multi_stock_col
