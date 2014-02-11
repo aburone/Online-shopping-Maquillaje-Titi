@@ -44,6 +44,10 @@ class Order < Sequel::Model
       .select_group(:m_id, :m_name, :c_name, :materials__c_id)
       .select_append{sum(:m_qty).as(m_qty)}
       .all
+    materials.each do |mat| 
+      mat.m_qty = BigDecimal.new(mat.m_qty, 2)
+    end
+    materials
   end
 
   def parts

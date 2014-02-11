@@ -180,7 +180,7 @@ class Product < Sequel::Model
     materials.each do |mat| 
       mat.m_price = Material.new.get_price(mat.m_id)
       mat.m_qty = BigDecimal.new(mat.m_qty, 2)
-  end
+    end
     materials
   end
 
