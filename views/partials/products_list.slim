@@ -91,7 +91,7 @@
             - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
             td.sm_cell class="#{col_class}" #{stock_deviation}
             - col_class = (product.stock_deviation_percentile > 0) ? "number overstocked" : (product.stock_deviation_percentile < 0) ? "number understocked" : "number"
-            - stock_deviation_percentile = product.stock_deviation_percentile.nan? ? "-" : "#{Utils::number_format product.stock_deviation_percentile, 1} %"
+            - stock_deviation_percentile = product.stock_deviation_percentile == 0 ? "-" : "#{Utils::number_format product.stock_deviation_percentile, 1} %"
             td.sm_cell class="#{col_class}" #{stock_deviation_percentile}
           - if to_move_col
             td.sm_cell.number #{Utils::number_format product[:to_move], 0}
