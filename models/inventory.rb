@@ -69,7 +69,7 @@ class Inventory
         .filter(b_loc: @location, m_id: material.m_id, b_status: Bulk::IN_USE)
         .join(:materials, [:m_id])
         .order(:b_qty)
-        .all
+        .first
     end
 
     def fill_needed_materials_and_give_me_a_copy order
