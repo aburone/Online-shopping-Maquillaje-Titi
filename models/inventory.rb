@@ -86,6 +86,8 @@ class Inventory
         get_needed_bulks(material).each do |bulk| 
           @used_bulks << bulk
           starting_b_qty = bulk[:b_qty].dup
+          p material[:m_qty].class
+          p material[:m_qty]
           starting_m_qty = material[:m_qty].dup
           if bulk[:b_qty] >= material[:m_qty]
             bulk[:b_qty] -= material[:m_qty]
