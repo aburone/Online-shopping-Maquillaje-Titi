@@ -76,8 +76,8 @@ class Inventory
       @needed_materials = []
       @needed_materials = order.materials
       aux = []
-      pp @needed_materials
       @needed_materials.each { |n| aux << Utils::deep_copy(n) }
+      p "aux"
       pp aux
       aux
     end
@@ -85,13 +85,18 @@ class Inventory
     def process_packaging_order_materials order, must_save
       o_id = order.o_id
       fill_needed_materials_and_give_me_a_copy(order).each do |material|
+p "start"
+pp material
+p material[:m_qty].class
+p material[:m_qty]
         get_needed_bulks(material).each do |bulk| 
+p "start 2"
+pp material
+p material[:m_qty].class
+p material[:m_qty]
+
           @used_bulks << bulk
           starting_b_qty = bulk[:b_qty].dup
-          # puts material
-          pp p material
-          p material[:m_qty].class
-          p material[:m_qty]
           starting_m_qty = material[:m_qty].dup
           if bulk[:b_qty] >= material[:m_qty]
             bulk[:b_qty] -= material[:m_qty]
