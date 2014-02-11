@@ -33,7 +33,7 @@ class Order < Sequel::Model
   end
 
   def materials
-    Material
+    materials = Material
       .select(:materials__m_id, :m_name, :c_id)
       .select_append(:c_name)
       .join(:products_materials, [:m_id])
