@@ -94,6 +94,9 @@ p "start 2"
 puts material
 p material[:m_qty].class
 p material[:m_qty]
+
+puts bulk
+pp bulk
 p ""
 p ""
           @used_bulks << bulk
