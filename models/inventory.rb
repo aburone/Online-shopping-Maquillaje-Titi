@@ -69,7 +69,7 @@ class Inventory
         .filter(b_loc: @location, m_id: material.m_id, b_status: Bulk::IN_USE)
         .join(:materials, [:m_id])
         .order(:b_qty)
-        .first
+        .all
     end
 
     def fill_needed_materials_and_give_me_a_copy order
@@ -77,31 +77,16 @@ class Inventory
       @needed_materials = order.materials
       aux = []
       @needed_materials.each { |n| aux << Utils::deep_copy(n) }
-      p "aux"
-      pp aux
       aux
     end
 
     def process_packaging_order_materials order, must_save
       o_id = order.o_id
       fill_needed_materials_and_give_me_a_copy(order).each do |material|
-p "start"
-puts material
-p material[:m_qty].class
-p material[:m_qty]
+        starting_m_qty = material[:m_qty].dup
         get_needed_bulks(material).each do |bulk| 
-p "start 2"
-puts material
-p material[:m_qty].class
-p material[:m_qty]
-
-puts bulk
-pp bulk
-p ""
-p ""
           @used_bulks << bulk
           starting_b_qty = bulk[:b_qty].dup
-          starting_m_qty = material[:m_qty].dup
           if bulk[:b_qty] >= material[:m_qty]
             bulk[:b_qty] -= material[:m_qty]
             material[:m_qty] = 0
