@@ -177,7 +177,10 @@ class Product < Sequel::Model
     condition = "product_id = #{self[:p_id]}"
     materials = Material.join( ProductsMaterial.where{condition}, [:m_id])
     .all
-    materials.each { |mat| mat.m_price = Material.new.get_price(mat.m_id) }
+    materials.each do |mat| 
+      mat.m_price = Material.new.get_price(mat.m_id)
+      mat.m_qty = mat.m_qty == 0 ? BigDecimal.new(0) ? mat.m_qty 
+  end
     materials
   end
 
