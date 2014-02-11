@@ -86,15 +86,16 @@ class Inventory
       o_id = order.o_id
       fill_needed_materials_and_give_me_a_copy(order).each do |material|
 p "start"
-pp material
+puts material
 p material[:m_qty].class
 p material[:m_qty]
         get_needed_bulks(material).each do |bulk| 
 p "start 2"
-pp material
+puts material
 p material[:m_qty].class
 p material[:m_qty]
-
+p ""
+p ""
           @used_bulks << bulk
           starting_b_qty = bulk[:b_qty].dup
           starting_m_qty = material[:m_qty].dup
