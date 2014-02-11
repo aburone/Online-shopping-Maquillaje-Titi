@@ -45,7 +45,7 @@ class Order < Sequel::Model
       .select_append{sum(:m_qty).as(m_qty)}
       .all
     materials.each do |mat| 
-      mat.m_qty = BigDecimal.new(mat.m_qty, 2)
+      mat[:m_qty] = BigDecimal.new(mat[:m_qty], 3)
     end
     materials
   end
