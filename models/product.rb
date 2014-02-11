@@ -179,7 +179,7 @@ class Product < Sequel::Model
     .all
     materials.each do |mat| 
       mat.m_price = Material.new.get_price(mat.m_id)
-      mat.m_qty = mat.m_qty == 0 ? BigDecimal.new(0) : mat.m_qty 
+      mat.m_qty = BigDecimal.new(mat.m_qty, 2)
   end
     materials
   end
