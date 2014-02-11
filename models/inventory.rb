@@ -75,6 +75,7 @@ class Inventory
     def fill_needed_materials_and_give_me_a_copy order
       @needed_materials = []
       @needed_materials = order.materials
+      pp order.materials
       aux = []
       @needed_materials.each { |n| aux << Utils::deep_copy(n) }
       aux
