@@ -3,7 +3,8 @@ require_relative 'prerequisites'
 class ProductTest < Test::Unit::TestCase
 
   def setup
-    @valid = Product.new
+    # @valid = Product.new
+    @valid = Product.new.get_rand
     @valid.sale_cost = BigDecimal.new 10
     @valid.price = BigDecimal.new 20
     @valid.exact_price = BigDecimal.new 19.54, 5
@@ -415,10 +416,40 @@ class ProductTest < Test::Unit::TestCase
       hash = {ideal_stock: "99,00", ideal_markup: "100,00", buy_cost: "1,0", sale_cost: "1,0"}
       product = Product.new.get_rand
       product.update_from_hash hash
-      product.save validate: false, columns: Product::COLUMNS
+      product.save validate: false
       product = Product.new.get product.p_id
       assert_equal 99, product.ideal_stock
       assert_equal 100, product.ideal_markup
+    end
+  end
+
+  def test_should_duplicate_products
+    DB.transaction(rollback: :always) do
+      orig = Product[193]
+      dest = orig.duplicate
+      copied_columns = Product::ATTIBUTES - Product::EXCLUDED_ATTIBUTES_IN_DUPLICATION
+      copied_columns.each do |col|
+        assert_equal orig[col], dest[col]
+      end
+
+      dest_id =  dest[:p_id]
+
+      orig = Product[193].parts
+      dest = Product[dest_id].parts
+      assert_equal orig.size, dest.size
+      for i in 0...orig.size
+        assert_equal orig[i][:p_id], dest[i][:p_id]
+        assert_equal orig[i][:part_qty], dest[i][:part_qty]
+      end
+
+      orig = Product[193].materials
+      dest = Product[dest_id].materials
+      assert_equal orig.size, dest.size
+      for i in 0...orig.size
+        assert_equal orig[i][:m_id], dest[i][:m_id]
+        assert_equal orig[i][:m_qty], dest[i][:m_qty]
+      end
+
     end
   end
 

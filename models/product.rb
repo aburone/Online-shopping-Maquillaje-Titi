@@ -7,15 +7,79 @@ class Product < Sequel::Model
   one_to_many :items, key: :p_id
   Product.nested_attributes :items
   many_to_many :materials , left_key: :product_id, right_key: :m_id, join_table: :products_materials
-  one_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
+  many_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
 
+
+  ATTIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :img, :img_extra]
+
+  # same as ATTIBUTES but with the neccesary table references for get_ functions
   COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :products__img, :img_extra]
+
+  EXCLUDED_ATTIBUTES_IN_DUPLICATION = [:p_id, :on_request, :end_of_life, :archived, :published, :product_img, :img_extra, :sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation]
+
+  def parts
+    # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
+    return [] unless self[:p_id].to_i > 0
+    condition = "product_id = #{self[:p_id]}"
+    Product.join( ProductsPart.where{condition}, part_id: :products__p_id).all
+  end
+
+  def add_part part
+    ProductsPart.unrestrict_primary_key
+    ProductsPart.create(product_id: self[:p_id], part_id: part[:p_id], part_qty: part[:part_qty])
+  end
+
+  def materials
+    condition = "product_id = #{self[:p_id]}"
+    materials = Material.join( ProductsMaterial.where{condition}, [:m_id]).all
+    materials.each do |mat| 
+      mat.m_price = Material.new.get_price(mat.m_id)
+      mat[:m_qty] = BigDecimal.new(mat[:m_qty], 2)
+    end
+    materials
+  end
+
+  def add_material material
+    ProductsMaterial.unrestrict_primary_key
+    ProductsMaterial.create(product_id: self[:p_id], m_id: material[:m_id], m_qty: material[:m_qty])
+  end
+
+
+  def duplicate
+    dest_id = create_default
+    dest = Product[dest_id]
+    dest.update_from(self)
+    dest[:sku] = rand
+    dest.save
+    self.parts.map { |part| dest.add_part part }
+    self.materials.map { |material| dest.add_material material }
+    dest
+  end
+
+  def update_from product
+    columns_to_copy = ATTIBUTES - EXCLUDED_ATTIBUTES_IN_DUPLICATION
+    columns_to_copy.each { |col| self[col] = product[col] }
+    self
+  end
+
+  def create_default
+    last_p_id = "ERROR"
+    DB.transaction do
+      product = Product.new
+      product.save validate: false
+      last_p_id = DB.fetch( "SELECT last_insert_id() AS p_id" ).first[:p_id]
+      message = R18n.t.product.created
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, p_id: last_p_id).save
+    end
+    last_p_id
+  end
+
   def empty?
     return @values[:p_id].nil? ? true : false
   end
 
   def save (opts=OPTS)
-    opts = opts.merge({columns: Product::COLUMNS})
+    opts = opts.merge({columns: Product::ATTIBUTES})
     @values[:end_of_life] = false if @values[:archived]
     @values[:ideal_stock] = 0 if @values[:on_request] or @values[:archived] or @values[:end_of_life]
     super opts
@@ -152,38 +216,6 @@ class Product < Sequel::Model
     out
   end
 
-  def create_default
-    last_p_id = "ERROR"
-    DB.transaction do
-      product = Product.new
-      pp product
-      product.save validate: false
-      last_p_id = DB.fetch( "SELECT last_insert_id() AS p_id" ).first[:p_id]
-      message = R18n.t.product.created
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, p_id: last_p_id).save
-    end
-    last_p_id
-  end
-
-
-  def parts
-    # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
-    return [] unless self[:p_id].to_i > 0
-    condition = "product_id = #{self[:p_id]}"
-    Product.join( ProductsPart.where{condition}, part_id: :products__p_id).all
-  end
-
-  def materials
-    condition = "product_id = #{self[:p_id]}"
-    materials = Material.join( ProductsMaterial.where{condition}, [:m_id])
-    .all
-    materials.each do |mat| 
-      mat.m_price = Material.new.get_price(mat.m_id)
-      mat[:m_qty] = BigDecimal.new(mat[:m_qty], 2)
-    end
-    materials
-  end
-
   def update_stocks
     @values[:stock_store_1] = BigDecimal.new Product
       .select{count(i_id).as(stock_store_1)}
@@ -224,12 +256,14 @@ class Product < Sequel::Model
   def update_markups
     @values[:real_markup] = @values[:price] / @values[:sale_cost] if @values[:sale_cost] > 0 
     @values[:ideal_markup] = @values[:real_markup] if @values[:ideal_markup] == 0 and @values[:real_markup] > 0
+    self
   end
 
   def update_costs
     @values[:parts_cost] = parts_cost
     @values[:materials_cost] = materials_cost
     @values[:sale_cost] = sale_cost
+    self
   end
 
   def parts_cost
@@ -267,12 +301,14 @@ class Product < Sequel::Model
       @values[:exact_price] *= mod
       @values[:price] = price_round @values[:exact_price]
       @values[:price_pro] = price_round(@values[:price]*0.7) if @values[:br_name] == "Mila Marzi"
+      update_costs
       update_markups
       if log
         message = "Precio ajustado *#{mod.to_s("F")} de $ #{start_price.to_s("F")} a $ #{@values[:price].to_s("F")}: #{@values[:p_name]}"
         ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
       end
     end
+    self
   end
 
   def get p_id

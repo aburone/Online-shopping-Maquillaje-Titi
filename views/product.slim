@@ -175,3 +175,13 @@
       div data-row-span="1"
         div data-field-span="1"
           input type="submit" value="Guardar"
+
+
+  form.grid-form action=url("/products/#{@product[:p_id]}/dup") method="post"
+    fieldset
+      legend Especiales
+      == Rack::Csrf.tag(env)
+      div data-field-span="1"
+        p Si queres duplicar un producto e hiciste cambios, guardalos primero.
+        label for="dup" Duplicar este producto: 
+        input type="submit" id="dup" value="Duplicar"

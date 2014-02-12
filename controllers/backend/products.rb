@@ -97,6 +97,17 @@ class Backend < AppController
     redirect to("/products/#{product[:p_id]}")
   end
 
+  post '/products/:id/dup' do
+    product = Product[params[:id].to_i]
+    if product.valid?
+      dest = product.duplicate
+      flash[:notice] = R18n.t.product.duplicated
+    else
+      flash[:error] = product.errors 
+    end
+    redirect to("/products/#{dest[:p_id]}")
+  end
+
 
   def edit_product p_id
     @product = Product.new.get p_id

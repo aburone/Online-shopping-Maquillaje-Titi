@@ -254,6 +254,7 @@ product:
   items_not_found: No hay items asociados con este producto
   item_removed: Etiqueta disociada del producto
   created: "Producto creado con exito"
+  duplicated: "Producto duplicado con exito"
   there_can_be_only_one_new:  "Solo puede haber un producto sin completar por vez"
   updated: "Cambios guardados con exito"
   fields:

@@ -5,27 +5,29 @@ class Backend < AppController
     products = Product.new.get_list
                 .select(:p_id)
                 .order(:c_name, :p_name)
-    products = Sinatra::Base.development? ? products.limit(10) : products.all
+    products = products.all
 
-    if save
-      message = "Actualizancion masiva de precios de productos. multiplicador: #{mod.to_f}"
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
-    end
-
-    products.map do |pr|
-      product = Product.new.get(pr.p_id)
-      product.price_mod(mod, save)
-      product.save verify: false, columns: Product::COLUMNS if save
-      final_products << product
-    end
-
-    if save
-        message = "Actualizancion masiva de todos los items en proceso o listos para ser vendidos. Multiplicador: #{mod.to_f}"
+    DB.transaction(rollback: :always) do
+      if save
+        message = "Actualizancion masiva de precios de productos. multiplicador: #{mod.to_f}"
         ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
-        DB.run "UPDATE items
-        JOIN products using(p_id)
-        SET items.i_price = products.price, items.i_price_pro = products.price_pro
-        WHERE i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
+      end
+
+      products.map do |pr|
+        product = Product.new.get(pr.p_id)
+        product.price_mod(mod, save)
+        product.save verify: false if save
+        final_products << product
+      end
+
+      if save
+          message = "Actualizancion masiva de todos los items en proceso o listos para ser vendidos. Multiplicador: #{mod.to_f}"
+          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
+          DB.run "UPDATE items
+          JOIN products using(p_id)
+          SET items.i_price = products.price, items.i_price_pro = products.price_pro
+          WHERE i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
+      end
     end
     final_products
   end
