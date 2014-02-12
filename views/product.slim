@@ -181,7 +181,44 @@
     fieldset
       legend Especiales
       == Rack::Csrf.tag(env)
-      div data-field-span="1"
-        p Si queres duplicar un producto e hiciste cambios, guardalos primero.
-        label for="dup" Duplicar este producto: 
-        input type="submit" id="dup" value="Duplicar"
+      div data-row-span="2"
+        div data-field-span="1"
+          p Si queres duplicar un producto e hiciste cambios, guardalos primero.
+        div data-field-span="1"
+          label for="dup" Duplicar este producto: 
+          input type="submit" id="dup" value="Duplicar"
+
+
+
+  h1 La lista de partes y materiales todavia no permite modificaciones
+
+  form.grid-form action=url("/products/#{@product[:p_id]}/parts") method="post"
+    fieldset
+      legend Materiales
+      == Rack::Csrf.tag(env)
+      - @p_materials.each do |p_material|
+        div data-row-span="2"
+          div data-field-span="1"
+            label for="m_id" Material
+            select name="m_id"
+              - @materials.each do |material| 
+                option selected=("selected" if p_material.m_id == material.m_id) value="#{material.m_id}" = material.m_name
+          div data-field-span="1"
+            label for="m_qty" Cantidad
+            input type="text" name="m_qty" value="#{Utils::number_format p_material[:m_qty], 2}"
+
+
+form.grid-form action=url("/products/#{@product[:p_id]}/parts") method="post"
+    fieldset
+      legend Partes
+      == Rack::Csrf.tag(env)
+      - @p_parts.each do |p_part|
+        div data-row-span="2"
+          div data-field-span="1"
+            label for="part_id" Parte
+            select name="part_id"
+              - @parts.each do |part| 
+                option selected=("selected" if p_part.p_id == part.p_id) value="#{part.p_id}" = part.p_name
+          div data-field-span="1"
+            label for="part_qty" Cantidad
+            input type="text" name="part_qty" value="#{Utils::number_format p_part[:part_qty], 2}"

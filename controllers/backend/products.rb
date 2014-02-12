@@ -110,11 +110,18 @@ class Backend < AppController
 
 
   def edit_product p_id
-    @product = Product.new.get p_id
+    @product = Product.new.get(p_id)
     if @product.empty?
       flash[:error] = R18n.t.product.not_found
       redirect to("/products")
     end
+    @materials = Material.all
+    @parts = Product.all
+
+    @p_parts = @product.parts
+    @p_materials = @product.materials
+
+    pp @p_materials
     @categories = Category.all
     @brands = Brand.all
     slim :product, layout: :layout_backend
