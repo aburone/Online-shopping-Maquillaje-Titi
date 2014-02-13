@@ -61,8 +61,8 @@
       - @products.each do |product|
         tr class="item#{ajax_item} #{item_class}"
           td.sm_cell #{product[:p_id]}
-          td.md_cell #{product[:c_name]}
-          td.bg_cell #{product[:p_name]}
+          td.md_cell #{I18n.transliterate( product[:c_name] )}
+          td.bg_cell #{I18n.transliterate( product[:p_name] )}
           td.md_cell #{product[:br_name]}
           - if full_row
             td.smm_cell.number #{Utils::money_format product[:price], 2}

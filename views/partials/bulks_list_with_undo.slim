@@ -26,7 +26,7 @@
           tr.item
             td.md_cell = bulk.b_id
             td.md_cell = ConstantsTranslator.new(bulk.b_status).t
-            td.bg_cell = bulk[:m_name]
+            td.bg_cell = I18n.transliterate( bulk[:m_name] )
             td.sm_cell.number = Utils::number_format bulk.b_qty, 2
             td.md_cell = Utils::money_format bulk.b_price, 6
             td.bg_cell = Utils::local_datetime_format bulk.created_at

@@ -20,7 +20,7 @@
             td #{item[:i_id]}
             td = ConstantsTranslator.new(item[:i_status]).t
             td #{item[:p_id]}
-            td #{item[:p_name]}
+            td #{ I18n.transliterate( item[:p_name] )}
             td.number #{Utils::money_format item[:i_price], 2}
             td.number #{Utils::money_format item[:i_price_pro], 2}
             td

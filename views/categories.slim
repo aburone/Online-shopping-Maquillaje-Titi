@@ -13,7 +13,7 @@
         td = t.actions.actions
     - @categories.each do |category|
       tr.item
-        td #{category[:c_name]}
+        td #{I18n.transliterate( category[:c_name] )}
         td.cat_cell
           img.cat_img src="/images/#{category[:img]}"
         td #{category[:description]}

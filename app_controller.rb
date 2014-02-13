@@ -7,6 +7,7 @@ require 'slim'
 require 'pp'
 require 'sinatra/r18n'
 require "sinatra/multi_route"
+require "i18n"
 # require "better_errors"
 
 

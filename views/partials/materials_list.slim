@@ -28,9 +28,9 @@
     tbody
       - @materials.each do |mat|
         tr.item.ajax_item
-          td #{mat[:c_name]}
+          td #{I18n.transliterate( mat[:c_name] )}
           td #{mat[:m_id]}
-          td.m_name #{mat[:m_name]}
+          td.m_name #{ I18n.transliterate( mat[:m_name] )}
           td.number.m_qty == Utils::number_format mat[:m_qty], 0
           td.number == Utils::money_format mat[:m_price], 2
           - if can_edit
