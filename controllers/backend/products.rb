@@ -1,5 +1,26 @@
 class Backend < AppController
 
+  get '/products/categories' do
+    @categories = Category.all
+    slim :categories, layout: :layout_backend, locals: {title: t.categories.title, sec_nav: :nav_products}
+  end
+
+  get '/products/categories/:id' do
+    @category = Category[params[:id].to_i]
+    slim :category, layout: :layout_backend, locals: {sec_nav: :nav_products}
+  end
+
+  put '/products/categories/:c_id' do
+    category = Category[params[:c_id].to_i].update_from_hash(params)
+    if category.valid?
+      category.save()
+      flash[:notice] = R18n.t.category.updated
+    else
+      flash[:error] = category.errors 
+    end
+    redirect to("/products/categories/#{category.c_id}")
+  end
+
   def void_items
     i_ids = Item.new.split_input_into_ids(params[:i_ids])
     items = Item.filter(i_id: i_ids).all
@@ -34,18 +55,6 @@ class Backend < AppController
       void_items
     end
   end
-
-
-  get '/products/categories/?' do
-    @categories = Category.all
-    slim :categories, layout: :layout_backend
-  end
-  get '/products/categories/:id/?' do
-    @category = Category[params[:id].to_i]
-    slim :category, layout: :layout_backend
-  end
-
-
 
   get '/products/items/?' do
     @items = Item.new.get_items_at_location current_location[:name]

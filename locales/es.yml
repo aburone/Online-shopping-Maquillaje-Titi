@@ -49,11 +49,11 @@ errors:
   this_is_not_a_label: Esto no es una etiqueta (%1)
   this_is_not_an_item: Esto no es un item (%1)
   this_is_not_a_bulk: Esto no es un bulk (%1)
-  empty_transaction: La transaccion no puede estar vacia
+  empty_transaction: La transacción no puede estar vacia
   inexistent_account: No existe ninguna cuenta llamada "%1"
   invalid_account: La cuenta "%1" no acepta operaciones
   accounts_of_same_group: No se permiten operaciones en las que las cuentas pertenecen al mismo grupo "%1", "%2"
-  record_without_transaction: "El registro de operacion no esta asociado a ninguna transaccion"
+  record_without_transaction: "El registro de operacion no esta asociado a ninguna transacción"
   record_without_origin: "El registro de operacion no tiene cuenta de origen (haber)"
   record_without_destination: "El registro de operacion no tiene cuenta de destino (debe)"
   sequel_start: sequel_start
@@ -74,8 +74,9 @@ errors:
   string: "no es una cadena de texto"
   sequel_end: sequel_end
 fields:
-  t_id: "El ID de la transaccion"
-  t_desc: "La descripcion de la transaccion"
+  t_id: "El ID de la transacción"
+  t_desc: "La descripción de la transacción"
+  desc: Descripción
 nav:
   frontend:
     products: "Productos"
@@ -89,7 +90,7 @@ nav:
     new_product: "Crear producto"
     new_material: "Crear material"
     products_relationships: "Relaciones"
-    categories: "Categorias"
+    categories: "Categorías"
     items: Items disponibles
     void_items: Invalidacion de items
     pendig_items: Items pendientes
@@ -278,7 +279,7 @@ product:
     size: Tamaño
     color: Color
     sku: SKU
-    description: Descripcion
+    description: Descripción
     notes: Notas internas
     qty: "Cantidad"
     materials: "Materiales"
@@ -497,3 +498,19 @@ inventory:
 accounts:
   plan:
     title: Plan de cuentas
+categories:
+  title: "Edición de categorías"
+  empty: No hay categorías disponibles
+  count: "%1 categorías listadas"
+  list: Categorías disponibles
+category:
+  not_found: "Categoría inexistente"
+  missing: No tengo ninguna categoría con el identificador dado (%1)
+  title: "Editando %1"
+  updated: "Cambios guardados con exito"
+  fields:
+    id: ID
+    name: Nombre
+    description: Descripción
+    published: Visible?
+    img: Foto

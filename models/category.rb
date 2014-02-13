@@ -3,26 +3,16 @@ require 'sequel'
 class Category < Sequel::Model
   one_to_many :products
 
-  # def initialize(database)
-  #   @database = database
-  #   self
-  # end
+  def update_from_hash hash_values
+    raise ArgumentError, t.errors.nil_params if hash_values.nil?
 
-  # def get_by_id(id)
-  #   @database.filter(c_id: id.to_i).first
-  # end
+    alpha_keys = [ :c_name, :description ]
+    hash_values.select { |key, value| self[key.to_sym]=value.to_s if alpha_keys.include? key.to_sym unless value.nil?}
 
-  # def all
-  #   @database.all
-  # end
+    checkbox_keys = [ :c_published ]
+    checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }
 
-
-  # def find_categories
-  #   all
-  # end
-
-  # def find_category
-  #   get_by_id( params[:id].to_i )
-  # end
+    self
+  end
 
 end
