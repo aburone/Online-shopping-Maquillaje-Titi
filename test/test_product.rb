@@ -431,9 +431,7 @@ class ProductTest < Test::Unit::TestCase
       copied_columns.each do |col|
         assert_equal orig[col], dest[col]
       end
-
       dest_id =  dest[:p_id]
-
       orig = Product[193].parts
       dest = Product[dest_id].parts
       assert_equal orig.size, dest.size
@@ -441,7 +439,6 @@ class ProductTest < Test::Unit::TestCase
         assert_equal orig[i][:p_id], dest[i][:p_id]
         assert_equal orig[i][:part_qty], dest[i][:part_qty]
       end
-
       orig = Product[193].materials
       dest = Product[dest_id].materials
       assert_equal orig.size, dest.size
@@ -449,8 +446,61 @@ class ProductTest < Test::Unit::TestCase
         assert_equal orig[i][:m_id], dest[i][:m_id]
         assert_equal orig[i][:m_qty], dest[i][:m_qty]
       end
-
     end
   end
 
+  def test_should_add_material_to_product
+    DB.transaction(rollback: :always) do
+      material = Material.new.get_rand
+      material[:m_qty] = 5
+      prev_count = @valid.materials.count
+      @valid.add_material material
+      new_count = @valid.materials.count
+      assert_equal prev_count + 1, new_count
+    end
+  end
+
+  def test_should_not_allow_to_add_material_with_zero_qty_to_product
+    DB.transaction(rollback: :always) do
+      material = Material.new.get_rand
+      material[:m_qty] = 0
+      prev_count = @valid.materials.count
+      @valid.add_material material
+      new_count = @valid.materials.count
+      assert_equal prev_count , new_count
+      assert_equal 1, @valid.errors.count
+    end
+  end
+
+  def test_should_update_material_qty
+    DB.transaction(rollback: :always) do
+      material = Material.new.get_rand
+      material[:m_qty] = 5
+      count1 = @valid.materials.count
+      new_material = @valid.add_material material
+      count2 = @valid.materials.count
+      assert_equal count1 + 1, count2, "Error adding"
+      assert_equal BigDecimal.new(5), new_material[:m_qty], "Error adding"
+
+      material[:m_qty] = -5
+      updated_material = @valid.update_material material
+      count3 = @valid.materials.count
+      assert_equal count2 , count3, "Error updating negative"
+      assert_equal 1, @valid.errors.count, "Error updating negative"
+      assert_equal BigDecimal.new(5), updated_material[:m_qty], "Error updating negative"
+
+      material[:m_qty] = 3
+      updated_material = @valid.update_material material
+      count4 = @valid.materials.count
+      assert_equal count3, count4, "Error updating"
+      assert_equal 1, @valid.errors.count, "Error updating"
+      assert_equal BigDecimal.new(3), updated_material[:m_qty], "Error updating"
+
+      material[:m_qty] = 0
+      updated_material = @valid.update_material material
+      count5 = @valid.materials.count
+      assert_equal count4 - 1, count5, "Error removing"
+      assert_equal 1, @valid.errors.count, "Error removing"
+    end
+  end
 end

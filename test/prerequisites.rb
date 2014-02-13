@@ -112,3 +112,15 @@ class Product
     p = Product.new.get prod.p_id
   end
 end
+
+class Material
+  def get_rand
+    max_pos = Material.count(:m_id)
+    if max_pos > 0
+      rnd = rand(max_pos)
+      return Material.limit(1, rnd).first
+    else
+      raise "No materials available"
+    end
+  end
+end

@@ -6,13 +6,6 @@ module ApplicationHelper
     end
   end
 
-  def redirect_if_nil_item item, i_id, route
-    if item.nil?
-      flash[:error] = t.item.missing i_id
-      redirect to(route)
-    end
-  end
-
   def redirect_if_nil_order order, o_id, route
     if order.nil?
       flash[:error] = t.order.missing o_id
@@ -20,9 +13,38 @@ module ApplicationHelper
     end
   end
 
+  def redirect_if_nil_material material, p_id, route
+    if material.nil?
+      flash[:error] = t.material.missing p_id
+      redirect to(route)
+    end
+    unless material.valid?
+      flash[:error] = material.errors 
+      redirect to(route)
+    end
+  end
+
   def redirect_if_nil_bulk bulk, b_id, route
     if bulk.nil?
       flash[:error] = t.bulk.missing b_id
+      redirect to(route)
+    end
+  end
+
+  def redirect_if_nil_product product, p_id, route
+    if product.nil?
+      flash[:error] = t.product.missing p_id
+      redirect to(route)
+    end
+    unless product.errors.count == 0  and product.valid? 
+      flash[:error] = product.errors 
+      redirect to(route)
+    end
+  end
+
+  def redirect_if_nil_item item, i_id, route
+    if item.nil?
+      flash[:error] = t.item.missing i_id
       redirect to(route)
     end
   end

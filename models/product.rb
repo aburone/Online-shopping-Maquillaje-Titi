@@ -40,10 +40,27 @@ class Product < Sequel::Model
   end
 
   def add_material material
+    errors.add "Error de ingreso", "La cantidad del material a agregar no puede ser cero ni negativa" if material[:m_qty] <= 0
+    return false if material[:m_qty] <= 0
     ProductsMaterial.unrestrict_primary_key
     ProductsMaterial.create(product_id: self[:p_id], m_id: material[:m_id], m_qty: material[:m_qty])
   end
 
+  def update_material material
+    if material[:m_qty] < 0
+      errors.add "Error de ingreso", "La cantidad del material no puede ser negativa" 
+      return ProductsMaterial.filter(product_id: self[:p_id], m_id: material[:m_id]).first
+    end
+
+    if material[:m_qty] == 0
+      remove_material material      
+      return true
+    end
+
+    prod_mat =  ProductsMaterial.filter(product_id: self[:p_id], m_id: material[:m_id]).first
+    prod_mat[:m_qty] = material[:m_qty]
+    prod_mat.save
+  end
 
   def duplicate
     dest_id = create_default

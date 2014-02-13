@@ -108,6 +108,44 @@ class Backend < AppController
     redirect to("/products/#{dest[:p_id]}")
   end
 
+  put '/products/:p_id/materials' do
+    p_id = params[:p_id].to_i
+    product = Product[p_id]
+    redirect_if_nil_product product, p_id, "/products"
+    m_id = params[:m_id].to_i
+    m_qty = params[:m_qty].to_s.gsub(',', '.').to_f
+    material = Material[m_id]
+    material[:m_qty] = m_qty
+    redirect_if_nil_material material, m_id, "/products/#{p_id}"
+
+puts material
+    product.update_material material
+puts product.errors
+    redirect_if_nil_product product, p_id, "/products/#{p_id}"
+
+    flash[:notice] = t.product.material_updated material[:m_qty], material[:m_name] if material[:m_qty] > 0
+    flash[:notice] = t.product.material_removed material[:m_name] if material[:m_qty] == 0
+    redirect to("/products/#{product[:p_id]}#materials")
+  end
+
+  post '/products/:p_id/materials/add' do
+    p_id = params[:p_id].to_i
+    product = Product[p_id]
+    redirect_if_nil_product product, p_id, "/products"
+    m_id = params[:m_id].to_i
+    m_qty = params[:m_qty].to_s.gsub(',', '.').to_f
+    material = Material[m_id]
+    material[:m_qty] = m_qty
+    redirect_if_nil_material material, m_id, "/products/#{p_id}"
+
+    product.add_material material
+    redirect_if_nil_product product, p_id, "/products"
+
+    flash[:notice] = t.product.material_added material[:m_qty], material[:m_name]
+    redirect to("/products/#{product[:p_id]}#materials")
+  end
+
+
 
   def edit_product p_id
     @product = Product.new.get(p_id)
@@ -115,13 +153,12 @@ class Backend < AppController
       flash[:error] = R18n.t.product.not_found
       redirect to("/products")
     end
-    @materials = Material.all
+    @materials = Material.order(:m_name).all
     @parts = Product.all
 
     @p_parts = @product.parts
     @p_materials = @product.materials
 
-    pp @p_materials
     @categories = Category.all
     @brands = Brand.all
     slim :product, layout: :layout_backend

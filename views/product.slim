@@ -177,6 +177,7 @@
           input type="submit" value="Guardar"
 
 
+  // Product duplication
   form.grid-form action=url("/products/#{@product[:p_id]}/dup") method="post"
     fieldset
       legend Especiales
@@ -189,26 +190,47 @@
           input type="submit" id="dup" value="Duplicar"
 
 
-
-  h1 La lista de partes y materiales todavia no permite modificaciones
-
-  form.grid-form action=url("/products/#{@product[:p_id]}/parts") method="post"
+  // Materials list
+  div.grid-form#materials
     fieldset
       legend Materiales
-      == Rack::Csrf.tag(env)
       - @p_materials.each do |p_material|
-        div data-row-span="2"
-          div data-field-span="1"
-            label for="m_id" Material
-            select name="m_id"
-              - @materials.each do |material| 
-                option selected=("selected" if p_material.m_id == material.m_id) value="#{material.m_id}" = material.m_name
-          div data-field-span="1"
-            label for="m_qty" Cantidad
-            input type="text" name="m_qty" value="#{Utils::number_format p_material[:m_qty], 2}"
+        form action=url("/products/#{@product[:p_id]}/materials") method="post"
+          input type="hidden" name="_method" value="put"
+          == Rack::Csrf.tag(env)
+          div data-row-span="4"
+            div data-field-span="2"
+              label for="m_id" Material
+              input type="hidden" name="m_id" value="#{Utils::number_format p_material[:m_id], 0}"
+              input type="text" name="m_name" tabindex="-1" disabled="disabled" value="#{p_material.m_name}"
+            div data-field-span="1"
+              label for="m_qty" Cantidad (0 para borrar)
+              input.number.positive type="tel" name="m_qty" value="#{Utils::number_format p_material[:m_qty], 2}"
+            div data-field-span="1"
+              label for="action" Actualizar
+              input type="submit" name="action" value="Actualizar"
 
 
-form.grid-form action=url("/products/#{@product[:p_id]}/parts") method="post"
+    // Materials addition
+    form action=url("/products/#{@product[:p_id]}/materials/add") method="post"
+      == Rack::Csrf.tag(env)
+      div data-row-span="4"
+        div data-field-span="2"
+          label for="m_id" Material a agregar
+          select name="m_id" required="required"
+            option value="" 
+            - @materials.each do |material| 
+              option value="#{material.m_id}" = material.m_name
+        div data-field-span="1"
+          label for="m_qty" Cantidad
+          input.number.positive type="tel" name="m_qty" value="" required="required"
+        div data-field-span="1"
+          label for="action" Agregar
+          input type="submit" name="action" value="Agregar"
+
+
+  // Parts list
+  form.grid-form action=url("/products/#{@product[:p_id]}/parts") method="post"
     fieldset
       legend Partes
       == Rack::Csrf.tag(env)
@@ -221,4 +243,4 @@ form.grid-form action=url("/products/#{@product[:p_id]}/parts") method="post"
                 option selected=("selected" if p_part.p_id == part.p_id) value="#{part.p_id}" = part.p_name
           div data-field-span="1"
             label for="part_qty" Cantidad
-            input type="text" name="part_qty" value="#{Utils::number_format p_part[:part_qty], 2}"
+            input.number.positive type="tel" name="part_qty" value="#{Utils::number_format p_part[:part_qty], 2}"
