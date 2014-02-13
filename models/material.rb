@@ -22,7 +22,7 @@ class Material < Sequel::Model(:materials)
 
 
   def update_from_hash(hash_values)
-    wanted_keys = [ :m_name, :c_id ] # .gsub(',', '.')
+    wanted_keys = [ :m_name, :m_notes, :c_id ]
     hash_values.select { |key, value| self[key.to_sym]=value if wanted_keys.include? key.to_sym unless value.nil?}
     validate
     self
@@ -120,7 +120,7 @@ class Material < Sequel::Model(:materials)
   private
     def base_query warehouse_name
       valid = [Bulk::NEW, Bulk::IN_USE, Bulk::VOID]
-      Material.select_group(:materials__m_id, :m_name, :c_id, :c_name)
+      Material.select_group(:materials__m_id, :m_name, :c_id, :c_name, :m_notes)
         .left_join(:bulks___b1, b1__m_id: :materials__m_id, b1__b_status: valid, b1__b_loc: warehouse_name)
         .join(:materials_categories, [:c_id])
         .select_append{sum(:b1__b_qty).as(m_qty)}

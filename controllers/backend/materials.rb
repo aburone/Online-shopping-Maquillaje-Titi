@@ -24,6 +24,7 @@ class Backend < AppController
     slim :material, layout: :layout_backend
   end
   put '/materials/:id/?' do
+    pp params
     material = Material[params[:id].to_i]
     material.update_from_hash(params)
     if material.valid?

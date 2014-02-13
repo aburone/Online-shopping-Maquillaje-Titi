@@ -5,6 +5,7 @@ actions:
   allocate: Imputar
   ok: Aceptar
   apply: "Aplicar"
+  save: "Guardar"
   cancel: Cancelar
   cancel_sale: Cancelar venta
   cancel_order: Cancelar orden
@@ -168,6 +169,7 @@ material:
     id: ID
     category: Categoría
     name: "Nombre"
+    m_notes: Notas internas
     qty: "Cantidad"
     price: "Precio"
     units: "(cc, gr o cm)"
