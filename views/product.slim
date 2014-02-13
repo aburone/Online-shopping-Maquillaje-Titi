@@ -1,5 +1,4 @@
 -# coding: UTF-8
-== slim :nav_products
 
 - @title = t.product.not_found
 
@@ -230,17 +229,39 @@
 
 
   // Parts list
-  form.grid-form action=url("/products/#{@product[:p_id]}/parts") method="post"
+  div.grid-form#parts
     fieldset
       legend Partes
-      == Rack::Csrf.tag(env)
       - @p_parts.each do |p_part|
-        div data-row-span="2"
-          div data-field-span="1"
-            label for="part_id" Parte
-            select name="part_id"
-              - @parts.each do |part| 
-                option selected=("selected" if p_part.p_id == part.p_id) value="#{part.p_id}" = part.p_name
-          div data-field-span="1"
-            label for="part_qty" Cantidad
-            input.number.positive type="tel" name="part_qty" value="#{Utils::number_format p_part[:part_qty], 2}"
+        form action=url("/products/#{@product[:p_id]}/parts") method="post"
+          input type="hidden" name="_method" value="put"
+          == Rack::Csrf.tag(env)
+          div data-row-span="4"
+            div data-field-span="2"
+              label for="part_id" Parte
+              input type="hidden" name="part_id" value="#{Utils::number_format p_part[:p_id], 0}"
+              input type="text" name="p_name" tabindex="-1" disabled="disabled" value="#{p_part.p_name}"
+            div data-field-span="1"
+              label for="part_qty" Cantidad (0 para borrar)
+              input.number.positive type="tel" name="part_qty" value="#{Utils::number_format p_part[:part_qty], 2}"
+            div data-field-span="1"
+              label for="action" Actualizar
+              input type="submit" name="action" value="Actualizar"
+
+
+    // Parts addition
+    form action=url("/products/#{@product[:p_id]}/parts/add") method="post"
+      == Rack::Csrf.tag(env)
+      div data-row-span="4"
+        div data-field-span="2"
+          label for="part_id" Parte a agregar
+          select name="part_id" required="required"
+            option value="" 
+            - @parts.each do |part| 
+              option value="#{part.p_id}" = part.p_name
+        div data-field-span="1"
+          label for="part_qty" Cantidad
+          input.number.positive type="tel" name="part_qty" value="" required="required"
+        div data-field-span="1"
+          label for="action" Agregar
+          input type="submit" name="action" value="Agregar"

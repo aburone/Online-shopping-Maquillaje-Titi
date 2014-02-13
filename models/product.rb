@@ -25,9 +25,34 @@ class Product < Sequel::Model
   end
 
   def add_part part
+    errors.add "Error de ingreso", "La cantidad de la parte a agregar no puede ser cero ni negativa" if part[:part_qty] <= 0
+    return false if part[:part_qty] <= 0
     ProductsPart.unrestrict_primary_key
     ProductsPart.create(product_id: self[:p_id], part_id: part[:p_id], part_qty: part[:part_qty])
   end
+
+  def remove_products_part part
+    remove_part part
+  end
+
+  def remove_part part
+    ProductsPart.filter(product_id: self[:p_id], part_id: part[:p_id]).first.delete
+  end
+
+  def update_part part
+    if part[:part_qty] < 0
+      errors.add "Error de ingreso", "La cantidad de la parte no puede ser negativa" 
+      return ProductsPart.filter(product_id: self[:p_id], part_id: part[:p_id]).first
+    end
+    if part[:part_qty] == 0
+      remove_part part      
+      return true
+    end
+    prod_part =  ProductsPart.filter(product_id: self[:p_id], part_id: part[:p_id]).first
+    prod_part[:part_qty] = part[:part_qty]
+    prod_part.save
+  end
+
 
   def materials
     condition = "product_id = #{self[:p_id]}"
@@ -51,12 +76,10 @@ class Product < Sequel::Model
       errors.add "Error de ingreso", "La cantidad del material no puede ser negativa" 
       return ProductsMaterial.filter(product_id: self[:p_id], m_id: material[:m_id]).first
     end
-
     if material[:m_qty] == 0
       remove_material material      
       return true
     end
-
     prod_mat =  ProductsMaterial.filter(product_id: self[:p_id], m_id: material[:m_id]).first
     prod_mat[:m_qty] = material[:m_qty]
     prod_mat.save

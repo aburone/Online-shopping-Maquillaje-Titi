@@ -503,4 +503,60 @@ class ProductTest < Test::Unit::TestCase
       assert_equal 1, @valid.errors.count, "Error removing"
     end
   end
+
+  def test_should_add_part_to_product
+    DB.transaction(rollback: :always) do
+      part = Product.new.get_rand
+      part[:part_qty] = 5
+      prev_count = @valid.parts.count
+      @valid.add_part part
+      new_count = @valid.parts.count
+      assert_equal prev_count + 1, new_count
+    end
+  end
+
+  def test_should_not_allow_to_add_part_with_zero_qty_to_product
+    DB.transaction(rollback: :always) do
+      part = Product.new.get_rand
+      part[:part_qty] = 0
+      prev_count = @valid.parts.count
+      @valid.add_part part
+      new_count = @valid.parts.count
+      assert_equal prev_count , new_count
+      assert_equal 1, @valid.errors.count
+    end
+  end
+
+  def test_should_update_part_qty
+    DB.transaction(rollback: :always) do
+      part = Product.new.get_rand
+      part[:part_qty] = 5
+      count1 = @valid.parts.count
+      new_part = @valid.add_part part
+      count2 = @valid.parts.count
+      assert_equal count1 + 1, count2, "Error adding"
+      assert_equal BigDecimal.new(5), new_part[:part_qty], "Error adding"
+
+      part[:part_qty] = -5
+      updated_part = @valid.update_part part
+      count3 = @valid.parts.count
+      assert_equal count2 , count3, "Error updating negative"
+      assert_equal 1, @valid.errors.count, "Error updating negative"
+      assert_equal BigDecimal.new(5), updated_part[:part_qty], "Error updating negative"
+
+      part[:part_qty] = 3
+      updated_part = @valid.update_part part
+      count4 = @valid.parts.count
+      assert_equal count3, count4, "Error updating"
+      assert_equal 1, @valid.errors.count, "Error updating"
+      assert_equal BigDecimal.new(3), updated_part[:part_qty], "Error updating"
+
+      part[:part_qty] = 0
+      updated_part = @valid.update_part part
+      count5 = @valid.parts.count
+      assert_equal count4 - 1, count5, "Error removing"
+      assert_equal 1, @valid.errors.count, "Error removing"
+    end
+  end
+
 end

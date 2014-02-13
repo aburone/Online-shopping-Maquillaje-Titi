@@ -262,6 +262,9 @@ product:
   material_added: "Agregado %1 x %2"
   material_updated: "Actualizado %1 x %2"
   material_removed: "Borrado %1"
+  part_added: "Agregado %1 x %2"
+  part_updated: "Actualizado %1 x %2"
+  part_removed: "Borrado %1"
   fields:
     id: ID
     category: Categoría
