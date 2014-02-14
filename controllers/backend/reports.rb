@@ -3,6 +3,7 @@ class Backend < AppController
   get '/reports/markups' do
     @products = Product.new.get_list.order(:categories__c_name, :products__p_name).all
     @products.sort_by! { |product| product[:markup_deviation] }
+    @products.delete_if { |product| product[:markup_deviation] == 1}
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
       full_row: true,
@@ -17,7 +18,8 @@ class Backend < AppController
   get '/reports/to_buy' do
     list = Product.new.get_list.where(tercerized: true).order(:categories__c_name, :products__p_name).all
     @products = Product.new.get_saleable_at_all_locations list
-    @products.sort_by! { |product| product[:stock_deviation] }
+    @products.sort_by! { |product| product[:stock_deviation_percentile] }
+    @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por comprar (no terminado)", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
       full_row: true,
@@ -33,6 +35,7 @@ class Backend < AppController
     list = Product.new.get_list.where(tercerized: false).order(:categories__c_name, :products__p_name) 
     @products = Product.new.get_saleable_at_all_locations list
     @products.sort_by! { |product| product[:stock_deviation_percentile] }
+    @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
       can_edit: false,
       full_row: true,
@@ -53,7 +56,7 @@ class Backend < AppController
       product[:to_move] = 0
       product[:to_move] = product[:ideal_stock] - product[:stock_store_1] unless product[:stock_store_1] > product[:ideal_stock]
       product[:to_move] = product[stock_location_name] if product[:to_move] >= product[stock_location_name]
-      @products << product
+      @products << product unless product[:to_move] == 0
     end
     @products.sort_by! { |product| -product[:to_move] }
 
