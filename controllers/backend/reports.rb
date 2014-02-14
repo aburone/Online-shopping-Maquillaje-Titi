@@ -21,13 +21,14 @@ class Backend < AppController
     @products.sort_by! { |product| product[:stock_deviation_percentile] }
     @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por comprar (no terminado)", sec_nav: :nav_administration,
-      can_edit: true, edit_link: :edit_product,
       full_row: true,
       price_pro_col: false,
       stock_col: false,
       persistent_headers: true,
       multi_stock_col: true,
-      stock_deviation_col: true
+      stock_deviation_col: true,
+      click_to_filter: true,
+      caption: "Click en la categoria o marca y despues tocar espacio para filtrar"
     }
   end
 
@@ -43,7 +44,9 @@ class Backend < AppController
       stock_col: false,
       multi_stock_col: true,
       stock_deviation_col: true,
-      persistent_headers: true
+      persistent_headers: true,
+      click_to_filter: true,
+      caption: "Click en la categoria o marca y despues tocar espacio para filtrar"
     }
   end
 
@@ -66,7 +69,9 @@ class Backend < AppController
       price_pro_col: false,
       persistent_headers: true,
       multi_stock_col: true,
-      to_move_col: true
+      to_move_col: true,
+      click_to_filter: true,
+      caption: "Click en la categoria o marca y despues tocar espacio para filtrar"
     }
   end
 

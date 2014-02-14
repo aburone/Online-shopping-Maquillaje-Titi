@@ -12,15 +12,18 @@
 - edit_link ||= "void"
 - can_filter = true if can_filter.nil?
 - quicksearch = " quicksearch" if can_filter
+- click_to_filter = false if click_to_filter.nil? unless click_to_filter == true
 - item_class = "" if item_class.nil?
 - persistent_headers = false if persistent_headers.nil? unless persistent_headers == true
 - persist_area = persistent_headers ? " persist_area" : ""
 - persist_header = persistent_headers ? " persist_header" : ""
+- caption = caption.nil? ? "" : caption
 
 - if @products.empty?
   p = t.products.empty
 - else
   table class="items tablesorter#{quicksearch}#{persist_area}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+    caption #{caption}
     thead class="#{persist_header}" 
       tr 
         th.sm_cell = t.product.fields.id
@@ -58,12 +61,13 @@
         td colspan="#{colspan}" = t.products.count(@products.count)
     tbody
       - ajax_item = can_edit ? " ajax_item" : ""
+      - ajax_click_to_filter = click_to_filter ? "ajax_filter_by_me" : ""
       - @products.each do |product|
         tr class="item#{ajax_item} #{item_class}"
           td.sm_cell #{product[:p_id]}
-          td.md_cell #{I18n.transliterate( product[:c_name] )}
+          td.md_cell class="#{ajax_click_to_filter}" #{I18n.transliterate( product[:c_name] )}
           td.bg_cell #{I18n.transliterate( product[:p_name] )}
-          td.md_cell #{product[:br_name]}
+          td.md_cell class="#{ajax_click_to_filter}" #{product[:br_name]}
           - if full_row
             td.smm_cell.number #{Utils::money_format product[:price], 2}
           - if full_row and price_pro_col
