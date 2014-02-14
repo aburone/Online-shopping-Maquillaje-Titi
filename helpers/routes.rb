@@ -43,8 +43,13 @@ module ApplicationHelper
   end
 
   def redirect_if_nil_item item, i_id, route
+    i_id = i_id.to_s.strip
     if item.nil?
       flash[:error] = t.item.missing i_id
+      redirect to(route)
+    end
+    unless item.errors.count == 0  and item.valid? 
+      flash[:error] = item.errors 
       redirect to(route)
     end
   end

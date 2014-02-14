@@ -183,12 +183,9 @@ class Backend < AppController
   route :get, :post, '/production/verification/:o_id/?' do
     @order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::MUST_VERIFY, params[:o_id].to_i)
     poor_redirect_if_nil_order @order, "verification"
-
-    @current_item = params[:i_id] ? Item[params[:i_id].to_s.strip] : nil
-    if @current_item.nil?
-      @current_item = Item.new 
-      @current_product = Product.new
-    else
+    if params[:i_id]
+      @current_item = Item.new.get_for_verification params[:i_id], @order.o_id
+      redirect_if_nil_item @current_item, params[:i_id], "/production/verification/#{@order.o_id}"
       begin    
         @current_item.change_status Item::VERIFIED, params[:o_id].to_i
         flash.now[:notice] = "Verificado"
@@ -196,8 +193,9 @@ class Backend < AppController
         flash.now[:error] = detail.message
         @current_item = Item.new
       end
-      @current_product = @current_item.empty? ? Product.new : Product[@current_item.p_id]
     end
+    @current_item ||= Item.new
+    @current_product = @current_item.empty? ? Product.new : Product[@current_item.p_id]
 
     @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).all
     @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).all

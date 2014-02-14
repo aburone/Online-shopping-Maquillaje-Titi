@@ -294,7 +294,7 @@ class Item < Sequel::Model
     if item.nil?
       item = Item[i_id]
       if item.nil?
-        message = "No tengo ningun item con el id #{i_id}"
+        message = "No tengo ningun item con el id \"#{i_id}\""
         errors.add("Error general", message)
         return self
       end
