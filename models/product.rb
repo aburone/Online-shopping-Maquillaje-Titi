@@ -13,7 +13,7 @@ class Product < Sequel::Model
   ATTIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :img, :img_extra]
 
   # same as ATTIBUTES but with the neccesary table references for get_ functions
-  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :zzpublished, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :products__img, :img_extra]
+  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :products__img, :img_extra]
 
   EXCLUDED_ATTIBUTES_IN_DUPLICATION = [:p_id, :on_request, :end_of_life, :archived, :published, :product_img, :img_extra, :sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation]
 
@@ -121,7 +121,7 @@ class Product < Sequel::Model
   def save (opts=OPTS)
     opts = opts.merge({columns: Product::ATTIBUTES})
     @values[:end_of_life] = false if @values[:archived]
-    @values[:ideal_stock] = 0 if @values[:on_request] or @values[:archived] or @values[:end_of_life]
+    # @values[:ideal_stock] = 0 if @values[:on_request] or @values[:archived] or @values[:end_of_life]
     super opts
     if @values[:p_name] 
       message = "Actualizancion de precio de todos los items de #{@values[:p_name]}"

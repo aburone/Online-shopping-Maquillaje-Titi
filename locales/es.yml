@@ -85,6 +85,7 @@ nav:
   backend:
     materials: "Materiales"
     materials_list: Materiales
+    update_ideal_stocks_for_materials: Actualizar stocks ideales
     bulks_list: Graneles disponibles
     products: "Productos"
     new_product: "Crear producto"
@@ -151,6 +152,7 @@ materials:
   title: Materiales
   empty: "No hay materiales cargados en la base"
   count: "%1 materiales listados"
+  sure_to_update_ideal_stocks: Esta accion ejecuta un proceso muy intensivo y LENTO sobre la base de datos. Estas seguro de continuar?
 material:
   updated: "Cambios guardados con exito"
   new: Crear nuevo
@@ -172,6 +174,7 @@ material:
     name: "Nombre"
     m_notes: Notas internas
     qty: "Cantidad"
+    ideal_stock: Stock ideal
     price: "Precio"
     units: "(cc, gr o cm)"
     edit: Editar

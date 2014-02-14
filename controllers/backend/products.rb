@@ -197,7 +197,7 @@ class Backend < AppController
       redirect to("/products")
     end
     @materials = Material.order(:m_name).all
-    @parts = Product.filter(archived: false, end_of_life: false).all
+    @parts = Product.filter(archived: false, end_of_life: false).order(:p_name).all
 
     @p_parts = @product.parts
     @p_materials = @product.materials

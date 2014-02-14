@@ -8,6 +8,8 @@ class Material < Sequel::Model(:materials)
   many_to_one :MaterialCategory, key: :c_id
   many_to_many :products, left_key: :m_id, right_key: :product_id, join_table: :products_materials
 
+  COLUMNS = [ :m_id, :c_id, :m_name, :m_notes, :created_at, :m_ideal_stock ]
+
   def create_default
     last_m_id = "ERROR"
     DB.transaction do
@@ -24,6 +26,18 @@ class Material < Sequel::Model(:materials)
   def update_from_hash(hash_values)
     wanted_keys = [ :m_name, :m_notes, :c_id ]
     hash_values.select { |key, value| self[key.to_sym]=value if wanted_keys.include? key.to_sym unless value.nil?}
+
+    numerical_keys = [ :m_ideal_stock ]
+    hash_values.select do |key, value|
+      if numerical_keys.include? key.to_sym 
+        unless value.nil? or (value.class == String and value.length == 0)
+          if Utils::is_numeric? value.to_s.gsub(',', '.')
+            self[key.to_sym] = Utils::as_number value
+          end
+        end
+      end
+    end
+
     validate
     self
   end
@@ -44,23 +58,47 @@ class Material < Sequel::Model(:materials)
     out += "\tc_id:  #{@values[:c_id]}\n"
     out += "\tc_name: " + (@values[:c_name].nil? ? "\n" : @values[:c_name] + "\n")
     out += "\tm_qty: #{sprintf("%0.2f", @values[:m_qty])}\n"
-    out += "\tm_price: #{m_price_as_string}\n"
+    out += "\tm_price: #{Utils::number_format self[:m_price], 3}\n"
+    out += "\tm_ideal_stock: #{Utils::number_format self[:m_ideal_stock], 2}\n"
     out += "\tcreated: #{Utils::local_datetime_format  @values[:created_at]}\n"
     out
   end
 
-  def m_price_as_string
-    if self[:m_price].nil?
-      ret = 0
-    else
-      ret = self[:m_price].round(3)
-      ret = ret.to_s("F") if ret.class == BigDecimal
-    end
-    ret
-  end
-
   def m_price= price
     @values[:m_price] = price
+  end
+
+  def calculate_ideal_stock
+    p "#{@values[:m_name]} (#{@values[:m_id]})"
+    total_needed = BigDecimal.new(0)
+    products = self.products
+    products.each do |product|
+      materials = product.materials
+      materials.each do |p_material|
+        needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : (p_material[:m_qty] * product.ideal_stock)
+        p "  #{product.p_name} (#{product.p_id}): #{p_material[:m_qty].to_s("F")} x #{product.ideal_stock} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
+        total_needed += needed if p_material.m_id == @values[:m_id]
+      end
+    end
+    p "Partial needed: #{total_needed.to_s("F")}"
+
+    products = Product.all
+    products.each do |product|
+      parts = product.parts
+      parts.each do |product_part|
+        materials = product_part.materials
+        materials.each do |p_material|
+          needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : p_material[:m_qty] * product_part[:part_qty] * product_part.ideal_stock 
+          p "  #{product.p_name} (#{product.p_id}) -> #{product_part.p_name} (#{product_part.p_id}): #{p_material[:m_qty].to_s("F")} x #{product_part[:part_qty].to_s("F")} x #{product_part.ideal_stock} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
+          total_needed += needed if p_material.m_id == @values[:m_id]
+        end
+      end
+    end
+    p "Total needed: #{total_needed.to_s("F")}"
+    p ""
+    @values[:m_ideal_stock] = total_needed
+    save columns: COLUMNS
+    total_needed
   end
 
   def bulks warehouse_name
@@ -120,7 +158,7 @@ class Material < Sequel::Model(:materials)
   private
     def base_query warehouse_name
       valid = [Bulk::NEW, Bulk::IN_USE, Bulk::VOID]
-      Material.select_group(:materials__m_id, :m_name, :c_id, :c_name, :m_notes)
+      Material.select_group(:materials__m_id, :m_name, :c_id, :c_name, :m_notes, :m_ideal_stock)
         .left_join(:bulks___b1, b1__m_id: :materials__m_id, b1__b_status: valid, b1__b_loc: warehouse_name)
         .join(:materials_categories, [:c_id])
         .select_append{sum(:b1__b_qty).as(m_qty)}

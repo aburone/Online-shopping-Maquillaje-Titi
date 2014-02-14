@@ -15,7 +15,24 @@ class Backend < AppController
     }
   end
 
-  get '/reports/to_buy' do
+  get '/reports/products_to_buy' do
+    list = Product.new.get_list.where(tercerized: true).order(:categories__c_name, :products__p_name).all
+    @products = Product.new.get_saleable_at_all_locations list
+    @products.sort_by! { |product| product[:stock_deviation_percentile] }
+    @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
+    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por comprar (no terminado)", sec_nav: :nav_administration,
+      full_row: true,
+      price_pro_col: false,
+      stock_col: false,
+      persistent_headers: true,
+      multi_stock_col: true,
+      stock_deviation_col: true,
+      click_to_filter: true,
+      caption: "Click en la categoria o marca y despues tocar espacio para filtrar"
+    }
+  end
+
+  get '/reports/materials_to_buy' do
     list = Product.new.get_list.where(tercerized: true).order(:categories__c_name, :products__p_name).all
     @products = Product.new.get_saleable_at_all_locations list
     @products.sort_by! { |product| product[:stock_deviation_percentile] }

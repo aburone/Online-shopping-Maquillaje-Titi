@@ -107,4 +107,5 @@ end
     assert_equal mat1[:m_price], mat2[:m_price]
     assert_equal mat1[:m_price], mat3[:m_price]
   end
+
 end

@@ -16,6 +16,7 @@
         th = t.material.fields.name
         th = t.material.fields.qty
         th = t.material.fields.price
+        th = t.material.fields.ideal_stock
         - if can_edit
           th = t.material.fields.actions
       tr
@@ -33,6 +34,7 @@
           td.m_name #{ I18n.transliterate( mat[:m_name] )}
           td.number.m_qty == Utils::number_format mat[:m_qty], 0
           td.number == Utils::money_format mat[:m_price], 2
+          td.number == Utils::number_format mat[:m_ideal_stock], 2
           - if can_edit
             td.small_content.edit
               a.edit href="/admin/materials/#{mat[:m_id]}"
