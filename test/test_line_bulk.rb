@@ -21,7 +21,7 @@ class LineBulkTest < Test::Unit::TestCase
 
   def test_should_add_bulk_to_order
     DB.transaction(rollback: :always) do
-      order = Order[5725]
+      order = Order.new.create_new Order::WH_TO_WH
       bulk = Bulk.new.create 5, 1, Location::SYS
       bulk = Bulk.new.get_for_transport bulk.b_id, order.o_id
       assert bulk.errors.empty?

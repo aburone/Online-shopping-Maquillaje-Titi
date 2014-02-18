@@ -184,9 +184,11 @@ class ItemTest < Test::Unit::TestCase
   end
 
   def test_multi_check
+    i1 = Item.new.get_rand
+    i2 = Item.new.get_rand
     input = "
-     \t348-fba3ee06
-    348-fc1d5f02
+     \t#{i1.i_id}
+    #{i2.i_id}
     351-2c9e4d19INVALID 
     "
     i_ids = Item.new.split_input_into_ids(input)
