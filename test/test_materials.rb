@@ -108,4 +108,19 @@ end
     assert_equal mat1[:m_price], mat3[:m_price]
   end
 
+  def test_should_create_new_material
+    DB.transaction(rollback: :always) do
+      begin
+        mat = Material.new.create_default
+      rescue Sequel::UniqueConstraintViolation => e
+        assert_equal "Mysql2::Error: Duplicate entry '! NUEVO MATERIAL' for key 'm_name'", e.message
+        mat = Material.filter(m_name: R18n.t.material.default_name).first
+        mat.m_name = rand
+        mat.save
+        mat = Material.new.create_default
+      end
+      assert_equal mat.class, Fixnum
+    end
+  end
+
 end

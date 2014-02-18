@@ -54,6 +54,7 @@ class Material < Sequel::Model(:materials)
     out = "\n"
     out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
     out += "\tm_name:  #{@values[:m_name]}\n"
+    out += "\tm_notes:  #{@values[:m_notes]}\n"
     out += "\tm_id:  #{@values[:m_id]}\n"
     out += "\tc_id:  #{@values[:c_id]}\n"
     out += "\tc_name: " + (@values[:c_name].nil? ? "\n" : @values[:c_name] + "\n")
