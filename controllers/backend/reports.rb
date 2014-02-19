@@ -3,14 +3,14 @@ class Backend < AppController
   get '/reports/markups' do
     @products = Product.new.get_list.order(:categories__c_name, :products__p_name).all
     @products.sort_by! { |product| product[:markup_deviation] }
-    @products.delete_if { |product| product[:markup_deviation] == 1}
+    @products.delete_if { |product| product[:markup_deviation_percentile].between? -10, 10 }
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
       full_row: true,
       price_pro_col: false,
       stock_col: false,
       real_markup_col: true,
-      markup_deviation_col: true,
+      markup_deviation_percentile_col: true,
       persistent_headers: true
     }
   end
@@ -18,7 +18,7 @@ class Backend < AppController
   get '/reports/products_to_buy' do
     list = Product.new.get_list.where(tercerized: true).order(:categories__c_name, :products__p_name).all
     @products = Product.new.get_saleable_at_all_locations list
-    @products.sort_by! { |product| product[:stock_deviation_percentile] }
+    @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
     @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por comprar", sec_nav: :nav_administration,
       full_row: true,
@@ -35,7 +35,7 @@ class Backend < AppController
   get '/reports/materials_to_buy' do
     @materials = Material.new.get_list([Location::W1, Location::W2])
     @materials.map { |m| m.update_stocks }
-    @materials.sort_by! { |material| material[:stock_deviation_percentile] }
+    @materials.sort_by! { |material| [ material[:stock_deviation_percentile], material[:stock_deviation] ] }
     @materials.delete_if { |material| material[:stock_deviation_percentile] >= -33}
     slim :materials_list, layout: :layout_backend, locals: {title: "Reporte de materiales por comprar (no terminado)", sec_nav: :nav_administration,
       can_edit: false,
@@ -50,7 +50,7 @@ class Backend < AppController
   get '/reports/stocks' do
     list = Product.new.get_list.where(tercerized: false).order(:categories__c_name, :products__p_name) 
     @products = Product.new.get_saleable_at_all_locations list
-    @products.sort_by! { |product| product[:stock_deviation_percentile] }
+    @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
     @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
       can_edit: false,

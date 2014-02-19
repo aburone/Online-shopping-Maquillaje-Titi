@@ -9,7 +9,7 @@
 
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
 - real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
-- markup_deviation_col = false if markup_deviation_col.nil? unless markup_deviation_col == true
+- markup_deviation_percentile_col = false if markup_deviation_percentile_col.nil? unless markup_deviation_percentile_col == true
 - to_move_col = false if to_move_col.nil? unless to_move_col == true
 - can_edit = true if can_edit.nil?
 - edit_link ||= "void"
@@ -39,8 +39,8 @@
           th.smm_cell = t.product.fields.price_pro
         - if real_markup_col
           th.sm_cell = t.product.fields.real_markup
-        - if markup_deviation_col
-          th.sm_cell = t.product.fields.markup_deviation
+        - if markup_deviation_percentile_col
+          th.sm_cell = t.product.fields.markup_deviation_percentile
         - if stock_col
           th.sm_cell = t.product.fields.qty
         - if multi_stock_col
@@ -77,14 +77,14 @@
             td.smm_cell.number #{Utils::money_format product[:price_pro], 2}
           - if real_markup_col
             td.sm_cell.number #{Utils::number_format product[:real_markup], 2}
-          - if markup_deviation_col
-            - unless product[:markup_deviation].nil?
-              - col_class = (product[:markup_deviation] > 1.1) ? "number overpriced" : (product[:markup_deviation] < 0.9) ? "number underpriced" : "number"
-              - markup_deviation = product[:markup_deviation] == 1 ? "-" : Utils::number_format(product[:markup_deviation], 2)
+          - if markup_deviation_percentile_col
+            - unless product[:markup_deviation_percentile].nil?
+              - col_class = (product[:markup_deviation_percentile] > 1.1) ? "number overpriced" : (product[:markup_deviation_percentile] < 0.9) ? "number underpriced" : "number"
+              - markup_deviation_percentile = product[:markup_deviation_percentile] == 0 ? "-" : "#{"+" if product[:markup_deviation_percentile] > 0}#{Utils::number_format(product[:markup_deviation_percentile], 0)} %"
             - else
               - col_class = "number underpriced"
-              - markup_deviation = "Invalido"
-            td.sm_cell class="#{col_class}" #{markup_deviation}
+              - markup_deviation_percentile = "Invalido"
+            td.sm_cell class="#{col_class}" #{markup_deviation_percentile}
           - if stock_col
             td.sm_cell.number #{Utils::number_format product[:qty], 0}
           - if multi_stock_col
