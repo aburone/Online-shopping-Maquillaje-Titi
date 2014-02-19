@@ -174,7 +174,9 @@ material:
     name: "Nombre"
     m_notes: Notas internas
     qty: "Cantidad"
-    ideal_stock: Stock ideal
+    ideal_stock: Ideal
+    stock_deviation: Desvio
+    stock_deviation_percentile: "%"
     price: "Precio"
     units: "(cc, gr o cm)"
     edit: Editar

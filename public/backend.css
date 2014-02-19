@@ -584,10 +584,11 @@ article, section {
   margin-left: 10em; }
 
 a.edit {
-  display: inline-block;
+  display: block;
   width: 32px;
   height: 32px;
-  background: url(/media/Icon-Edit.png); }
+  background: url(/media/Icon-Edit.png);
+  margin: 4px auto; }
 
 .sm_cell {
   width: 4em; }

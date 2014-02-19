@@ -20,7 +20,7 @@ class Backend < AppController
     @products = Product.new.get_saleable_at_all_locations list
     @products.sort_by! { |product| product[:stock_deviation_percentile] }
     @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
-    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por comprar (no terminado)", sec_nav: :nav_administration,
+    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por comprar", sec_nav: :nav_administration,
       full_row: true,
       price_pro_col: false,
       stock_col: false,
@@ -33,19 +33,17 @@ class Backend < AppController
   end
 
   get '/reports/materials_to_buy' do
-    list = Product.new.get_list.where(tercerized: true).order(:categories__c_name, :products__p_name).all
-    @products = Product.new.get_saleable_at_all_locations list
-    @products.sort_by! { |product| product[:stock_deviation_percentile] }
-    @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
-    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por comprar (no terminado)", sec_nav: :nav_administration,
-      full_row: true,
-      price_pro_col: false,
-      stock_col: false,
+    @materials = Material.new.get_list([Location::W1, Location::W2])
+    @materials.map { |m| m.update_stocks }
+    @materials.sort_by! { |material| material[:stock_deviation_percentile] }
+    @materials.delete_if { |material| material[:stock_deviation_percentile] >= -33}
+    slim :materials_list, layout: :layout_backend, locals: {title: "Reporte de materiales por comprar (no terminado)", sec_nav: :nav_administration,
+      can_edit: false,
       persistent_headers: true,
-      multi_stock_col: true,
-      stock_deviation_col: true,
       click_to_filter: true,
-      caption: "Click en la categoria o marca y despues tocar espacio para filtrar"
+      caption: "Click en la categoria y despues tocar espacio para filtrar",
+      multi_stock_col: true,
+      stock_deviation_col: true
     }
   end
 

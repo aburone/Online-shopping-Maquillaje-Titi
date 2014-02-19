@@ -17,7 +17,7 @@ p = "(Las cantidades ya tienen restado el uso)"
 - if !@missing_materials.empty?
   h2 = t.production.packaging.missing_materials_cant_allocate
   - @materials = @missing_materials
-  == slim :materials_list, locals: {can_filter: false, id: "missing_materials"}
+  == slim :materials_list, locals: {can_filter: false, ajax_id: "missing_materials", stock_col: true}
 - else
   h2 La casa esta en orden
   p Tengo todos los graneles necesarios para completar la orden

@@ -10,6 +10,83 @@ class Material < Sequel::Model(:materials)
 
   COLUMNS = [ :m_id, :c_id, :m_name, :m_notes, :created_at, :m_ideal_stock ]
 
+  def update_stocks
+    stock = Material
+      .select{sum(:b_qty).as(stock_store_1)}
+      .left_join(:bulks, materials__m_id: :bulks__m_id, b_loc: Location::S1)
+      .where(materials__m_id: @values[:m_id])
+      .first[:stock_store_1]
+    stock ||= 0
+    @values[:stock_store_1] = BigDecimal.new stock
+    stock = Material
+      .select{sum(:b_qty).as(stock_store_2)}
+      .left_join(:bulks, materials__m_id: :bulks__m_id, b_loc: Location::S2)
+      .where(materials__m_id: @values[:m_id])
+      .first[:stock_store_2]
+    stock ||= 0
+    @values[:stock_store_2] = BigDecimal.new stock
+    stock = Material
+      .select{sum(:b_qty).as(stock_warehouse_1)}
+      .left_join(:bulks, materials__m_id: :bulks__m_id, b_loc: Location::W1)
+      .where(materials__m_id: @values[:m_id])
+      .first[:stock_warehouse_1]
+    stock ||= 0
+    @values[:stock_warehouse_1] = BigDecimal.new stock
+    stock = Material
+      .select{sum(:b_qty).as(stock_warehouse_2)}
+      .left_join(:bulks, materials__m_id: :bulks__m_id, b_loc: Location::W2)
+      .where(materials__m_id: @values[:m_id])
+      .first[:stock_warehouse_2]
+    stock ||= 0
+    @values[:stock_warehouse_2] = BigDecimal.new stock
+    update_stock_deviation
+  end
+
+  def update_stock_deviation
+    ideal = @values[:m_ideal_stock]
+    actual = @values[:m_qty].nil? ? BigDecimal.new(0) : @values[:m_qty]
+    @values[:stock_deviation] = ideal - actual
+    @values[:stock_deviation] *= -1
+    @values[:stock_deviation_percentile] = @values[:stock_deviation] * 100 / (@values[:m_ideal_stock])
+    @values[:stock_deviation_percentile] = BigDecimal.new(0) if @values[:stock_deviation_percentile].nan?
+  end
+
+  def stock_deviation_percentile
+    @values[:stock_deviation_percentile]
+  end
+
+  def calculate_ideal_stock
+    p "#{@values[:m_name]} (#{@values[:m_id]})"
+    total_needed = BigDecimal.new(0)
+    products = self.products
+    products.each do |product|
+      materials = product.materials
+      materials.each do |p_material|
+        needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : (p_material[:m_qty] * product.ideal_stock)
+        p "  #{product.p_name} (#{product.p_id}): #{p_material[:m_qty].to_s("F")} x #{product.ideal_stock} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
+        total_needed += needed if p_material.m_id == @values[:m_id]
+      end
+    end
+    p "Partial needed: #{total_needed.to_s("F")}"
+    products = Product.all
+    products.each do |product|
+      parts = product.parts
+      parts.each do |product_part|
+        materials = product_part.materials
+        materials.each do |p_material|
+          needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : p_material[:m_qty] * product_part[:part_qty] * product_part.ideal_stock 
+          p "  #{product.p_name} (#{product.p_id}) -> #{product_part.p_name} (#{product_part.p_id}): #{p_material[:m_qty].to_s("F")} x #{product_part[:part_qty].to_s("F")} x #{product_part.ideal_stock} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
+          total_needed += needed if p_material.m_id == @values[:m_id]
+        end
+      end
+    end
+    p "Total needed: #{total_needed.to_s("F")}"
+    p ""
+    @values[:m_ideal_stock] = total_needed * 2 # ideal for products is 3 months, but for materials is 6 months
+    save columns: COLUMNS
+    total_needed * 2
+  end
+
   def create_default
     last_m_id = "ERROR"
     DB.transaction do
@@ -67,39 +144,6 @@ class Material < Sequel::Model(:materials)
 
   def m_price= price
     @values[:m_price] = price
-  end
-
-  def calculate_ideal_stock
-    p "#{@values[:m_name]} (#{@values[:m_id]})"
-    total_needed = BigDecimal.new(0)
-    products = self.products
-    products.each do |product|
-      materials = product.materials
-      materials.each do |p_material|
-        needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : (p_material[:m_qty] * product.ideal_stock)
-        p "  #{product.p_name} (#{product.p_id}): #{p_material[:m_qty].to_s("F")} x #{product.ideal_stock} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
-        total_needed += needed if p_material.m_id == @values[:m_id]
-      end
-    end
-    p "Partial needed: #{total_needed.to_s("F")}"
-
-    products = Product.all
-    products.each do |product|
-      parts = product.parts
-      parts.each do |product_part|
-        materials = product_part.materials
-        materials.each do |p_material|
-          needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : p_material[:m_qty] * product_part[:part_qty] * product_part.ideal_stock 
-          p "  #{product.p_name} (#{product.p_id}) -> #{product_part.p_name} (#{product_part.p_id}): #{p_material[:m_qty].to_s("F")} x #{product_part[:part_qty].to_s("F")} x #{product_part.ideal_stock} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
-          total_needed += needed if p_material.m_id == @values[:m_id]
-        end
-      end
-    end
-    p "Total needed: #{total_needed.to_s("F")}"
-    p ""
-    @values[:m_ideal_stock] = total_needed
-    save columns: COLUMNS
-    total_needed
   end
 
   def bulks warehouse_name

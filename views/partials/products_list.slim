@@ -2,8 +2,11 @@
 - focus_text = focus ? "focus" : "no_focus"
 - full_row = true if full_row.nil?
 - price_pro_col = true if price_pro_col.nil?
+
 - stock_col = false if stock_col.nil? unless stock_col == true
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
+- stock_col = multi_stock_col ? false : stock_col
+
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
 - real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
 - markup_deviation_col = false if markup_deviation_col.nil? unless markup_deviation_col == true

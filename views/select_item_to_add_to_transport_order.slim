@@ -55,7 +55,7 @@ h2 Items en esta orden
 
 - if @order.type == Order::WH_TO_WH
   h2 Graneles en esta orden
-  == slim :bulks_list, locals: {can_edit: false, can_filter: false}
+  == slim :bulks_list, locals: {can_edit: false, can_filter: false, stock_col: true}
   / Remove single bulk
   - unless @bulks.empty?
     a href="#{@module}#{@route}/#{@order.o_id}/bulk/remove" Remover un granel de la orden
