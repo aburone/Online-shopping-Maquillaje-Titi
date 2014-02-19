@@ -28,7 +28,7 @@ group :development, :test do
   # gem "launchy"
   gem "cucumber"
   gem "cucumber-sinatra"
-  # gem "poltergeist"
+  gem "poltergeist"
   # gem 'selenium-webdriver'
   gem 'test-unit','= 2.5.5' 
   # gem "test-unit-full"
