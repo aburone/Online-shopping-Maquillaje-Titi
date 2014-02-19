@@ -25,14 +25,11 @@ group :development, :test do
   gem "rspec"
   gem "webrat"
   gem "capybara"
-  gem "launchy"
+  # gem "launchy"
   gem "cucumber"
   gem "cucumber-sinatra"
-  # gem "shotgun"
-  gem "poltergeist"
+  # gem "poltergeist"
   # gem 'selenium-webdriver'
-  # gem "mocha"
   gem 'test-unit','= 2.5.5' 
-  gem "test-unit-full"
-  # gem "rdoc"
+  # gem "test-unit-full"
 end
