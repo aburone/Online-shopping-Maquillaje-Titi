@@ -40,7 +40,7 @@
         - if real_markup_col
           th.sm_cell = t.product.fields.real_markup
         - if markup_deviation_percentile_col
-          th.sm_cell = t.product.fields.markup_deviation_percentile
+          th.sm_cell.small_content = t.product.fields.markup_deviation_percentile
         - if stock_col
           th.sm_cell = t.product.fields.qty
         - if multi_stock_col

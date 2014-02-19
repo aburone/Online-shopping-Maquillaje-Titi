@@ -300,8 +300,8 @@ product:
     materials_cost: "Materiales"
     sale_cost: "Costo de venta"
     ideal_markup: "Markup ideal"
-    real_markup: "Markup real"
-    markup_deviation_percentile: Desvio
+    real_markup: "Markup"
+    markup_deviation_percentile: "%"
     exact_price: "Precio exacto"
     price: "Precio"
     price_pro: Pro?
