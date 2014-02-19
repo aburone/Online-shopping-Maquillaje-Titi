@@ -2,8 +2,8 @@ class Backend < AppController
 
   get '/reports/markups' do
     @products = Product.new.get_list.order(:categories__c_name, :products__p_name).all
-    @products.sort_by! { |product| product[:markup_deviation] }
     @products.delete_if { |product| product[:markup_deviation_percentile].between? -10, 10 }
+    @products.sort_by! { |product| product[:markup_deviation_percentile] }
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
       full_row: true,
