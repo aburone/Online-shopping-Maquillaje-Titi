@@ -4,7 +4,7 @@
 
 
 
-form.grid-form action=url("/inventory/transmute_items/#{@item.i_id}/#{@product.p_id}") method="post"
+form.grid-form action=url("/inventory/transmute_items/#{@item.i_id}/#{@new_product.p_id}") method="post"
   == Rack::Csrf.tag(env)
 
   fieldset

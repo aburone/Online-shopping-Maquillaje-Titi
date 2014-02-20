@@ -57,19 +57,6 @@ class Backend < AppController
   end
 
 
-  def transmute_items
-    begin
-    rescue SecurityError => e
-      flash[:error] = e.message
-      redirect to('/inventory/transmute_items')
-    rescue => e
-      flash[:error] = e.message
-      redirect to('/inventory/transmute_items')
-    end
-    redirect to('/inventory/transmute_items')
-  end
-
-
   def set_locals_for_transmutation
     if params[:i_id]
       @item = Item.new.get_for_transmutation params[:i_id]
