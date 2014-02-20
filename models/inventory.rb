@@ -38,22 +38,6 @@ class Inventory
     return @missing_materials.empty? ? true : false
   end
 
-  def process_inventory_order order
-    o_id = order.o_id
-    messages = []
-    DB.transaction do
-      order.items.each do |item|
-        item.i_status = Item::READY
-        item.i_loc = @location
-        item.save
-        message = "Item #{item[:p_name]} agregado al stock del Local 1"
-        ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, i_id: item.i_id, o_id: o_id, p_id: item.p_id).save
-        messages << message
-      end
-    end
-    messages
-  end
-
   def add_item item, o_id
     message = "#{item[:p_name]} agregado al inventario}"
     ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, i_id: item.i_id, p_id: item.p_id, o_id: o_id).save

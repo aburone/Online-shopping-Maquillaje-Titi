@@ -37,7 +37,7 @@ class Backend < AppController
     @materials.map { |m| m.update_stocks }
     @materials.sort_by! { |material| [ material[:stock_deviation_percentile], material[:stock_deviation] ] }
     @materials.delete_if { |material| material[:stock_deviation_percentile] >= -33}
-    slim :materials_list, layout: :layout_backend, locals: {title: "Reporte de materiales por comprar (no terminado)", sec_nav: :nav_administration,
+    slim :materials_list, layout: :layout_backend, locals: {title: "Reporte de materiales por comprar", sec_nav: :nav_administration,
       can_edit: false,
       persistent_headers: true,
       click_to_filter: true,
