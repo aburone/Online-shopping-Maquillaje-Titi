@@ -2,14 +2,6 @@
 
 class LineBulkTest < Test::Unit::TestCase
 
-  # def test_should_get_all
-  #   pp Line_bulk.all
-  # end
-
-  # def test_should_get_random_bulk
-  #   assert_equal Bulk.new.get_rand.class, Bulk 
-  # end
-
   def test_only_inter_warehouse_orders_can_have_bulks
     DB.transaction(rollback: :always) do
       order = Order.new.create_packaging
@@ -24,7 +16,8 @@ class LineBulkTest < Test::Unit::TestCase
       order = Order.new.create_new Order::WH_TO_WH
       bulk = Bulk.new.create 5, 1, Location::SYS
       bulk = Bulk.new.get_for_transport bulk.b_id, order.o_id
-      assert bulk.errors.empty?
+      assert bulk.errors.empty?, "The bulk has errors: #{bulk.errors.to_a.flatten.join(": ")}"
+      assert order.errors.empty?, "The order has errors: #{order.errors.to_a.flatten.join(": ")}"
       pre = order.bulks.count
       order.add_bulk bulk
       assert_equal pre+1, order.bulks.count

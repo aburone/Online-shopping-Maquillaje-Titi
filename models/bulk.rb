@@ -180,6 +180,8 @@ class Bulk < Sequel::Model
       last_b_id = DB.fetch( "SELECT @last_b_id" ).first[:@last_b_id]
       message = R18n.t.bulk.created
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, b_id: last_b_id, m_id: m_id).save
+      bulk[:b_id] = last_b_id
+      bulk
     end
   end
 

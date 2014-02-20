@@ -63,8 +63,8 @@ module Sinatra
         if user && location && user.level >= location[:level]
           set_user user, location
           flash[:notice]  = t.auth.loggedin(user.username)
-          if (request.env["REQUEST_PATH"].nil? or request.env["HTTP_HOST"].nil? or request.referer.nil?) and not request.referer.inclue?(request.env["HTTP_HOST"])
-        redirect to(Thread.current.thread_variable_get(:root_path))
+          if (request.env["REQUEST_PATH"].nil? or request.env["HTTP_HOST"].nil? or request.referer.nil?) and not request.referer.nil? and not request.referer.inclue?(request.env["HTTP_HOST"])
+            redirect to(Thread.current.thread_variable_get(:root_path))
           else
             redirect to(request.referer)
           end

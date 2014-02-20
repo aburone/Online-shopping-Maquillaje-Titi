@@ -18,6 +18,7 @@ class Backend < AppController
   end
   get '/materials/:id' do
     @material = Material.new.get_by_id params[:id].to_i, current_location[:name]
+    redirect_if_nil_material @material, params[:id].to_i, "/materials"
     @material.calculate_ideal_stock
     @materials_categories = MaterialsCategory.all
     @bulks = @material.bulks current_location[:name]
