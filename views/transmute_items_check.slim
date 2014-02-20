@@ -1,0 +1,25 @@
+-# coding: UTF-8
+- @title = t.transmute_items.title
+- if @item.empty?
+  form action=url("/inventory/transmute_items") method="post"
+    == Rack::Csrf.tag(env)
+    
+
+    label for="i_id" = t.order.scan_label
+    br
+    input.aligned autofocus="autofocus" required="required" type="text" name="i_id" id="i_id" value="" placeholder="#{t.label.read_placeholder}"
+    br
+    br
+    input.aligned type="submit" value="#{t.actions.verify}"
+
+- unless @item.empty?
+  h2 Producto actualmente asociado
+  == slim :product_details, locals: {product: @product}
+
+
+  h2 Producto hacia el cual cambiar la asociacion
+  
+/ Initial product selection
+- unless @products.empty?
+  section#prod_list_selector
+    == slim :products_list, locals: {focus: true, full_rows: false, can_edit: true, edit_link: "transmutation_select_product", order: @order}

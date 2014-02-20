@@ -49,7 +49,6 @@ class Item < Sequel::Model
       order.change_status Order::FINISHED
       raise SecurityError, e.message
     end
-
     origin = @values[:i_loc].dup
     @values[:i_loc] = Location::VOID
     @values[:i_status] = Item::VOID
@@ -65,8 +64,35 @@ class Item < Sequel::Model
     message
   end
 
+  def check_product_for_transmutation p_id
+    p_id = p_id.to_i
+    product = Product[p_id]
+    raise ArgumentError, R18n.t.product.missing(p_id) if product.nil?
+    raise ArgumentError, R18n.t.product.errors.archived if product.archived
+    product
+  end
 
+  def transmute! reason, p_id
+    raise SecurityError if @values[:i_status] != Item::READY
+    reason = check_reason reason
+    product = check_product_for_transmutation p_id
+    original = self.dup
 
+    order = Order.new.create_transmutation User.new.current_location[:name]
+    order.add_item self
+    @values[:p_id] = product.p_id
+    @values[:p_name] = product.p_name
+    @values[:i_price] = product.price
+    @values[:i_price_pro] = product.price_pro
+    save
+
+    message = "Item Transmutado: #{original.p_name} -> #{@values[:p_name]}. Razon: #{reason}" 
+    log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: @values[:i_loc], lvl: ActionsLog::WARN, o_id: order.o_id, i_id: @values[:i_id], p_id: @values[:p_id])
+    log.save
+    order.change_status Order::FINISHED
+
+    self
+  end
 
 
   def empty?
@@ -157,6 +183,14 @@ class Item < Sequel::Model
   def has_been_void 
     if @values[:i_status] == Item::VOID
       errors.add("Item anulado", "Este item fue Invalidado. No podes operar sobre el.") 
+      return true
+    end
+    return false
+  end
+
+  def is_not_ready
+    if @values[:i_status] != Item::READY
+      errors.add("Item no listo", "Este item esta en un estado #{ConstantsTranslator.new(@values[:i_status]).t}. No podes operar sobre el.") 
       return true
     end
     return false
@@ -369,6 +403,19 @@ class Item < Sequel::Model
     return self if is_from_another_location
     return self if has_been_sold # TODO: anulacion de venta
     return self if is_on_some_order o_id
+    errors.add("Error inesperado", "Que hacemos?") 
+    return self
+  end
+
+  def get_for_transmutation i_id
+    i_id = i_id.to_s.strip
+    item = Item.filter(i_status: Item::READY, i_id: i_id).first
+    return item unless item.nil?
+    return self if missing(i_id)
+    update_from Item[i_id]
+    return self if has_been_void 
+    return self if has_been_sold # TODO: anulacion de venta
+    return self if is_not_ready
     errors.add("Error inesperado", "Que hacemos?") 
     return self
   end

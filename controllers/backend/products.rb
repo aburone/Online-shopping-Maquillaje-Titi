@@ -56,6 +56,64 @@ class Backend < AppController
     end
   end
 
+
+  def transmute_items
+    begin
+    rescue SecurityError => e
+      flash[:error] = e.message
+      redirect to('/inventory/transmute_items')
+    rescue => e
+      flash[:error] = e.message
+      redirect to('/inventory/transmute_items')
+    end
+    redirect to('/inventory/transmute_items')
+  end
+
+
+  def set_locals_for_transmutation
+    if params[:i_id]
+      @item = Item.new.get_for_transmutation params[:i_id]
+      flash[:error] = @item.errors unless @item.errors.empty?
+      redirect to('/inventory/transmute_items') unless @item.errors.empty?
+      @product = Product[@item.p_id]
+      @products = Product.new.get_list.order(:c_name, :p_name).all
+    end
+    @item ||= Item.new
+    @product ||= Product.new
+    @products ||= []
+    {item: @item, product: @product, products: @products}
+  end
+
+  route :get, :post, '/inventory/transmute_items' do
+    locals = set_locals_for_transmutation
+    @item = locals[:item]
+    @product = locals[:product]
+    @products = locals[:products]
+    slim :transmute_items_check, layout: :layout_backend, locals: {sec_nav: :nav_administration} 
+  end
+
+  route :get, '/inventory/transmute_items/:i_id/:p_id' do
+    locals = set_locals_for_transmutation
+    @item = locals[:item]
+    @product = locals[:product]
+    @new_product = Product[params[:p_id].to_i]
+    slim :transmute_items, layout: :layout_backend, locals: {sec_nav: :nav_administration} 
+  end
+
+  route :post, '/inventory/transmute_items/:i_id/:p_id' do
+    item = Item[params[:i_id].to_s]
+    begin
+      item.transmute! params[:reason].to_s, params[:p_id].to_i
+      flash[:notice] = "Item Transmutado a #{item.p_name}}"
+    rescue => detail
+      flash[:error] = detail.message
+    end
+    redirect to('/inventory/transmute_items')
+  end
+
+
+
+
   get '/products/items/?' do
     @items = Item.new.get_items_at_location current_location[:name]
     slim :items, layout: :layout_backend, locals: {can_edit: true, sec_nav: :nav_products}

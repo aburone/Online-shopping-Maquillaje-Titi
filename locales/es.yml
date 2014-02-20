@@ -16,11 +16,13 @@ actions:
   test: Probar
   confirm: Confirmar
   void: Invalidar
+  transmute: Transmutar
   actions: Acciónes
   filter: Filtrar
   click_to_toggle: Click para ver/ocultar detalles
   changed_status: Estado cambiado a %1
   scan_label: Escanee el ID
+  select_product: Seleccionar el producto
 errors:
   nil_params: "Los parametros dados son de un valor nulos"
   invalid_params: Los parametros dados son invalidos
@@ -94,6 +96,7 @@ nav:
     categories: "Categorías"
     items: Items disponibles
     void_items: Invalidacion de items
+    transmute_items: Transmutacion de items
     pendig_items: Items pendientes
     labels: Impresion de etiquetas
     credits: "Notas de Crédito"
@@ -243,6 +246,12 @@ void_items:
   write_reason: Escriba la razon de invalidacion
   reason_example: "ej: Mal etiquetado"
   sure?: Esto va a invalidar el item. La etiqueta no va a servir mas y el item va a eliminarse del stock
+transmute_items:
+  title: Transmutacion de items
+  write_reason: Escriba la razon de transmutacion
+  reason_example: "ej: Mal etiquetado"
+  sure?: Esto va a convertir el item.
+  title_transmuted: Item transmutado
 cart:
   fields:
     id: ID
@@ -273,6 +282,8 @@ product:
   part_added: "Agregado %1 x %2"
   part_updated: "Actualizado %1 x %2"
   part_removed: "Borrado %1"
+  errors:
+    archived: Este producto esta archivado, no podes usarlo
   fields:
     id: ID
     category: Categoría
@@ -386,6 +397,7 @@ constant:
   PACKAGING: Envasado
   INVENTORY: Carga inicial de inventario
   INVALIDATION: Invalidacion de items
+  TRANSMUTATION: Transmutacion de items
   IN_USE: En Uso
   EMPTY: Vacio
   NEW: Nuevo

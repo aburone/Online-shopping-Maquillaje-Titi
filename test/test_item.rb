@@ -204,4 +204,38 @@ class ItemTest < Test::Unit::TestCase
     items = Item.filter(i_id: i_ids).all
     assert Item.new.check_io i_ids, items
   end
+
+  def test_transmute_item_should_not_allow_empty_reason
+    item = Item.new.get_rand
+    assert_raise ArgumentError do
+      item.transmute!("", 5) # empty reason
+    end
+  end
+
+  def test_transmute_item_should_not_allow_invalid_product
+    item = Item.new.get_rand
+    p_id = 6464564
+    err = assert_raise ArgumentError do item.transmute!("Setting invalid product", p_id) end
+    assert_equal R18n.t.product.missing(p_id).to_s, err.to_s
+  end
+
+  def test_transmute_item_should_not_allow_archived_product
+    item = Item.new.get_rand
+    p_id = 23
+    err = assert_raises ArgumentError do item.transmute!("Setting archived product", p_id) end
+    assert_equal R18n.t.product.errors.archived.to_s, err.to_s
+  end
+
+  def test_should_transmute_item
+    # DB.transaction(rollback: :always) do
+      item = Item.new.get_rand
+      product = Product.new.get_rand
+      item.transmute!("test_should_transmute_item", product.p_id) 
+      assert_equal product.p_id, item.p_id
+      assert_equal product.p_name, item.p_name
+      assert_equal product.price, item.i_price
+      assert_equal product.price_pro, item.i_price_pro
+    # end
+  end
+
 end

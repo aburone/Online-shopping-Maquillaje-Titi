@@ -11,7 +11,8 @@ class Order < Sequel::Model
   WH_TO_WH="WH_TO_WH"
   SALE="SALE"
   INVALIDATION="INVALIDATION"
-  TYPES = [PACKAGING, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION]
+  TRANSMUTATION="TRANSMUTATION"
+  TYPES = [PACKAGING, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION, TRANSMUTATION]
 
   OPEN="OPEN"
   MUST_VERIFY="MUST_VERIFY"
@@ -235,6 +236,15 @@ class Order < Sequel::Model
     u = User.new
     current_user_id = u.current_user_id
     order = Order.create(type: Order::INVALIDATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID) 
+    message = R18n.t.order.created(order.type)
+    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save 
+    order
+  end
+
+  def create_transmutation origin
+    u = User.new
+    current_user_id = u.current_user_id
+    order = Order.create(type: Order::TRANSMUTATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID) 
     message = R18n.t.order.created(order.type)
     ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save 
     order

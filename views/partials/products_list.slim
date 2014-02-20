@@ -55,7 +55,7 @@
         - if to_move_col
           th.sm_cell Enviar
         - if can_edit
-          th.sm_cell = t.actions.edit
+          th.sm_cell = t.actions.actions
     tfoot
       tr
         - colspan = 4
@@ -118,4 +118,7 @@
                   img src="/media/Icon-Edit.png" width="32" height="32"
               - if edit_link == "packaging_add"
                 a href="/admin/production/packaging/#{order.o_id}/#{product[:p_id]}"
+                  img src="/media/Icon-Edit.png" width="32" height="32"
+              - if edit_link == "transmutation_select_product"
+                a href="/admin/inventory/transmute_items/#{@item.i_id}/#{product[:p_id]}"
                   img src="/media/Icon-Edit.png" width="32" height="32"

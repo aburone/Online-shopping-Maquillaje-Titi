@@ -106,9 +106,9 @@ end
 
 class Product
   def get_rand
-    max_pos = Product.count(:p_id)
+    max_pos = Product.filter(archived: false).count(:p_id)
     rnd = rand(max_pos)
-    prod = Product.limit(5, rnd).first
+    prod = Product.filter(archived: false).limit(5, rnd).first
     p = Product.new.get prod.p_id
   end
 end
