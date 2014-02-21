@@ -52,7 +52,19 @@ $(document).ready(function () {
     window.location.href = $(this).find("a").attr("href");
   });
 
-  $(".flash.notice").parent().addClass('notice');
+
+  $(".flash.notice").parent().addClass('flash_notice');
+  $(".flash").hover(function() { $(this).addClass('bounceOutUp') });
+
+  setTimeout(function(){
+    $(".flash_notice").addClass('bounceOutUp');
+  },5000)
+
+  setTimeout(function(){
+    $(".flash_warning").addClass('bounceOutUp');
+  },10000)
+
+
 
   $('.edit_bulk').click(function(e) {
     e.preventDefault();

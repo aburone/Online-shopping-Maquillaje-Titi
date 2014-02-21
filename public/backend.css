@@ -492,14 +492,12 @@ table.tablesorter th {
 .flash_notice {
   background-color: #a6f1a6;
   color: DarkGreen;
-  border: 3px solid DarkGreen;
-  animation: slow_hide 5s forwards 3s ease; }
+  border: 3px solid darkgreen; }
 
 .flash_warning {
   background-color: LightYellow;
   color: #989244;
-  border: 3px solid #989244;
-  animation: slow_hide 9s forwards 3s ease; }
+  border: 3px solid #989244; }
 
 .flash_error {
   background-color: #ffdae0;
@@ -513,12 +511,89 @@ table.tablesorter th {
 .flash dd:before {
   content: "⚫ "; }
 
-@keyframes slow_hide {
-  from {
-    opacity: 1; }
+.bounceInDown {
+  -webkit-animation: 1.5s bounceInDown alternate ease-in-out;
+  -ms-animation: 1.5s bounceInDown alternate ease-in-out;
+  animation: 1.5s bounceInDown alternate ease-in-out; }
 
-  to {
-    opacity: 0; } }
+@-webkit-keyframes bounceInDown {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateY(-200px); }
+
+  60% {
+    opacity: 1;
+    -webkit-transform: translateY(30px); }
+
+  80% {
+    -webkit-transform: translateY(-10px); }
+
+  100% {
+    -webkit-transform: translateY(0); } }
+
+@keyframes bounceInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-200px); }
+
+  60% {
+    opacity: 1;
+    transform: translateY(30px); }
+
+  80% {
+    transform: translateY(-10px); }
+
+  100% {
+    transform: translateY(0); } }
+
+.bounceOutUp {
+  -webkit-animation: 1.5s bounceOutUp forwards ease-in-out;
+  -ms-animation: 1.5s bounceOutUp forwards ease-in-out;
+  animation: 1.5s bounceOutUp forwards ease-in-out; }
+
+@-webkit-keyframes bounceOutUp {
+  0% {
+    -webkit-transform: translateY(0); }
+
+  20% {
+    opacity: 1;
+    -webkit-transform: translateY(20px); }
+
+  100% {
+    opacity: 0;
+    -webkit-transform: translateY(-2000px); } }
+
+@keyframes bounceOutUp {
+  0% {
+    transform: translateY(0); }
+
+  20% {
+    opacity: 1;
+    transform: translateY(20px); }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-2000px); } }
+
+.no_delay {
+  -webkit-animation-delay: 0;
+  -ms-animation-delay: 0;
+  animation-delay: 0; }
+
+.delay_2 {
+  -webkit-animation-delay: 2s;
+  -ms-animation-delay: 2s;
+  animation-delay: 2s; }
+
+.delay_5 {
+  -webkit-animation-delay: 5s;
+  -ms-animation-delay: 5s;
+  animation-delay: 5s; }
+
+.delay_10 {
+  -webkit-animation-delay: 20s;
+  -ms-animation-delay: 20s;
+  animation-delay: 10s; }
 
 .visually_hidden {
   visibility: hidden;
