@@ -11,11 +11,17 @@ class Product < Sequel::Model
 
 
   ATTIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :img, :img_extra]
-
   # same as ATTIBUTES but with the neccesary table references for get_ functions
   COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :products__img, :img_extra]
-
   EXCLUDED_ATTIBUTES_IN_DUPLICATION = [:p_id, :on_request, :end_of_life, :archived, :published, :product_img, :img_extra, :sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation]
+
+  STORE_ONLY_1="STORE_ONLY_1"
+  STORE_ONLY_2="STORE_ONLY_2"
+  STORE_ONLY_3="STORE_ONLY_3"
+  ALL_LOCATIONS_1="ALL_LOCATIONS_1"
+  ALL_LOCATIONS_2="ALL_LOCATIONS_2"
+  ALL_LOCATIONS_3="ALL_LOCATIONS_3"
+  DEVIATION_CALCULATION_MODES = [STORE_ONLY_1, STORE_ONLY_2, STORE_ONLY_3, ALL_LOCATIONS_1, ALL_LOCATIONS_2, ALL_LOCATIONS_3]
 
   def parts
     # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
@@ -280,12 +286,33 @@ class Product < Sequel::Model
     update_stock_deviation
   end
 
-  def update_stock_deviation
-    ideal = @values[:ideal_stock] * 2
-    actual = @values[:stock_warehouse_1] + @values[:stock_warehouse_2] + @values[:stock_store_1]
-    @values[:stock_deviation] = ideal - actual
-    @values[:stock_deviation] *= -1
-    @values[:stock_deviation_percentile] = @values[:stock_deviation] * 100 / (@values[:ideal_stock]*2)
+
+  def update_stock_deviation mode = ALL_LOCATIONS_3
+    case mode
+      when STORE_ONLY_1
+        locations_reach = 1
+        months = 1
+      when STORE_ONLY_2
+        locations_reach = 1
+        months = 2
+      when STORE_ONLY_3
+        locations_reach = 1
+        months = 3
+      when ALL_LOCATIONS_1
+        locations_reach = 2
+        months = 1
+      when ALL_LOCATIONS_2
+        locations_reach = 2
+        months = 2
+      when ALL_LOCATIONS_3
+        locations_reach = 2
+        months = 3
+    end
+    ideal_stock = BigDecimal.new(@values[:ideal_stock]) / 3 * months * locations_reach
+    actual_stock = locations_reach == 1 ? @values[:stock_store_1] : @values[:stock_warehouse_1] + @values[:stock_warehouse_2] + @values[:stock_store_1]
+    @values[:ideal_stock_calculated] =  ideal_stock
+    @values[:stock_deviation] = (ideal_stock - actual_stock) * -1
+    @values[:stock_deviation_percentile] = @values[:stock_deviation] * 100 / (@values[:ideal_stock] * locations_reach)
     @values[:stock_deviation_percentile] = BigDecimal.new(0) if @values[:stock_deviation_percentile].nan?
   end
 

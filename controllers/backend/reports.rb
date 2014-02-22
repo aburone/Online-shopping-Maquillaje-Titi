@@ -47,9 +47,28 @@ class Backend < AppController
     }
   end
 
-  get '/reports/stocks' do
+  get '/reports/to_package' do
     list = Product.new.get_list.where(tercerized: false).order(:categories__c_name, :products__p_name) 
     @products = Product.new.get_saleable_at_all_locations list
+    @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
+    @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
+    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
+      can_edit: false,
+      full_row: true,
+      price_pro_col: false,
+      stock_col: false,
+      multi_stock_col: true,
+      stock_deviation_col: true,
+      persistent_headers: true,
+      click_to_filter: true,
+      caption: "Click en la categoria o marca y despues tocar espacio para filtrar"
+    }
+  end
+
+  get '/reports/to_package/:mode' do
+    list = Product.new.get_list.where(tercerized: false).order(:categories__c_name, :products__p_name) 
+    @products = Product.new.get_saleable_at_all_locations list
+    @products.map { |product| product.update_stock_deviation params[:mode].upcase}
     @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
     @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
