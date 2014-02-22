@@ -72,6 +72,7 @@ class Backend < AppController
     stock_location_name = "stock_#{current_location[:name].downcase}".to_sym
     @products = []
     products.map do |product| 
+      product.update_stock_deviation Product::STORE_ONLY_3
       product[:to_move] = 0
       product[:to_move] = product[:ideal_stock] - product[:stock_store_1] unless product[:stock_store_1] > product[:ideal_stock]
       product[:to_move] = product[stock_location_name] if product[:to_move] >= product[stock_location_name]
