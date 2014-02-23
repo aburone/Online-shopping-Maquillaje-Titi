@@ -76,9 +76,9 @@ class Backend < AppController
       product[:to_move] = 0
       product[:to_move] = product[:ideal_stock] - product[:stock_store_1] unless product[:stock_store_1] > product[:ideal_stock]
       product[:to_move] = product[stock_location_name] if product[:to_move] >= product[stock_location_name]
-      @products << product unless product[:to_move] == 0
+      @products << product unless product[:to_move] == 0 or product[:stock_deviation_percentile] > -33
     end
-    @products.sort_by! { |product| -product[:to_move] }
+    @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
 
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por enviar desde #{current_location[:translation]} hacia Local 1", sec_nav: :nav_production,
       can_edit: false,
@@ -86,6 +86,7 @@ class Backend < AppController
       price_pro_col: false,
       persistent_headers: true,
       multi_stock_col: true,
+      stock_deviation_col: true,
       to_move_col: true,
       click_to_filter: true,
       caption: "Click en la categoria o marca y despues tocar espacio para filtrar"
