@@ -2,7 +2,6 @@ class Backend < AppController
 
   get '/reports/markups' do
     @products = Product.new.get_list.order(:categories__c_name, :products__p_name).all
-    # @products.delete_if { |product| product[:markup_deviation_percentile].between? -10, 10 }
     @products.sort_by! { |product| product[:markup_deviation_percentile] }
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
@@ -81,6 +80,7 @@ class Backend < AppController
         product[:stock_deviation] = product.inventory.global.v_deviation
         product[:stock_deviation_percentile] = product.inventory.global.v_deviation_percentile
       end
+
     end
     if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
       @products.sort_by! { |product| [ product.inventory.store_1.v_deviation_percentile, product.inventory.global.v_deviation ] }
@@ -116,17 +116,6 @@ class Backend < AppController
       stock_in_current_location = eval("product.inventory.#{current_location[:name].downcase}.stock")
       product[:to_move] = stock_in_current_location if product[:to_move] > stock_in_current_location
       @products << product unless product[:to_move] == 0
-
-      if product.p_id == 194
-        pp product.inventory 
-        p Utils::number_format product.inventory.store_1.stock, 2
-        p Utils::number_format product.inventory.store_1.en_route, 2
-        p Utils::number_format product.inventory.store_1.virtual, 2
-        p Utils::number_format product.inventory.store_1.v_deviation, 2
-        p Utils::number_format product[:stock_deviation_percentile], 2
-        p Utils::number_format stock_in_current_location, 2
-        p Utils::number_format product[:to_move], 2
-      end
 
     end
     @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
