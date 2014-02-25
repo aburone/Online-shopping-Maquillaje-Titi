@@ -318,7 +318,7 @@ class Product < Sequel::Model
     warehouses = OpenStruct.new
     warehouses.stock = warehouse_1.stock + warehouse_2.stock
     warehouses.virtual =  warehouse_1.virtual + warehouse_2.virtual
-    warehouses.ideal = store_1.ideal * 2 # the sum of the warehouses stock must be double the stock of the store
+    warehouses.ideal = store_1.ideal # the sum of the warehouses stock must be double the stock of the store
     warehouses.deviation = warehouses.stock - warehouses.ideal
     warehouses.deviation_percentile = warehouses.stock * 100 / warehouses.ideal
     warehouses.deviation_percentile = BigDecimal.new(0) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil? 
