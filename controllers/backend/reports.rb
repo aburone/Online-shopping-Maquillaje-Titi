@@ -2,7 +2,7 @@ class Backend < AppController
 
   get '/reports/markups' do
     @products = Product.new.get_list.order(:categories__c_name, :products__p_name).all
-    @products.delete_if { |product| product[:markup_deviation_percentile].between? -10, 10 }
+    # @products.delete_if { |product| product[:markup_deviation_percentile].between? -10, 10 }
     @products.sort_by! { |product| product[:markup_deviation_percentile] }
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
@@ -10,6 +10,7 @@ class Backend < AppController
       price_pro_col: false,
       stock_col: false,
       real_markup_col: true,
+      ideal_markup_col: true,
       markup_deviation_percentile_col: true,
       persistent_headers: true
     }
@@ -18,14 +19,21 @@ class Backend < AppController
   get '/reports/products_to_buy' do
     list = Product.new.get_list.where(tercerized: true).order(:categories__c_name, :products__p_name).all
     @products = Product.new.get_saleable_at_all_locations list
-    @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
-    @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
+    @products.map do |product|
+      product[:virtual_stock_store_1] = product.inventory.store_1.virtual
+      product[:ideal_stock_calculated] = product.inventory.global.ideal
+      product[:stock_deviation] = product.inventory.global.v_deviation
+      product[:stock_deviation_percentile] = product.inventory.global.v_deviation_percentile
+    end
+    @products.sort_by! { |product| [ product.inventory.global.v_deviation_percentile, product.inventory.global.v_deviation ] }
+    @products.delete_if { |product| product.inventory.global.v_deviation_percentile >= -33}
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por comprar", sec_nav: :nav_administration,
       full_row: true,
       price_pro_col: false,
       stock_col: false,
       persistent_headers: true,
       multi_stock_col: true,
+      use_virtual_stocks: true,
       stock_deviation_col: true,
       click_to_filter: true,
       caption: "Click en la categoria o marca y despues tocar espacio para filtrar"
@@ -50,15 +58,44 @@ class Backend < AppController
   get '/reports/to_package/:mode' do
     list = Product.new.get_list.where(tercerized: false).order(:categories__c_name, :products__p_name) 
     @products = Product.new.get_saleable_at_all_locations list
-    @products.map { |product| product.update_stock_deviation params[:mode].upcase}
-    @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
-    @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
+    @products.map do |product|
+
+      case params[:mode].upcase
+        when Product::STORE_ONLY_1, Product::ALL_LOCATIONS_1
+          months = 1
+        when Product::STORE_ONLY_2, Product::ALL_LOCATIONS_2
+          months = 2
+        when Product::STORE_ONLY_3, Product::ALL_LOCATIONS_3
+          months = 3
+      end
+      product.inventory months
+
+      if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
+        product[:virtual_stock_store_1] = product.inventory.store_1.virtual
+        product[:ideal_stock_calculated] = product.inventory.store_1.ideal
+        product[:stock_deviation] = product.inventory.store_1.v_deviation
+        product[:stock_deviation_percentile] = product.inventory.store_1.v_deviation_percentile
+      else
+        product[:virtual_stock_store_1] = product.inventory.store_1.virtual
+        product[:ideal_stock_calculated] = product.inventory.global.ideal
+        product[:stock_deviation] = product.inventory.global.v_deviation
+        product[:stock_deviation_percentile] = product.inventory.global.v_deviation_percentile
+      end
+    end
+    if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
+      @products.sort_by! { |product| [ product.inventory.store_1.v_deviation_percentile, product.inventory.global.v_deviation ] }
+      @products.delete_if { |product| product.inventory.store_1.v_deviation_percentile >= -33}
+    else
+      @products.sort_by! { |product| [ product.inventory.global.v_deviation_percentile, product.inventory.global.v_deviation ] }
+      @products.delete_if { |product| product.inventory.global.v_deviation_percentile >= -33}
+    end
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
       can_edit: false,
       full_row: true,
       price_pro_col: false,
       stock_col: false,
       multi_stock_col: true,
+      use_virtual_stocks: true,
       stock_deviation_col: true,
       persistent_headers: true,
       click_to_filter: true,
@@ -69,23 +106,38 @@ class Backend < AppController
   get '/reports/to_move' do
     list = Product.new.get_list.order(:categories__c_name, :products__p_name) 
     products = Product.new.get_saleable_at_all_locations(list)
-    stock_location_name = "stock_#{current_location[:name].downcase}".to_sym
     @products = []
-    products.map do |product| 
-      product.update_stock_deviation Product::STORE_ONLY_3
-      product[:to_move] = 0
-      product[:to_move] = product[:ideal_stock] - product[:stock_store_1] unless product[:stock_store_1] > product[:ideal_stock]
-      product[:to_move] = product[stock_location_name] if product[:to_move] >= product[stock_location_name]
-      @products << product unless product[:to_move] == 0 or product[:stock_deviation_percentile] > -33
+    products.map do |product|
+      product[:stock_deviation] = product.inventory.store_1.v_deviation
+      product[:stock_deviation_percentile] = product.inventory.store_1.v_deviation_percentile
+      product[:ideal_stock_calculated] = product.inventory.store_1.ideal
+      product[:to_move] = BigDecimal.new(0)
+      product[:to_move] = product.inventory.store_1.v_deviation * -1 unless product.inventory.store_1.virtual >= product.inventory.store_1.ideal
+      stock_in_current_location = eval("product.inventory.#{current_location[:name].downcase}.stock")
+      product[:to_move] = stock_in_current_location if product[:to_move] > stock_in_current_location
+      @products << product unless product[:to_move] == 0
+
+      if product.p_id == 194
+        pp product.inventory 
+        p Utils::number_format product.inventory.store_1.stock, 2
+        p Utils::number_format product.inventory.store_1.en_route, 2
+        p Utils::number_format product.inventory.store_1.virtual, 2
+        p Utils::number_format product.inventory.store_1.v_deviation, 2
+        p Utils::number_format product[:stock_deviation_percentile], 2
+        p Utils::number_format stock_in_current_location, 2
+        p Utils::number_format product[:to_move], 2
+      end
+
     end
     @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
-
+    @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por enviar desde #{current_location[:translation]} hacia Local 1", sec_nav: :nav_production,
       can_edit: false,
-      full_row: true,
+      full_row: false,
       price_pro_col: false,
       persistent_headers: true,
       multi_stock_col: true,
+      use_virtual_stocks: true,
       stock_deviation_col: true,
       to_move_col: true,
       click_to_filter: true,

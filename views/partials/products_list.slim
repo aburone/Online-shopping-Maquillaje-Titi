@@ -1,14 +1,18 @@
 - focus = true if focus.nil?
 - focus_text = focus ? "focus" : "no_focus"
 - full_row = true if full_row.nil?
+- price_col = true if price_col.nil?
 - price_pro_col = true if price_pro_col.nil?
 
 - stock_col = false if stock_col.nil? unless stock_col == true
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
 - stock_col = multi_stock_col ? false : stock_col
+- use_virtual_stocks = false if use_virtual_stocks.nil? unless use_virtual_stocks == true
 
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
 - real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
+- ideal_markup_col = false if ideal_markup_col.nil? unless ideal_markup_col == true
+
 - markup_deviation_percentile_col = false if markup_deviation_percentile_col.nil? unless markup_deviation_percentile_col == true
 - to_move_col = false if to_move_col.nil? unless to_move_col == true
 - can_edit = true if can_edit.nil?
@@ -37,6 +41,8 @@
           th.smm_cell = t.product.fields.price
         - if full_row and price_pro_col
           th.smm_cell = t.product.fields.price_pro
+        - if ideal_markup_col
+          th.sm_cell = t.product.fields.ideal_markup
         - if real_markup_col
           th.sm_cell = t.product.fields.real_markup
         - if markup_deviation_percentile_col
@@ -46,7 +52,10 @@
         - if multi_stock_col
           th.sm_cell = t.locations.short.WAREHOUSE_1
           th.sm_cell = t.locations.short.WAREHOUSE_2
-          th.sm_cell = t.locations.short.STORE_1
+          - if !use_virtual_stocks
+            th.sm_cell = t.locations.short.STORE_1
+          - if use_virtual_stocks
+            th.sm_cell = t.locations.short.VIRTUAL_STORE_1
         - if stock_col or multi_stock_col
           th.sm_cell Ideal
         - if stock_deviation_col
@@ -75,6 +84,8 @@
             td.smm_cell.number #{Utils::money_format product[:price], 2}
           - if full_row and price_pro_col
             td.smm_cell.number #{Utils::money_format product[:price_pro], 2}
+          - if ideal_markup_col
+            td.sm_cell.number #{Utils::number_format product[:ideal_markup], 2}
           - if real_markup_col
             td.sm_cell.number #{Utils::number_format product[:real_markup], 2}
           - if markup_deviation_percentile_col
@@ -90,7 +101,10 @@
           - if multi_stock_col
             td.sm_cell.number #{Utils::number_format product[:stock_warehouse_1], 0}
             td.sm_cell.number #{Utils::number_format product[:stock_warehouse_2], 0}
-            td.sm_cell.number #{Utils::number_format product[:stock_store_1], 0}
+            - if !use_virtual_stocks
+              td.sm_cell.number #{Utils::number_format product[:stock_store_1], 0}
+            - if use_virtual_stocks
+                td.sm_cell.number #{Utils::number_format product[:virtual_stock_store_1], 0}
           - if stock_col or multi_stock_col
             td.sm_cell.number #{Utils::number_format product[:ideal_stock_calculated], 0}
           - if stock_deviation_col

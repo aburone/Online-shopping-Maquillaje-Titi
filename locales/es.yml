@@ -425,6 +425,7 @@ locations:
     WAREHOUSE_1: Dep 1
     WAREHOUSE_2: Dep 2
     STORE_1: Loc 1
+    VIRTUAL_STORE_1: Loc 1 (v)
     STORE_2: Loc 2
 sales:
   title: Punto de venta

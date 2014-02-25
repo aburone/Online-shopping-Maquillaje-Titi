@@ -559,4 +559,6 @@ class ProductTest < Test::Unit::TestCase
     end
   end
 
+  def test_should_get_stock_store_1
+  end
 end

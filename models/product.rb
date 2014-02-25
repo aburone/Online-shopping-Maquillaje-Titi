@@ -15,13 +15,15 @@ class Product < Sequel::Model
   COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :products__img, :img_extra]
   EXCLUDED_ATTIBUTES_IN_DUPLICATION = [:p_id, :on_request, :end_of_life, :archived, :published, :product_img, :img_extra, :sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation]
 
-  STORE_ONLY_1="STORE_ONLY_1"
-  STORE_ONLY_2="STORE_ONLY_2"
-  STORE_ONLY_3="STORE_ONLY_3"
-  ALL_LOCATIONS_1="ALL_LOCATIONS_1"
-  ALL_LOCATIONS_2="ALL_LOCATIONS_2"
-  ALL_LOCATIONS_3="ALL_LOCATIONS_3"
+  STORE_ONLY_1 = "STORE_ONLY_1"
+  STORE_ONLY_2 = "STORE_ONLY_2"
+  STORE_ONLY_3 = "STORE_ONLY_3"
+  ALL_LOCATIONS_1 = "ALL_LOCATIONS_1"
+  ALL_LOCATIONS_2 = "ALL_LOCATIONS_2"
+  ALL_LOCATIONS_3 = "ALL_LOCATIONS_3"
   DEVIATION_CALCULATION_MODES = [STORE_ONLY_1, STORE_ONLY_2, STORE_ONLY_3, ALL_LOCATIONS_1, ALL_LOCATIONS_2, ALL_LOCATIONS_3]
+
+  @inventory = nil
 
   def parts
     # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
@@ -237,7 +239,8 @@ class Product < Sequel::Model
     out += "\tstock_warehouse_1:  #{Utils::number_format @values[:stock_warehouse_1], 0}\n"
     out += "\tstock_warehouse_2:  #{Utils::number_format @values[:stock_warehouse_2], 0}\n"
     out += "\tstock_store_1:      #{Utils::number_format @values[:stock_store_1], 0}\n"
-    out += "\tstock_store_2:      #{Utils::number_format @values[:stock_store_2], 0}\n"
+    out += "\ten_route_stock_store_1: #{Utils::number_format @values[:en_route_stock_store_1], 0}\n"
+    out += "\virtual_stock_store_1:      #{Utils::number_format @values[:virtual_stock_store_1], 0}\n"
     out += "\tbuy_cost:           #{Utils::number_format @values[:buy_cost], 2}\n"
     out += "\tparts_cost:         #{Utils::number_format @values[:parts_cost], 2}\n"
     out += "\tmaterials_cost:     #{Utils::number_format @values[:materials_cost], 2}\n"
@@ -265,55 +268,117 @@ class Product < Sequel::Model
   def update_stocks
     @values[:stock_store_1] = BigDecimal.new Product
       .select{count(i_id).as(stock_store_1)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: Location::S1)
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1)
       .where(products__p_id: @values[:p_id])
       .first[:stock_store_1]
-    @values[:stock_store_2] = BigDecimal.new Product
-      .select{count(i_id).as(stock_store_2)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: Location::S2)
+    @values[:en_route_stock_store_1] = BigDecimal.new Product
+      .select{count(i_id).as(en_route_stock_store_1)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1)
       .where(products__p_id: @values[:p_id])
-      .first[:stock_store_2]
+      .first[:en_route_stock_store_1]
+    @values[:virtual_stock_store_1] = @values[:en_route_stock_store_1] + @values[:stock_store_1]
     @values[:stock_warehouse_1] = BigDecimal.new Product
       .select{count(i_id).as(stock_warehouse_1)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: Location::W1)
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W1)
       .where(products__p_id: @values[:p_id])
       .first[:stock_warehouse_1]
     @values[:stock_warehouse_2] = BigDecimal.new Product
       .select{count(i_id).as(stock_warehouse_2)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: Location::W2)
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W2)
       .where(products__p_id: @values[:p_id])
       .first[:stock_warehouse_2]
-    update_stock_deviation
+    # update_stock_deviation
   end
 
+  def inventory for_months = 3
+    return @inventory unless @inventory.nil?
+    @inventory = OpenStruct.new
+    store_1 = OpenStruct.new
+    store_1.stock = BigDecimal.new @values[:stock_store_1]
+    store_1.en_route = BigDecimal.new @values[:en_route_stock_store_1]
+    store_1.virtual = store_1.stock + store_1.en_route
+    store_1.ideal = BigDecimal.new(@values[:ideal_stock], 2) / 3 * for_months # stored ideal stock are for 3 months
+    store_1.deviation = store_1.stock - store_1.ideal
+    store_1.deviation_percentile = store_1.deviation * 100 / store_1.ideal
+    store_1.deviation_percentile = BigDecimal.new(0) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
+    store_1.v_deviation = store_1.virtual - store_1.ideal
+    store_1.v_deviation_percentile = store_1.v_deviation * 100 / store_1.ideal
+    store_1.v_deviation_percentile = BigDecimal.new(0) if store_1.v_deviation_percentile.nan? or store_1.v_deviation_percentile.infinite? or store_1.v_deviation_percentile.nil? 
+
+    warehouse_1 = OpenStruct.new
+    warehouse_1.stock = BigDecimal.new @values[:stock_warehouse_1]
+    warehouse_1.en_route = 0
+    warehouse_1.virtual = warehouse_1.stock + warehouse_1.en_route
+
+    warehouse_2 = OpenStruct.new
+    warehouse_2.stock = BigDecimal.new @values[:stock_warehouse_2]
+    warehouse_2.en_route = 0
+    warehouse_2.virtual = warehouse_2.stock + warehouse_2.en_route
+
+    warehouses = OpenStruct.new
+    warehouses.stock = warehouse_1.stock + warehouse_2.stock
+    warehouses.virtual =  warehouse_1.virtual + warehouse_2.virtual
+    warehouses.ideal = store_1.ideal * 2 # the sum of the warehouses stock must be double the stock of the store
+    warehouses.deviation = warehouses.stock - warehouses.ideal
+    warehouses.deviation_percentile = warehouses.stock * 100 / warehouses.ideal
+    warehouses.deviation_percentile = BigDecimal.new(0) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil? 
+    warehouses.v_deviation = warehouses.virtual - warehouses.ideal
+    warehouses.v_deviation_percentile = warehouses.v_deviation * 100 / warehouses.ideal
+    warehouses.v_deviation_percentile = BigDecimal.new(0) if warehouses.v_deviation_percentile.nan? or warehouses.v_deviation_percentile.infinite? or warehouses.v_deviation_percentile.nil? 
+
+    global = OpenStruct.new
+    global.stock = warehouses.stock + store_1.stock
+    global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
+    global.virtual = global.stock + global.en_route
+    global.ideal = store_1.ideal + warehouses.ideal
+    global.deviation = global.stock - global.ideal
+    global.deviation_percentile = global.stock * 100 / global.ideal
+    global.deviation_percentile = BigDecimal.new(0) if global.deviation_percentile.nan? or global.deviation_percentile.infinite? or global.deviation_percentile.nil? 
+    global.v_deviation = global.virtual - global.ideal
+    global.v_deviation_percentile = global.v_deviation * 100 / global.ideal
+    global.v_deviation_percentile = BigDecimal.new(0) if global.v_deviation_percentile.nan? or global.v_deviation_percentile.infinite? or global.v_deviation_percentile.nil? 
+
+    @inventory.store_1 = store_1
+    @inventory.warehouse_1 = warehouse_1
+    @inventory.warehouse_2 = warehouse_2
+    @inventory.warehouses = warehouses
+    @inventory.global = global
+    @inventory
+  end
 
   def update_stock_deviation mode = ALL_LOCATIONS_3
     case mode
-      when STORE_ONLY_1
-        locations_reach = 1
+      when "STORE_ONLY_1"
         months = 1
-      when STORE_ONLY_2
-        locations_reach = 1
+      when "STORE_ONLY_2"
         months = 2
-      when STORE_ONLY_3
-        locations_reach = 1
+      when "STORE_ONLY_3"
         months = 3
-      when ALL_LOCATIONS_1
-        locations_reach = 2
+      when "ALL_LOCATIONS_1"
         months = 1
-      when ALL_LOCATIONS_2
-        locations_reach = 2
+      when "ALL_LOCATIONS_2"
         months = 2
-      when ALL_LOCATIONS_3
-        locations_reach = 2
+      when "ALL_LOCATIONS_3"
         months = 3
     end
-    ideal_stock = BigDecimal.new(@values[:ideal_stock]) / 3 * months * locations_reach
-    actual_stock = locations_reach == 1 ? @values[:stock_store_1] : @values[:stock_warehouse_1] + @values[:stock_warehouse_2] + @values[:stock_store_1]
-    @values[:ideal_stock_calculated] =  ideal_stock
-    @values[:stock_deviation] = (ideal_stock - actual_stock) * -1
-    @values[:stock_deviation_percentile] = @values[:stock_deviation] * 100 / (@values[:ideal_stock] * locations_reach)
-    @values[:stock_deviation_percentile] = BigDecimal.new(0) if @values[:stock_deviation_percentile].nan?
+
+    # global
+    locations_reach = 2
+    global_ideal_stock = BigDecimal.new @values[:ideal_stock] / 3 * months * locations_reach, 0
+    global_virtual_stock = BigDecimal.new (@values[:stock_warehouse_1] + @values[:stock_warehouse_2] + @values[:virtual_stock_store_1]), 0
+    @values[:global_ideal_stock_calculated] =  global_ideal_stock
+    @values[:global_stock_deviation] = (global_virtual_stock - global_ideal_stock)
+    @values[:global_stock_deviation_percentile] = @values[:global_stock_deviation] * 100 / global_ideal_stock
+    @values[:global_stock_deviation_percentile] = BigDecimal.new(0) if @values[:global_stock_deviation_percentile].nan?
+
+    # store 1
+    store_1_ideal_stock = BigDecimal.new @values[:ideal_stock] / 3 * months, 0
+    store_1_virtual_stock = BigDecimal.new(@values[:virtual_stock_store_1], 0)
+    @values[:store_1_ideal_stock_calculated] =  store_1_ideal_stock
+    @values[:store_1_stock_deviation] = (store_1_virtual_stock - store_1_ideal_stock)
+    @values[:store_1_stock_deviation_percentile] = @values[:store_1_stock_deviation] * 100 / store_1_ideal_stock
+    @values[:store_1_stock_deviation_percentile] = BigDecimal.new(0) if @values[:store_1_stock_deviation_percentile].nan?
+
   end
 
   def stock_deviation_percentile
