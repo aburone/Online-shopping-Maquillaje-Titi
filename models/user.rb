@@ -17,16 +17,20 @@ class User < UserAuth
 
   def current_user_id
     current_user_id = Thread.current.thread_variable_get(:user_id) 
+    pp current_user_id
     current_user_id ||= 1 # system
   end
 
   def current_user_name
     current_username = Thread.current.thread_variable_get(:username) 
+    pp current_username
     current_username ||= "system"
   end
 
   def current_location
     current_location = Thread.current.thread_variable_get(:current_location)
+    pp current_location
+    pp current_location.class
     if current_location.nil?
       current_location = {name: "SYSTEM", translation: ConstantsTranslator.new("SYSTEM").t}
     end

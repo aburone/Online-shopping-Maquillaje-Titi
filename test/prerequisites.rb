@@ -1,6 +1,5 @@
 require 'test/unit'
 require 'rack/test'
-# require 'mocha/setup'
 require 'sequel'
 require 'pp'
 require 'sinatra'
