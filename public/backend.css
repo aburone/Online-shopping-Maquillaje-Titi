@@ -108,6 +108,13 @@ table.tablesorter th {
   color: black; }
 
 /* Tablesorter */
+/* jeditable */
+.ajax_click_to_edit {
+  display: block;
+  padding-bottom: 1em !important;
+  width: 100%; }
+
+/* jeditable */
 /* Gridforms */
 .grid-form *, .grid-form *:before, .grid-form *:after {
   -webkit-box-sizing: border-box;

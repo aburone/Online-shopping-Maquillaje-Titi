@@ -435,7 +435,7 @@ class Product < Sequel::Model
 
   def get_saleable_at_location location
     Product
-      .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :stock_deviation, :products__img, :products__c_id, :products__br_id)
+      .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :stock_deviation, :products__img, :products__c_id, :products__br_id, :sku)
       .where(archived: 0)
       .left_join(:categories, [:c_id])
       .left_join(:items, products__p_id: :items__p_id, i_status: "READY", i_loc: location.to_s)
@@ -444,7 +444,7 @@ class Product < Sequel::Model
       .select_append{:categories__c_name}
       .select_append{ Sequel.case( {{Sequel.lit('real_markup / ideal_markup') => nil} => 0}, Sequel.lit('(real_markup * 100 / ideal_markup) - 100') ).as(markup_deviation_percentile)}
       .select_append{count(i_id).as(qty)}
-      .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :stock_deviation, :products__img, :products__c_id, :categories__c_name, :products__br_id, :brands__br_name)
+      .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :ideal_stock, :stock_deviation, :products__img, :products__c_id, :categories__c_name, :products__br_id, :brands__br_name, :sku)
   end
 
   def get_saleable_at_all_locations products = nil

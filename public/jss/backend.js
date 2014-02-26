@@ -1,5 +1,12 @@
 $(document).ready(function () {
 
+  // click to edit
+  $('.ajax_click_to_edit_sku').editable('/admin/products/ajax_update', {
+      indicator:'Actualizando...', tooltip:'Click para editar...', width:230,
+      submitdata:{ 'function':"update_sku" }
+  });
+
+
   if( $(".quicksearch tbody tr").length > 0 ) {
     var qs = $(".quicksearch"), inputClass = qs.data('quicksearch')=="no_focus" ? "" : "autoselect", labelText = qs.data('label') ? qs.data('label') : "Set me with data-label";
 

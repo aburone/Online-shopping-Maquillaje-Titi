@@ -1,8 +1,29 @@
 class Backend < AppController
 
+  get '/products/sku' do
+    @products = Product.new.get_saleable_at_location(current_location[:name]).order(:c_name, :p_name).all
+    slim :products, layout: :layout_backend, locals: {full_row: false, sku_col: true, can_edit: true, edit_link: :edit_product}
+  end
+
+  post '/products/ajax_update' do
+    case params[:function]
+      when "update_sku"
+        sku = params[:value].to_s.squeeze(" ").strip
+        product = Product.new.get params[:id].to_i
+        product[:sku] = sku
+        begin
+          product.save
+          p sku
+        rescue Sequel::UniqueConstraintViolation
+          p "Error: ya existe un producto con ese sku"
+        end
+
+    end
+  end
+
   get '/products/categories' do
     @categories = Category.all
-    slim :categories, layout: :layout_backend, locals: {title: t.categories.title, sec_nav: :nav_products}
+    slim :categories, layout: :layout_backend, locals: {title: t.categories.title}
   end
 
   get '/products/categories/:id' do
@@ -103,7 +124,7 @@ class Backend < AppController
 
   get '/products/items/?' do
     @items = Item.new.get_items_at_location current_location[:name]
-    slim :items, layout: :layout_backend, locals: {can_edit: true, sec_nav: :nav_products}
+    slim :items, layout: :layout_backend, locals: {can_edit: true}
   end
 
   get '/products_relationships/?' do
@@ -118,7 +139,7 @@ class Backend < AppController
 
   get '/products/?' do
     @products = Product.new.get_saleable_at_location(current_location[:name]).order(:c_name, :p_name).all
-    slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product, sec_nav: :nav_products}
+    slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product}
   end
 
   post '/products/new/?' do

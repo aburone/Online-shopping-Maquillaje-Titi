@@ -1,18 +1,15 @@
 - focus = true if focus.nil?
 - focus_text = focus ? "focus" : "no_focus"
 - full_row = true if full_row.nil?
-- price_col = true if price_col.nil?
+- sku_col = false if sku_col.nil? unless sku_col == true
 - price_pro_col = true if price_pro_col.nil?
-
 - stock_col = false if stock_col.nil? unless stock_col == true
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
 - stock_col = multi_stock_col ? false : stock_col
 - use_virtual_stocks = false if use_virtual_stocks.nil? unless use_virtual_stocks == true
-
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
 - real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
 - ideal_markup_col = false if ideal_markup_col.nil? unless ideal_markup_col == true
-
 - markup_deviation_percentile_col = false if markup_deviation_percentile_col.nil? unless markup_deviation_percentile_col == true
 - to_move_col = false if to_move_col.nil? unless to_move_col == true
 - can_edit = true if can_edit.nil?
@@ -37,6 +34,8 @@
         th.md_cell = t.product.fields.category
         th.bg_cell = t.product.fields.name
         th.md_cell = t.product.fields.brand
+        - if sku_col
+          th.sm_cell = t.product.fields.sku
         - if full_row
           th.smm_cell = t.product.fields.price
         - if full_row and price_pro_col
@@ -80,6 +79,9 @@
           td.md_cell class="#{ajax_click_to_filter}" #{I18n.transliterate( product[:c_name] )}
           td.bg_cell #{I18n.transliterate( product[:p_name] )}
           td.md_cell class="#{ajax_click_to_filter}" #{product[:br_name]}
+          - if sku_col
+            td.bg_cell
+              span.ajax_click_to_edit.ajax_click_to_edit_sku title="Click para editar..." id="#{product.p_id}" #{product[:sku]}
           - if full_row
             td.smm_cell.number #{Utils::money_format product[:price], 2}
           - if full_row and price_pro_col

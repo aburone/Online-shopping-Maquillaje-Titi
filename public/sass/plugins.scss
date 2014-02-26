@@ -22,6 +22,11 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 table.tablesorter th {color:black}
 /* Tablesorter */
 
+/* jeditable */
+.ajax_click_to_edit { display:block;padding-bottom: 1em!important; width:100%}
+/* jeditable */
+
+
 /* Gridforms */
 .grid-form *, .grid-form *:before, .grid-form *:after { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
 .grid-form select { font-size: 18px; padding: 0; margin: 0; width: 100%; }
