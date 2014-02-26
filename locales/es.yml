@@ -96,6 +96,7 @@ nav:
     products_relationships: "Relaciones"
     categories: "Categorías"
     sku: Editar SKUs
+    mass_load: Carga masiva de costos
     items: Items disponibles
     void_items: Invalidacion de items
     transmute_items: Transmutacion de items

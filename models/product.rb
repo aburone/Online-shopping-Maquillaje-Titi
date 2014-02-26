@@ -25,6 +25,12 @@ class Product < Sequel::Model
 
   @inventory = nil
 
+  def sku= sku
+    sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
+    @values[:sku] = sku.empty? ? nil : sku
+    self
+  end
+
   def parts
     # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
     return [] unless self[:p_id].to_i > 0
@@ -129,15 +135,20 @@ class Product < Sequel::Model
   def save (opts=OPTS)
     opts = opts.merge({columns: Product::ATTIBUTES})
     @values[:end_of_life] = false if @values[:archived]
-    super opts
-    if @values[:p_name] 
-      message = "Actualizancion de precio de todos los items de #{@values[:p_name]}"
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
-      DB.run "UPDATE items
-      JOIN products using(p_id)
-      SET items.i_price = products.price, items.i_price_pro = products.price_pro, items.p_name = products.p_name
-      WHERE p_id = #{@values[:p_id]} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
+    begin
+      super opts
+      if @values[:p_name] 
+        message = "Actualizancion de precio de todos los items de #{@values[:p_name]}"
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
+        DB.run "UPDATE items
+        JOIN products using(p_id)
+        SET items.i_price = products.price, items.i_price_pro = products.price_pro, items.p_name = products.p_name
+        WHERE p_id = #{@values[:p_id]} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
+      end
+    rescue Sequel::UniqueConstraintViolation
+      errors.add "SKU duplicado", "Error: ya existe un producto con ese sku"
     end
+    self
   end
 
   def items
@@ -404,6 +415,13 @@ class Product < Sequel::Model
     self
   end
 
+  def get_by_sku sku
+    sku = sku.to_s.squeeze(" ").strip
+    product = Product.filter(sku: sku).first
+    return Product.new if product.nil?
+    product
+  end
+
   def get p_id
     return Product.new unless p_id.to_i > 0
     product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra)
@@ -516,7 +534,7 @@ class Product < Sequel::Model
     cast
 
     alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :description, :notes, :img, :img_extra ]
-    hash_values.select { |key, value| self[key.to_sym]=value.to_s if alpha_keys.include? key.to_sym unless value.nil?}
+    hash_values.select { |key, value| eval("self.#{key}=value.to_s") if alpha_keys.include? key.to_sym unless value.nil?}
 
     checkbox_keys = [:published_price, :published, :archived, :on_request, :end_of_life]
     checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }

@@ -1,5 +1,8 @@
 class Backend < AppController
 
+  route :get, :post, '/products/mass_load' do
+  end
+
   get '/products/sku' do
     @products = Product.new.get_saleable_at_location(current_location[:name]).order(:c_name, :p_name).all
     slim :products_list, layout: :layout_backend, locals: {full_row: false, sku_col: true, can_edit: true, edit_link: :edit_product, title: R18n.t.products.sku_editor.title, caption: R18n.t.products.sku_editor.caption}
@@ -8,7 +11,7 @@ class Backend < AppController
   post '/products/ajax_update' do
     case params[:function]
       when "update_sku"
-        sku = params[:value].to_s.squeeze(" ").strip
+        sku = params[:value]
         product = Product.new.get params[:id].to_i
         product[:sku] = sku
         begin
@@ -17,7 +20,6 @@ class Backend < AppController
         rescue Sequel::UniqueConstraintViolation
           p "Error: ya existe un producto con ese sku"
         end
-
     end
   end
 
@@ -161,11 +163,15 @@ class Backend < AppController
 
   put '/products/:id/?' do
     product = Product[params[:id].to_i].update_from_hash(params)
-    if product.valid?
+    if product.errors.count == 0  and product.valid?
       product.save()
-      product = Product.new.get product.p_id
-      product.save columns: Product::COLUMNS
-      flash[:notice] = R18n.t.product.updated
+      if product.errors.count == 0  and product.valid?
+        product = Product.new.get product.p_id
+        product.save columns: Product::COLUMNS
+        flash[:notice] = R18n.t.product.updated
+      else
+        flash[:error] = product.errors 
+      end
     else
       flash[:error] = product.errors 
     end

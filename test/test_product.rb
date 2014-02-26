@@ -559,6 +559,38 @@ class ProductTest < Test::Unit::TestCase
     end
   end
 
-  def test_should_get_stock_store_1
+  def test_should_get_product_by_sku
+    DB.transaction(rollback: :always) do
+      sku = rand
+      @valid.sku = sku
+      orig = @valid.save
+      product = Product.new.get_by_sku sku
+      assert_equal orig.p_id, product.p_id
+    end
   end
+
+  def test_should_get_an_empty_product_for_invalid_sku
+    DB.transaction(rollback: :always) do
+      sku = rand
+      product = Product.new.get_by_sku sku
+      assert product.empty?
+    end
+  end
+
+  def test_should_clean_given_sku
+    DB.transaction(rollback: :always) do
+      sku = "    a e i \n \r \t o     u    "
+      @valid.sku = sku
+      assert_equal "a e i o u", @valid.sku
+    end
+  end
+
+  def test_should_return_nil_if_empty_sku
+    DB.transaction(rollback: :always) do
+      sku = ""
+      @valid.sku = sku
+      assert_equal nil, @valid.sku
+    end
+  end
+
 end
