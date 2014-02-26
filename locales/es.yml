@@ -295,6 +295,7 @@ product:
     size: Tamaño
     color: Color
     sku: SKU
+    public_sku: SKU publico
     description: Descripción
     notes: Notas internas
     qty: "Cantidad"
@@ -305,6 +306,7 @@ product:
     stock_warehouse_2: "Stock deposito 2"
     stock_store_1: "Stock local 1"
     stock_store_2: "Stock local 2"
+    stock_deviation: "Desvio del stock ideal"
     cost: "Costo"
     buy_cost: "Costo de compra"
     parts_cost: "Partes"

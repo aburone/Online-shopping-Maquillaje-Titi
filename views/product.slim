@@ -38,8 +38,8 @@
           input type="text" name="color" size=10 maxlength=35 value="#{@product[:color]}"
 
         div data-field-span="1"
-          label for="sku" = t.product.fields.sku
-          input type="text" name="sku" size=5 maxlength=60 value="#{@product[:sku]}"
+          label for="public_sku" = t.product.fields.public_sku
+          input type="text" name="public_sku" size=5 maxlength=60 value="#{@product[:public_sku]}"
 
     fieldset
       legend Valores
@@ -77,12 +77,15 @@
           label for="price_pro" = t.product.fields.price_pro
           input.positive.number type="tel"  name="price_pro" size=5 maxlength=10 value="#{Utils::number_format @product[:price_pro], 2, 0}"
 
-      div data-row-span="1"
-        div data-field-span="1"
+      div data-row-span="3"
+        div data-field-span="2"
           label for="notes" = t.product.fields.notes
-          textarea name="notes" rows="1" cols="50" = @product[:notes]
+          textarea name="notes" rows="3" cols="50" = @product[:notes]
+        div data-field-span="1"
+          label for="sku" = t.product.fields.sku
+          input type="text" name="sku" size=5 maxlength=60 value="#{@product[:sku]}"
 
-      div data-row-span="5"
+      div data-row-span="6"
         div data-field-span="1"
           label for="ideal_stock" = t.product.fields.trimester_ideal_stock
           input.positive.number type="tel" name="ideal_stock" size=3 maxlength=6 required="required" value="#{Utils::number_format @product[:ideal_stock], 0, 0}"
@@ -98,11 +101,14 @@
         div.readonly data-field-span="1"
           label for="stock_store_2" = t.product.fields.stock_store_2
           input.positive.number type="tel" name="stock_store_2" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:stock_store_2], 0, 0}"
+        div.readonly data-field-span="1"
+          label for="stock_deviation" = t.product.fields.stock_deviation
+          input.number type="tel" name="stock_deviation" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product.inventory.global.deviation, 0, 0}"
 
 
     fieldset
-      legend Flags especiales
-      div data-row-span="5"
+      legend.toggle_link Flags especiales (click para ayuda)
+      div.toggle_me data-row-span="5"
         div data-field-span="2"
           ul.bullet
             li Flag obligatorio, Un producto debe ser o bien "Comprable" o bien "Envasable"
@@ -155,17 +161,21 @@
           select name="c_id"
               - @categories.each do |category| 
                 option selected=("selected" if category.c_id == @product.c_id) value="#{category.c_id}" = category.c_name
-
         div data-field-span="1"
           label for="published" = t.product.fields.published
           input type="checkbox" name="published" id="published" checked=("checked" if @product.published)
         div data-field-span="1"
           label for="published_price" = t.product.fields.published_price
           input type="checkbox" name="published_price" id="published_price" checked=("checked" if @product.published_price)
-      div data-row-span="1"
-        div data-field-span="1"
+      div data-row-span="3"
+        div data-field-span="2"
           label for="description" = t.product.fields.description
-          textarea name="description" rows="3" cols="50" = @product[:description]
+          textarea name="description" rows="4" cols="50" = @product[:description]
+        div data-field-span="1"
+          label for="img" Imagen
+          - img = (@product[:img] != "") ? "/images/#{@product[:img]}" : '/media/not_found.png'
+          img width="150" height="120" src="#{img}"
+
 
     fieldset
       legend Acciones

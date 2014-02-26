@@ -10,10 +10,10 @@ class Product < Sequel::Model
   many_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
 
 
-  ATTIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :img, :img_extra]
+  ATTIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :img, :img_extra]
   # same as ATTIBUTES but with the neccesary table references for get_ functions
   COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :description, :notes, :products__img, :img_extra]
-  EXCLUDED_ATTIBUTES_IN_DUPLICATION = [:p_id, :on_request, :end_of_life, :archived, :published, :product_img, :img_extra, :sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation]
+  EXCLUDED_ATTIBUTES_IN_DUPLICATION = [:p_id, :on_request, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation]
 
   STORE_ONLY_1 = "STORE_ONLY_1"
   STORE_ONLY_2 = "STORE_ONLY_2"
@@ -97,7 +97,7 @@ class Product < Sequel::Model
     dest_id = create_default
     dest = Product[dest_id]
     dest.update_from(self)
-    dest[:sku] = rand
+    dest[:public_sku] = rand
     dest.save
     self.parts.map { |part| dest.add_part part }
     self.materials.map { |material| dest.add_material material }
@@ -231,16 +231,16 @@ class Product < Sequel::Model
     out += "\tsize:               #{@values[:size]}\n"
     out += "\tcolor:              #{@values[:color]}\n"
     out += "\tsku:                #{@values[:sku]}\n"
+    out += "\tpublic_sku:                #{@values[:public_sku]}\n"
 
-    out += "\tideal_stock:        #{@values[:ideal_stock]}\n"
-    # @values[:stock_deviation] = -26
+    out += "\tideal_stock:        #{Utils::number_format @values[:ideal_stock], 0}\n"
     out += "\tstock_deviation:    #{Utils::number_format @values[:stock_deviation], 0}\n"
     out += "\tstock_deviation_%:  #{Utils::number_format @values[:stock_deviation_percentile], 2}\n"
     out += "\tstock_warehouse_1:  #{Utils::number_format @values[:stock_warehouse_1], 0}\n"
     out += "\tstock_warehouse_2:  #{Utils::number_format @values[:stock_warehouse_2], 0}\n"
     out += "\tstock_store_1:      #{Utils::number_format @values[:stock_store_1], 0}\n"
     out += "\ten_route_stock_store_1: #{Utils::number_format @values[:en_route_stock_store_1], 0}\n"
-    out += "\virtual_stock_store_1:      #{Utils::number_format @values[:virtual_stock_store_1], 0}\n"
+    out += "\tvirtual_stock_store_1:      #{Utils::number_format @values[:virtual_stock_store_1], 0}\n"
     out += "\tbuy_cost:           #{Utils::number_format @values[:buy_cost], 2}\n"
     out += "\tparts_cost:         #{Utils::number_format @values[:parts_cost], 2}\n"
     out += "\tmaterials_cost:     #{Utils::number_format @values[:materials_cost], 2}\n"
@@ -287,6 +287,7 @@ class Product < Sequel::Model
       .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W2)
       .where(products__p_id: @values[:p_id])
       .first[:stock_warehouse_2]
+    @values[:stock_deviation] = inventory.global.deviation
   end
 
   def inventory for_months = 3
@@ -405,13 +406,13 @@ class Product < Sequel::Model
 
   def get p_id
     return Product.new unless p_id.to_i > 0
-    product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra)
+    product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra)
                 .filter(products__p_id: p_id.to_i)
                 .left_join(:categories, [:c_id])
                 .left_join(:brands, [:br_id])
                 .select_append{:brands__br_name}
                 .select_append{:categories__c_name}
-                .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra, :brands__br_name, :categories__c_name)
+                .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra, :brands__br_name, :categories__c_name)
                 .first
     return Product.new if product.nil?
     product.update_stocks
@@ -422,13 +423,13 @@ class Product < Sequel::Model
 
   def get_list
     Product
-      .select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra)
+      .select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra)
       .join(:categories, [:c_id])
       .join(:brands, [:br_id])
       .select_append{:brands__br_name}
       .select_append{:categories__c_name}
       .select_append{ Sequel.case( {{Sequel.lit('real_markup / ideal_markup') => nil} => 0}, Sequel.lit('(real_markup * 100 / ideal_markup) - 100') ).as(markup_deviation_percentile)}
-      .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra, :brands__br_name, :categories__c_name)
+      .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :on_request, :end_of_life, :notes, :img_extra, :brands__br_name, :categories__c_name)
       .where(archived: 0)
   end
 
@@ -468,6 +469,7 @@ class Product < Sequel::Model
     validates_schema_types [:size, :size]
     validates_schema_types [:color, :color]
     validates_schema_types [:sku, :sku]
+    validates_schema_types [:public_sku, :public_sku]
     validates_schema_types [:buy_cost, :buy_cost]
     validates_schema_types [:sale_cost, :sale_cost]
     validates_schema_types [:ideal_markup, :ideal_markup]
@@ -501,7 +503,7 @@ class Product < Sequel::Model
 
   def update_from_hash(hash_values)
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
-    numerical_keys = [ :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
+    numerical_keys = [ :ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :stock_deviation, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
     hash_values.select do |key, value|
       if numerical_keys.include? key.to_sym 
         unless value.nil? or (value.class == String and value.length == 0)
@@ -513,7 +515,7 @@ class Product < Sequel::Model
     end
     cast
 
-    alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :description, :notes, :img, :img_extra ]
+    alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :description, :notes, :img, :img_extra ]
     hash_values.select { |key, value| self[key.to_sym]=value.to_s if alpha_keys.include? key.to_sym unless value.nil?}
 
     checkbox_keys = [:published_price, :published, :archived, :on_request, :end_of_life]
@@ -529,7 +531,7 @@ class Product < Sequel::Model
     end
 
     self[:p_name] = ""
-    [self[:p_short_name], self[:br_name], self[:packaging], self[:size], self[:color], self[:sku]].map { |part| self[:p_name] += " " + part unless part.nil?}
+    [self[:p_short_name], self[:br_name], self[:packaging], self[:size], self[:color], self[:public_sku] ].map { |part| self[:p_name] += " " + part unless part.nil?}
     cast
     self
   end
@@ -541,7 +543,6 @@ class Product < Sequel::Model
       @values[:price_pro] = @values[:price_pro] ? BigDecimal.new(@values[:price_pro], 0) : BigDecimal.new(0, 2)
       @values[:ideal_stock] = @values[:ideal_stock] ? BigDecimal.new(@values[:ideal_stock], 0) :0
       @values[:stock_deviation] = @values[:stock_deviation] ? BigDecimal.new(@values[:stock_deviation], 0) : BigDecimal.new(0, 2)
-      p @values[:stock_deviation].class   if @values[:p_id] == 1072
       @values[:stock_deviation_percentile] = @values[:stock_deviation_percentile] ? BigDecimal.new(@values[:stock_deviation_percentile], 0) : BigDecimal.new(0, 2)
       @values[:stock_store_1] = @values[:stock_store_1] ? BigDecimal.new(@values[:stock_store_1], 0) : BigDecimal.new(0, 2)
       @values[:stock_store_2] = @values[:stock_store_2] ? BigDecimal.new(@values[:stock_store_2], 0) : BigDecimal.new(0, 2)
