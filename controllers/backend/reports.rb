@@ -20,7 +20,7 @@ class Backend < AppController
     @products = Product.new.get_saleable_at_all_locations list
     @products.map do |product|
       product[:virtual_stock_store_1] = product.inventory.store_1.virtual
-      product[:ideal_stock_calculated] = product.inventory.global.ideal
+      product[:ideal_stock] = product.inventory.global.ideal
       product[:stock_deviation] = product.inventory.global.v_deviation
       product[:stock_deviation_percentile] = product.inventory.global.v_deviation_percentile
     end
@@ -71,12 +71,12 @@ class Backend < AppController
 
       if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
         product[:virtual_stock_store_1] = product.inventory.store_1.virtual
-        product[:ideal_stock_calculated] = product.inventory.store_1.ideal
+        product[:ideal_stock] = product.inventory.store_1.ideal
         product[:stock_deviation] = product.inventory.store_1.v_deviation
         product[:stock_deviation_percentile] = product.inventory.store_1.v_deviation_percentile
       else
         product[:virtual_stock_store_1] = product.inventory.store_1.virtual
-        product[:ideal_stock_calculated] = product.inventory.global.ideal
+        product[:ideal_stock] = product.inventory.global.ideal
         product[:stock_deviation] = product.inventory.global.v_deviation
         product[:stock_deviation_percentile] = product.inventory.global.v_deviation_percentile
       end
@@ -110,7 +110,7 @@ class Backend < AppController
     products.map do |product|
       product[:stock_deviation] = product.inventory.store_1.v_deviation
       product[:stock_deviation_percentile] = product.inventory.store_1.v_deviation_percentile
-      product[:ideal_stock_calculated] = product.inventory.store_1.ideal
+      product[:ideal_stock] = product.inventory.store_1.ideal
       product[:to_move] = BigDecimal.new(0)
       product[:to_move] = product.inventory.store_1.v_deviation * -1 unless product.inventory.store_1.virtual >= product.inventory.store_1.ideal
       stock_in_current_location = eval("product.inventory.#{current_location[:name].downcase}.stock")
