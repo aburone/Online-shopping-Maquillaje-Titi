@@ -17,6 +17,7 @@ class AppTest < Test::Unit::TestCase
   def test_should_try_to_authenticate
     get '/', {}, 'rack.session' => get_sess
     assert_match /Administración/, last_response.body, "Wrong place"
+    kill_session
 
 
     # assert last_response.ok?, "not ok"
@@ -33,6 +34,7 @@ class AppTest < Test::Unit::TestCase
   def test_materials_id_invalid
     get '/materials/yadda', {}, 'rack.session' => get_sess
     assert_equal 302, last_response.status, "Error in get '/materials/yadda'"
+    kill_session
   end
 
 

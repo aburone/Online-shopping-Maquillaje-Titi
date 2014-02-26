@@ -18,12 +18,6 @@ require 'encrypted_cookie'
 require "rack/csrf"
 use Rack::Session::EncryptedCookie, secret: settings.cookie_secret, expire_after: settings.session_length
 
-Thread.current.thread_variable_set(:username, nil)
-Thread.current.thread_variable_set(:user_real_name, nil)
-Thread.current.thread_variable_set(:user_id, nil)
-Thread.current.thread_variable_set(:current_location, nil)
-
-
 require_relative '../helpers/init'
 require_relative '../models/init'
 # require_relative '../models/stdout_logger'
@@ -125,4 +119,11 @@ class Material
       raise "No materials available"
     end
   end
+end
+
+def kill_session
+  Thread.current.thread_variable_set(:username, nil)
+  Thread.current.thread_variable_set(:user_real_name, nil)
+  Thread.current.thread_variable_set(:user_id, nil)
+  Thread.current.thread_variable_set(:current_location, nil)
 end
