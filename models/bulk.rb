@@ -48,8 +48,6 @@ class Bulk < Sequel::Model
 
   def is_from_another_location
     if @values[:b_loc] != User.new.current_location[:name]
-      pp User.new.current_location
-      pp User.new.current_location.class
       errors.add("Bulk fuera de lugar", "Este granel pertenece a \"#{ConstantsTranslator.new(@values[:b_loc]).t}\". Ni siquiera deberia estar aqui.") 
       return true
     end

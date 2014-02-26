@@ -20,6 +20,11 @@ use Rack::Session::EncryptedCookie, secret: settings.cookie_secret, expire_after
 
 # use Rack::Session::Cookie
 # enable :sessions
+Thread.current.thread_variable_set(:username, nil)
+Thread.current.thread_variable_set(:user_real_name, nil)
+Thread.current.thread_variable_set(:user_id, nil)
+Thread.current.thread_variable_set(:current_location, nil)
+
 
 require_relative '../helpers/init'
 require_relative '../models/init'
