@@ -18,8 +18,6 @@ require 'encrypted_cookie'
 require "rack/csrf"
 use Rack::Session::EncryptedCookie, secret: settings.cookie_secret, expire_after: settings.session_length
 
-# use Rack::Session::Cookie
-# enable :sessions
 Thread.current.thread_variable_set(:username, nil)
 Thread.current.thread_variable_set(:user_real_name, nil)
 Thread.current.thread_variable_set(:user_id, nil)

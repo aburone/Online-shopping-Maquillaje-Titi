@@ -37,7 +37,10 @@ class Backend < AppController
     redirect to("/materials/#{material[:m_id]}")
   end
   post '/materials/update_ideal_stocks' do
-    Material.all.each { |m| m.calculate_ideal_stock }
+    Thread.new do
+      Material.all.each { |m| m.calculate_ideal_stock }
+    end
+    flash[:warning] = "Actualizando materiales en background. La tarea tarda aproximadamente 30 segundos"
     redirect to("/materials")
   end
 
