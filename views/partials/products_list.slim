@@ -35,7 +35,7 @@
         th.bg_cell = t.product.fields.name
         th.md_cell = t.product.fields.brand
         - if sku_col
-          th.sm_cell = t.product.fields.sku
+          th.sm_cell = t.actions.click_to_edit
         - if full_row
           th.smm_cell = t.product.fields.price
         - if full_row and price_pro_col

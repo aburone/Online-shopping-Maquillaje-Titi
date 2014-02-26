@@ -20,6 +20,7 @@ actions:
   actions: Acciónes
   filter: Filtrar
   click_to_toggle: Click para ver/ocultar detalles
+  click_to_edit: Click para editar
   changed_status: Estado cambiado a %1
   scan_label: Escanee el ID
   select_product: Seleccionar el producto
@@ -94,6 +95,7 @@ nav:
     new_material: "Crear material"
     products_relationships: "Relaciones"
     categories: "Categorías"
+    sku: Editar SKUs
     items: Items disponibles
     void_items: Invalidacion de items
     transmute_items: Transmutacion de items
@@ -264,6 +266,9 @@ products:
   empty: No hay productos disponibles
   count: "%1 productos disponibles"
   list: Productos disponibles
+  sku_editor:
+    title: "Edicion rapida de SKUs"
+    caption: "Copia y pega los SKUs de la lista tal cual estan. El sistema va a limpiar espacios multiples, tabulaciones o cualquier otro caracter de control."
 product:
   read_placeholder: "ej: 4256"
   not_found: "Product inexistente"
