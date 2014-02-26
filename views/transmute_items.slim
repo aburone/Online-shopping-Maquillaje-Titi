@@ -15,7 +15,7 @@ form.grid-form action=url("/inventory/transmute_items/#{@item.i_id}/#{@new_produ
     == slim :product_details, locals: {product: @new_product}
   
   fieldset
-    legend Esta es una pesima idea
+    legend Justificar accion
     div data-row-span="2"
       div data-field-span="1"
         label for="reason" = t.transmute_items.write_reason
@@ -25,11 +25,11 @@ form.grid-form action=url("/inventory/transmute_items/#{@item.i_id}/#{@new_produ
         input required="required" type="text" readonly="" name="i_id" id="i_id" value="#{@item.i_id}"
 
   fieldset
-    legend Destroy humanity
+    legend Confirmar accion
     div data-row-span="1"
       div data-field-span="1"
-        img src="/media/reverse_pistol.png" title="Confia en mi. Se exactamente lo que hago"
-        input.ajax_confirm data-confirm_message="#{t.transmute_items.sure?}" type="submit" value="#{t.actions.transmute}"
+        label for="transmute" Ultimo aviso
+        input.ajax_confirm data-confirm_message="#{t.transmute_items.sure?}" name="transmute" type="submit" value="#{t.actions.transmute}"
    
 
 

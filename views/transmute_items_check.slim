@@ -1,16 +1,21 @@
 -# coding: UTF-8
 - @title = t.transmute_items.title
 - if @item.empty?
-  form action=url("/inventory/transmute_items") method="post"
+  form.grid-form action=url("/inventory/transmute_items") method="post"
     == Rack::Csrf.tag(env)
-    
 
-    label for="i_id" = t.order.scan_label
-    br
-    input.aligned autofocus="autofocus" required="required" type="text" name="i_id" id="i_id" value="" placeholder="#{t.label.read_placeholder}"
-    br
-    br
-    input.aligned type="submit" value="#{t.actions.verify}"
+    fieldset
+      legend Accion potencialmente destructiva
+      div data-row-span="1"
+        div data-field-span="1"
+          p Este herramienta convierte un item de un producto a otro. No utilizarla si no se tiene el item en la mano.
+      div data-row-span="2"
+        div data-field-span="1"
+          label for="i_id" = t.order.scan_label
+          input autofocus="autofocus" required="required" type="text" name="i_id" id="i_id" value="" placeholder="#{t.label.read_placeholder}"
+        div data-field-span="1"
+          label for="verify" Iniciar verificacion del item
+          input type="submit" name="verify" value="#{t.actions.verify}"
 
 - unless @item.empty?
   h2 Producto actualmente asociado

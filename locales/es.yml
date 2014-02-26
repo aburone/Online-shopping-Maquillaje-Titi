@@ -250,7 +250,7 @@ transmute_items:
   title: Transmutacion de items
   write_reason: Escriba la razon de transmutacion
   reason_example: "ej: Mal etiquetado"
-  sure?: Esto va a convertir el item.
+  sure?: Esto va a transmutar el item.
   title_transmuted: Item transmutado
 cart:
   fields:
