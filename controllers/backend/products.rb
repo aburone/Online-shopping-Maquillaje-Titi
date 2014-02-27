@@ -30,8 +30,8 @@ class Backend < AppController
   end
 
   get '/products/categories/:id' do
-    @category = Category[params[:id].to_i]
-    slim :category, layout: :layout_backend, locals: {sec_nav: :nav_products}
+    @category = Category.new.get_by_id params[:id].to_i
+    slim :category, layout: :layout_backend
   end
 
   put '/products/categories/:c_id' do

@@ -15,4 +15,14 @@ class Category < Sequel::Model
     self
   end
 
+  def empty?
+    return !!!@values[:c_id]
+  end
+
+  def get_by_id c_id
+     c_id = c_id.to_i
+     category = Category[c_id]
+     category = Category.new if category.nil?
+     category
+  end
 end

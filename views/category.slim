@@ -1,10 +1,10 @@
 -# coding: UTF-8
 
-- if @category.nil?
+- if @category.empty?
   - @title = t.category.not_found
 - else
-  - @title = t.category.title @category[:c_name]
-
+  - @title = t.category.title @category.c_name
+  
   form.grid-form action=url("/products/categories/#{@category[:c_id]}") method="post"
     fieldset
       legend = t.fields.desc
