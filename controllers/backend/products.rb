@@ -1,6 +1,7 @@
 class Backend < AppController
 
   route :get, :post, '/products/mass_load' do
+    
   end
 
   get '/products/sku' do

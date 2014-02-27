@@ -12,7 +12,7 @@
         td = t.category.fields.published
         td = t.actions.actions
     - @categories.each do |category|
-      tr.item
+      tr.ajax_item.item
         td #{I18n.transliterate( category[:c_name] )}
         td.cat_cell
           img.cat_img src="/images/#{category[:img]}"
