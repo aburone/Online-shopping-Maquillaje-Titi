@@ -35,7 +35,7 @@ class Backend < AppController
       when "update_sku"
         sku = params[:value]
         product = Product.new.get params[:id].to_i
-        product[:sku] = sku
+        product.sku = sku
         begin
           product.save
           p sku
