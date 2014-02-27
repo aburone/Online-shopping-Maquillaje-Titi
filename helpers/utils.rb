@@ -27,8 +27,10 @@ module Utils
           v.to_f
       when /\A\s*[+-]?\d+\z/ 
           v.to_i     
-      else  
-          return 0
+      when /\d/
+        Utils::as_number v.gsub(/[^\d|.|,]/, '')
+      else
+        return 0
       end
     end
 
