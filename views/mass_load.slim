@@ -1,0 +1,66 @@
+-# coding: UTF-8
+- @title = "Actualizacion de precios por SKU"
+
+form.grid-form action=url("/products/mass_load") method="post"
+  == Rack::Csrf.tag(env)
+  input type="hidden" name="_method" value="put"
+
+  fieldset
+    legend Configuracion
+    div data-row-span="2"
+      div data-field-span="1"
+        label Donde esta el SKU? (tilda multiples para concatenar)
+        label for="sku_on_a" Columna A
+        input type="checkbox" name="sku_on_a" id="sku_on_a" checked=("checked" unless params[:sku_on_a].nil?)
+        label for="sku_on_b"  Columna B
+        input type="checkbox" name="sku_on_b" id="sku_on_b" checked=("checked" unless params[:sku_on_b].nil?)
+        label for="sku_on_c"  Columna C
+        input type="checkbox" name="sku_on_c" id="sku_on_c" checked=("checked" unless params[:sku_on_c].nil?)
+      div data-field-span="1"
+        label Donde esta el nuevo costo de compra?
+        select name="cost_on"
+          - ("A".."Z").each.with_index do |letter, i|
+            option value="#{i}" selected=("selected" if params[:cost_on].to_i==i) Columna #{letter}
+
+
+
+  fieldset
+    legend Datos en bruto
+    div data-row-span="1"
+      div data-field-span="1"
+        label for="raw_data" Pegar datos
+        textarea name="raw_data" rows="10" cols="50" = params[:raw_data]
+  fieldset
+    legend Acciones
+    div data-row-span="2"
+
+      div data-field-span="1"
+        label for="test" = t.actions.test
+        input name="test" type="submit" value="#{t.inventory.mass_price_adjustments.test}"
+      div data-field-span="1"
+        label for="confirm" = t.actions.confirm
+        input.ajax_confirm name="confirm" data-confirm_message="Esto va a modificar los costos de compra. No se puede deshacer" type="submit" value="Actualizar los costos de compra"
+
+- unless @products.empty?
+    table class="items tablesorter quicksearch persist_area" data-label="#{t.actions.filter}" data-quicksearch="focus"
+      thead class="persist_header" 
+        tr 
+          th.sm_cell = t.product.fields.id
+          th.bg_cell = t.product.fields.name
+          th.md_cell = t.product.fields.brand
+          th.sm_cell = t.product.fields.buy_cost
+          th.sm_cell Nuevo costo
+          th.sm_cell Diferencia
+          th.sm_cell Editar
+      tbody
+        - @products.each do |product|
+          tr
+            td.sm_cell = product.p_id
+            td.bg_cell = product.p_name
+            td.md_cell = product[:br_name]
+            td.md_cell.number = Utils::number_format product.buy_cost, 2
+            td.md_cell.number = Utils::number_format product[:new_buy_cost], 2
+            td.md_cell.number #{Utils::number_format (product[:new_buy_cost] * 100 / product.buy_cost)-100, 2} %
+            td.sm_cell 
+              a href="/admin/products/#{product.p_id}"
+                img src="/media/Icon-Edit.png" width="32" height="32"

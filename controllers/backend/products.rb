@@ -1,7 +1,29 @@
 class Backend < AppController
 
-  route :get, :post, '/products/mass_load' do
-    
+  route :get, :put, '/products/mass_load' do
+    @products = []
+    unless params[:raw_data].nil?
+      keys = {sku_on_a: 0, sku_on_b: 1, sku_on_c: 2}
+      sku_cols = []
+      params.select { |key, value| sku_cols << keys[key.to_sym] if keys.has_key? key.to_sym }
+      rows = params[:raw_data].to_s.split("\n").collect { |row| row.split("\t").collect{ |col| col.gsub(/\n|\r|\t/, '').squeeze(" ").strip} }
+      rows.each do |row|
+        sku = row.select.with_index{ |col, i| col if sku_cols.include? i }.reject(&:empty?).join(' ')
+        product = Product.new.get_by_sku sku
+        unless product.empty?
+          new_buy_cost = BigDecimal.new(Utils::as_number(row[params[:cost_on].to_i]), 4)
+          product[:new_buy_cost] = new_buy_cost > 0 ? new_buy_cost : product.buy_cost
+          @products << product
+          if params[:confirm] && new_buy_cost > 0
+            p "Saving..."
+            p = product.dup
+            p.buy_cost = BigDecimal.new(Utils::as_number(row[params[:cost_on].to_i]), 4)
+            p.save
+          end
+        end
+      end
+    end
+    slim :mass_load, layout: :layout_backend, locals: {}
   end
 
   get '/products/sku' do
