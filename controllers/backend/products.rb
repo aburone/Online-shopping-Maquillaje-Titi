@@ -15,7 +15,6 @@ class Backend < AppController
           product[:new_buy_cost] = new_buy_cost > 0 ? new_buy_cost : product.buy_cost
           @products << product
           if params[:confirm] && new_buy_cost > 0
-            p "Saving..."
             p = product.dup
             p.buy_cost = BigDecimal.new(Utils::as_number(row[params[:cost_on].to_i]), 4)
             p.save
