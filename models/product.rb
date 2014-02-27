@@ -27,6 +27,7 @@ class Product < Sequel::Model
 
   def sku= sku
     sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
+    p "Setting sku: #{sku}"
     @values[:sku] = sku.empty? ? nil : sku
     self
   end
