@@ -8,7 +8,7 @@ class Material < Sequel::Model(:materials)
   many_to_one :MaterialCategory, key: :c_id
   many_to_many :products, left_key: :m_id, right_key: :product_id, join_table: :products_materials
 
-  COLUMNS = [ :m_id, :c_id, :m_name, :m_notes, :created_at, :m_ideal_stock ]
+  COLUMNS = [ :m_id, :c_id, :m_name, :m_notes, :created_at, :m_ideal_stock, :m_price ]
 
   def update_stocks
     stock = Material
@@ -56,7 +56,8 @@ class Material < Sequel::Model(:materials)
   end
 
   def calculate_ideal_stock
-    p "#{@values[:m_name]} (#{@values[:m_id]})"
+    self.m_price = Material.new.get_price(self.m_id)
+    p "#{@values[:m_name]} (#{@values[:m_id]}) #{Utils::money_format self.m_price, 6}"
     total_needed = BigDecimal.new(0)
     products = self.products
     products.each do |product|
@@ -104,7 +105,7 @@ class Material < Sequel::Model(:materials)
     wanted_keys = [ :m_name, :m_notes, :c_id ]
     hash_values.select { |key, value| self[key.to_sym]=value if wanted_keys.include? key.to_sym unless value.nil?}
 
-    numerical_keys = [ :m_ideal_stock ]
+    numerical_keys = [ :m_ideal_stock, :m_price ]
     hash_values.select do |key, value|
       if numerical_keys.include? key.to_sym 
         unless value.nil? or (value.class == String and value.length == 0)
