@@ -4,7 +4,7 @@ class Backend < AppController
     Thread.new do
       Product.all.each do |product|
         product.update_costs
-        product.update_markups
+        product.recalculate_markups
         product.update_stocks
         product.save
         p "Updating product: #{product.p_name}"

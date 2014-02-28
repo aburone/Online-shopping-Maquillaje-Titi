@@ -25,10 +25,9 @@ class Product < Sequel::Model
 
   @inventory = nil
 
-  def sku= sku
-    sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
-    @values[:sku] = sku.empty? ? nil : sku
-    self
+  def materials
+    condition = "product_id = #{self.p_id}"
+    Material.join( ProductsMaterial.where{condition}, [:m_id]).all
   end
 
   def parts
@@ -36,6 +35,76 @@ class Product < Sequel::Model
     return [] unless self[:p_id].to_i > 0
     condition = "product_id = #{self[:p_id]}"
     Product.join( ProductsPart.where{condition}, part_id: :products__p_id).all
+  end
+
+  def assemblies
+    product_part =  ProductsPart.select{Sequel.lit('product_id').as(p_id)}.where(part_id: self.p_id).all
+    assemblies = []
+    product_part.each { |assy| assemblies << Product[assy[:p_id]] }
+    assemblies
+  end
+
+  def materials_cost
+    cost = BigDecimal.new 0, 2
+    self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
+    p "el costo de materiales retorno nil" if cost.nil?
+    self.materials_cost = cost
+    cost
+  end
+
+  def parts_cost
+    cost = BigDecimal.new 0, 2
+    self.parts.map { |part| cost += part.materials_cost }
+    p "el costo de partes retorno nil" if cost.nil?
+    cost = BigDecimal.new 0, 2 if cost.nil?
+    self.parts_cost = cost
+    cost
+  end
+
+  def recalculate_markups
+    self[:real_markup] = self[:price] / self[:sale_cost] if self[:sale_cost] > 0 
+    self[:ideal_markup] = self[:real_markup] if self[:ideal_markup] == 0 and self[:real_markup] > 0
+    self
+  end
+
+  def recalculate_sale_cost
+    self[:sale_cost] = BigDecimal.new(@values[:buy_cost] + @values[:parts_cost] + @values[:materials_cost], 2)
+    recalculate_markups
+  end
+  
+  def materials_cost= cost
+    # p "#{self.p_id}: materials_cost= #{cost.to_s "F"} "
+    self[:materials_cost] = cost
+    recalculate_sale_cost
+  end
+
+  def parts_cost= cost
+    # p "#{self.p_id}: parts_cost= #{cost.to_s "F"}"
+    self[:parts_cost] = cost
+    recalculate_sale_cost
+  end
+
+  def buy_cost= cost
+    self[:buy_cost] = cost
+    recalculate_sale_cost
+  end
+
+
+  def update_costs
+    @values[:parts_cost] = parts_cost
+    @values[:materials_cost] = materials_cost
+    @values[:sale_cost] = sale_cost
+    self
+  end
+
+  def sale_cost
+    BigDecimal.new(@values[:buy_cost] + @values[:parts_cost] + @values[:materials_cost], 2)
+  end
+
+  def sku= sku
+    sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
+    @values[:sku] = sku.empty? ? nil : sku
+    self
   end
 
   def add_part part
@@ -68,15 +137,6 @@ class Product < Sequel::Model
   end
 
 
-  def materials
-    condition = "product_id = #{self[:p_id]}"
-    materials = Material.join( ProductsMaterial.where{condition}, [:m_id]).all
-    materials.each do |mat| 
-      mat.m_price = Material.new.get_price(mat.m_id)
-      mat[:m_qty] = BigDecimal.new(mat[:m_qty], 2)
-    end
-    materials
-  end
 
   def add_material material
     errors.add "Error de ingreso", "La cantidad del material a agregar no puede ser cero ni negativa" if material[:m_qty] <= 0
@@ -395,37 +455,6 @@ class Product < Sequel::Model
     @inventory
   end
 
-  def update_markups
-    @values[:real_markup] = @values[:price] / @values[:sale_cost] if @values[:sale_cost] > 0 
-    @values[:ideal_markup] = @values[:real_markup] if @values[:ideal_markup] == 0 and @values[:real_markup] > 0
-    self
-  end
-
-  def update_costs
-    @values[:parts_cost] = parts_cost
-    @values[:materials_cost] = materials_cost
-    @values[:sale_cost] = sale_cost
-    self
-  end
-
-  def parts_cost
-    cost = 0
-    self.parts.map { |part| cost += part.materials_cost }
-    p "el costo de partes retorno nil" if cost.nil?
-    cost
-  end
-
-  def materials_cost
-    cost = 0
-    self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
-    p "el costo de materiales retorno nil" if cost.nil?
-    cost
-  end
-
-  def sale_cost
-    BigDecimal.new(@values[:buy_cost] + @values[:parts_cost] + @values[:materials_cost], 2)
-  end
-
   def price_round exact_price
     price = exact_price
     frac = price.abs.modulo(1)
@@ -444,7 +473,7 @@ class Product < Sequel::Model
       @values[:price] = price_round @values[:exact_price]
       @values[:price_pro] = price_round(@values[:price]*0.7) if @values[:br_name] == "Mila Marzi"
       update_costs
-      update_markups
+      recalculate_markups
       if log
         message = "Precio ajustado *#{mod.to_s("F")} de $ #{start_price.to_s("F")} a $ #{@values[:price].to_s("F")}: #{@values[:p_name]}"
         ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
@@ -472,7 +501,7 @@ class Product < Sequel::Model
                 .first
     return Product.new if product.nil?
     product.update_costs
-    product.update_markups
+    product.recalculate_markups
     product.update_stocks
     product
   end

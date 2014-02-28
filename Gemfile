@@ -20,16 +20,14 @@ gem "i18n"
 gem "sinatra-r18n"
 gem "thin"
 gem "rubytree"
+gem "awesome_print"
 
 group :development, :test do
   gem "rspec"
   gem "webrat"
   gem "capybara"
-  # gem "launchy"
   gem "cucumber"
   gem "cucumber-sinatra"
   gem "poltergeist"
-  # gem 'selenium-webdriver'
   gem 'test-unit','= 2.5.5' 
-  # gem "test-unit-full"
 end

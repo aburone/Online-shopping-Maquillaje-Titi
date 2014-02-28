@@ -8,7 +8,7 @@ class ProductTest < Test::Unit::TestCase
     @valid.sale_cost = BigDecimal.new 10
     @valid.price = BigDecimal.new 20
     @valid.exact_price = BigDecimal.new 19.54, 5
-    @valid.update_markups
+    @valid.recalculate_markups
     @valid.p_name = "ProductTest @valid"
   end
 
@@ -126,13 +126,6 @@ class ProductTest < Test::Unit::TestCase
     assert_equal step1+1, step2
     assert_equal step2-1, step3
     assert_equal step1, step3
-  end
-
-  def test_should_get_materials_cost
-    product = Product[2]
-    cost = 0
-    product.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
-    assert_equal product.materials_cost, cost
   end
 
   def test_should_get_parts_cost
@@ -593,4 +586,12 @@ class ProductTest < Test::Unit::TestCase
     end
   end
 
+  def test_should_get_materials_cost
+    product = Product[2]
+    cost = 0
+    product.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
+    pp cost.to_s("F")
+    assert_equal product.materials_cost, cost
+  end
 end
+

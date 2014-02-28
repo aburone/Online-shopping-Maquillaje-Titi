@@ -31,7 +31,7 @@ class MaterialTest < Test::Unit::TestCase
     assert(m.changed_columns.include?(:c_id))
     assert(m.changed_columns.include?(:m_name))
 
-    assert_equal(3, m.changed_columns.size, "There are #{m.changed_columns.size} changes and should have 2")
+    assert_equal(4, m.changed_columns.size, "There are #{m.changed_columns.size} changes and should have 4")
     puts "\n" + m.errors.to_s if m.errors.size != 0
   end
 
@@ -95,11 +95,6 @@ end
     puts "\n" + m.errors.to_s if m.errors.size != 1
   end
 
-  def test_get_price
-    price = Material.new.get_price 140
-    assert price.class == BigDecimal
-  end
-
   def test_should_get_same_price_regardless_of_location
     mat1 = Material.new.get_by_id 31, Location::W1
     mat2 = Material.new.get_by_id 31, Location::W2
@@ -123,4 +118,25 @@ end
     end
   end
 
+  def test_if_m_price_is_updated_all_products_that_use_it_have_to_be_updated
+    DB.transaction(rollback: :always) do
+      material = Material[127]
+
+      product = material.products[0]
+      # materials = product.materials
+      # materials.each { |m| p "#{m.m_id}: #{Utils::number_format m[:m_qty], 2} x #{m.m_price.to_s "F"} = #{(m[:m_qty]*m.m_price).to_s "F"}" } 
+      # p_mat = nil
+      start_cost = product.materials_cost.dup
+
+      material.m_price = material.m_price + 5
+      material.save
+
+      product = material.products[0]
+      # materials = product.materials
+      # materials.each { |m| p "#{m.m_id}: #{Utils::number_format m[:m_qty], 2} x #{m.m_price.to_s "F"} = #{(m[:m_qty]*m.m_price).to_s "F"}" } 
+      # p_mat = nil
+      end_cost = product.materials_cost.dup
+      assert_equal start_cost + 5*8, end_cost, "#{Utils::number_format start_cost + 5*8, 3} != #{Utils::number_format end_cost, 3}"
+    end
+  end
 end

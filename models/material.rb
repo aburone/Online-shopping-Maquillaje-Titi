@@ -10,6 +10,39 @@ class Material < Sequel::Model(:materials)
 
   COLUMNS = [ :m_id, :c_id, :m_name, :m_notes, :created_at, :m_ideal_stock, :m_price ]
 
+  def products
+    self.products_dataset.join(:categories, [:c_id]).select_append{:c_name}.all
+  end
+
+  def m_price= price
+    self[:m_price] = price
+  end
+
+  def save (opts=OPTS)
+    opts = opts.merge({columns: Material::COLUMNS})
+    begin
+      update_products = self.changed_columns.include? :m_price
+      super opts
+      if update_products
+        message = "Actualizancion de costo de todos los productos que utilizan #{@values[:m_name]}"
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, m_id: @values[:m_id]).save
+        self.products.each do |product|
+          product.assemblies.each do |assy|
+            assy.parts_cost
+            assy.materials_cost
+            assy.save
+          end
+          product.parts_cost
+          product.materials_cost
+          product.save
+        end
+      end
+    rescue Sequel::UniqueConstraintViolation
+      errors.add "SKU duplicado", "Ya existe un material con ese sku"
+    end
+    self
+  end
+
   def update_stocks
     stock = Material
       .select{sum(:b_qty).as(stock_store_1)}
@@ -56,8 +89,7 @@ class Material < Sequel::Model(:materials)
   end
 
   def calculate_ideal_stock
-    self.m_price = Material.new.get_price(self.m_id)
-    p "#{@values[:m_name]} (#{@values[:m_id]}) #{Utils::money_format self.m_price, 6}"
+    p "#{@values[:m_name]} (#{@values[:m_id]})"
     total_needed = BigDecimal.new(0)
     products = self.products
     products.each do |product|
@@ -143,10 +175,6 @@ class Material < Sequel::Model(:materials)
     out
   end
 
-  def m_price= price
-    @values[:m_price] = price
-  end
-
   def bulks warehouse_name
     begin
       Bulk.filter(m_id: @values[:m_id], b_loc: warehouse_name).order(:b_status, :created_at).all
@@ -166,11 +194,6 @@ class Material < Sequel::Model(:materials)
   end
 
 
-  def products
-    self.products_dataset.join(:categories, [:c_id]).select_append{:c_name}.all
-  end
-
-
   def get_price m_id
     price = Bulk.select{max(:b_price).as(b_price)}.where(m_id: m_id.to_i).group(:m_id).first
     return price.nil? ? 0 : price[:b_price]
@@ -181,7 +204,7 @@ class Material < Sequel::Model(:materials)
       materials = base_query(warehouse_name)
         .order(:c_name, :m_name)
         .all
-      materials.each { |mat| mat.m_price = Material.new.get_price(mat.m_id) }
+      # materials.each { |mat| mat.m_price = Material.new.get_price(mat.m_id) }
       materials
     rescue Exception => @e
       p @e
@@ -193,7 +216,6 @@ class Material < Sequel::Model(:materials)
     begin
       base_query(warehouse_name)
         .where(materials__m_id: id.to_i)
-        .select_append{max(Material.new.get_price id.to_i).as(m_price)}
         .first
     rescue Exception => @e
       p @e
@@ -204,7 +226,7 @@ class Material < Sequel::Model(:materials)
   private
     def base_query warehouse_name
       valid = [Bulk::NEW, Bulk::IN_USE, Bulk::VOID]
-      Material.select_group(:materials__m_id, :m_name, :c_id, :c_name, :m_notes, :m_ideal_stock)
+      Material.select_group(:materials__m_id, :m_name, :c_id, :c_name, :m_notes, :m_ideal_stock, :m_price)
         .left_join(:bulks___b1, b1__m_id: :materials__m_id, b1__b_status: valid, b1__b_loc: warehouse_name)
         .join(:materials_categories, [:c_id])
         .select_append{sum(:b1__b_qty).as(m_qty)}

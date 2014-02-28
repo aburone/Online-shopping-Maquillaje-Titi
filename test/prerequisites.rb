@@ -2,6 +2,7 @@ require 'test/unit'
 require 'rack/test'
 require 'sequel'
 require 'pp'
+require "awesome_print"
 require 'sinatra'
 require 'sinatra/r18n'
 require 'sinatra/config_file'

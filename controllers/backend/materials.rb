@@ -77,7 +77,8 @@ class Backend < AppController
     end
   end
   post '/bulks/new' do
-    Bulk.new.create params[:m_id].to_i, Material.new.get_price(params[:m_id].to_i), current_location[:name]
+    material = Material[params[:m_id].to_i]
+    Bulk.new.create params[:m_id].to_i, material[:m_price], current_location[:name]
     redirect to("/materials/#{params[:m_id].to_i}")
   end
 end
