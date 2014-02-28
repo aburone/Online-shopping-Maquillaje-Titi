@@ -7,6 +7,7 @@ class Backend < AppController
         product.update_markups
         product.update_stocks
         product.save
+        p "Updating product: #{product.p_name}"
         if product.errors.count > 0
           puts product
           p product.errors.to_a.flatten.join(": ")
