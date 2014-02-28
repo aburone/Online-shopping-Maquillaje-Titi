@@ -8,7 +8,8 @@ class Backend < AppController
       params.select { |key, value| sku_cols << keys[key.to_sym] if keys.has_key? key.to_sym }
       rows = params[:raw_data].to_s.split("\n").collect { |row| row.split("\t").collect{ |col| col.gsub(/\n|\r|\t/, '').squeeze(" ").strip} }
       rows.each do |row|
-        sku = row.select.with_index{ |col, i| col if sku_cols.include? i }.reject(&:empty?).join(' ')
+        sku = row.select.with_index{ |col, i| col if sku_cols.include? i }.reject(&:empty?).join('')
+        sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
         product = Product.new.get_by_sku sku
         unless product.empty?
           new_buy_cost = BigDecimal.new(Utils::as_number(row[params[:cost_on].to_i]), 4)
@@ -36,12 +37,9 @@ class Backend < AppController
         sku = params[:value]
         product = Product.new.get params[:id].to_i
         product.sku= sku
-        begin
-          product.save
-          p product.sku
-        rescue Sequel::UniqueConstraintViolation
-          p "Error: ya existe un producto con ese sku"
-        end
+        product.save
+        return product.errors.to_a.flatten.join(": ") if product.errors.count > 0
+        p product.sku
     end
   end
 

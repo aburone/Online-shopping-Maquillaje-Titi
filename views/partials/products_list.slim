@@ -71,7 +71,8 @@
         - colspan += 2 if full_row
         td colspan="#{colspan}" = t.products.count(@products.count)
     tbody
-      - ajax_item = can_edit and !sku_col ? " ajax_item" : ""
+      - ajax_item = can_edit ? " ajax_item" : ""
+      - ajax_item = sku_col ? "" : ajax_item
       - ajax_click_to_filter = click_to_filter ? "ajax_filter_by_me" : ""
       - @products.each do |product|
         tr class="item#{ajax_item} #{item_class}"

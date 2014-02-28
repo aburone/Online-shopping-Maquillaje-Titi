@@ -16,7 +16,7 @@ class Backend < AppController
   end
 
   get '/reports/products_to_buy' do
-    list = Product.new.get_list.where(tercerized: true).order(:categories__c_name, :products__p_name).all
+    list = Product.new.get_list.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).all
     @products = Product.new.get_saleable_at_all_locations list
     @products.map do |product|
       product[:virtual_stock_store_1] = product.inventory.store_1.virtual
@@ -55,7 +55,7 @@ class Backend < AppController
   end
 
   get '/reports/to_package/:mode' do
-    list = Product.new.get_list.where(tercerized: false).order(:categories__c_name, :products__p_name) 
+    list = Product.new.get_list.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name) 
     @products = Product.new.get_saleable_at_all_locations list
     @products.map do |product|
 

@@ -27,7 +27,6 @@ class Product < Sequel::Model
 
   def sku= sku
     sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
-    p "Setting sku: #{sku}"
     @values[:sku] = sku.empty? ? nil : sku
     self
   end
@@ -147,7 +146,7 @@ class Product < Sequel::Model
         WHERE p_id = #{@values[:p_id]} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
       end
     rescue Sequel::UniqueConstraintViolation
-      errors.add "SKU duplicado", "Error: ya existe un producto con ese sku"
+      errors.add "SKU duplicado", "Ya existe un producto con ese sku"
     end
     self
   end
