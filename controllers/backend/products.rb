@@ -1,5 +1,23 @@
 class Backend < AppController
 
+  post '/products/update_all' do
+    Thread.new do
+      Product.all.each do |product|
+        product.update_costs
+        product.update_markups
+        product.update_stocks
+        product.save
+        if product.errors.count > 0
+          puts product
+          p product.errors.to_a.flatten.join(": ")
+          halt
+        end
+      end
+    end
+    flash[:warning] = R18n.t.products.updating_in_background
+    redirect to("/products")
+  end
+
   route :get, :put, '/products/mass_load' do
     @products = []
     unless params[:raw_data].nil?

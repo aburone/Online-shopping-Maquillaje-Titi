@@ -115,6 +115,11 @@ class Backend < AppController
       product[:to_move] = product.inventory.store_1.v_deviation * -1 unless product.inventory.store_1.virtual >= product.inventory.store_1.ideal
       stock_in_current_location = eval("product.inventory.#{current_location[:name].downcase}.stock")
       product[:to_move] = stock_in_current_location if product[:to_move] > stock_in_current_location
+      if stock_in_current_location > 0 and (product.end_of_life or product.ideal_stock == 0)
+        product[:stock_deviation] = stock_in_current_location * -1
+        product[:stock_deviation_percentile] = -100
+        product[:to_move] = stock_in_current_location 
+      end
       @products << product unless product[:to_move] == 0
 
     end

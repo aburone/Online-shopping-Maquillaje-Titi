@@ -41,6 +41,10 @@ aside
             a class="#{inside?("/admin/products/categories")}" href=url('/products/categories') = t.nav.backend.categories
           li
             a class="#{inside?("/admin/products/sku")}" href=url('/products/sku') = t.nav.backend.sku
+          li
+            form action=url("/products/update_all") method="post"
+              == Rack::Csrf.tag(env)
+              input.ajax_confirm data-confirm_message="#{t.products.sure_to_update_all}" type="submit" value="#{t.nav.backend.update_products}"
 
       li: ul
         li

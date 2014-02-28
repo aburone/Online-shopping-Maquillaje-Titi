@@ -108,50 +108,38 @@
 
     fieldset
       legend.toggle_link Flags especiales (click para ayuda)
-      div.toggle_me data-row-span="5"
-        div data-field-span="2"
+      div.toggle_me data-row-span="2"
+        div data-field-span="1"
           ul.bullet
-            li Flag obligatorio, Un producto debe ser o bien "Comprable" o bien "Envasable"
-            li Independiente de cualquier otro.
+            li Un producto debe ser o bien "Comprable" o bien "Envasable"
+            li De esta categorizacion dependen todos los reportes
 
         div data-field-span="1"
           ul.bullet
-            li Se utiliza para productos que normalmente no tienen disponibilidad ni en deposito ni en local.
-            li Si hay stock en deposito y no en local, el sistema va a pedir su transferencia (aun no implementado, hay un issue en el Pivotal esperando respuesta)
-            li Independiente de cualquier otro.
-
-        div data-field-span="2"
-          ul.bullet
-            li Son dos flags independientes pero relacionados.
-            li Para productos en produccion no deben ser seteados.
-            li "Fin de vida" indica que un producto debe seguir vendiendose hasta agotar existencias.
-            li Si hay stock en deposito y no en local, el sistema va a pedir su transferencia (aun no implementado, hay un issue en el Pivotal esperando respuesta)
-            li Una vez agotadas las existencias, sera "Archivado" automaticamente (aun no implementado)
+            li Ciclo de vida
+            li Para productos en produccion se usa "Activo"
+            li "Fin de vida" indica que un producto debe seguir vendiendose hasta agotar existencias. Si hay stock en deposito y no en local, el sistema va a pedir su transferencia. Una vez agotadas las existencias, sera "Archivado" automaticamente
             li "Archivado" se utiliza cuando un producto no se desea seguir comercializando. No figurara mas en ningun reporte de produccion o compra.
-            li "Fin de vida" y "Archivado" son mutuamente excluyentes. Teniendo "Archivado" precedencia.
-            li Independientes de cualquier otro.
 
-      div data-row-span="5"
+      div data-row-span="2"
         div data-field-span="1"
-          label for="is_tercerized" = t.product.fields.is_tercerized
+          label Tipo
           input type="radio" name="tercerized" id="is_tercerized" value="true" checked=("checked" if @product.tercerized) 
-
-        div data-field-span="1"
-          label for="non_tercerized" = t.product.fields.non_tercerized
+          label for="is_tercerized" = t.product.fields.is_tercerized
+          br
           input type="radio" name="tercerized" id="non_tercerized" value="false" checked=("checked" if !@product.tercerized)
+          label for="non_tercerized" = t.product.fields.non_tercerized
 
         div data-field-span="1"
-          label for="on_request" = t.product.fields.on_request
-          input type="checkbox" name="on_request" id="on_request" checked=("checked" if @product.on_request)
-
-        div data-field-span="1"
+          label Ciclo de vida
+          input type="radio" name="life_point" id="live" value="live" checked=("checked" if not (@product.end_of_life and @product.archived) )
+          label for="live" = t.product.fields.live
+          br
+          input type="radio" name="life_point" id="end_of_life" value="end_of_life" checked=("checked" if @product.end_of_life)
           label for="end_of_life" = t.product.fields.end_of_life
-          input type="checkbox" name="end_of_life" id="end_of_life" checked=("checked" if @product.end_of_life)
-
-        div data-field-span="1"
+          br
+          input type="radio" name="life_point" id="archived" value="archived" checked=("checked" if @product.archived)
           label for="archived" = t.product.fields.archived
-          input type="checkbox" name="archived" id="archived" checked=("checked" if @product.archived)
-
 
     fieldset
       legend Atributos para la pagina publica

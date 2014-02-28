@@ -89,6 +89,7 @@ nav:
     materials: "Materiales"
     materials_list: Materiales
     update_ideal_stocks_for_materials: Actualizar stocks ideales
+    update_products: Recalcular productos
     bulks_list: Graneles disponibles
     products: "Productos"
     new_product: "Crear producto"
@@ -270,6 +271,8 @@ products:
   sku_editor:
     title: "Edicion rapida de SKUs"
     caption: "Copia y pega los SKUs de la lista tal cual estan. El sistema va a limpiar espacios multiples, tabulaciones o cualquier otro caracter de control."
+  sure_to_update_all: Esta accion recalcula los valores de todos los productos. Estas seguro de continuar?
+  updating_in_background: "Actualizando productos en background. La tarea tarda aproximadamente 30 segundos"
 product:
   read_placeholder: "ej: 4256"
   not_found: "Product inexistente"
@@ -331,7 +334,7 @@ product:
     tercerized: Comprable / Envasable
     is_tercerized: Comprable
     non_tercerized: Envasable
-    on_request: Por pedido
+    live: Activo
     end_of_life: Fin de vida
 production:
   title: Proceso productivo
