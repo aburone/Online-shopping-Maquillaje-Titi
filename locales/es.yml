@@ -421,6 +421,7 @@ constant:
   GLOBAL: Global
   EN_ROUTE: En ruta
   VOID: Invalido
+  ERROR: Erroneo
   SALE: Venta
   ON_CART: En carrito
   SOLD: Vendido

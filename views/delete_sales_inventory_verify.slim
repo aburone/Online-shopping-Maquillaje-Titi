@@ -1,0 +1,71 @@
+- @title = t.sales.inventory_verification.title(@order.o_id, @verified_items.count, @pending_items.count+@verified_items.count )
+
+- unless @product.empty?
+
+  - unless @item.empty?
+    div.ajax_response
+      fieldset.confirm_action
+        h2.no_padding #{flash[:notice]}
+        form action=url("/admin/inventory_verification/#{@order.o_id}") method="post"
+          == Rack::Csrf.tag(env)
+          label.aligner_2 for="fake_label" #{t.label.fields.label}
+          input.aligned type="text" disabled="disabled" name="fake_label_id" value="#{@item[:i_id]}"
+          br
+          br
+          label.aligner_2 for="confirm" Si es correcto
+          input.aligned  autofocus="autofocus" name="confirm" type="submit" value="#{t.actions.ok}"
+        br
+        form action=url("/admin/inventory_verification/#{@order.o_id}/#{@item.i_id}/void") method="post"
+          == Rack::Csrf.tag(env)
+          label.aligner_2 for="confirm" Si es Incorrecto
+          input.aligned.ajax_confirm name="confirm" data-confirm_message="Esto va a anular la etiqueta y eliminar el item de la orden" type="submit" value="Destruir"
+
+      == slim :product_details, locals: {product: @product}
+
+  - if @item.empty?
+
+    p
+      |Lee la etiqueta del proximo 
+      b #{@product.p_name}
+
+    form action=url("/admin/inventory_verification/#{@order.o_id}/#{@product.p_id}") method="post"
+      == Rack::Csrf.tag(env)
+      label.aligner_2 for="i_id" = t.sales.inventory_verification.scan_label
+      input.aligned autofocus="autofocus" required="required" type="text" name="i_id" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"
+
+    p
+      |O podes 
+      a href="/sales/admin/inventory_verification/#{@order.o_id}" = t.order.select_other_product
+
+
+
+
+
+- if @product.empty?
+  form action=url("/admin/inventory_verification/#{@order.o_id}") method="post"
+    == Rack::Csrf.tag(env)
+    label.aligner_2 for="i_id" = t.sales.inventory_verification.scan_label
+    input.aligned autofocus="autofocus" required="required" type="text" name="i_id" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"
+
+
+
+
+
+h2 Items pendientes de verificacion
+- @items = @pending_items
+== slim :items_list
+
+
+h2 Items verificados
+- @items = @verified_items
+== slim :items_list
+
+
+
+form.v_island_1#finish_packaging action=url("/admin/inventory_verification/#{@order.o_id}/finish") method="post"
+  == Rack::Csrf.tag(env)
+  input type="submit" value="#{t.actions.finish}"
+
+form.v_island_1#finish_packaging action=url("/admin/inventory_verification/#{@order.o_id}/cancel") method="post"
+  == Rack::Csrf.tag(env)
+  input.ajax_confirm data-confirm_message="#{t.order.sure_to_cancel_load_order}" type="submit" value="#{t.actions.cancel}"
