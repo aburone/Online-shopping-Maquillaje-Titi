@@ -14,7 +14,6 @@
         - if full_row
           th.bg_cell = t.bulk.fields.m_name
         th.sm_cell = t.bulk.fields.qty
-        th.md_cell = t.bulk.fields.price
         th.md_cell = t.bulk.fields.status
         th.bg_cell = t.bulk.fields.created_at
         - if can_edit
@@ -24,7 +23,6 @@
         - if full_row
           td
         td.small_content colspan="2" = t.bulk.fields.units
-        td
         td
         - if can_edit
           td
@@ -39,7 +37,6 @@
           - if full_row
             td.bg_cell = bulk[:m_name]
           td.sm_cell.number = Utils::number_format bulk.b_qty, 2
-          td.md_cell = Utils::money_format bulk.b_price, 6
           td.md_cell = ConstantsTranslator.new(bulk.b_status).t
           td.bg_cell = Utils::local_datetime_format bulk.created_at
           - if can_edit

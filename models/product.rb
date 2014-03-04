@@ -25,6 +25,38 @@ class Product < Sequel::Model
 
   @inventory = nil
 
+  def price_round exact_price
+    price = exact_price
+    p "price  #{price.to_s "F"}" if self.p_id == 107
+    frac = price.abs.modulo(1)
+    p "frac #{price.to_s "F"}" if self.p_id == 107
+    p "price0  #{price.to_s "F"}" if self.p_id == 107
+    if frac > 0
+      price += frac >= 0.5 ? -frac + 1 : -frac + 0.5
+    p "price1  #{price.to_s "F"}" if self.p_id == 107
+      price += 0.5 if frac < 0.5 and price > 100
+    p "price2  #{price.to_s "F"}" if self.p_id == 107
+    end
+    p "round #{price.to_s "F"}" if self.p_id == 107
+    price
+  end
+
+  def price_mod mod, log=true
+    mod = BigDecimal.new(mod.to_s.gsub(',', '.'), 15)
+    if mod > 0
+      start_price = self.exact_price.dup
+      self.exact_price *= mod
+      self.price = price_round self.exact_price
+      self.price_pro = price_round(self.price*0.7) if self.br_name == "Mila Marzi"
+      update_costs
+      if log
+        message = "Precio ajustado *#{mod.to_s("F")} de $ #{start_price.to_s("F")} a $ #{self.price.to_s("F")}: #{self.p_name}"
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: self.p_id).save
+      end
+    end
+    self
+  end
+
   def materials
     condition = "product_id = #{self.p_id}"
     Material.join( ProductsMaterial.where{condition}, [:m_id]).all
@@ -69,6 +101,7 @@ class Product < Sequel::Model
 
   def recalculate_sale_cost
     self[:sale_cost] = BigDecimal.new(@values[:buy_cost] + @values[:parts_cost] + @values[:materials_cost], 2)
+    # p "recalculate sale cost #{self[:sale_cost]}"
     recalculate_markups
   end
   
@@ -91,9 +124,8 @@ class Product < Sequel::Model
 
 
   def update_costs
-    @values[:parts_cost] = parts_cost
-    @values[:materials_cost] = materials_cost
-    @values[:sale_cost] = sale_cost
+    parts_cost
+    materials_cost
     self
   end
 
@@ -195,6 +227,7 @@ class Product < Sequel::Model
   def save (opts=OPTS)
     opts = opts.merge({columns: Product::ATTIBUTES})
     @values[:end_of_life] = false if @values[:archived]
+    # puts self
     begin
       super opts
       if @values[:p_name] 
@@ -453,33 +486,6 @@ class Product < Sequel::Model
     @inventory.warehouses = warehouses
     @inventory.global = global
     @inventory
-  end
-
-  def price_round exact_price
-    price = exact_price
-    frac = price.abs.modulo(1)
-    if frac > 0
-      price += frac >= 0.5 ? -frac + 1 : -frac + 0.5
-      price += 0.5 if frac < 0.5 and price > 100
-    end
-    price
-  end
-
-  def price_mod mod, log=true
-    mod = BigDecimal.new(mod.to_s.gsub(',', '.'), 15)
-    if mod > 0
-      start_price = @values[:exact_price].dup
-      @values[:exact_price] *= mod
-      @values[:price] = price_round @values[:exact_price]
-      @values[:price_pro] = price_round(@values[:price]*0.7) if @values[:br_name] == "Mila Marzi"
-      update_costs
-      recalculate_markups
-      if log
-        message = "Precio ajustado *#{mod.to_s("F")} de $ #{start_price.to_s("F")} a $ #{@values[:price].to_s("F")}: #{@values[:p_name]}"
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
-      end
-    end
-    self
   end
 
   def get_by_sku sku

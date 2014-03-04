@@ -193,18 +193,11 @@ class Material < Sequel::Model(:materials)
     end
   end
 
-
-  def get_price m_id
-    price = Bulk.select{max(:b_price).as(b_price)}.where(m_id: m_id.to_i).group(:m_id).first
-    return price.nil? ? 0 : price[:b_price]
-  end
-
   def get_list warehouse_name
     begin
       materials = base_query(warehouse_name)
         .order(:c_name, :m_name)
         .all
-      # materials.each { |mat| mat.m_price = Material.new.get_price(mat.m_id) }
       materials
     rescue Exception => @e
       p @e

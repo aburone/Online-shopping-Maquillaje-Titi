@@ -8,7 +8,6 @@
           th.md_cell = t.bulk.fields.status
           th.bg_cell = t.bulk.fields.m_name
           th.sm_cell = t.bulk.fields.qty
-          th.md_cell = t.bulk.fields.price
           th.bg_cell = t.bulk.fields.created_at
           th.sm_cell = t.bulk.fields.actions
         tr
@@ -28,7 +27,6 @@
             td.md_cell = ConstantsTranslator.new(bulk.b_status).t
             td.bg_cell = I18n.transliterate( bulk[:m_name] )
             td.sm_cell.number = Utils::number_format bulk.b_qty, 2
-            td.md_cell = Utils::money_format bulk.b_price, 6
             td.bg_cell = Utils::local_datetime_format bulk.created_at
             td
               form action=url("#{action_url}/#{@order.o_id}/#{bulk.b_id}/undo") method="post"

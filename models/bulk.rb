@@ -83,7 +83,6 @@ class Bulk < Sequel::Model
     @values[:b_id] = bulk.b_id
     @values[:m_id] = bulk.m_id
     @values[:b_qty] = bulk.b_qty
-    @values[:b_price] = bulk.b_price
     @values[:b_status] = bulk.b_status
     @values[:b_loc] = bulk.b_loc
     @values[:created_at] = bulk.created_at
@@ -261,7 +260,7 @@ class Bulk < Sequel::Model
 
   def update_from_hash(hash_values)
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
-    wanted_keys = [ :b_qty, :b_price, :b_status ]
+    wanted_keys = [ :b_qty, :b_status ]
     hash_values.select { |key, value| self[key.to_sym]=value.to_s.gsub(',', '.') if wanted_keys.include? key.to_sym unless value.nil?}
     if (BigDecimal.new self[:b_qty]) < 0.01
       self[:b_qty] = 0
@@ -276,7 +275,6 @@ class Bulk < Sequel::Model
 
     validates_schema_types [:b_id, :b_id]
     validates_schema_types [:m_id, :m_id]
-    validates_schema_types [:b_price, :b_price]
     validates_schema_types [:b_qty, :b_qty]
     validates_schema_types [:b_status, :b_status]
     validates_schema_types [:created_at, :created_at]
@@ -292,12 +290,6 @@ class Bulk < Sequel::Model
       errors.add("ID", "Debe ser positivo. #{m_id} dado" ) unless m_id > 0
     end
 
-    if b_price.class != BigDecimal
-      errors.add("Precio", "Debe ser numérico. #{b_price} (#{b_price.class}) dado. Intentando editar el bulk #{b_id}" )
-    else
-      errors.add("Precio", "Debe ser positivo. #{b_price.round(3).to_s("F")} dado. Intentando editar el bulk #{b_id}" ) if b_price <= 0
-    end
-
     if b_qty.class != BigDecimal
       errors.add("Cantidad", "Debe ser numérico. #{b_qty} (#{b_qty.class}) dado. Intentando editar el bulk #{b_id}" )
     else
@@ -311,7 +303,6 @@ class Bulk < Sequel::Model
     out += "\tb_id:    #{@values[:b_id]}\n"
     out += "\tm_id:  #{@values[:m_id]}\n"
     out += @values[:b_qty]   ? "\tb_qty:   #{sprintf("%d", @values[:b_qty])}\n"      : "\tb_qty: \n"
-    out += @values[:b_price] ? "\tb_price: #{sprintf("%0.3f", @values[:b_price])}\n" : "\tb_price: \n"
     out += "\tstatus: #{@values[:b_status]}\n"
     out += "\tb_loc: #{@values[:b_loc]}\n"
     out += "\tcreated: #{@values[:created_at]}\n"
@@ -320,7 +311,6 @@ class Bulk < Sequel::Model
 
   private
     def cast
-      self[:b_price] = BigDecimal.new self[:b_price]
       self[:b_qty] = BigDecimal.new self[:b_qty]
     end
 end

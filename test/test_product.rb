@@ -3,7 +3,6 @@ require_relative 'prerequisites'
 class ProductTest < Test::Unit::TestCase
 
   def setup
-    # @valid = Product.new
     @valid = Product.new.get_rand
     @valid.sale_cost = BigDecimal.new 10
     @valid.price = BigDecimal.new 20
@@ -16,26 +15,6 @@ class ProductTest < Test::Unit::TestCase
     p = Product.new.get_rand
     assert_equal(Product, p.class)
   end
-
-  # def test_decode
-  #   require 'htmlentities'
-  #   coder = HTMLEntities.new
-  #   p = Product[528]
-  #   assert_equal("Liquido corporal, colores básicos", p.p_name)
-  # end
-
-  # def test_decode_all
-  #   require 'htmlentities'
-  #   coder = HTMLEntities.new
-  #   prods = Product.all
-  #   prods.each do |p|
-  #     p.p_name = coder.decode p.p_name
-  #     p.description = coder.decode p.description
-  #     p.notes = coder.decode p.notes
-  #     p.brand = coder.decode p.brand
-  #     p.save
-  #   end
-  # end
 
   def test_should_get_items
     p = Product[5]
@@ -57,41 +36,6 @@ class ProductTest < Test::Unit::TestCase
       assert(mat[:m_qty])
     end
   end
-
-  # def test_should_get_full_relatinship
-    # product = Product[193]
-    # # Label.new.save validate: false
-    # # label = Label.new.get_rand
-    # # label.assign_to product
-
-    # p "Main Product"
-    # puts product
-
-    # p "Items"
-    # items = product.items
-    # items.each { |i| puts i}
-
-    # p "Parts"
-    # parts = product.parts
-    # puts parts
-    # p "Materials"
-    # puts product.materials
-
-    # p "First Part and it's Materials"
-    # part = parts.first
-    # puts part
-    # materials = part.materials
-    # puts materials
-    # p "First part, first material, bulk"
-    # material = materials.first
-    # puts material
-    # bulks = material.bulks Location::W1
-    # bulks.each{ |bulk| puts bulk}
-    
-    # p "42"
-    # puts Material.new.get_by_id 42
-
-  # end
 
   def test_should_add_label_to_product
     DB.transaction(rollback: :always) do
@@ -141,6 +85,45 @@ class ProductTest < Test::Unit::TestCase
 
     product = Product.new.get 2
     assert_equal product.sale_cost, product.materials_cost + product.parts_cost
+  end
+
+  # def test_mod_price_is_correct
+  #   product = Product[565]
+  #   puts "Buy cost: #{product.buy_cost.to_s "F"}"
+  #   puts "Parts cost: #{product.parts_cost.to_s "F"}"
+  #   puts "Materials cost: #{product.materials_cost.to_s "F"}"
+  #   puts "sale_cost: #{product.sale_cost.to_s "F"}"
+
+  #   puts "ideal markup: #{product.ideal_markup.to_s "F"}"
+  #   puts "real_markup: #{product.real_markup.to_s "F"}"
+  #   puts "exact_price: #{product.exact_price.to_s "F"}"
+  #   puts "Price: #{product.price.to_s "F"}"
+  #   product.price_mod 1.1
+  #   p "-"
+  #   puts "Buy cost: #{product.buy_cost.to_s "F"}"
+  #   puts "Parts cost: #{product.parts_cost.to_s "F"}"
+  #   puts "Materials cost: #{product.materials_cost.to_s "F"}"
+  #   puts "sale_cost: #{product.sale_cost.to_s "F"}"
+
+  #   puts "ideal markup: #{product.ideal_markup.to_s "F"}"
+  #   puts "real_markup: #{product.real_markup.to_s "F"}"
+  #   puts "exact_price: #{product.exact_price.to_s "F"}"
+  #   puts "Price: #{product.price.to_s "F"}"
+  # end
+
+  def test_check_cost
+    Product.all.each do |product|
+      if product.exact_price < product.sale_cost
+        p "error in product #{product.p_id}: #{product.exact_price.to_s "F"} < #{product.sale_cost.to_s "F"}" 
+        product.exact_price = product.sale_cost * 2
+        # product.save
+      end
+      if product.price < product.exact_price
+        p "error in product #{product.p_id}: #{product.price.to_s "F"} < #{product.exact_price.to_s "F"}" 
+        product.price = product.price_round product.exact_price
+        # product.save
+      end
+    end
   end
 
   def test_mod_price_should_ignore_zero

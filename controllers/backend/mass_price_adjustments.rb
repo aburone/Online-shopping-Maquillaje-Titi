@@ -7,7 +7,7 @@ class Backend < AppController
                 .order(:c_name, :p_name)
     products = products.all
 
-    DB.transaction(rollback: :always) do
+    DB.transaction do
       if save
         message = "Actualizancion masiva de precios de productos. multiplicador: #{mod.to_f}"
         ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save

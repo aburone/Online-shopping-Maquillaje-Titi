@@ -26,8 +26,7 @@ class BulkTest < Test::Unit::TestCase
     b.update_from_hash( @bulk_params )
     assert(b.changed_columns.include?(:b_status), "b_status not updated")
     assert(b.changed_columns.include?(:b_qty), "m_qty not updated")
-    assert(b.changed_columns.include?(:b_price), "m_price not updated")
-    assert_equal(3, b.changed_columns.size, "There are #{b.changed_columns.size} changes and should have 3")
+    assert_equal(2, b.changed_columns.size, "There are #{b.changed_columns.size} changes and should have 3")
     puts "\n" + b.errors.to_s if b.errors.size != 0
   end
 
@@ -38,15 +37,6 @@ class BulkTest < Test::Unit::TestCase
     b.b_id = @invalid_id
     assert(!b.valid?, "Shouldn't allow malformed id")
     assert_equal( ["Malformed id 13.07.16.a5c67927"], b.errors[:b_id])
-    puts "\n" + b.errors.to_s if b.errors.size != 1
-  end
-
-
-  def test_bulk_should_reject_negative_price
-    @bulk_params[:b_price] = -1
-    b = @valid_bulk
-    b.update_from_hash( @bulk_params )
-    assert_false b.valid?, "Shouldn't allow negative price"
     puts "\n" + b.errors.to_s if b.errors.size != 1
   end
 

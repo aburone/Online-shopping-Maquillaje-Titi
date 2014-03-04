@@ -19,8 +19,6 @@
             td
               input.sm_cell autofocus="" type="text" name="b_qty" size=5 maxlength=10 required="required" value="#{Utils::number_format @bulk.b_qty, 2, ""}"
             td
-              input.md_cell type="text" name="b_price" size=4 maxlength=10 required="required" value="#{Utils::number_format @bulk.b_price, 3, ""}"
-            td
               select.md_cell name="b_status"
                 - Bulk::SELECTABLE_STATUS.each do |status|
                   - if @bulk[:b_status] == status
