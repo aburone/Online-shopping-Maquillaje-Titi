@@ -38,7 +38,7 @@
       div data-row-span="3"
         div data-field-span="1"
           label for="m_price" = t.material.fields.price
-          input.positive.number type="tel" name="m_price" size=50 value="#{Utils::money_format @material[:m_price], 6}"
+          input.positive.number type="tel" name="m_price" size=50 value="#{Utils::number_format @material[:m_price], 6}"
         div.readonly data-field-span="1"
           label for="m_qty" = t.material.fields.qty
           input type="text" readonly="" tabindex="-1" name="m_qty" size=50 value="#{Utils::number_format @material[:m_qty], 2}"
