@@ -336,6 +336,9 @@ product:
     non_tercerized: Envasable
     live: Activo
     end_of_life: Fin de vida
+  assemblies: 
+    not_found: Este producto no es parte de ningun otro
+    list: Productos que usan al actual como parte
 production:
   title: Proceso productivo
   explanation: Explicación del proceso productivo

@@ -72,7 +72,7 @@ class Product < Sequel::Model
   def assemblies
     product_part =  ProductsPart.select{Sequel.lit('product_id').as(p_id)}.where(part_id: self.p_id).all
     assemblies = []
-    product_part.each { |assy| assemblies << Product[assy[:p_id]] }
+    product_part.each { |assy| assemblies << Product.new.get(assy[:p_id]) }
     assemblies
   end
 

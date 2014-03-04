@@ -261,3 +261,16 @@
         div data-field-span="1"
           label for="action" Agregar
           input type="submit" name="action" value="Agregar"
+
+
+  // Assemblies list
+  form.grid-form action="#" method="post"
+    fieldset
+      - if @p_assemblies.empty?
+        legend = t.product.assemblies.not_found
+      - else
+        legend = t.product.assemblies.list
+        div data-row-span="1"
+          div data-field-span="1"
+            - @products = @p_assemblies
+            == slim :products_list, locals: {edit_link: "edit_product", focus: false}

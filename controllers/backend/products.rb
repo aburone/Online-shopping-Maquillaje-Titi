@@ -312,7 +312,7 @@ class Backend < AppController
 
     @p_parts = @product.parts
     @p_materials = @product.materials
-
+    @p_assemblies = @product.assemblies
     @categories = Category.all
     @brands = Brand.all
     slim :product, layout: :layout_backend

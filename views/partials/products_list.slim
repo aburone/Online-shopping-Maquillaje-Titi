@@ -1,5 +1,7 @@
 - focus = true if focus.nil?
 - focus_text = focus ? "focus" : "no_focus"
+- can_filter = true if can_filter.nil? and focus
+- quicksearch = " quicksearch" if can_filter
 - full_row = true if full_row.nil?
 - sku_col = false if sku_col.nil? unless sku_col == true
 - price_pro_col = true if price_pro_col.nil?
@@ -10,12 +12,10 @@
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
 - real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
 - ideal_markup_col = false if ideal_markup_col.nil? unless ideal_markup_col == true
-- markup_deviation_percentile_col = false if markup_deviation_percentile_col.nil? unless markup_deviation_percentile_col == true
+- markup_deviation_percentile_col = false if markup_deviation_percentile_col.nil?
 - to_move_col = false if to_move_col.nil? unless to_move_col == true
 - can_edit = false if can_edit.nil?
 - edit_link ||= "void"
-- can_filter = true if can_filter.nil?
-- quicksearch = " quicksearch" if can_filter
 - click_to_filter = false if click_to_filter.nil? unless click_to_filter == true
 - item_class = "" if item_class.nil?
 - persistent_headers = false if persistent_headers.nil? unless persistent_headers == true
@@ -92,6 +92,10 @@
           - if real_markup_col
             td.sm_cell.number #{Utils::number_format product[:real_markup], 2}
           - if markup_deviation_percentile_col
+            - p "wtf"
+            - halt
+            - pp markup_deviation_percentile_col 
+            - pp markup_deviation_percentile_col.class
             - unless product[:markup_deviation_percentile].nil?
               - col_class = (product[:markup_deviation_percentile] > 1.1) ? "number overpriced" : (product[:markup_deviation_percentile] < 0.9) ? "number underpriced" : "number"
               - markup_deviation_percentile = product[:markup_deviation_percentile] == 0 ? "-" : "#{"+" if product[:markup_deviation_percentile] > 0}#{Utils::number_format(product[:markup_deviation_percentile], 0)} %"

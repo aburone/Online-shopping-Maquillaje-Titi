@@ -573,8 +573,13 @@ class ProductTest < Test::Unit::TestCase
     product = Product[2]
     cost = 0
     product.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
-    pp cost.to_s("F")
     assert_equal product.materials_cost, cost
   end
+
+  def test_should_get_assemblies
+    # product = Product[135]
+    # pp product.assemblies
+  end
+
 end
 
