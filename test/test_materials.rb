@@ -104,6 +104,11 @@ end
   end
 
   def test_should_create_new_material
+    mat = Material.filter(m_name: R18n.t.material.default_name).first
+    unless mat.nil?
+      mat.m_name = rand
+      mat.save
+    end
     DB.transaction(rollback: :always) do
       begin
         mat = Material.new.create_default
