@@ -116,12 +116,12 @@ class ProductTest < Test::Unit::TestCase
       if product.exact_price < product.sale_cost
         p "error in product #{product.p_id}: #{product.exact_price.to_s "F"} < #{product.sale_cost.to_s "F"}" 
         product.exact_price = product.sale_cost * 2
-        # product.save
+        product.save
       end
       if product.price < product.exact_price
         p "error in product #{product.p_id}: #{product.price.to_s "F"} < #{product.exact_price.to_s "F"}" 
         product.price = product.price_round product.exact_price
-        # product.save
+        product.save
       end
     end
   end
