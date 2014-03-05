@@ -114,7 +114,7 @@ class Product < Sequel::Model
       store_1.en_route = BigDecimal.new @values[:en_route_stock_store_1], 2
     end
     store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route,)
-    store_1.ideal = BigDecimal.new(self.ideal_stock, 2) / 3 * for_months # stored ideal stock are for 3 months
+    store_1.ideal = BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months # stored ideal stock are for 3 months
     store_1.deviation = store_1.stock - store_1.ideal
     store_1.deviation_percentile = store_1.deviation * 100 / store_1.ideal
     store_1.deviation_percentile = BigDecimal.new(0, 2) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
