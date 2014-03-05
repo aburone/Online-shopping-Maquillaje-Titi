@@ -6,6 +6,7 @@ class Backend < AppController
         product.update_costs
         product.recalculate_markups
         product.update_stocks
+        product.update_indirect_ideal_stock
         product.save
         p "Updating product: #{product.p_name}"
         if product.errors.count > 0
@@ -303,13 +304,10 @@ class Backend < AppController
 
   def edit_product p_id
     @product = Product.new.get(p_id)
-    if @product.empty?
-      flash[:error] = R18n.t.product.not_found
-      redirect to("/products")
-    end
+    redirect_if_nil_product @product, p_id, "/products"
+
     @materials = Material.order(:m_name).all
     @parts = Product.filter(archived: false, end_of_life: false).order(:p_name).all
-
     @p_parts = @product.parts
     @p_materials = @product.materials
     @p_assemblies = @product.assemblies

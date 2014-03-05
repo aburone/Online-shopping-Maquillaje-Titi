@@ -25,6 +25,145 @@ class Product < Sequel::Model
 
   @inventory = nil
 
+  def get p_id
+    return Product.new unless p_id.to_i > 0
+    product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :notes, :img_extra)
+                .filter(products__p_id: p_id.to_i)
+                .left_join(:categories, [:c_id])
+                .left_join(:brands, [:br_id])
+                .select_append{:brands__br_name}
+                .select_append{:categories__c_name}
+                .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :notes, :img_extra, :brands__br_name, :categories__c_name)
+                .first
+    return Product.new if product.nil?
+    product.update_costs
+    product.recalculate_markups
+    product.update_stocks
+    product
+  end
+
+  def update_costs
+    parts_cost
+    materials_cost
+    self
+  end
+
+  def materials_cost
+    cost = BigDecimal.new 0, 2
+    self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
+    p "el costo de materiales retorno nil" if cost.nil?
+    self.materials_cost = cost
+    cost
+  end
+
+  def parts_cost
+    cost = BigDecimal.new 0, 2
+    self.parts.map { |part| cost += part.materials_cost }
+    p "el costo de partes retorno nil" if cost.nil?
+    cost = BigDecimal.new 0, 2 if cost.nil?
+    self.parts_cost = cost
+    cost
+  end
+
+  def recalculate_markups
+    self[:real_markup] = self[:price] / self[:sale_cost] if self[:sale_cost] > 0 
+    self[:ideal_markup] = self[:real_markup] if self[:ideal_markup] == 0 and self[:real_markup] > 0
+    self
+  end
+
+  def update_indirect_ideal_stock
+    self.indirect_ideal_stock = BigDecimal.new(0)
+    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] }
+  end
+
+  def update_stocks
+    self.stock_store_1 = BigDecimal.new Product
+      .select{count(i_id).as(stock_store_1)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_store_1]
+    @values[:en_route_stock_store_1] = BigDecimal.new Product
+      .select{count(i_id).as(en_route_stock_store_1)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1)
+      .where(products__p_id: @values[:p_id])
+      .first[:en_route_stock_store_1]
+    @values[:virtual_stock_store_1] = @values[:en_route_stock_store_1] + @values[:stock_store_1]
+    self.stock_warehouse_1 = BigDecimal.new Product
+      .select{count(i_id).as(stock_warehouse_1)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W1)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_warehouse_1]
+    self.stock_warehouse_2 = BigDecimal.new Product
+      .select{count(i_id).as(stock_warehouse_2)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W2)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_warehouse_2]
+    
+    self.stock_deviation = inventory.global.deviation
+    archive_and_save if must_be_archived
+  end
+
+  def inventory for_months = 3
+    return @inventory unless @inventory.nil?
+    @inventory = OpenStruct.new
+    store_1 = OpenStruct.new
+    store_1.stock = BigDecimal.new self.stock_store_1, 2
+    if @values[:en_route_stock_store_1].nil?
+      store_1.en_route = BigDecimal.new 0, 2
+    else
+      store_1.en_route = BigDecimal.new @values[:en_route_stock_store_1], 2
+    end
+    store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route,)
+    store_1.ideal = BigDecimal.new(self.ideal_stock, 2) / 3 * for_months # stored ideal stock are for 3 months
+    store_1.deviation = store_1.stock - store_1.ideal
+    store_1.deviation_percentile = store_1.deviation * 100 / store_1.ideal
+    store_1.deviation_percentile = BigDecimal.new(0, 2) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
+    store_1.v_deviation = BigDecimal.new(store_1.virtual - store_1.ideal, 2)
+    store_1.v_deviation_percentile = store_1.v_deviation * 100 / store_1.ideal
+    store_1.v_deviation_percentile = BigDecimal.new(0, 2) if store_1.v_deviation_percentile.nan? or store_1.v_deviation_percentile.infinite? or store_1.v_deviation_percentile.nil? 
+
+    warehouse_1 = OpenStruct.new
+    warehouse_1.stock = BigDecimal.new self.stock_warehouse_1, 2
+    warehouse_1.en_route = 0
+    warehouse_1.virtual = warehouse_1.stock + warehouse_1.en_route
+
+    warehouse_2 = OpenStruct.new
+    warehouse_2.stock = BigDecimal.new self.stock_warehouse_2, 2
+    warehouse_2.en_route = 0
+    warehouse_2.virtual = warehouse_2.stock + warehouse_2.en_route
+
+    warehouses = OpenStruct.new
+    warehouses.stock = warehouse_1.stock + warehouse_2.stock
+    warehouses.virtual =  warehouse_1.virtual + warehouse_2.virtual
+
+    warehouses.ideal = store_1.ideal + self.indirect_ideal_stock # the sum of the warehouses stock must be double the stock of the store?
+    warehouses.deviation = warehouses.stock - warehouses.ideal
+    warehouses.deviation_percentile = warehouses.deviation * 100 / warehouses.ideal
+    warehouses.deviation_percentile = BigDecimal.new(0, 2) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil? 
+    warehouses.v_deviation = warehouses.virtual - warehouses.ideal
+    warehouses.v_deviation_percentile = warehouses.v_deviation * 100 / warehouses.ideal
+    warehouses.v_deviation_percentile = BigDecimal.new(0, 2) if warehouses.v_deviation_percentile.nan? or warehouses.v_deviation_percentile.infinite? or warehouses.v_deviation_percentile.nil? 
+
+    global = OpenStruct.new
+    global.stock = warehouses.stock + store_1.stock
+    global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
+    global.virtual = global.stock + global.en_route
+    global.ideal = self.ideal_stock
+    global.deviation = global.stock - global.ideal
+    global.deviation_percentile = global.deviation * 100 / global.ideal
+    global.deviation_percentile = BigDecimal.new(0, 2) if global.deviation_percentile.nan? or global.deviation_percentile.infinite? or global.deviation_percentile.nil? 
+    global.v_deviation = global.virtual - global.ideal
+    global.v_deviation_percentile = global.v_deviation * 100 / global.ideal
+    global.v_deviation_percentile = BigDecimal.new(0, 2) if global.v_deviation_percentile.nan? or global.v_deviation_percentile.infinite? or global.v_deviation_percentile.nil? 
+
+    @inventory.store_1 = store_1
+    @inventory.warehouse_1 = warehouse_1
+    @inventory.warehouse_2 = warehouse_2
+    @inventory.warehouses = warehouses
+    @inventory.global = global
+    @inventory
+  end
+
   def price_round exact_price
     price = exact_price
     frac = price.abs.modulo(1)
@@ -64,33 +203,16 @@ class Product < Sequel::Model
   end
 
   def assemblies
-    product_part =  ProductsPart.select{Sequel.lit('product_id').as(p_id)}.where(part_id: self.p_id).all
+    product_part =  ProductsPart.select{Sequel.lit('product_id').as(p_id)}.select_append{:part_qty}.where(part_id: self.p_id).all
     assemblies = []
-    product_part.each { |assy| assemblies << Product.new.get(assy[:p_id]) }
+    product_part.each do |assy| 
+      assembly = Product.new.get(assy[:p_id])
+      assembly[:part_id] = self.p_id
+      assembly[:part_qty] = assy[:part_qty]
+      assembly[:part_cost] = self.sale_cost * assy[:part_qty]
+      assemblies << assembly
+    end
     assemblies
-  end
-
-  def materials_cost
-    cost = BigDecimal.new 0, 2
-    self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
-    p "el costo de materiales retorno nil" if cost.nil?
-    self.materials_cost = cost
-    cost
-  end
-
-  def parts_cost
-    cost = BigDecimal.new 0, 2
-    self.parts.map { |part| cost += part.materials_cost }
-    p "el costo de partes retorno nil" if cost.nil?
-    cost = BigDecimal.new 0, 2 if cost.nil?
-    self.parts_cost = cost
-    cost
-  end
-
-  def recalculate_markups
-    self[:real_markup] = self[:price] / self[:sale_cost] if self[:sale_cost] > 0 
-    self[:ideal_markup] = self[:real_markup] if self[:ideal_markup] == 0 and self[:real_markup] > 0
-    self
   end
 
   def recalculate_sale_cost
@@ -114,12 +236,6 @@ class Product < Sequel::Model
   def buy_cost= cost
     self[:buy_cost] = cost
     recalculate_sale_cost
-  end
-
-  def update_costs
-    parts_cost
-    materials_cost
-    self
   end
 
   def sale_cost
@@ -160,8 +276,6 @@ class Product < Sequel::Model
     prod_part[:part_qty] = part[:part_qty]
     prod_part.save
   end
-
-
 
   def add_material material
     errors.add "Error de ingreso", "La cantidad del material a agregar no puede ser cero ni negativa" if material[:m_qty] <= 0
@@ -397,113 +511,10 @@ class Product < Sequel::Model
     @values[:end_of_life] and inventory.global.stock == 0
   end
 
-  def update_stocks
-    @values[:stock_store_1] = BigDecimal.new Product
-      .select{count(i_id).as(stock_store_1)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1)
-      .where(products__p_id: @values[:p_id])
-      .first[:stock_store_1]
-    @values[:en_route_stock_store_1] = BigDecimal.new Product
-      .select{count(i_id).as(en_route_stock_store_1)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1)
-      .where(products__p_id: @values[:p_id])
-      .first[:en_route_stock_store_1]
-    @values[:virtual_stock_store_1] = @values[:en_route_stock_store_1] + @values[:stock_store_1]
-    @values[:stock_warehouse_1] = BigDecimal.new Product
-      .select{count(i_id).as(stock_warehouse_1)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W1)
-      .where(products__p_id: @values[:p_id])
-      .first[:stock_warehouse_1]
-    @values[:stock_warehouse_2] = BigDecimal.new Product
-      .select{count(i_id).as(stock_warehouse_2)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W2)
-      .where(products__p_id: @values[:p_id])
-      .first[:stock_warehouse_2]
-    @values[:stock_deviation] = inventory.global.deviation
-    archive_and_save if must_be_archived
-  end
-
-  def inventory for_months = 3
-    return @inventory unless @inventory.nil?
-    @inventory = OpenStruct.new
-    store_1 = OpenStruct.new
-    store_1.stock = BigDecimal.new @values[:stock_store_1], 2
-    if @values[:en_route_stock_store_1].nil?
-      store_1.en_route = BigDecimal.new 0, 2
-    else
-      store_1.en_route = BigDecimal.new @values[:en_route_stock_store_1], 2
-    end
-    store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route,)
-    store_1.ideal = BigDecimal.new(@values[:ideal_stock], 2) / 3 * for_months # stored ideal stock are for 3 months
-    store_1.deviation = store_1.stock - store_1.ideal
-    store_1.deviation_percentile = store_1.deviation * 100 / store_1.ideal
-    store_1.deviation_percentile = BigDecimal.new(0, 2) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
-    store_1.v_deviation = BigDecimal.new(store_1.virtual - store_1.ideal, 2)
-    store_1.v_deviation_percentile = store_1.v_deviation * 100 / store_1.ideal
-    store_1.v_deviation_percentile = BigDecimal.new(0, 2) if store_1.v_deviation_percentile.nan? or store_1.v_deviation_percentile.infinite? or store_1.v_deviation_percentile.nil? 
-
-    warehouse_1 = OpenStruct.new
-    warehouse_1.stock = BigDecimal.new @values[:stock_warehouse_1], 2
-    warehouse_1.en_route = 0
-    warehouse_1.virtual = warehouse_1.stock + warehouse_1.en_route
-
-    warehouse_2 = OpenStruct.new
-    warehouse_2.stock = BigDecimal.new @values[:stock_warehouse_2], 2
-    warehouse_2.en_route = 0
-    warehouse_2.virtual = warehouse_2.stock + warehouse_2.en_route
-
-    warehouses = OpenStruct.new
-    warehouses.stock = warehouse_1.stock + warehouse_2.stock
-    warehouses.virtual =  warehouse_1.virtual + warehouse_2.virtual
-    warehouses.ideal = store_1.ideal # the sum of the warehouses stock must be double the stock of the store
-    warehouses.deviation = warehouses.stock - warehouses.ideal
-    warehouses.deviation_percentile = warehouses.deviation * 100 / warehouses.ideal
-    warehouses.deviation_percentile = BigDecimal.new(0, 2) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil? 
-    warehouses.v_deviation = warehouses.virtual - warehouses.ideal
-    warehouses.v_deviation_percentile = warehouses.v_deviation * 100 / warehouses.ideal
-    warehouses.v_deviation_percentile = BigDecimal.new(0, 2) if warehouses.v_deviation_percentile.nan? or warehouses.v_deviation_percentile.infinite? or warehouses.v_deviation_percentile.nil? 
-
-    global = OpenStruct.new
-    global.stock = warehouses.stock + store_1.stock
-    global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
-    global.virtual = global.stock + global.en_route
-    global.ideal = store_1.ideal + warehouses.ideal
-    global.deviation = global.stock - global.ideal
-    global.deviation_percentile = global.deviation * 100 / global.ideal
-    global.deviation_percentile = BigDecimal.new(0, 2) if global.deviation_percentile.nan? or global.deviation_percentile.infinite? or global.deviation_percentile.nil? 
-    global.v_deviation = global.virtual - global.ideal
-    global.v_deviation_percentile = global.v_deviation * 100 / global.ideal
-    global.v_deviation_percentile = BigDecimal.new(0, 2) if global.v_deviation_percentile.nan? or global.v_deviation_percentile.infinite? or global.v_deviation_percentile.nil? 
-
-    @inventory.store_1 = store_1
-    @inventory.warehouse_1 = warehouse_1
-    @inventory.warehouse_2 = warehouse_2
-    @inventory.warehouses = warehouses
-    @inventory.global = global
-    @inventory
-  end
-
   def get_by_sku sku
     sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
     product = Product.filter(sku: sku).first
     return Product.new if product.nil?
-    product
-  end
-
-  def get p_id
-    return Product.new unless p_id.to_i > 0
-    product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :notes, :img_extra)
-                .filter(products__p_id: p_id.to_i)
-                .left_join(:categories, [:c_id])
-                .left_join(:brands, [:br_id])
-                .select_append{:brands__br_name}
-                .select_append{:categories__c_name}
-                .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :notes, :img_extra, :brands__br_name, :categories__c_name)
-                .first
-    return Product.new if product.nil?
-    product.update_costs
-    product.recalculate_markups
-    product.update_stocks
     product
   end
 
