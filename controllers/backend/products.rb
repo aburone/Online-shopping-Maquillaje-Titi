@@ -3,12 +3,12 @@ class Backend < AppController
   post '/products/update_all' do
     Thread.new do
       Product.all.each do |product|
+        p "Updating product: #{product.p_name}"
         product.update_costs
         product.recalculate_markups
         product.update_stocks
         product.update_indirect_ideal_stock
         product.save
-        p "Updating product: #{product.p_name}"
         if product.errors.count > 0
           puts product
           p product.errors.to_a.flatten.join(": ")
