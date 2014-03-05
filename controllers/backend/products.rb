@@ -304,7 +304,9 @@ class Backend < AppController
 
   def edit_product p_id
     @product = Product.new.get(p_id)
-    redirect_if_nil_product @product, p_id, "/products"
+    if @product.nil?
+      redirect_if_nil_product @product, p_id, "/products"
+    end
 
     @materials = Material.order(:m_name).all
     @parts = Product.filter(archived: false, end_of_life: false).order(:p_name).all
