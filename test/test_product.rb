@@ -340,8 +340,9 @@ class ProductTest < Test::Unit::TestCase
   def test_should_reject_nil_numerical_values
     DB.transaction(rollback: :always) do
       product = Product.new.get_rand
-      product.ideal_stock = 10
-      hash = {ideal_stock: nil}
+      product.direct_ideal_stock=10
+      product.indirect_ideal_stock=0
+      hash = {direct_ideal_stock: nil}
       product.update_from_hash hash
       assert_equal 10, product.ideal_stock
     end
@@ -350,52 +351,55 @@ class ProductTest < Test::Unit::TestCase
   def test_should_ignore_non_present_values
     DB.transaction(rollback: :always) do
       product = Product.new.get_rand
-      product.ideal_stock = 10
+      product.direct_ideal_stock=10
+      product.indirect_ideal_stock=0
       hash = {}
       product.update_from_hash hash
-      assert_equal 10, product.ideal_stock
+      assert_equal BigDecimal.new(10).to_s("F"), product.ideal_stock.to_s("F"), "non_present_values"
     end
   end
 
   def test_should_reject_invalid_strings_in_numerical_values
     DB.transaction(rollback: :always) do
       product = Product.new.get_rand
-      product.ideal_stock=10
-      hash = {ideal_stock: "a"}
+      product.direct_ideal_stock=10
+      product.indirect_ideal_stock=10
+      hash = {direct_ideal_stock: "a"}
       product.update_from_hash hash
-      assert_equal 10, product.ideal_stock
+      assert_equal 20, product.ideal_stock
     end
   end
 
   def test_should_reject_badly_formatted_numbers
     DB.transaction(rollback: :always) do
       product = Product.new.get_rand
-      product.ideal_stock=10
-      hash = {ideal_stock: "1..1"}
+      product.direct_ideal_stock=10
+      product.indirect_ideal_stock=10
+      hash = {direct_ideal_stock: "1..1"}
       product.update_from_hash hash
-      assert_equal 10, product.ideal_stock
+      assert_equal 20, product.ideal_stock, "formatted_numbers"
     end
   end
 
 
   def test_should_update_from_hash
     DB.transaction(rollback: :always) do
-      hash = {ideal_stock: "99,00", stock_warehouse_1: "100,00", buy_cost: "1,0", sale_cost: "1,0"}
+      hash = {direct_ideal_stock: "90,00", indirect_ideal_stock: "90,00", stock_warehouse_1: "100,00", buy_cost: "1,0", sale_cost: "1,0"}
       @valid.update_from_hash hash
-      assert_equal 99, @valid.ideal_stock
+      assert_equal BigDecimal.new(180).to_s("F"), @valid.ideal_stock.to_s("F"), "Erroneous ideal_stock 1"
       assert_equal 100, @valid.stock_warehouse_1
     end
   end
 
   def test_save_when_updated_from_hash
     DB.transaction(rollback: :always) do
-      hash = {ideal_stock: "99,00", ideal_markup: "100,00", buy_cost: "1,0", sale_cost: "1,0"}
+      hash = {direct_ideal_stock: "90,00", indirect_ideal_stock: "90,00", ideal_markup: "100,00", buy_cost: "1,0", sale_cost: "1,0"}
       product = Product.new.get_rand
       product.update_from_hash hash
       product.save validate: false
       product = Product.new.get product.p_id
-      assert_equal 99, product.ideal_stock
-      assert_equal 100, product.ideal_markup
+      assert_equal BigDecimal.new(180), product.ideal_stock, "Erroneous ideal_stock 2"
+      assert_equal 100, product.ideal_markup, "Erroneous ideal_markup"
     end
   end
 
