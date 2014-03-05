@@ -462,7 +462,7 @@ class Product < Sequel::Model
     warehouses.virtual =  warehouse_1.virtual + warehouse_2.virtual
     warehouses.ideal = store_1.ideal # the sum of the warehouses stock must be double the stock of the store
     warehouses.deviation = warehouses.stock - warehouses.ideal
-    warehouses.deviation_percentile = warehouses.stock * 100 / warehouses.ideal
+    warehouses.deviation_percentile = warehouses.deviation * 100 / warehouses.ideal
     warehouses.deviation_percentile = BigDecimal.new(0, 2) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil? 
     warehouses.v_deviation = warehouses.virtual - warehouses.ideal
     warehouses.v_deviation_percentile = warehouses.v_deviation * 100 / warehouses.ideal
@@ -474,7 +474,7 @@ class Product < Sequel::Model
     global.virtual = global.stock + global.en_route
     global.ideal = store_1.ideal + warehouses.ideal
     global.deviation = global.stock - global.ideal
-    global.deviation_percentile = global.stock * 100 / global.ideal
+    global.deviation_percentile = global.deviation * 100 / global.ideal
     global.deviation_percentile = BigDecimal.new(0, 2) if global.deviation_percentile.nan? or global.deviation_percentile.infinite? or global.deviation_percentile.nil? 
     global.v_deviation = global.virtual - global.ideal
     global.v_deviation_percentile = global.v_deviation * 100 / global.ideal
