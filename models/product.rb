@@ -27,17 +27,11 @@ class Product < Sequel::Model
 
   def price_round exact_price
     price = exact_price
-    p "price  #{price.to_s "F"}" if self.p_id == 107
     frac = price.abs.modulo(1)
-    p "frac #{price.to_s "F"}" if self.p_id == 107
-    p "price0  #{price.to_s "F"}" if self.p_id == 107
     if frac > 0
       price += frac >= 0.5 ? -frac + 1 : -frac + 0.5
-    p "price1  #{price.to_s "F"}" if self.p_id == 107
       price += 0.5 if frac < 0.5 and price > 100
-    p "price2  #{price.to_s "F"}" if self.p_id == 107
     end
-    p "round #{price.to_s "F"}" if self.p_id == 107
     price
   end
 
@@ -121,7 +115,6 @@ class Product < Sequel::Model
     self[:buy_cost] = cost
     recalculate_sale_cost
   end
-
 
   def update_costs
     parts_cost
