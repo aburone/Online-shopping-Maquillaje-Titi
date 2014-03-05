@@ -12,7 +12,7 @@ class Backend < AppController
         if product.errors.count > 0
           puts product
           p product.errors.to_a.flatten.join(": ")
-          halt
+          # halt
         end
       end
     end
