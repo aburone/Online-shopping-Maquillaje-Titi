@@ -198,7 +198,7 @@ class Backend < AppController
   end
 
   get '/products/:id/?' do
-    edit_product params[:id].to_i
+    edit_product params[:id]
   end
 
   put '/products/:id/?' do
@@ -304,7 +304,7 @@ class Backend < AppController
 
   def edit_product p_id
     @product = Product.new.get(p_id)
-    if @product.nil?
+    if @product.empty?
       redirect_if_nil_product @product, p_id, "/products"
     end
 
@@ -315,6 +315,9 @@ class Backend < AppController
     @p_assemblies = @product.assemblies
     @categories = Category.all
     @brands = Brand.all
+
+    @product.validate
+    flash.now[:error] = @product.errors.to_a.flatten.join(": ") if @product.errors.count > 0
     slim :product, layout: :layout_backend
   end
 

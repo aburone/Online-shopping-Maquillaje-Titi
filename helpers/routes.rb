@@ -32,8 +32,8 @@ module ApplicationHelper
   end
 
   def redirect_if_nil_product product, p_id, route
-    if product.nil?
-      flash[:error] = t.product.missing p_id
+    if product.nil? or product.empty?
+      flash[:error] = t.product.missing p_id.to_s
       redirect to(route)
     end
     unless product.errors.count == 0  and product.valid? 
