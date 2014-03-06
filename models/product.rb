@@ -74,11 +74,12 @@ class Product < Sequel::Model
 
   def update_indirect_ideal_stock
     self.indirect_ideal_stock = BigDecimal.new(0)
-    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] * inventory.global.ideal unless assembly.archived}
+    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] * assembly.inventory.global.ideal unless assembly.archived}
     self
   end
 
   def update_stocks
+    p "update_stocks"
     self.stock_store_1 = BigDecimal.new Product
       .select{count(i_id).as(stock_store_1)}
       .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1)
@@ -102,7 +103,8 @@ class Product < Sequel::Model
       .first[:stock_warehouse_2]
     
     self.stock_deviation = inventory.global.deviation
-    archive_and_save if must_be_archived
+    archive_or_revive
+    self
   end
 
   def inventory for_months = 3
@@ -111,11 +113,7 @@ class Product < Sequel::Model
     @inventory_months = for_months
     store_1 = OpenStruct.new
     store_1.stock = BigDecimal.new self.stock_store_1, 2
-    if @values[:en_route_stock_store_1].nil?
-      store_1.en_route = BigDecimal.new 0, 2
-    else
-      store_1.en_route = BigDecimal.new @values[:en_route_stock_store_1], 2
-    end
+    store_1.en_route = @values[:en_route_stock_store_1].nil? ? BigDecimal.new(0, 2) : BigDecimal.new(@values[:en_route_stock_store_1], 2)
     store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route,)
     store_1.ideal = BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months # stored ideal stock are for 3 months
     store_1.deviation = store_1.stock - store_1.ideal
@@ -151,8 +149,7 @@ class Product < Sequel::Model
     global.stock = warehouses.stock + store_1.stock
     global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
     global.virtual = global.stock + global.en_route
-    global.ideal = store_1.ideal + warehouses.ideal
-    # (BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months) + (BigDecimal.new( self.indirect_ideal_stock, 2) / 3 * for_months)
+    global.ideal = (BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months) + (BigDecimal.new( self.indirect_ideal_stock, 2) / 3 * for_months)
 
     global.deviation = global.stock - global.ideal
     global.deviation_percentile = global.deviation * 100 / global.ideal
@@ -342,7 +339,7 @@ class Product < Sequel::Model
     self.end_of_life = false if self.archived
     begin
       super opts
-      if @values[:p_name] 
+      if self.p_name and not self.archived
         message = "Actualizancion de precio de todos los items de #{@values[:p_name]}"
         ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
         DB.run "UPDATE items
@@ -485,35 +482,15 @@ class Product < Sequel::Model
   def set_life_point life_point
     case life_point
       when "live"
-        self[:end_of_life] = false
-        self[:archived] = false
+        self.end_of_life = false
+        self.archived = false
       when "end_of_life"
-        self[:end_of_life] = true
-        self[:archived] = false
+        self.end_of_life = true
+        self.archived = false
       when "archived"
         archive
     end
-  end
-
-  def archive
-    if inventory.global.stock == 0
-      self[:end_of_life] = false
-      self[:archived] =  true
-    else
-      self[:end_of_life] = true
-      self[:archived] = false
-      errors.add "Error de ingreso", 'No podes archivar un producto hasta que su stock sea 0. Te lo deje en "Fin de vida"'
-    end
     self
-  end
-
-  def archive_and_save
-    archive
-    save
-  end
-
-  def must_be_archived
-    @values[:end_of_life] and inventory.global.stock == 0
   end
 
   def get_by_sku sku
@@ -654,10 +631,53 @@ class Product < Sequel::Model
       @values[:stock_store_2] = @values[:stock_store_2] ? BigDecimal.new(@values[:stock_store_2], 0) : BigDecimal.new(0, 2)
       @values[:stock_warehouse_1] = @values[:stock_warehouse_1] ? BigDecimal.new(@values[:stock_warehouse_1], 0) : BigDecimal.new(0, 2)
       @values[:stock_warehouse_2] = @values[:stock_warehouse_2] ? BigDecimal.new(@values[:stock_warehouse_2], 0) : BigDecimal.new(0, 2)
-      @values[:buy_cost] = @values[:buy_cost] ? BigDecimal.new(@values[:buy_cost], 0) : BigDecimal.new(0, 2)
+      self.buy_cost = self.buy_cost ? BigDecimal.new(self.buy_cost, 0) : BigDecimal.new(0, 2)
       @values[:sale_cost] = @values[:sale_cost] ? BigDecimal.new(@values[:sale_cost], 0) : BigDecimal.new(0, 2)
       @values[:ideal_markup] = @values[:ideal_markup] ? BigDecimal.new(@values[:ideal_markup], 0) : BigDecimal.new(0, 2)
       @values[:real_markup] = @values[:real_markup] ? BigDecimal.new(@values[:real_markup], 0) : BigDecimal.new(0, 2) 
     end
-end
 
+    def archive_or_revive
+      return archive if must_be_archived
+      return revive if must_be_revived
+      self
+    end
+
+    def must_be_archived
+      self.end_of_life and inventory.global.virtual == 0
+    end
+
+    def must_be_revived
+      self.archived and inventory.global.virtual > 0
+    end
+
+    def archive
+      if inventory.global.virtual == 0
+        self.end_of_life = false
+        self.archived =  true
+        message = "Archivado por agotar existencias"
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, p_id: self.p_id).save
+        save
+      else
+        self.end_of_life = true
+        self.archived = false
+        save
+        message = 'No se puede archivar un producto hasta que su stock sea 0. Seteado a "Fin de vida"'
+        errors.add "Error de ingreso", message
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::WARN, p_id: self.p_id).save
+      end
+      self
+    end
+
+    def revive
+      if inventory.global.virtual > 0
+        self.end_of_life = true
+        self.archived =  false
+        message = 'Producto seteado en estado "Fin de vida" por tener stock'
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::WARN, p_id: self.p_id).save
+        save
+      end
+      self
+    end
+
+end

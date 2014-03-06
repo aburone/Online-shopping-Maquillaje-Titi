@@ -219,15 +219,10 @@ class Backend < AppController
 
   put '/products/:id/?' do
     product = Product[params[:id].to_i].update_from_hash(params)
+    product.validate
     if product.errors.count == 0  and product.valid?
-      product.save()
-      if product.errors.count == 0  and product.valid?
-        product = Product.new.get product.p_id
-        product.save columns: Product::COLUMNS
-        flash[:notice] = R18n.t.product.updated
-      else
-        flash[:error] = product.errors 
-      end
+      product.update_stocks.save
+      flash[:notice] = R18n.t.product.updated
     else
       flash[:error] = product.errors 
     end
@@ -320,9 +315,7 @@ class Backend < AppController
 
   def edit_product p_id
     @product = Product.new.get(p_id)
-    if @product.empty?
-      redirect_if_nil_product @product, p_id, "/products"
-    end
+    redirect_if_nil_product @product, p_id, "/products" if @product.empty?
 
     @materials = Material.order(:m_name).all
     @parts = Product.filter(archived: false, end_of_life: false).order(:p_name).all
@@ -331,7 +324,6 @@ class Backend < AppController
     @p_assemblies = @product.assemblies
     @categories = Category.all
     @brands = Brand.all
-
     @product.validate
     flash.now[:error] = @product.errors.to_a.flatten.join(": ") if @product.errors.count > 0
     slim :product, layout: :layout_backend

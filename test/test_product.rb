@@ -587,11 +587,22 @@ class ProductTest < Test::Unit::TestCase
     needed_qty_for_assemblies = BigDecimal.new(0)
     product.assemblies.each do |assembly| 
       assembly.update_indirect_ideal_stock
-      needed_qty_for_assemblies += assembly[:part_qty] * assembly.direct_ideal_stock unless assembly.archived 
+      needed_qty_for_assemblies += assembly[:part_qty] * assembly.inventory.global.ideal unless assembly.archived 
     end
-    assert_equal (needed_qty_for_assemblies + product.direct_ideal_stock).to_s("F"), product.ideal_stock.to_s("F"), "Erroneous ideal stock 3"
-    assert_equal  BigDecimal.new(6).to_s("F"), needed_qty_for_assemblies.to_s("F")
+    assert_equal (needed_qty_for_assemblies + product.direct_ideal_stock).round, product.ideal_stock.round, "Erroneous ideal stock 3"
+    assert_equal  BigDecimal.new(6).round, needed_qty_for_assemblies.round
   end
+
+  def ideal_para_lits
+    # ideal kits:  sumatoria( ideal_global assembly )
+    # ideal globa: ( ideal_store_1 * 2 ) + ideal kits * 2
+    
+    # necesidad: ideal_global - stock_global - assembly.global_stok
+    # nececidad: desvio + sumatoria ( desvio.assembly )
+
+    # 138 de pastilla blanca
+  end
+
   
 end
 

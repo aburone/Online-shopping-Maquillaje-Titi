@@ -60,6 +60,9 @@ class Item < Sequel::Model
     log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
     log.save
 
+    product = Product[self.p_id]
+    product.update_stocks.save unless product.nil?
+
     order.change_status Order::FINISHED
     message
   end
@@ -89,7 +92,14 @@ class Item < Sequel::Model
     message = "Item Transmutado: #{original.p_name} -> #{@values[:p_name]}. Razon: #{reason}" 
     log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: @values[:i_loc], lvl: ActionsLog::WARN, o_id: order.o_id, i_id: @values[:i_id], p_id: @values[:p_id])
     log.save
+
+    product = Product[original.p_id]
+    product.update_stocks.save unless product.nil?
+    product = Product[self.p_id]
+    product.update_stocks.save unless product.nil?
+
     order.change_status Order::FINISHED
+
 
     self
   end
@@ -223,6 +233,10 @@ class Item < Sequel::Model
     log.set(o_id: o_id) unless o_id == 0
     log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
     log.save
+
+    product = Product[self.p_id]
+    product.update_stocks.save unless product.nil?
+
     message
   end
 
@@ -347,7 +361,7 @@ class Item < Sequel::Model
         end
         if item.i_status == Item::VERIFIED
           message = "Este item ya fue verificado con anterioridad."
-          errors.add("Error de ingredo", message)
+          errors.add("Error de ingreso", message)
         elsif item.i_status != Item::MUST_VERIFY
           message = "Esta etiqueta esta en estado \"#{ConstantsTranslator.new(item.i_status).t}\". No podes usarla en esta orden"
           errors.add("Error general", message)
