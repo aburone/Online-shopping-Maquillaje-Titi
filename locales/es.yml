@@ -314,7 +314,7 @@ product:
     parts: "Partes"
     trimester_direct_ideal_stock: "Ideal para local"
     trimester_indirect_ideal_stock: "Ideal para kits"
-    trimester_ideal_stock: "Ideal para deposito"
+    trimester_ideal_stock: "Ideal global"
     stock_warehouse_1: "Deposito 1"
     stock_warehouse_2: "Deposito 2"
     stock_store_1: "Local 1"

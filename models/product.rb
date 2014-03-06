@@ -74,7 +74,7 @@ class Product < Sequel::Model
 
   def update_indirect_ideal_stock
     self.indirect_ideal_stock = BigDecimal.new(0)
-    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] * assembly.direct_ideal_stock unless assembly.archived}
+    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] * inventory.global.ideal unless assembly.archived}
     self
   end
 
@@ -151,7 +151,8 @@ class Product < Sequel::Model
     global.stock = warehouses.stock + store_1.stock
     global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
     global.virtual = global.stock + global.en_route
-    global.ideal = (BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months) + warehouses.ideal
+    global.ideal = store_1.ideal + warehouses.ideal
+    # (BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months) + (BigDecimal.new( self.indirect_ideal_stock, 2) / 3 * for_months)
 
     global.deviation = global.stock - global.ideal
     global.deviation_percentile = global.deviation * 100 / global.ideal
