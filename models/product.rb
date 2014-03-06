@@ -151,7 +151,7 @@ class Product < Sequel::Model
     global.stock = warehouses.stock + store_1.stock
     global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
     global.virtual = global.stock + global.en_route
-    global.ideal = (BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months) + (BigDecimal.new( self.indirect_ideal_stock, 2) / 3 * for_months)
+    global.ideal = (BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months) + warehouses.ideal
 
     global.deviation = global.stock - global.ideal
     global.deviation_percentile = global.deviation * 100 / global.ideal
