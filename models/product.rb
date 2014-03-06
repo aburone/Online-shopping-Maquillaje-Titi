@@ -584,7 +584,7 @@ class Product < Sequel::Model
 
     validates_presence [:p_name, :p_short_name, :br_name, :br_id, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :exact_price, :price]
 
-    errors.add("El costo", "no puede ser cero" ) if @values[:buy_cost] + @values[:sale_cost] == 0
+    errors.add("El costo de compra", "no puede ser cero" ) if @values[:buy_cost] + @values[:sale_cost] == 0
 
     errors.add("El markup ideal", "no puede ser cero" ) if @values[:ideal_markup] == 0
     if @values[:real_markup] == 0

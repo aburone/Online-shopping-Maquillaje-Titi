@@ -8,9 +8,6 @@ require 'pp'
 require 'sinatra/r18n'
 require "sinatra/multi_route"
 require "i18n"
-# require "better_errors"
-
-
 
 require_relative 'helpers/init'
 require_relative 'models/init'
@@ -29,7 +26,9 @@ class AppController < Sinatra::Base
   set :root, File.dirname(__FILE__)
   R18n::I18n.default = 'es'
   include R18n::Helpers
-
+  
+  I18n.enforce_available_locales = false 
+  
   def current_user_id
     session[:user_id]
   end
@@ -74,10 +73,6 @@ class AppController < Sinatra::Base
 
   configure :development do
     enable :show_exceptions
-
-    #better errors
-    # use BetterErrors::Middleware
-    # BetterErrors.application_root = File.expand_path('..', __FILE__)
 
     # require_relative 'models/stdout_logger'
     require 'sinatra/reloader'
