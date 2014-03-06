@@ -20,9 +20,9 @@ gem "i18n"
 gem "sinatra-r18n"
 gem "thin"
 gem "rubytree"
+gem "awesome_print"
 
 group :development, :test do
-  gem "awesome_print"
   gem "rspec"
   gem "webrat"
   gem "capybara"

@@ -398,7 +398,7 @@ class ProductTest < Test::Unit::TestCase
       product.update_from_hash hash
       product.save validate: false
       product = Product.new.get product.p_id
-      assert_equal BigDecimal.new(17), product.ideal_stock, "Erroneous ideal_stock 2"
+      assert_equal BigDecimal.new(12), product.ideal_stock, "Erroneous ideal_stock 2"
       assert_equal 100, product.ideal_markup, "Erroneous ideal_markup"
     end
   end
@@ -583,10 +583,14 @@ class ProductTest < Test::Unit::TestCase
 
   def test_should_calculate_indirect_ideal_stock
     product = Product.new.get 135
-    part_qty = BigDecimal.new(0)
-    product.assemblies.each { |assembly| part_qty += assembly[:part_qty] }
-    assert_equal part_qty+product.direct_ideal_stock*2, product.ideal_stock
-    assert_equal 7, part_qty
+    product.update_indirect_ideal_stock.save
+    needed_qty_for_assemblies = BigDecimal.new(0)
+    product.assemblies.each do |assembly| 
+      assembly.update_indirect_ideal_stock
+      needed_qty_for_assemblies += assembly[:part_qty] * assembly.direct_ideal_stock unless assembly.archived 
+    end
+    assert_equal (needed_qty_for_assemblies + product.direct_ideal_stock).to_s("F"), product.ideal_stock.to_s("F"), "Erroneous ideal stock 3"
+    assert_equal  BigDecimal.new(6).to_s("F"), needed_qty_for_assemblies.to_s("F")
   end
   
 end

@@ -57,8 +57,8 @@ class Backend < AppController
   get '/reports/to_package/:mode' do
     list = Product.new.get_list.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name) 
     @products = Product.new.get_saleable_at_all_locations list
+    months = 0
     @products.map do |product|
-
       case params[:mode].upcase
         when Product::STORE_ONLY_1, Product::ALL_LOCATIONS_1
           months = 1
@@ -67,27 +67,26 @@ class Backend < AppController
         when Product::STORE_ONLY_3, Product::ALL_LOCATIONS_3
           months = 3
       end
-      product.inventory months
 
       if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
-        product[:virtual_stock_store_1] = product.inventory.store_1.virtual
-        product[:ideal_stock] = product.inventory.store_1.ideal
-        product[:stock_deviation] = product.inventory.store_1.v_deviation
-        product[:stock_deviation_percentile] = product.inventory.store_1.v_deviation_percentile
+        product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
+        product[:ideal_stock] = product.inventory(months).store_1.ideal
+        product[:stock_deviation] = product.inventory(months).store_1.v_deviation
+        product[:stock_deviation_percentile] = product.inventory(months).store_1.v_deviation_percentile
       else
-        product[:virtual_stock_store_1] = product.inventory.store_1.virtual
-        product[:ideal_stock] = product.inventory.global.ideal
-        product[:stock_deviation] = product.inventory.global.v_deviation
-        product[:stock_deviation_percentile] = product.inventory.global.v_deviation_percentile
+        product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
+        product[:ideal_stock] = product.inventory(months).global.ideal
+        product[:stock_deviation] = product.inventory(months).global.v_deviation
+        product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
       end
 
     end
     if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
-      @products.sort_by! { |product| [ product.inventory.store_1.v_deviation_percentile, product.inventory.global.v_deviation ] }
-      @products.delete_if { |product| product.inventory.store_1.v_deviation_percentile >= -33}
+      @products.sort_by! { |product| [ product.inventory(months).store_1.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
+      @products.delete_if { |product| product.inventory(months).store_1.v_deviation_percentile >= -33}
     else
-      @products.sort_by! { |product| [ product.inventory.global.v_deviation_percentile, product.inventory.global.v_deviation ] }
-      @products.delete_if { |product| product.inventory.global.v_deviation_percentile >= -33}
+      @products.sort_by! { |product| [ product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
+      @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= -33}
     end
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
       can_edit: false,

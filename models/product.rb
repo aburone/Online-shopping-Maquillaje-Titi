@@ -36,6 +36,7 @@ class Product < Sequel::Model
                 .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :notes, :img_extra, :brands__br_name, :categories__c_name)
                 .first
     return Product.new if product.nil?
+
     product.update_costs
     product.recalculate_markups
     product.update_stocks
@@ -73,7 +74,8 @@ class Product < Sequel::Model
 
   def update_indirect_ideal_stock
     self.indirect_ideal_stock = BigDecimal.new(0)
-    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] }
+    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] * assembly.direct_ideal_stock unless assembly.archived}
+    self
   end
 
   def update_stocks
@@ -104,8 +106,9 @@ class Product < Sequel::Model
   end
 
   def inventory for_months = 3
-    return @inventory unless @inventory.nil?
+    return @inventory unless @inventory.nil? or @inventory_months != for_months
     @inventory = OpenStruct.new
+    @inventory_months = for_months
     store_1 = OpenStruct.new
     store_1.stock = BigDecimal.new self.stock_store_1, 2
     if @values[:en_route_stock_store_1].nil?
@@ -136,7 +139,7 @@ class Product < Sequel::Model
     warehouses.stock = warehouse_1.stock + warehouse_2.stock
     warehouses.virtual =  warehouse_1.virtual + warehouse_2.virtual
 
-    warehouses.ideal = store_1.ideal + self.indirect_ideal_stock # the sum of the warehouses stock must be double the stock of the store?
+    warehouses.ideal = BigDecimal.new(self.direct_ideal_stock + self.indirect_ideal_stock, 2) / 3 * for_months  # the sum of the warehouses stock must be double the stock of the store?
     warehouses.deviation = warehouses.stock - warehouses.ideal
     warehouses.deviation_percentile = warehouses.deviation * 100 / warehouses.ideal
     warehouses.deviation_percentile = BigDecimal.new(0, 2) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil? 
@@ -148,7 +151,8 @@ class Product < Sequel::Model
     global.stock = warehouses.stock + store_1.stock
     global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
     global.virtual = global.stock + global.en_route
-    global.ideal = self.ideal_stock
+    global.ideal = (BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months) + (BigDecimal.new( self.indirect_ideal_stock, 2) / 3 * for_months)
+
     global.deviation = global.stock - global.ideal
     global.deviation_percentile = global.deviation * 100 / global.ideal
     global.deviation_percentile = BigDecimal.new(0, 2) if global.deviation_percentile.nan? or global.deviation_percentile.infinite? or global.deviation_percentile.nil? 
@@ -203,7 +207,11 @@ class Product < Sequel::Model
   end
 
   def assemblies
-    product_part =  ProductsPart.select{Sequel.lit('product_id').as(p_id)}.select_append{:part_qty}.where(part_id: self.p_id).all
+    product_part =  ProductsPart
+                      .select{Sequel.lit('product_id').as(p_id)}
+                      .select_append{:part_qty}
+                      .where(part_id: self.p_id)
+                      .all
     assemblies = []
     product_part.each do |assy| 
       assembly = Product.new.get(assy[:p_id])
