@@ -228,6 +228,9 @@ table.tablesorter th {
   background: #fffded;
   cursor: text; }
 
+.grid-form [data-row-span] [data-field-span] {
+  background: rgba(255, 255, 255, 0.8); }
+
 .grid-form [data-row-span="1"] > [data-field-span="1"] {
   width: 100%; }
 

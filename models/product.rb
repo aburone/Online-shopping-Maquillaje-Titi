@@ -217,18 +217,15 @@ class Product < Sequel::Model
 
   def recalculate_sale_cost
     self[:sale_cost] = BigDecimal.new(@values[:buy_cost] + @values[:parts_cost] + @values[:materials_cost], 2)
-    # p "recalculate sale cost #{self[:sale_cost]}"
     recalculate_markups
   end
   
   def materials_cost= cost
-    # p "#{self.p_id}: materials_cost= #{cost.to_s "F"} "
     self[:materials_cost] = cost
     recalculate_sale_cost
   end
 
   def parts_cost= cost
-    # p "#{self.p_id}: parts_cost= #{cost.to_s "F"}"
     self[:parts_cost] = cost
     recalculate_sale_cost
   end
@@ -333,8 +330,7 @@ class Product < Sequel::Model
 
   def save (opts=OPTS)
     opts = opts.merge({columns: Product::ATTIBUTES})
-    @values[:end_of_life] = false if @values[:archived]
-    # puts self
+    self.end_of_life = false if self.archived
     begin
       super opts
       if @values[:p_name] 
