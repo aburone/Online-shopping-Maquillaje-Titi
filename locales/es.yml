@@ -285,6 +285,8 @@ product:
   duplicated: "Producto duplicado con exito"
   there_can_be_only_one_new:  "Solo puede haber un producto sin completar por vez"
   updated: "Cambios guardados con exito"
+  mass_update: "Recalculando producto: %1"
+  mass_update_error: "Error recalculando producto %1: %2"
   material_added: "Agregado %1 x %2"
   material_updated: "Actualizado %1 x %2"
   material_removed: "Borrado %1"

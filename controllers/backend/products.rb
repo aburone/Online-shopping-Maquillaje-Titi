@@ -1,21 +1,30 @@
 class Backend < AppController
 
   post '/products/update_all' do
-    Thread.new do
-      Product.all.each do |product|
-        p "Updating product: #{product.p_name}"
+    t = Thread.new do
+      products = Product.filter(archived: false).order(:p_name).all
+      errors = []
+      products.each do |product|
+        message = R18n.t.product.mass_update product.p_name
+        p message
         product.update_costs
         product.recalculate_markups
         product.update_stocks
         product.update_indirect_ideal_stock
-        product.save
+        product.save validate: false
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::INFO, p_id: product.p_id).save
+        product.validate
         if product.errors.count > 0
-          puts product
-          p product.errors.to_a.flatten.join(": ")
-          # halt
+          message = T18n.t.product.mass_update_error(product.p_name, product.errors.to_a.flatten.join(" "))
+          errors << message
+          p message
+          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR, p_id: product.p_id).save
         end
       end
+      # TODO: raise errors as warning message
     end
+    t.abort_on_exception = true
+
     flash[:warning] = R18n.t.products.updating_in_background
     redirect to("/products")
   end
