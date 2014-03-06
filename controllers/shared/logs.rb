@@ -9,18 +9,17 @@ module Logs
                 .where{Sequel.expr(:at) >= sub}
                 .order(:id)
                 .reverse
+                .limit(500)
                 .all
     else
       @logs = ActionsLog
-      pp params
       params.each do |key, value|
-        pp value.nil? or value.to_s.strip.empty?
         @logs = @logs.where( key.to_sym => value) if ["at", "msg", "lvl", "b_id", "m_id", "i_id", "p_id", "o_id", "u_id", "l_id"].include? key unless value.nil? or value.to_s.strip.empty?
       end
       @logs = @logs
-                .limit(5000)
                 .order(:id)
                 .reverse
+                .limit(500)
                 .all
     end
     slim :logs, layout: Thread.current.thread_variable_get(:layout)

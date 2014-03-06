@@ -4,7 +4,7 @@
 form.grid-form method="GET" action="#{request.env['REQUEST_PATH']}"
   fieldset
     legend Busqueda en logs
-    - fields = {b_id: "ID Bulk", m_id: "ID Material", i_id: "ID Item", p_id: "ID Producto", o_id: "ID Orden", u_id: "ID Usuario"}
+    - fields = {b_id: "ID Bulk", m_id: "ID Material", i_id: "ID Item", p_id: "ID Producto", o_id: "ID Orden", u_id: "ID Usuario", lvl: "Nivel"}
     div data-row-span="10"
       - fields.each do |field, label| 
         div data-field-span="1"
