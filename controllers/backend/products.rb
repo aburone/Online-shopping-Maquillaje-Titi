@@ -1,29 +1,36 @@
 class Backend < AppController
 
   post '/products/update_all' do
-    t = Thread.new do
-      products = Product.filter(archived: false).order(:p_name).all
-      errors = []
-      products.each do |product|
-        message = R18n.t.product.mass_update product.p_name
-        p message
-        product.update_costs
-        product.recalculate_markups
-        product.update_stocks
-        product.update_indirect_ideal_stock
-        product.save validate: false
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::INFO, p_id: product.p_id).save
-        product.validate
-        if product.errors.count > 0
-          message = T18n.t.product.mass_update_error(product.p_name, product.errors.to_a.flatten.join(" "))
-          errors << message
+    begin
+      t = Thread.new do
+        products = Product.filter(archived: false).order(:p_name).all
+        errors = []
+        products.each do |product|
+          message = "Recalculando producto: #{product.p_name}"
           p message
-          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR, p_id: product.p_id).save
+          product.update_costs
+          product.recalculate_markups
+          product.update_stocks
+          product.update_indirect_ideal_stock
+          product.save validate: false
+          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::INFO, p_id: product.p_id).save
+          product.validate
+          if product.errors.count > 0
+            message = "Error recalculando producto #{product.p_name}: #{product.errors.to_a.flatten.join(" ")}"
+            errors << message
+            p message
+            ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR, p_id: product.p_id).save
+          end
         end
+        # TODO: raise errors as warning message
       end
-      # TODO: raise errors as warning message
+      # t.abort_on_exception = true
+    rescue => detail
+      message = "Error critico: #{detail.message}"
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR).save
+      flash[:error] = message
+      redirect to("/products")
     end
-    t.abort_on_exception = true
 
     flash[:warning] = R18n.t.products.updating_in_background
     redirect to("/products")
