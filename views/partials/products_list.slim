@@ -92,10 +92,6 @@
           - if real_markup_col
             td.sm_cell.number #{Utils::number_format product[:real_markup], 2}
           - if markup_deviation_percentile_col
-            - p "wtf"
-            - halt
-            - pp markup_deviation_percentile_col 
-            - pp markup_deviation_percentile_col.class
             - unless product[:markup_deviation_percentile].nil?
               - col_class = (product[:markup_deviation_percentile] > 1.1) ? "number overpriced" : (product[:markup_deviation_percentile] < 0.9) ? "number underpriced" : "number"
               - markup_deviation_percentile = product[:markup_deviation_percentile] == 0 ? "-" : "#{"+" if product[:markup_deviation_percentile] > 0}#{Utils::number_format(product[:markup_deviation_percentile], 0)} %"
