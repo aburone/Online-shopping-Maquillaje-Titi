@@ -95,7 +95,7 @@ class Material < Sequel::Model(:materials)
       materials = product.materials
       materials.each do |p_material|
         needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : (p_material[:m_qty] * product.ideal_stock)
-        p "  #{product.p_name} (#{product.p_id}): #{p_material[:m_qty].to_s("F")} x #{product.ideal_stock} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
+        p "  #{product.p_name} (#{product.p_id}): #{p_material[:m_qty].to_s("F")} x #{product.ideal_stock.to_s("F")} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
         total_needed += needed if p_material.m_id == @values[:m_id]
       end
     end
