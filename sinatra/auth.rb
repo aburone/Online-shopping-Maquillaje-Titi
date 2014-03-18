@@ -62,7 +62,9 @@ module Sinatra
         location = Location.new.valid?(params[:location]) ? Location.new.get(params[:location]) : false
         if user && location && user.level >= location[:level]
           set_user user, location
-          flash[:notice]  = t.auth.loggedin(user.username)
+          message = t.auth.loggedin(user.username)
+          flash[:notice] = message
+          enqueue ActionsLog.new.set(msg: message, u_id: user[:user_id], l_id: location[:name], lvl: ActionsLog::NOTICE)
           if (request.env["REQUEST_PATH"].nil? or request.env["HTTP_HOST"].nil? or request.referer.nil?) and not request.referer.nil? and not request.referer.inclue?(request.env["HTTP_HOST"])
             redirect to(Thread.current.thread_variable_get(:root_path))
           else

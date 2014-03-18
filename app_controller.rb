@@ -30,6 +30,19 @@ class AppController < Sinatra::Base
   
   I18n.enforce_available_locales = false 
   
+
+  @@queue = Queue.new
+  @@running = true
+  def enqueue message
+    @@queue << message
+  end
+  Thread.new do
+    while @@running
+      #sleep(1)
+      @@queue.pop.perform
+    end
+  end
+
   def current_user_id
     session[:user_id]
   end
