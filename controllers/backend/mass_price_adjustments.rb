@@ -10,7 +10,7 @@ class Backend < AppController
     DB.transaction do
       if save
         message = "Actualizancion masiva de precios de productos. multiplicador: #{mod.to_f}"
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE)
       end
 
       products.map do |pr|
@@ -22,7 +22,9 @@ class Backend < AppController
 
       if save
           message = "Actualizancion masiva de todos los items en proceso o listos para ser vendidos. Multiplicador: #{mod.to_f}"
-          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
+          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE)
+
+
           DB.run "UPDATE items
           JOIN products using(p_id)
           SET items.i_price = products.price, items.i_price_pro = products.price_pro
