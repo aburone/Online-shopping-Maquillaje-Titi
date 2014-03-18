@@ -8,20 +8,20 @@ When /^I fill with a printed label$/ do
   page.should have_content("Si es correcto")
   click_button("Aceptar")
   with_scope('.flash') { page.should have_content("asignada al producto") }
-  page.should have_content( "Lee la etiqueta del proximo" ) 
-  click_link( "Seleccionar un producto distinto" ) #t.order_select_other_product: 
+  page.should have_content( "Lee la etiqueta del proximo" )
+  click_link( "Seleccionar un producto distinto" ) #t.order_select_other_product:
 end
 
 When /^I select a packaging order for verification$/ do
   all('.item').last.first(:link).click
 end
 
-When /^I remove one item I should see one less$/ do 
+When /^I remove one item I should see one less$/ do
   @o_id = get_o_id
   @count = all('.item').count
   if @count > 0
-    id = all('.item').first.first('td').text 
-    click_link( "Remover un item de la orden" ) 
+    id = all('.item').first.first('td').text
+    click_link( "Remover un item de la orden" )
     fill_in 'id', with: id
     click_button("Aceptar")
     with_scope('.flash') { page.should have_content("Etiqueta dissociada del producto y la orden") }
@@ -49,11 +49,10 @@ Then /^If there are missing materials, I should add them$/ do
     items.each do |item|
       puts "Adding 999 units"
       first("table#missing_materials a.edit[href]").click
-      click_button( "Crear nuevo" ) 
+      click_button( "Crear nuevo" )
       el = find('#ajax_bulks_list').first('a')
-      visit(el['href']) 
+      visit(el['href'])
       fill_in 'b_qty', with: "999"
-      fill_in 'b_price', with: (rand()/100)
       select 'IN_USE', from: "b_status"
       click_button( t.actions.apply )
       visit start
