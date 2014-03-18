@@ -27,9 +27,8 @@ class AppController < Sinatra::Base
   set :root, File.dirname(__FILE__)
   R18n::I18n.default = 'es'
   include R18n::Helpers
-  
-  I18n.enforce_available_locales = false 
-  
+  I18n.enforce_available_locales = false
+
 
   @@queue = Queue.new
   @@running = true
