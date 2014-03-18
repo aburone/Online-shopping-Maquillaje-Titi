@@ -29,5 +29,7 @@ group :development, :test do
   gem "cucumber"
   gem "cucumber-sinatra"
   gem "poltergeist"
-  gem 'test-unit','= 2.5.5' 
+  gem "phantomjs", :require => 'phantomjs/poltergeist' # install executable running ruby pathphantomjs.rb the add to path PATH=$PATH:/home/user/.phantomjs/1.9.7/x86_64-linux/bin
+  gem 'test-unit','= 2.5.5'
 end
+
