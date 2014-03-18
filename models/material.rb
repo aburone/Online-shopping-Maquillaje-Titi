@@ -72,15 +72,14 @@ class Material < Sequel::Model(:materials)
       .first[:stock_warehouse_2]
     stock ||= 0
     @values[:stock_warehouse_2] = BigDecimal.new stock
-    update_stock_deviation
   end
 
-  def update_stock_deviation
-    ideal = @values[:m_ideal_stock]
+  def recalculate_ideals months
+    self.m_ideal_stock *= months
     actual = @values[:m_qty].nil? ? BigDecimal.new(0) : @values[:m_qty]
-    @values[:stock_deviation] = ideal - actual
+    @values[:stock_deviation] = self.m_ideal_stock - actual
     @values[:stock_deviation] *= -1
-    @values[:stock_deviation_percentile] = @values[:stock_deviation] * 100 / (@values[:m_ideal_stock])
+    @values[:stock_deviation_percentile] = @values[:stock_deviation] * 100 / (self.m_ideal_stock)
     @values[:stock_deviation_percentile] = BigDecimal.new(0) if @values[:stock_deviation_percentile].nan?
   end
 
@@ -107,17 +106,17 @@ class Material < Sequel::Model(:materials)
       parts.each do |product_part|
         materials = product_part.materials
         materials.each do |p_material|
-          needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : p_material[:m_qty] * product_part[:part_qty] * product_part.ideal_stock 
-          p "  #{product.p_name} (#{product.p_id}) -> #{product_part.p_name} (#{product_part.p_id}): #{p_material[:m_qty].to_s("F")} x #{product_part[:part_qty].to_s("F")} x #{product_part.ideal_stock} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
+          needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : p_material[:m_qty] * product_part[:part_qty] * product_part.ideal_stock
+          p "  #{product.p_name} (#{product.p_id}) -> #{product_part.p_name} (#{product_part.p_id}): #{p_material[:m_qty].to_s("F")} x #{product_part[:part_qty].to_s("F")} x #{product_part.ideal_stock.to_s("F")} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
           total_needed += needed if p_material.m_id == @values[:m_id]
         end
       end
     end
     p "Total needed: #{total_needed.to_s("F")}"
     p ""
-    @values[:m_ideal_stock] = total_needed * 2 # ideal for products is 3 months, but for materials is 6 months
+    @values[:m_ideal_stock] = total_needed
     save columns: COLUMNS
-    total_needed * 2
+    total_needed
   end
 
   def create_default

@@ -575,28 +575,56 @@ class ProductTest < Test::Unit::TestCase
 
   def test_should_get_materials_cost
     product = Product[2]
-    cost = 0
+    cost =  BigDecimal.new(0, 2)
     product.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
-    assert_equal product.materials_cost, cost
-    assert_equal 5.1, product.materials_cost
+
+    assert_equal cost.round(2).to_s("F"), product.materials_cost.to_s("F")
+    expected_cost = BigDecimal.new(85.73, 4)
+    assert_equal expected_cost, product.materials_cost, "#{expected_cost.to_s("F")} expected but was #{product.materials_cost.to_s("F")}"
   end
 
-  def test_should_calculate_indirect_ideal_stock
-    product = Product.new.get 135
-    product.update_indirect_ideal_stock.save
-    needed_qty_for_assemblies = BigDecimal.new(0)
-    product.assemblies.each do |assembly| 
-      assembly.update_indirect_ideal_stock
-      needed_qty_for_assemblies += assembly[:part_qty] * assembly.inventory.global.ideal unless assembly.archived 
+  def test_should_calculate_ideal_stock
+    DB.transaction(rollback: :always) do
+      product = Product.new.get 135
+      product.update_indirect_ideal_stock
+      calculated_indirect_ideal_stock = BigDecimal.new(0)
+      product.assemblies.each do |assembly|
+        assembly.update_indirect_ideal_stock
+        calculated_indirect_ideal_stock += assembly[:part_qty] * assembly.inventory.global.ideal unless assembly.archived
+      end
+      calculated_indirect_ideal_stock *= 2
+
+      assert_equal (calculated_indirect_ideal_stock).round(2).to_s("F"), product.indirect_ideal_stock.round(2).to_s("F"), "Erroneous indirect ideal stock"
+      assert_equal (calculated_indirect_ideal_stock + product.direct_ideal_stock * 2).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
+      assert_equal BigDecimal.new(78.64, 4).round(2).to_s("F"), calculated_indirect_ideal_stock.round(2).to_s("F"), "Erroneous calculated_indirect_ideal_stock"
+      assert_equal BigDecimal.new(110.64, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
+      assert_equal 0, (product.ideal_stock - calculated_indirect_ideal_stock - product.direct_ideal_stock * 2).round, "Erroneous ideal stock relation"
+
     end
-    assert_equal (needed_qty_for_assemblies + product.direct_ideal_stock).round, product.ideal_stock.round, "Erroneous ideal stock 3"
-    assert_equal  BigDecimal.new(6).round, needed_qty_for_assemblies.round
   end
 
-  def ideal_para_lits
-    # ideal kits:  sumatoria( ideal_global assembly )
-    # ideal globa: ( ideal_store_1 * 2 ) + ideal kits * 2
-    
+  def test_should_ideal_stock_should_not_be_modified_by_stored_procedure
+    DB.transaction(rollback: :always) do
+      product = Product.new.get 135
+      product.ideal_stock = 10
+      assert_equal 10, product.ideal_stock, "Erroneous ideal stock "
+      product.save
+      product = Product.new.get 135
+      assert_equal 10, product.ideal_stock, "Erroneous ideal stock "
+    end
+  end
+
+
+  def test_inventory_should_return_same_values_as_stored_object
+    product = Product.new.get 135
+    assert_equal product.ideal_stock.round(2).to_s("F"), product.inventory.global.ideal.round(2).to_s("F")
+  end
+
+  def ideal_para_kits
+    # ideal kits:  sumatoria( ideal_global_assembly )
+    # ideal global: ( ideal_store_1 * 2 ) + ideal kits * 2
+    # 48*2 + 59*2 = 96+118 = 214
+
     # necesidad: ideal_global - stock_global - assembly.global_stok
     # nececidad: desvio + sumatoria ( desvio.assembly )
 

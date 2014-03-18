@@ -109,11 +109,17 @@
             - if use_virtual_stocks
                 td.sm_cell.number #{Utils::number_format product[:virtual_stock_store_1], 0}
           - if stock_col or multi_stock_col
-            td.sm_cell.number #{Utils::number_format product[:ideal_stock], 0}
+            td.sm_cell.number #{Utils::number_format product[:ideal_stock], 2}
           - if stock_deviation_col
             - col_class = (product[:stock_deviation] > 0) ? "number overstocked" : (product[:stock_deviation] < 0) ? "number understocked" : "number"
             - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
-            td.sm_cell class="#{col_class}" #{stock_deviation}
+
+
+            / - p product[:stock_deviation].to_s("F") if product.p_id == 758
+            / - p product[:stock_deviation].abs < 1 if product.p_id == 758
+            - product[:stock_deviation] = -1 if product[:stock_deviation] < 0 and product[:stock_deviation] > -1
+            - stock_deviation_for_humans = Utils::number_format(product[:stock_deviation].round, 0, "-")
+            td.sm_cell class="#{col_class}" #{stock_deviation_for_humans}
             - col_class = (product[:stock_deviation_percentile] > 0) ? "number overstocked" : (product[:stock_deviation_percentile] < 0) ? "number understocked" : "number"
             - stock_deviation_percentile = product[:stock_deviation_percentile] == 0 ? "-" : "#{Utils::number_format product[:stock_deviation_percentile], 1} %"
             td.sm_cell class="#{col_class}" #{stock_deviation_percentile}

@@ -552,3 +552,11 @@ category:
     description: Descripción
     published: Visible?
     img: Foto
+reports_products_to_buy: !!pl
+  0: "Reporte de productos por comprar en el dia del juicio final"
+  1: "Reporte de productos por comprar para un mes"
+  n: "Reporte de productos por comprar para %1 meses"
+reports_materials_to_buy: !!pl
+  0: "Reporte de materiales por comprar en el dia del juicio final"
+  1: "Reporte de materiales por comprar para un mes"
+  n: "Reporte de materiales por comprar para %1 meses"

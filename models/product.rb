@@ -102,13 +102,13 @@ class Product < Sequel::Model
       .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W2)
       .where(products__p_id: @values[:p_id])
       .first[:stock_warehouse_2]
-    
+
     self.stock_deviation = inventory.global.deviation
     archive_or_revive
     self
   end
 
-  def inventory for_months = 3
+  def inventory for_months = 1
     return @inventory unless @inventory.nil? or @inventory_months != for_months
     @inventory = OpenStruct.new
     @inventory_months = for_months
@@ -116,7 +116,7 @@ class Product < Sequel::Model
     store_1.stock = BigDecimal.new self.stock_store_1, 2
     store_1.en_route = @values[:en_route_stock_store_1].nil? ? BigDecimal.new(0, 2) : BigDecimal.new(@values[:en_route_stock_store_1], 2)
     store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route,)
-    store_1.ideal = BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months # stored ideal stock are for 3 months
+    store_1.ideal = self.direct_ideal_stock * for_months
     store_1.deviation = store_1.stock - store_1.ideal
     store_1.deviation_percentile = store_1.deviation * 100 / store_1.ideal
     store_1.deviation_percentile = BigDecimal.new(0, 2) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
@@ -138,7 +138,7 @@ class Product < Sequel::Model
     warehouses.stock = warehouse_1.stock + warehouse_2.stock
     warehouses.virtual =  warehouse_1.virtual + warehouse_2.virtual
 
-    warehouses.ideal = BigDecimal.new(self.direct_ideal_stock + self.indirect_ideal_stock, 2) / 3 * for_months  # the sum of the warehouses stock must be double the stock of the store?
+    warehouses.ideal = self.direct_ideal_stock * for_months + self.indirect_ideal_stock * for_months
     warehouses.deviation = warehouses.stock - warehouses.ideal
     warehouses.deviation_percentile = warehouses.deviation * 100 / warehouses.ideal
     warehouses.deviation_percentile = BigDecimal.new(0, 2) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil?
@@ -150,7 +150,7 @@ class Product < Sequel::Model
     global.stock = warehouses.stock + store_1.stock
     global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
     global.virtual = global.stock + global.en_route
-    global.ideal = (BigDecimal.new(self.direct_ideal_stock, 2) / 3 * for_months) + (BigDecimal.new( self.indirect_ideal_stock, 2) / 3 * for_months)
+    global.ideal = store_1.ideal + warehouses.ideal
 
     global.deviation = global.stock - global.ideal
     global.deviation_percentile = global.deviation * 100 / global.ideal
@@ -431,7 +431,7 @@ class Product < Sequel::Model
     product
   end
 
-  def to_s
+  def print
     out = "\n"
     out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
     out += "\tp_id:               #{@values[:p_id]}\n"
@@ -477,6 +477,7 @@ class Product < Sequel::Model
     out += "\timg:                #{@values[:img]}\n"
     out += "\timg_extra:          #{@values[:img_extra]}\n"
     out += "\tnotes:              #{@values[:notes]}\n"
+    echo out
     out
   end
 

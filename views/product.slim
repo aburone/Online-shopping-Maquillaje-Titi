@@ -87,7 +87,7 @@
 
     fieldset
       legend Stock
-      div data-row-span="8"
+      div data-row-span="5"
         div.readonly data-field-span="1"
           label for="stock_warehouse_1" = t.product.fields.stock_warehouse_1
           input.positive.number type="tel" name="stock_warehouse_1" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:stock_warehouse_1], 0, 0}"
@@ -99,19 +99,19 @@
           input.positive.number type="tel" name="stock_store_1" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:stock_store_1], 0, 0}"
         div data-field-span="1"
           label for="direct_ideal_stock" = t.product.fields.trimester_direct_ideal_stock
-          input.positive.number type="tel" name="direct_ideal_stock" size=3 maxlength=6 required="required" value="#{Utils::number_format @product[:direct_ideal_stock], 0, 0}"
-        div.readonly data-field-span="1"
-          label for="indirect_ideal_stock" = t.product.fields.trimester_indirect_ideal_stock
-          input.positive.number type="tel" name="indirect_ideal_stock" size=3 maxlength=6 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:indirect_ideal_stock], 0, 0}"
+          input.positive.number type="tel" name="direct_ideal_stock" size=3 maxlength=6 required="required" value="#{Utils::number_format @product.inventory.store_1.ideal, 2, 0}"
+        / div.readonly data-field-span="1"
+        /   label for="indirect_ideal_stock" = t.product.fields.trimester_indirect_ideal_stock
+        /   input.positive.number type="tel" name="indirect_ideal_stock" size=3 maxlength=6 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:indirect_ideal_stock], 2, 0}"
         div.readonly data-field-span="1"
           label for="ideal_stock" = t.product.fields.trimester_ideal_stock
-          input.positive.number type="tel" name="ideal_stock" size=3 maxlength=6 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product.inventory.global.ideal, 0, 0}"
-        div.readonly data-field-span="1"
-          label for="stock_deviation" = t.product.fields.stock_deviation
-          input.number type="tel" name="stock_deviation" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product.inventory.global.deviation, 0, 0}"
-        div.readonly data-field-span="1"
-          label for="stock_deviation" = t.product.fields.stock_deviation_percentile
-          input.number type="tel" name="stock_deviation" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product.inventory.global.deviation_percentile, 2, 0} %"
+          input.positive.number type="tel" name="ideal_stock" size=3 maxlength=6 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product.inventory.global.ideal, 2, 0}"
+        / div.readonly data-field-span="1"
+        /   label for="stock_deviation" = t.product.fields.stock_deviation
+        /   input.number type="tel" name="stock_deviation" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product.inventory.global.deviation, 2, 0}"
+        / div.readonly data-field-span="1"
+        /   label for="stock_deviation" = t.product.fields.stock_deviation_percentile
+        /   input.number type="tel" name="stock_deviation" size=3 maxlength=4 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product.inventory.global.deviation_percentile, 2, 0} %"
 
 
     fieldset

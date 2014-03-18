@@ -1,0 +1,16 @@
+
+form.grid-form action=url("/reports/materials_to_buy/months") method="post"
+  == Rack::Csrf.tag(env)
+
+  fieldset
+    legend Recalcular periodo
+    div data-row-span="10"
+      div data-field-span="1"
+        label for="months" Meses
+        input type="text" name="months" size=3 maxlength=3 required="required" value="#{months}"
+      div data-field-span="1"
+        label for="submit" &nbsp;
+        input type="submit" value="Recalcular"
+
+
+== slim :materials_list, locals: {can_edit: false, persistent_headers: true, click_to_filter: true, caption: "Click en la categoria y despues tocar espacio para filtrar", multi_stock_col: true, stock_deviation_col: true }
