@@ -482,6 +482,7 @@ order:
     INVENTORY: Inventario
   fields:
     id: ID
+    code: Cod.
     type: Tipo
     status: Estado
     user: Usuario
