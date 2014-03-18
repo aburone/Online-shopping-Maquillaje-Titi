@@ -52,7 +52,9 @@ class Backend < AppController
       multi_stock_col: true,
       stock_deviation_col: true
     }
+    @materials.delete_if { |material| material[:stock_deviation_percentile] >= settings.reports_percentage_threshold}
   end
+
 
   get '/reports/to_package/:mode' do
     list = Product.new.get_list.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name) 
@@ -83,10 +85,10 @@ class Backend < AppController
     end
     if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
       @products.sort_by! { |product| [ product.inventory(months).store_1.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-      @products.delete_if { |product| product.inventory(months).store_1.v_deviation_percentile >= -33}
+      @products.delete_if { |product| product.inventory(months).store_1.v_deviation_percentile >= settings.reports_percentage_threshold}
     else
       @products.sort_by! { |product| [ product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-      @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= -33}
+      @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
     end
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
       can_edit: false,
@@ -117,13 +119,13 @@ class Backend < AppController
       if stock_in_current_location > 0 and (product.end_of_life or product.ideal_stock == 0)
         product[:stock_deviation] = stock_in_current_location * -1
         product[:stock_deviation_percentile] = -100
-        product[:to_move] = stock_in_current_location 
+        product[:to_move] = stock_in_current_location
       end
       @products << product unless product[:to_move] == 0
 
     end
     @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
-    @products.delete_if { |product| product[:stock_deviation_percentile] >= -33}
+    @products.delete_if { |product| product[:stock_deviation_percentile] >= settings.reports_percentage_threshold}
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por enviar desde #{current_location[:translation]} hacia Local 1", sec_nav: :nav_production,
       can_edit: false,
       full_row: false,
