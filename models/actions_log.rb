@@ -8,6 +8,14 @@ class ActionsLog < Sequel::Model(:actions_log)
   WARN = 2
   ERROR = 3
 
+  def perform
+    self.save
+  end
+
+  def save (opts=OPTS)
+    super opts
+  end
+
   def validate
     super
     validates_presence :msg, message: "msg not given"
@@ -18,7 +26,7 @@ class ActionsLog < Sequel::Model(:actions_log)
     validates_exact_length 13, :b_id, allow_nil: true
   end
 
-  def to_s
+  def print
     out = "\n"
     out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
     out += "\tat:   #{@values[:at]}\n"
@@ -31,5 +39,6 @@ class ActionsLog < Sequel::Model(:actions_log)
     out += "\to_id: #{@values[:o_id]} #{@values[:o_id].class}\n"
     out += "\tp_id: #{@values[:p_id]} #{@values[:p_id].class}\n"
     out += "\tl_id: #{@values[:l_id]} #{@values[:l_id].class}\n"
+    echo out
   end
 end
