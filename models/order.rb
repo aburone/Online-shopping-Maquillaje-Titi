@@ -10,6 +10,8 @@ class Order < Sequel::Model
   POS_TO_WH="POS_TO_WH"
   WH_TO_WH="WH_TO_WH"
   SALE="SALE"
+  RETURN="RETURN"
+  CREDIT_NOTE="CREDIT_NOTE"
   INVALIDATION="INVALIDATION"
   TRANSMUTATION="TRANSMUTATION"
   TYPES = [PACKAGING, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION, TRANSMUTATION]
@@ -45,7 +47,7 @@ class Order < Sequel::Model
       .select_group(:m_id, :m_name, :c_name, :materials__c_id)
       .select_append{sum(:m_qty).as(m_qty)}
       .all
-    materials.each do |mat| 
+    materials.each do |mat|
       mat[:m_qty] = BigDecimal.new(mat[:m_qty], 3)
     end
     materials
@@ -53,7 +55,7 @@ class Order < Sequel::Model
 
   def parts
     parts = []
-    self.items.each do |item| 
+    self.items.each do |item|
       parts << Product.new.get(item.p_id).parts
     end
     parts.flatten
@@ -193,24 +195,24 @@ class Order < Sequel::Model
       @values[:o_status] = Order::VOID
       save columns: [:o_id, :type, :o_status, :o_loc, :o_dst, :u_id, :created_at]
       message = R18n.t.order.void
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save 
-    end 
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+    end
   end
 
   def cancel_sale
     DB.transaction do
       items = self.items
-      items.each do |item| 
+      items.each do |item|
         message = "Removiendo #{item.p_name} de la orden #{@values[:o_id]}"
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id], i_id: item.i_id, p_id: item.p_id).save 
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id], i_id: item.i_id, p_id: item.p_id).save
         item.change_status Item::READY, @values[:o_id]
       end
       remove_all_items
       @values[:o_status] = Order::VOID
       save columns: [:o_id, :type, :o_status, :o_loc, :u_id, :created_at]
       message = R18n.t.order.void
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save 
-    end 
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+    end
   end
 
   def create_new type
@@ -225,9 +227,9 @@ class Order < Sequel::Model
               .first
     if order.class ==  NilClass
       order = Order
-              .create(type: type, o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location) 
+              .create(type: type, o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
       message = R18n.t.order.created(order.type)
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: current_location, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save 
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: current_location, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     end
     order
   end
@@ -235,18 +237,18 @@ class Order < Sequel::Model
   def create_invalidation origin
     u = User.new
     current_user_id = u.current_user_id
-    order = Order.create(type: Order::INVALIDATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID) 
+    order = Order.create(type: Order::INVALIDATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
     message = R18n.t.order.created(order.type)
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save 
+    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     order
   end
 
   def create_transmutation origin
     u = User.new
     current_user_id = u.current_user_id
-    order = Order.create(type: Order::TRANSMUTATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID) 
+    order = Order.create(type: Order::TRANSMUTATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
     message = R18n.t.order.created(order.type)
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save 
+    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     order
   end
 
@@ -261,7 +263,7 @@ class Order < Sequel::Model
 
   def get_orders
     Order
-      .select(:o_id, :type, :o_status, :o_loc, :o_dst, :orders__created_at, :u_id, :username)
+      .select(:o_id, :o_code, :type, :o_status, :o_loc, :o_dst, :orders__created_at, :u_id, :username)
       .join(:users, user_id: :u_id)
   end
 
@@ -325,7 +327,7 @@ class Order < Sequel::Model
       return order
     else
       message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::PACKAGING, o_id)
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR).save 
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR).save
       return Order.new
     end
   end
@@ -353,14 +355,14 @@ class Order < Sequel::Model
           return order
         else
           message = R18n.t.order.user_is_verfying_order_in_invalid_status(User.new.current_user_name, order.type, order.o_id, order.o_status)
-          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::ERROR, o_id: order.o_id).save 
+          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::ERROR, o_id: order.o_id).save
           order = Order.new
           order.errors.add("", message)
           return order
         end
       else
         message = R18n.t.order.user_is_verfying_order_of_wrong_type(User.new.current_user_name, order.o_id, order.o_status, order.type)
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::ERROR, o_id: order.o_id).save 
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::ERROR, o_id: order.o_id).save
         order = Order.new
         order.errors.add("", message)
         return order
@@ -368,7 +370,7 @@ class Order < Sequel::Model
     else
       order = Order.new
       message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::PACKAGING, o_id)
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::ERROR).save 
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::ERROR).save
       order = Order.new
       order.errors.add("", message)
       return order

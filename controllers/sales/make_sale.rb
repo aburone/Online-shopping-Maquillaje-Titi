@@ -1,7 +1,8 @@
 class Sales < AppController
 
-  get '/make_sale' do 
+  get '/make_sale' do
     @order = Order.new.create_or_load_sale
+    ap @order
     @items = @order.items
     @cart = @order.items_as_cart
 
@@ -11,7 +12,7 @@ class Sales < AppController
     slim :sales_make_sale, layout: :layout_sales, locals: {sec_nav: :nav_sales_actions}
   end
 
-  post '/make_sale/add_item' do 
+  post '/make_sale/add_item' do
     i_id = params[:i_id].to_s.strip
     order = Order.new.create_or_load_sale
     item = Item.new.get_for_sale i_id, order.o_id
@@ -43,16 +44,22 @@ class Sales < AppController
   post "/sales/make_sale/checkout" do
     @order = Order.new.create_or_load_sale
     @cart = @order.items_as_cart
-    @cart_total = @order.cart_total 
+    @cart_total = @order.cart_total
     slim :sales_checkout, layout: :layout_sales
   end
 
   post "/sales/make_sale/finish" do
     DB.transaction do
       @order = Order.new.create_or_load_sale
+      ap @order
       items = @order.items
-      @cart_total = @order.cart_total 
-      BookRecord.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total).save
+      @cart_total = @order.cart_total
+      begin
+        BookRecord.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total).save
+      rescue Sequel::ValidationFailed => e
+        flash[:error] = e.message
+        redirect to("/make_sale")
+      end
       items.each { |item| item.change_status Item::SOLD, @order.o_id }
       @order.change_status Order::FINISHED
       @cart = @order.items_as_cart

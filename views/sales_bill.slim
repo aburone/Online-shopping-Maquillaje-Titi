@@ -1,4 +1,4 @@
-- @title = "Remito de venta"
+- @title = "Remito de venta #{@order.o_code.upcase.insert(3, '-')}"
 
 p Fecha: #{Utils::local_datetime_format Time.now}
 == slim :items_cart, locals: {can_edit: true, focus: false}
