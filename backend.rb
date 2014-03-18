@@ -27,6 +27,10 @@ class Backend < AppController
     slim :admin, layout: Thread.current.thread_variable_get(:layout)
   end
 
+  get '/log' do
+    enqueue ActionsLog.new.set(msg: rand, u_id: current_user_id, l_id: current_location[:name], lvl: ActionsLog::INFO)
+  end
+
 
   Dir["controllers/backend/*.rb"].each { |file| require_relative file }
   Dir["controllers/shared/*.rb"].each { |file| require_relative file }
