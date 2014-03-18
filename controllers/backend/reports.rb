@@ -16,48 +16,51 @@ class Backend < AppController
   end
 
   get '/reports/products_to_buy' do
+    reports_products_to_buy settings.desired_months_worth_of_items_in_store
+  end
+  post '/reports/products_to_buy/months' do
+    redirect to params[:months].nil? ? "/reports/products_to_buy" : "/reports/products_to_buy/#{params[:months].to_i}/months"
+  end
+  get '/reports/products_to_buy/:months/months' do
+    reports_products_to_buy params[:months].to_i
+  end
+  def reports_products_to_buy months
     list = Product.new.get_list.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).all
     @products = Product.new.get_saleable_at_all_locations list
     @products.map do |product|
-      product[:virtual_stock_store_1] = product.inventory.store_1.virtual
-      product[:ideal_stock] = product.inventory.global.ideal
-      product[:stock_deviation] = product.inventory.global.v_deviation
-      product[:stock_deviation_percentile] = product.inventory.global.v_deviation_percentile
+      product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
+      product[:ideal_stock] = product.inventory(months).global.ideal
+      product[:stock_deviation] = product.inventory(months).global.v_deviation
+      product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
     end
-    @products.sort_by! { |product| [ product.inventory.global.v_deviation_percentile, product.inventory.global.v_deviation ] }
-    @products.delete_if { |product| product.inventory.global.v_deviation_percentile >= -33}
-    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por comprar", sec_nav: :nav_administration,
-      full_row: true,
-      price_pro_col: false,
-      stock_col: false,
-      persistent_headers: true,
-      multi_stock_col: true,
-      use_virtual_stocks: true,
-      stock_deviation_col: true,
-      click_to_filter: true,
-      caption: "Click en la categoria o marca y despues tocar espacio para filtrar"
-    }
+    @products.sort_by! { |product| [ product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
+    @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
+    slim :reports_products_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration, months: months}
   end
 
   get '/reports/materials_to_buy' do
+    reports_materials_to_buy settings.desired_months_worth_of_bulk_in_warehouse
+  end
+  post '/reports/materials_to_buy/months' do
+    redirect to params[:months].nil? ? "/reports/materials_to_buy" : "/reports/materials_to_buy/#{params[:months].to_i}/months"
+  end
+  get '/reports/materials_to_buy/:months/months' do
+    reports_materials_to_buy params[:months].to_i
+  end
+  def reports_materials_to_buy months
     @materials = Material.new.get_list([Location::W1, Location::W2])
-    @materials.map { |m| m.update_stocks }
+    @materials.map do |material|
+      material.update_stocks
+      material.recalculate_ideals months
+    end
     @materials.sort_by! { |material| [ material[:stock_deviation_percentile], material[:stock_deviation] ] }
-    @materials.delete_if { |material| material[:stock_deviation_percentile] >= -33}
-    slim :materials_list, layout: :layout_backend, locals: {title: "Reporte de materiales por comprar", sec_nav: :nav_administration,
-      can_edit: false,
-      persistent_headers: true,
-      click_to_filter: true,
-      caption: "Click en la categoria y despues tocar espacio para filtrar",
-      multi_stock_col: true,
-      stock_deviation_col: true
-    }
     @materials.delete_if { |material| material[:stock_deviation_percentile] >= settings.reports_percentage_threshold}
+    slim :reports_materials_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_materials_to_buy(months), sec_nav: :nav_administration, months: months}
   end
 
 
   get '/reports/to_package/:mode' do
-    list = Product.new.get_list.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name) 
+    list = Product.new.get_list.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name)
     @products = Product.new.get_saleable_at_all_locations list
     months = 0
     @products.map do |product|

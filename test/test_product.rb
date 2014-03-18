@@ -603,6 +603,6 @@ class ProductTest < Test::Unit::TestCase
     # 138 de pastilla blanca
   end
 
-  
+
 end
 

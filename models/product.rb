@@ -50,11 +50,11 @@ class Product < Sequel::Model
   end
 
   def materials_cost
-    cost = BigDecimal.new 0, 2
+    cost = BigDecimal.new 0, 4
     self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
     p "el costo de materiales retorno nil" if cost.nil?
-    self.materials_cost = cost
-    cost
+    self.materials_cost = cost.round(2)
+    cost.round(2)
   end
 
   def parts_cost
@@ -67,7 +67,7 @@ class Product < Sequel::Model
   end
 
   def recalculate_markups
-    self[:real_markup] = self[:price] / self[:sale_cost] if self[:sale_cost] > 0 
+    self[:real_markup] = self[:price] / self[:sale_cost] if self[:sale_cost] > 0
     self[:ideal_markup] = self[:real_markup] if self[:ideal_markup] == 0 and self[:real_markup] > 0
     self
   end
@@ -122,7 +122,7 @@ class Product < Sequel::Model
     store_1.deviation_percentile = BigDecimal.new(0, 2) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
     store_1.v_deviation = BigDecimal.new(store_1.virtual - store_1.ideal, 2)
     store_1.v_deviation_percentile = store_1.v_deviation * 100 / store_1.ideal
-    store_1.v_deviation_percentile = BigDecimal.new(0, 2) if store_1.v_deviation_percentile.nan? or store_1.v_deviation_percentile.infinite? or store_1.v_deviation_percentile.nil? 
+    store_1.v_deviation_percentile = BigDecimal.new(0, 2) if store_1.v_deviation_percentile.nan? or store_1.v_deviation_percentile.infinite? or store_1.v_deviation_percentile.nil?
 
     warehouse_1 = OpenStruct.new
     warehouse_1.stock = BigDecimal.new self.stock_warehouse_1, 2
@@ -141,10 +141,10 @@ class Product < Sequel::Model
     warehouses.ideal = BigDecimal.new(self.direct_ideal_stock + self.indirect_ideal_stock, 2) / 3 * for_months  # the sum of the warehouses stock must be double the stock of the store?
     warehouses.deviation = warehouses.stock - warehouses.ideal
     warehouses.deviation_percentile = warehouses.deviation * 100 / warehouses.ideal
-    warehouses.deviation_percentile = BigDecimal.new(0, 2) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil? 
+    warehouses.deviation_percentile = BigDecimal.new(0, 2) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil?
     warehouses.v_deviation = warehouses.virtual - warehouses.ideal
     warehouses.v_deviation_percentile = warehouses.v_deviation * 100 / warehouses.ideal
-    warehouses.v_deviation_percentile = BigDecimal.new(0, 2) if warehouses.v_deviation_percentile.nan? or warehouses.v_deviation_percentile.infinite? or warehouses.v_deviation_percentile.nil? 
+    warehouses.v_deviation_percentile = BigDecimal.new(0, 2) if warehouses.v_deviation_percentile.nan? or warehouses.v_deviation_percentile.infinite? or warehouses.v_deviation_percentile.nil?
 
     global = OpenStruct.new
     global.stock = warehouses.stock + store_1.stock
@@ -154,10 +154,10 @@ class Product < Sequel::Model
 
     global.deviation = global.stock - global.ideal
     global.deviation_percentile = global.deviation * 100 / global.ideal
-    global.deviation_percentile = BigDecimal.new(0, 2) if global.deviation_percentile.nan? or global.deviation_percentile.infinite? or global.deviation_percentile.nil? 
+    global.deviation_percentile = BigDecimal.new(0, 2) if global.deviation_percentile.nan? or global.deviation_percentile.infinite? or global.deviation_percentile.nil?
     global.v_deviation = global.virtual - global.ideal
     global.v_deviation_percentile = global.v_deviation * 100 / global.ideal
-    global.v_deviation_percentile = BigDecimal.new(0, 2) if global.v_deviation_percentile.nan? or global.v_deviation_percentile.infinite? or global.v_deviation_percentile.nil? 
+    global.v_deviation_percentile = BigDecimal.new(0, 2) if global.v_deviation_percentile.nan? or global.v_deviation_percentile.infinite? or global.v_deviation_percentile.nil?
 
     @inventory.store_1 = store_1
     @inventory.warehouse_1 = warehouse_1

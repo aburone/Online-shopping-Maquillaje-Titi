@@ -111,7 +111,6 @@
           - if stock_col or multi_stock_col
             td.sm_cell.number #{Utils::number_format product[:ideal_stock], 0}
           - if stock_deviation_col
-            - p Utils::number_format product[:stock_deviation], 2 if product.p_id == 1072
             - col_class = (product[:stock_deviation] > 0) ? "number overstocked" : (product[:stock_deviation] < 0) ? "number understocked" : "number"
             - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
             td.sm_cell class="#{col_class}" #{stock_deviation}
