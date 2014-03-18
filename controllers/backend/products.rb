@@ -2,7 +2,7 @@ class Backend < AppController
 
   post '/products/update_all' do
     begin
-      t = Thread.new do
+      Thread.new do
         products = Product.filter(archived: false).order(:p_name).all
         errors = []
         products.each do |product|
@@ -24,7 +24,6 @@ class Backend < AppController
         end
         # TODO: raise errors as warning message
       end
-      # t.abort_on_exception = true
     rescue => detail
       message = "Error critico: #{detail.message}"
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR).save
@@ -95,7 +94,7 @@ class Backend < AppController
       category.save()
       flash[:notice] = R18n.t.category.updated
     else
-      flash[:error] = category.errors 
+      flash[:error] = category.errors
     end
     redirect to("/products/categories/#{category.c_id}")
   end
@@ -117,7 +116,7 @@ class Backend < AppController
       flash.now[:notice] = messages.flatten.to_s
       @title = "Anulacion correcta"
       @items = items
-      slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_administration} 
+      slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_administration}
     rescue SecurityError => e
       flash[:error] = e.message
       redirect to('/inventory/void_items')
@@ -129,7 +128,7 @@ class Backend < AppController
 
   route :get, :post, '/inventory/void_items' do
     if params[:i_ids].nil? and params[:reason].nil?
-      slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_administration} 
+      slim :void_items, layout: :layout_backend, locals: {sec_nav: :nav_administration}
     else
       void_items
     end
@@ -155,7 +154,7 @@ class Backend < AppController
     @item = locals[:item]
     @product = locals[:product]
     @products = locals[:products]
-    slim :transmute_items_check, layout: :layout_backend, locals: {sec_nav: :nav_administration} 
+    slim :transmute_items_check, layout: :layout_backend, locals: {sec_nav: :nav_administration}
   end
 
   route :get, '/inventory/transmute_items/:i_id/:p_id' do
@@ -163,7 +162,7 @@ class Backend < AppController
     @item = locals[:item]
     @product = locals[:product]
     @new_product = Product[params[:p_id].to_i]
-    slim :transmute_items, layout: :layout_backend, locals: {sec_nav: :nav_administration} 
+    slim :transmute_items, layout: :layout_backend, locals: {sec_nav: :nav_administration}
   end
 
   route :post, '/inventory/transmute_items/:i_id/:p_id' do
@@ -224,7 +223,7 @@ class Backend < AppController
       product.update_stocks.save
       flash[:notice] = R18n.t.product.updated
     else
-      flash[:error] = product.errors 
+      flash[:error] = product.errors
     end
     redirect to("/products/#{product[:p_id]}")
   end
@@ -235,7 +234,7 @@ class Backend < AppController
       dest = product.duplicate
       flash[:notice] = R18n.t.product.duplicated
     else
-      flash[:error] = product.errors 
+      flash[:error] = product.errors
     end
     redirect to("/products/#{dest[:p_id]}")
   end
@@ -316,7 +315,6 @@ class Backend < AppController
   def edit_product p_id
     @product = Product.new.get(p_id)
     redirect_if_nil_product @product, p_id, "/products" if @product.empty?
-
     @materials = Material.order(:m_name).all
     @parts = Product.filter(archived: false, end_of_life: false).order(:p_name).all
     @p_parts = @product.parts

@@ -24,7 +24,7 @@
         div data-field-span="2"
           label for="brand" = t.product.fields.brand
           select name="brand" required="required"
-            - @brands.each do |brand| 
+            - @brands.each do |brand|
               option selected=("selected" if brand.br_id == @product.br_id) value="#{JSON.generate({br_id: brand.br_id, br_name: brand.br_name})}" =  brand.br_name
         div data-field-span="1"
           label for="packaging" = t.product.fields.packaging
@@ -132,7 +132,7 @@
       div data-row-span="2"
         div data-field-span="1"
           label Tipo
-          input type="radio" name="tercerized" id="is_tercerized" value="true" checked=("checked" if @product.tercerized) 
+          input type="radio" name="tercerized" id="is_tercerized" value="true" checked=("checked" if @product.tercerized)
           label for="is_tercerized" = t.product.fields.is_tercerized
           br
           input type="radio" name="tercerized" id="non_tercerized" value="false" checked=("checked" if !@product.tercerized)
@@ -155,7 +155,7 @@
         div data-field-span="1"
           label for="c_id" = t.product.fields.category
           select name="c_id"
-              - @categories.each do |category| 
+              - @categories.each do |category|
                 option selected=("selected" if category.c_id == @product.c_id) value="#{category.c_id}" = category.c_name
         div data-field-span="1"
           label for="published" = t.product.fields.published
@@ -189,7 +189,7 @@
         div data-field-span="1"
           p Si queres duplicar un producto e hiciste cambios, guardalos primero.
         div data-field-span="1"
-          label for="dup" Duplicar este producto: 
+          label for="dup" Duplicar este producto:
           input type="submit" id="dup" value="Duplicar"
 
 
@@ -221,8 +221,8 @@
         div data-field-span="2"
           label for="m_id" Material a agregar
           select name="m_id" required="required"
-            option value="" 
-            - @materials.each do |material| 
+            option value=""
+            - @materials.each do |material|
               option value="#{material.m_id}" = material.m_name
         div data-field-span="1"
           label for="m_qty" Cantidad
@@ -260,8 +260,8 @@
         div data-field-span="2"
           label for="part_id" Parte a agregar
           select name="part_id" required="required"
-            option value="" 
-            - @parts.each do |part| 
+            option value=""
+            - @parts.each do |part|
               option value="#{part.p_id}" = part.p_name
         div data-field-span="1"
           label for="part_qty" Cantidad

@@ -153,7 +153,7 @@ auth:
   loggedin: "Sesión iniciada como %1"
   loggedout: "Sesión terminada"
   hello: "Hola %1"
-admin: 
+admin:
   title: Administración
 materials:
   title: Materiales
@@ -341,7 +341,7 @@ product:
     non_tercerized: Envasable
     live: Activo
     end_of_life: Fin de vida
-  assemblies: 
+  assemblies:
     not_found: Este producto no es parte de ningun otro
     list: Productos que usan al actual como parte
 production:
@@ -354,7 +354,7 @@ production:
     title: "Ordenes de envasado/etiquedado"
     empty: No hay ordenes de carga abiertas
   packaging:
-    title: "Orden de envasado/etiquedado nº %1 (%2 items)" 
+    title: "Orden de envasado/etiquedado nº %1 (%2 items)"
     count: "%1 ordenes disponibles"
     scan_label: Escanee el ID
     scan_product: Escanee el producto
@@ -523,7 +523,7 @@ order:
     title: "Transporte de mercaderia entre deposito y punto de venta"
   wh_to_wh:
     title: "Transporte de mercaderia entre depositos"
-  pos_to_wh: 
+  pos_to_wh:
     title: Transporte de mercaderia desde local hacia deposito
 inventory:
   mass_price_adjustments:

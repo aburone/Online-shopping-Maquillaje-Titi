@@ -51,7 +51,7 @@ class ProductTest < Test::Unit::TestCase
       assert_equal assigned_msg, R18n::t.label.assigned(item.i_id, product.p_name)
       after = product.items.count
       assert_equal before+1, after
-    end 
+    end
   end
 
   def test_should_remove_label_from_product
@@ -65,7 +65,7 @@ class ProductTest < Test::Unit::TestCase
       product.items.each do |item|
         product.remove_item item
       end
-    end 
+    end
     step3 = product.items.count
     assert_equal step1+1, step2
     assert_equal step2-1, step3
@@ -114,12 +114,12 @@ class ProductTest < Test::Unit::TestCase
   def test_check_cost
     Product.all.each do |product|
       if product.exact_price < product.sale_cost
-        p "error in product #{product.p_id}: #{product.exact_price.to_s "F"} < #{product.sale_cost.to_s "F"}" 
+        p "error in product #{product.p_id}: #{product.exact_price.to_s "F"} < #{product.sale_cost.to_s "F"}"
         product.exact_price = product.sale_cost * 2
         product.save
       end
       if product.price < product.exact_price
-        p "error in product #{product.p_id}: #{product.price.to_s "F"} < #{product.exact_price.to_s "F"}" 
+        p "error in product #{product.p_id}: #{product.price.to_s "F"} < #{product.exact_price.to_s "F"}"
         product.price = product.price_round product.exact_price
         product.save
       end

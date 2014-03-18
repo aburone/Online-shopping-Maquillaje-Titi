@@ -103,7 +103,7 @@ class Backend < AppController
   end
 
   get '/reports/to_move' do
-    list = Product.new.get_list.order(:categories__c_name, :products__p_name) 
+    list = Product.new.get_list.order(:categories__c_name, :products__p_name)
     products = Product.new.get_saleable_at_all_locations(list)
     @products = []
     products.map do |product|

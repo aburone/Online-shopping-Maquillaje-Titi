@@ -75,11 +75,12 @@ class Product < Sequel::Model
   def update_indirect_ideal_stock
     self.indirect_ideal_stock = BigDecimal.new(0)
     self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] * assembly.inventory.global.ideal unless assembly.archived}
+    self.indirect_ideal_stock *= 2
+    self.ideal_stock = self.direct_ideal_stock * 2 + self.indirect_ideal_stock
     self
   end
 
   def update_stocks
-    p "update_stocks"
     self.stock_store_1 = BigDecimal.new Product
       .select{count(i_id).as(stock_store_1)}
       .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1)
@@ -211,7 +212,7 @@ class Product < Sequel::Model
                       .where(part_id: self.p_id)
                       .all
     assemblies = []
-    product_part.each do |assy| 
+    product_part.each do |assy|
       assembly = Product.new.get(assy[:p_id])
       assembly[:part_id] = self.p_id
       assembly[:part_qty] = assy[:part_qty]
@@ -225,7 +226,7 @@ class Product < Sequel::Model
     self[:sale_cost] = BigDecimal.new(@values[:buy_cost] + @values[:parts_cost] + @values[:materials_cost], 2)
     recalculate_markups
   end
-  
+
   def materials_cost= cost
     self[:materials_cost] = cost
     recalculate_sale_cost
@@ -268,11 +269,11 @@ class Product < Sequel::Model
 
   def update_part part
     if part[:part_qty] < 0
-      errors.add "Error de ingreso", "La cantidad de la parte no puede ser negativa" 
+      errors.add "Error de ingreso", "La cantidad de la parte no puede ser negativa"
       return ProductsPart.filter(product_id: self[:p_id], part_id: part[:p_id]).first
     end
     if part[:part_qty] == 0
-      remove_part part      
+      remove_part part
       return true
     end
     prod_part =  ProductsPart.filter(product_id: self[:p_id], part_id: part[:p_id]).first
@@ -289,11 +290,11 @@ class Product < Sequel::Model
 
   def update_material material
     if material[:m_qty] < 0
-      errors.add "Error de ingreso", "La cantidad del material no puede ser negativa" 
+      errors.add "Error de ingreso", "La cantidad del material no puede ser negativa"
       return ProductsMaterial.filter(product_id: self[:p_id], m_id: material[:m_id]).first
     end
     if material[:m_qty] == 0
-      remove_material material      
+      remove_material material
       return true
     end
     prod_mat =  ProductsMaterial.filter(product_id: self[:p_id], m_id: material[:m_id]).first
@@ -529,7 +530,7 @@ class Product < Sequel::Model
   def get_saleable_at_all_locations products = nil
     products = get_list.order(:categories__c_name, :products__p_name) if products.nil?
     new_products = []
-    products.map do |product| 
+    products.map do |product|
       product.update_stocks
       new_products << product
     end
@@ -570,7 +571,7 @@ class Product < Sequel::Model
 
     errors.add("El markup ideal", "no puede ser cero" ) if @values[:ideal_markup] == 0
     if @values[:real_markup] == 0
-      errors.add("El markup real", "no puede ser cero. Producto #{@values[:p_id]}" ) 
+      errors.add("El markup real", "no puede ser cero. Producto #{@values[:p_id]}" )
       puts self
     end
 
@@ -584,7 +585,7 @@ class Product < Sequel::Model
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
     numerical_keys = [ :direct_ideal_stock, :indirect_ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :stock_deviation, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
     hash_values.select do |key, value|
-      if numerical_keys.include? key.to_sym 
+      if numerical_keys.include? key.to_sym
         unless value.nil? or (value.class == String and value.length == 0)
           if Utils::is_numeric? value.to_s.gsub(',', '.')
             self[key.to_sym] = Utils::as_number value
@@ -634,7 +635,7 @@ class Product < Sequel::Model
       self.buy_cost = self.buy_cost ? BigDecimal.new(self.buy_cost, 0) : BigDecimal.new(0, 2)
       @values[:sale_cost] = @values[:sale_cost] ? BigDecimal.new(@values[:sale_cost], 0) : BigDecimal.new(0, 2)
       @values[:ideal_markup] = @values[:ideal_markup] ? BigDecimal.new(@values[:ideal_markup], 0) : BigDecimal.new(0, 2)
-      @values[:real_markup] = @values[:real_markup] ? BigDecimal.new(@values[:real_markup], 0) : BigDecimal.new(0, 2) 
+      @values[:real_markup] = @values[:real_markup] ? BigDecimal.new(@values[:real_markup], 0) : BigDecimal.new(0, 2)
     end
 
     def archive_or_revive

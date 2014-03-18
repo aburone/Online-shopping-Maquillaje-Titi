@@ -139,7 +139,7 @@ class Material < Sequel::Model(:materials)
 
     numerical_keys = [ :m_ideal_stock, :m_price ]
     hash_values.select do |key, value|
-      if numerical_keys.include? key.to_sym 
+      if numerical_keys.include? key.to_sym
         unless value.nil? or (value.class == String and value.length == 0)
           if Utils::is_numeric? value.to_s.gsub(',', '.')
             self[key.to_sym] = Utils::as_number value
