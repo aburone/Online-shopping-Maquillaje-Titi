@@ -2,7 +2,6 @@ class Sales < AppController
 
   get '/make_sale' do
     @order = Order.new.create_or_load_sale
-    ap @order
     @items = @order.items
     @cart = @order.items_as_cart
 

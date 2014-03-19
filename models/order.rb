@@ -177,7 +177,7 @@ class Order < Sequel::Model
     self
   end
 
-  def to_s
+  def print
     out = "\n"
     out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
     out += "\to_id:  #{@values[:o_id]}\n"
@@ -188,7 +188,7 @@ class Order < Sequel::Model
     out += "\tu_id:   #{@values[:u_id]}\n"
     created = @values[:created_at] ? Utils::local_datetime_format(@values[:created_at]) : "Never"
     out += "\tcreated: #{created}\n"
-    out
+    echo out
   end
 
   def cancel

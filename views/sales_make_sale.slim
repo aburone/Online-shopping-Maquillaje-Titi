@@ -4,14 +4,14 @@ h2 Agregar item a la venta
 
 form.v_island_1 action=url("/make_sale/add_item") method="post"
   == Rack::Csrf.tag(env)
-  label for="i_id" Lee el codigo de producto 
+  label for="i_id" Lee el codigo de producto
   input.aligned_1 autofocus="autofocus" type="text" name="i_id" value=""
   input type="hidden" name="o_id" value="#{@order[:o_id]}"
 
 h2 Lista de items en esta venta
 
 - if @cart.nil? or @cart.empty?
-  p 
+  p
     i Lee los codigos de los items para agregarlos a la venta actual
 
 - unless @cart.nil? or @cart.empty?
