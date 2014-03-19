@@ -51,7 +51,6 @@ class Sales < AppController
   post "/sales/make_sale/finish" do
     DB.transaction do
       @order = Order.new.create_or_load_sale
-      ap @order
       items = @order.items
       @cart_total = @order.cart_total
       begin
