@@ -37,7 +37,7 @@
         - ajax_edit = can_edit ? " ajax_item" : ""
         tr class="item#{ajax_edit}"
           td = order.o_id
-          td = order.o_code.upcase.insert(3, '-') unless order.o_code.nil?
+          td = order.o_code_with_dash
           - if full_row
             td = ConstantsTranslator.new(order.type).t
             td = ConstantsTranslator.new(order.o_status).t

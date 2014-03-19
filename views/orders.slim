@@ -10,5 +10,5 @@
   == slim :orders_list, locals: {full_row: true, list_mode: list_mode, edit_link: "#{base_url}"}
 
 - if @order
-  h2 = t.order.title(ConstantsTranslator.new(@order.type).t, @order.o_id)
+  h2 = @order.o_code ? t.order.title_with_code(ConstantsTranslator.new(@order.type).t, @order.o_id, @order.o_code_with_dash) : t.order.title(ConstantsTranslator.new(@order.type).t, @order.o_id)
   == slim :items_list, locals: {can_edit: false, focus: false}

@@ -23,6 +23,10 @@ class Order < Sequel::Model
   EN_ROUTE="EN_ROUTE"
   VOID="VOID"
 
+  def o_code_with_dash
+    self.o_code.upcase.insert(3, '-') unless self.o_code.nil?
+  end
+
   def valid_type? type
     TYPES.include? type
   end

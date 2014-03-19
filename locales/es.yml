@@ -469,7 +469,7 @@ sales:
     title: "Imputacion de stock de orden nº %1"
     scan_label: Escanear el item
   make_sale:
-    title: Carrito de compras nº %1 (%2 items, %3)
+    title: Carrito de compras nº %1 (%2) [%3 items, %4]
 orders:
   title: Revision de ordenes
   empty: No hay ordenes para listar
@@ -490,7 +490,8 @@ order:
     origin: Origen
     destination: Destino
     created_at: Creado
-  title: "Order de tipo %1 Nº %2"
+  title: "Orden de tipo %1 Nº %2"
+  title_with_code: "Orden de tipo %1 Nº %2 (%3)"
   new: Crear nueva
   created: Nueva orden creada %1
   item_added: "%1 agregado a la orden %2"
