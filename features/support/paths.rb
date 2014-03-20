@@ -36,11 +36,13 @@ module NavigationHelpers
     when /warehouse_arrivals/
       "/admin/transport/arrivals/select"
 
-      
+
     when /sales/
       '/ventas'
     when /store_arrivals/
       "/sales/transport/arrivals/select"
+    when /returns/
+      '/sales/returns'
 
 
 

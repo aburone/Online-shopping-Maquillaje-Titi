@@ -1,0 +1,27 @@
+- @title = t.returns.title
+
+- if @order.empty?
+  form.grid-form action=url("/returns") method="post"
+    == Rack::Csrf.tag(env)
+
+    fieldset
+      legend = t.returns.verify_order_code_legend
+      div data-row-span="2"
+        div data-field-span="1"
+          label for="o_code" = t.returns.enter_order_code
+          input autofocus="autofocus" required="required" type="text" name="o_code" id="o_code" value="" placeholder="#{t.order.code_placeholder}"
+        div data-field-span="1"
+          label for="verify" = t.actions.start_verification
+          input type="submit" name="verify" value="#{t.actions.verify}"
+
+/ - unless @order.empty?
+/   h2 Producto actualmente asociado
+/   == slim :product_details, locals: {product: @product}
+
+
+/   h2 Producto hacia el cual cambiar la asociacion
+
+/ / Initial product selection
+/ - unless @products.empty?
+/   section#prod_list_selector
+/     == slim :products_list, locals: {focus: true, full_rows: false, can_edit: true, edit_link: "transmutation_select_product", order: @order}

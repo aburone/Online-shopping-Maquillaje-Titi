@@ -12,6 +12,7 @@ actions:
   undo: Deshacer
   edit: Editar
   open: Abrir
+  start_verification: Inicial verificacion
   verify: Verificar
   test: Probar
   confirm: Confirmar
@@ -34,6 +35,7 @@ errors:
   inexistent_label: "Etiqueta inexistente"
   inexistent_item: "Item inexistente"
   inexistent_bulk: "Bulk inexistente"
+  inexistent_order: "Ordern inexistente"
   inexistent_product: "Código de producto inexistente"
   invalid_order: "Identificador de orden inválido"
   invalid_label: "Etiqueta inválida"
@@ -516,6 +518,7 @@ order:
   scan_label: Escanee el ID de item
   scan_labels: Escanee los ID de items (uno por linea)
   scan_product: Escanee el producto
+  code_placeholder: "ej: ZYX-123"
   select_other_product: Seleccionar un producto distinto
   transport:
     title: "Orden de movimiento de items nº %1 (%2 items)"
@@ -562,3 +565,7 @@ reports_materials_to_buy: !!pl
   0: "Reporte de materiales por comprar en el dia del juicio final"
   1: "Reporte de materiales por comprar para un mes"
   n: "Reporte de materiales por comprar para %1 meses"
+returns:
+  title: Devolución de items
+  verify_order_code_legend: Las devoluciones solo se pueden hacer con el código de la venta original
+  enter_order_code: Ingrese el código de la orden de venta original

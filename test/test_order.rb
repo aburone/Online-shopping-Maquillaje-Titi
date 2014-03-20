@@ -87,7 +87,7 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_should_get_types
-    assert Order::TYPES.class == Array 
+    assert Order::TYPES.class == Array
   end
 
   def test_should_alter_inventory
@@ -106,4 +106,24 @@ class OrderTest < Test::Unit::TestCase
     item = Item[label.i_id]
     order.add_item(item)
   end
+
+  def test_remove_dash
+    code = "BEE-B72"
+    ret = Order.new.remove_dash_from_code(code)
+    assert_equal("BEEB72", ret, "Invalid code returned #{ret}")
+  end
+
+  def test_should_get_order_by_code
+    code = "BEE-B72"
+    order = Order.new.get_order_by_code code
+    assert_equal(2657, order.o_id)
+  end
+
+  def test_should_get_empty_order_with_error_if_the_code_is_invalid
+    code = "XXX-XXXX"
+    order = Order.new.get_order_by_code code
+    assert( order.empty? == true , "The order isn't empty or is not an order (nil?)")
+    assert_equal [t.errors.inexistent_order.to_s, t.errors.invalid_order.to_s].flatten.join(": "), order.errors.to_a.flatten.join(": ")
+  end
+
 end

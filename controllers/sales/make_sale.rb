@@ -54,6 +54,7 @@ class Sales < AppController
       @cart_total = @order.cart_total
       begin
         BookRecord.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total).save
+        # TODO: save payment
       rescue Sequel::ValidationFailed => e
         flash[:error] = e.message
         redirect to("/make_sale")
