@@ -23,6 +23,14 @@ class Order < Sequel::Model
   EN_ROUTE="EN_ROUTE"
   VOID="VOID"
 
+  def empty?
+    return @values[:o_id].nil? ? true : false
+  end
+
+  def remove_dash_from_code code
+    code.to_s.gsub('-', '')
+  end
+
   def o_code_with_dash
     self.o_code.upcase.insert(3, '-') unless self.o_code.nil?
   end
@@ -271,6 +279,7 @@ class Order < Sequel::Model
       .join(:users, user_id: :u_id)
   end
 
+
   def get_orders_at_location location
     get_orders
       .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
@@ -305,6 +314,12 @@ class Order < Sequel::Model
   def get_orders_at_location_with_type_status_and_id location, type, o_status, o_id
     get_orders_at_location_with_type_and_status( location, type, o_status)
       .filter(o_id: o_id)
+      .first
+  end
+
+  def get_orders_at_location_with_type_status_and_code location, type, o_status, o_code
+    get_orders_at_location_with_type_and_status( location, type, o_status)
+      .filter(o_code: remove_dash_from_code(o_code.to_s))
       .first
   end
 

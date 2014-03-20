@@ -12,6 +12,7 @@ actions:
   undo: Deshacer
   edit: Editar
   open: Abrir
+  start_verification: Inicial verificacion
   verify: Verificar
   test: Probar
   confirm: Confirmar
@@ -34,6 +35,7 @@ errors:
   inexistent_label: "Etiqueta inexistente"
   inexistent_item: "Item inexistente"
   inexistent_bulk: "Bulk inexistente"
+  inexistent_order: "Ordern inexistente"
   inexistent_product: "Código de producto inexistente"
   invalid_order: "Identificador de orden inválido"
   invalid_label: "Etiqueta inválida"
@@ -470,63 +472,6 @@ sales:
     scan_label: Escanear el item
   make_sale:
     title: Carrito de compras nº %1 (%2) [%3 items, %4]
-orders:
-  title: Revision de ordenes
-  empty: No hay ordenes para listar
-  count: "%1 ordenes listadas"
-  select_type: Seleccione el tipo de ordenes a listar
-order:
-  type:
-    UNDEFINED: Indefinido
-    PACKAGING: "Envasado y etiquetado"
-    INVENTORY: Inventario
-  fields:
-    id: ID
-    code: Cod.
-    type: Tipo
-    status: Estado
-    user: Usuario
-    location: Ubicacion
-    origin: Origen
-    destination: Destino
-    created_at: Creado
-  title: "Orden de tipo %1 Nº %2"
-  title_with_code: "Orden de tipo %1 Nº %2 (%3)"
-  new: Crear nueva
-  created: Nueva orden creada %1
-  item_added: "%1 agregado a la orden %2"
-  item_removed: Item eliminado de la orden
-  bulk_removed: Granel eliminado de la orden
-  bulk_added: "%1 agregado a la orden %2"
-  bulk_removed: Bulk eliminado de la orden
-  all_items_removed: Todos los items fueron eliminados de la orden
-  all_bulks_removed: Todos los graneles fueron eliminados de la orden
-  void: Orden invalidada VOID
-  user_is_editing: "%1 esta editando la orden de tipo %2 Nº %3"
-  user_is_editing_nil: "%1 esta tratando de abrir la orden de tipo %2 Nº %3 que no existe"
-  ready_for_verification: "La orden esta lista para ser verificada"
-  user_is_verifying: "%1 esta verificando la orden de tipo %2 Nº %3"
-  user_is_verfying_order_in_invalid_status: "%1 esta intentando verificar una orden de tipo %2 Nº %3 que esta es un estado inválido %4"
-  user_is_verfying_order_of_wrong_type: "%1 esta intentando verificar la orden Nº %2 con estado %3 que es de un tipo inválido %4"
-  sure_to_cancel_load_order: "Esto borrara la orden. Todas las etiquetas y productos seran dissociados."
-  sure_to_cancel_sale_order: "Esto borrara la orden. Todos los items volveran a estar disponibles para la venta"
-  cancelled: "La orden Nº %1 fue cancelada. Todas las etiquetas y productos fueron dissociados."
-  not_a_packaging: Esta no es una orden de carga
-  missing: Orden %1 inexistente o inaccesible desde este modulo
-  scan_label: Escanee el ID de item
-  scan_labels: Escanee los ID de items (uno por linea)
-  scan_product: Escanee el producto
-  select_other_product: Seleccionar un producto distinto
-  transport:
-    title: "Orden de movimiento de items nº %1 (%2 items)"
-  arrival_verification:
-    title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"
-  wh_to_pos:
-    title: "Transporte de mercaderia entre deposito y punto de venta"
-  wh_to_wh:
-    title: "Transporte de mercaderia entre depositos"
-  pos_to_wh:
-    title: Transporte de mercaderia desde local hacia deposito
 inventory:
   mass_price_adjustments:
     title: Ajuste masivo de precios
@@ -562,3 +507,66 @@ reports_materials_to_buy: !!pl
   0: "Reporte de materiales por comprar en el dia del juicio final"
   1: "Reporte de materiales por comprar para un mes"
   n: "Reporte de materiales por comprar para %1 meses"
+orders:
+  title: Revision de ordenes
+  empty: No hay ordenes para listar
+  count: "%1 ordenes listadas"
+  select_type: Seleccione el tipo de ordenes a listar
+order:
+  type:
+    UNDEFINED: Indefinido
+    PACKAGING: "Envasado y etiquetado"
+    INVENTORY: Inventario
+  fields:
+    id: ID
+    code: Cod.
+    type: Tipo
+    status: Estado
+    user: Usuario
+    location: Ubicacion
+    origin: Origen
+    destination: Destino
+    created_at: Creado
+  title: "Orden de tipo %1 Nº %2"
+  title_with_code: "Orden de tipo %1 Nº %2 (%3)"
+  details: "Detalles de la orden de tipo %1 Nº %2 (%3)"
+  new: Crear nueva
+  created: Nueva orden creada %1
+  item_added: "%1 agregado a la orden %2"
+  item_removed: Item eliminado de la orden
+  bulk_removed: Granel eliminado de la orden
+  bulk_added: "%1 agregado a la orden %2"
+  bulk_removed: Bulk eliminado de la orden
+  all_items_removed: Todos los items fueron eliminados de la orden
+  all_bulks_removed: Todos los graneles fueron eliminados de la orden
+  void: Orden invalidada VOID
+  user_is_editing: "%1 esta editando la orden de tipo %2 Nº %3"
+  user_is_editing_nil: "%1 esta tratando de abrir la orden de tipo %2 Nº %3 que no existe"
+  ready_for_verification: "La orden esta lista para ser verificada"
+  user_is_verifying: "%1 esta verificando la orden de tipo %2 Nº %3"
+  user_is_verfying_order_in_invalid_status: "%1 esta intentando verificar una orden de tipo %2 Nº %3 que esta es un estado inválido %4"
+  user_is_verfying_order_of_wrong_type: "%1 esta intentando verificar la orden Nº %2 con estado %3 que es de un tipo inválido %4"
+  sure_to_cancel_load_order: "Esto borrara la orden. Todas las etiquetas y productos seran dissociados."
+  sure_to_cancel_sale_order: "Esto borrara la orden. Todos los items volveran a estar disponibles para la venta"
+  cancelled: "La orden Nº %1 fue cancelada. Todas las etiquetas y productos fueron dissociados."
+  not_a_packaging: Esta no es una orden de carga
+  missing: Orden %1 inexistente o inaccesible desde este modulo
+  scan_label: Escanee el ID de item
+  scan_labels: Escanee los ID de items (uno por linea)
+  scan_product: Escanee el producto
+  code_placeholder: "ej: ZYX-123"
+  select_other_product: Seleccionar un producto distinto
+  transport:
+    title: "Orden de movimiento de items nº %1 (%2 items)"
+  arrival_verification:
+    title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"
+  wh_to_pos:
+    title: "Transporte de mercaderia entre deposito y punto de venta"
+  wh_to_wh:
+    title: "Transporte de mercaderia entre depositos"
+  pos_to_wh:
+    title: Transporte de mercaderia desde local hacia deposito
+returns:
+  title: Devolución de items
+  verify_order_code_legend: Las devoluciones solo se pueden hacer con el código de la venta original
+  enter_order_code: Ingrese el código de la orden de venta original

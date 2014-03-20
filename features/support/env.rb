@@ -7,6 +7,7 @@
 require 'sinatra'
 require 'sinatra/config_file'
 require 'sinatra/r18n'
+require "i18n"
 config_file '../../../config.yml'
 
 
@@ -22,6 +23,7 @@ set :root, File.dirname(__FILE__)
 R18n::I18n.default = 'es'
 include R18n::Helpers
 R18n.set('es', './locales/es.yml')
+I18n.enforce_available_locales = false
 
 require 'rspec'
 require 'rspec/expectations'
@@ -65,6 +67,7 @@ end
 
 
 World do
+  R18n.set R18n.available_locales[0].code
   BackendWorld.new
 end
 

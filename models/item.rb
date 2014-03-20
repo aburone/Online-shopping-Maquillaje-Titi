@@ -55,7 +55,7 @@ class Item < Sequel::Model
     order.add_item self
     save validate: false
 
-    message = "#{R18n.t.actions.changed_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}" 
+    message = "#{R18n.t.actions.changed_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}"
     log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl: ActionsLog::WARN, i_id: @values[:i_id], o_id: order.o_id)
     log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
     log.save
@@ -89,7 +89,7 @@ class Item < Sequel::Model
     @values[:i_price_pro] = product.price_pro
     save
 
-    message = "Item Transmutado: #{original.p_name} -> #{@values[:p_name]}. Razon: #{reason}" 
+    message = "Item Transmutado: #{original.p_name} -> #{@values[:p_name]}. Razon: #{reason}"
     log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: @values[:i_loc], lvl: ActionsLog::WARN, o_id: order.o_id, i_id: @values[:i_id], p_id: @values[:p_id])
     log.save
 
@@ -123,15 +123,15 @@ class Item < Sequel::Model
 
   def missing i_id
     if Item[i_id].nil?
-      errors.add("Etiqueta inválida", "No tengo ningun item con el id '#{i_id}'") 
+      errors.add("Etiqueta inválida", "No tengo ningun item con el id '#{i_id}'")
       return true
     end
     return false
   end
 
-  def is_from_production 
+  def is_from_production
     if @values[:i_status] == Item::NEW or @values[:i_status] == Item::PRINTED or @values[:i_status] == Item::ASSIGNED or @values[:i_status] == Item::MUST_VERIFY or @values[:i_status] == Item::VERIFIED
-      errors.add("Item fuera de lugar", "Este item esta en estado \"#{ConstantsTranslator.new(@values[:i_status]).t}\". Ni siquiera deberia estar en el local.") 
+      errors.add("Item fuera de lugar", "Este item esta en estado \"#{ConstantsTranslator.new(@values[:i_status]).t}\". Ni siquiera deberia estar en el local.")
       return true
     end
     return false
@@ -139,7 +139,7 @@ class Item < Sequel::Model
 
   def is_from_another_location
     if @values[:i_loc] != User.new.current_location[:name]
-      errors.add("Item fuera de lugar", "Este item pertenece a \"#{ConstantsTranslator.new(@values[:i_loc]).t}\". Ni siquiera deberia estar aqui.") 
+      errors.add("Item fuera de lugar", "Este item pertenece a \"#{ConstantsTranslator.new(@values[:i_loc]).t}\". Ni siquiera deberia estar aqui.")
       return true
     end
     return false
@@ -157,10 +157,10 @@ class Item < Sequel::Model
     return false unless @values[:i_status] == Item::ON_CART
     order = current_sale_order
     if o_id == current_sale_order.o_id
-      errors.add("Error de carga", "Este item ya fue agregado a la orden actual con anterioridad.") 
+      errors.add("Error de carga", "Este item ya fue agregado a la orden actual con anterioridad.")
       return true
     else
-      errors.add("Item en otra venta en curso", "Este item pertenece a la orden #{order.o_id}. Que haces agregandolo a esta orden??") 
+      errors.add("Item en otra venta en curso", "Este item pertenece a la orden #{order.o_id}. Que haces agregandolo a esta orden??")
       return true
     end
   end
@@ -182,17 +182,17 @@ class Item < Sequel::Model
     return true
   end
 
-  def has_been_sold 
+  def has_been_sold
     if @values[:i_status] == Item::SOLD
-      errors.add("Item vendido anteriormente", "Este item ya fue vendido. Que hace aqui otra vez?") 
+      errors.add("Item vendido anteriormente", "Este item ya fue vendido. Que hace aqui otra vez?")
       return true
     end
     return false
   end
 
-  def has_been_void 
+  def has_been_void
     if @values[:i_status] == Item::VOID
-      errors.add("Item anulado", "Este item fue Invalidado. No podes operar sobre el.") 
+      errors.add("Item anulado", "Este item fue Invalidado. No podes operar sobre el.")
       return true
     end
     return false
@@ -200,7 +200,7 @@ class Item < Sequel::Model
 
   def is_not_ready
     if @values[:i_status] != Item::READY
-      errors.add("Item no listo", "Este item esta en un estado #{ConstantsTranslator.new(@values[:i_status]).t}. No podes operar sobre el.") 
+      errors.add("Item no listo", "Este item esta en un estado #{ConstantsTranslator.new(@values[:i_status]).t}. No podes operar sobre el.")
       return true
     end
     return false
@@ -266,7 +266,7 @@ class Item < Sequel::Model
     end
   end
 
-  def to_s
+  def print
     out = "\n"
     out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
     out += "\ti_id:  #{@values[:i_id]}\n"
@@ -278,7 +278,7 @@ class Item < Sequel::Model
     out += "\ti_loc: #{@values[:i_loc]}\n"
     created = @values[:created_at] ? Utils::local_datetime_format(@values[:created_at]) : ""
     out += "\tcreated: #{created}\n"
-    out
+    print out
   end
 
   def validate
@@ -384,12 +384,12 @@ class Item < Sequel::Model
     return self if missing(i_id)
     update_from Item[i_id]
 
-    return self if has_been_void 
+    return self if has_been_void
     return self if is_from_production
     return self if is_from_another_location
     return self if is_on_cart o_id
-    return self if has_been_sold 
-    errors.add("Error inesperado", "Que hacemos?") 
+    return self if has_been_sold
+    errors.add("Error inesperado", "Que hacemos?")
     return self
   end
 
@@ -399,11 +399,11 @@ class Item < Sequel::Model
     return item unless item.nil?
     return self if missing(i_id)
     update_from Item[i_id]
-    return self if has_been_void 
+    return self if has_been_void
     return self if is_from_another_location
     return self if has_been_sold # TODO: anulacion de venta
     return self if is_on_some_order o_id
-    errors.add("Error inesperado", "Que hacemos?") 
+    errors.add("Error inesperado", "Que hacemos?")
     return self
   end
 
@@ -413,11 +413,11 @@ class Item < Sequel::Model
     return item unless item.nil?
     return self if missing(i_id)
     update_from Item[i_id]
-    return self if has_been_void 
+    return self if has_been_void
     return self if is_from_another_location
     return self if has_been_sold # TODO: anulacion de venta
     return self if is_on_some_order o_id
-    errors.add("Error inesperado", "Que hacemos?") 
+    errors.add("Error inesperado", "Que hacemos?")
     return self
   end
 
@@ -427,10 +427,10 @@ class Item < Sequel::Model
     return item unless item.nil?
     return self if missing(i_id)
     update_from Item[i_id]
-    return self if has_been_void 
+    return self if has_been_void
     return self if has_been_sold # TODO: anulacion de venta
     return self if is_not_ready
-    errors.add("Error inesperado", "Que hacemos?") 
+    errors.add("Error inesperado", "Que hacemos?")
     return self
   end
 

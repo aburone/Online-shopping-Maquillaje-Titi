@@ -1,0 +1,19 @@
+- @title = t.returns.title
+
+- if @order.empty?
+  form.grid-form action=url("/returns") method="post"
+    == Rack::Csrf.tag(env)
+
+    fieldset
+      legend = t.returns.verify_order_code_legend
+      div data-row-span="2"
+        div data-field-span="1"
+          label for="o_code" = t.returns.enter_order_code
+          input autofocus="autofocus" required="required" type="text" name="o_code" id="o_code" value="" placeholder="#{t.order.code_placeholder}"
+        div data-field-span="1"
+          label for="verify" = t.actions.start_verification
+          input type="submit" name="verify" value="#{t.actions.verify}"
+
+- unless @order.empty?
+  h2 = t.order.details ConstantsTranslator.new(@order.type).t, @order.o_id, @order.o_code_with_dash
+  == slim :items_cart, locals: {}
