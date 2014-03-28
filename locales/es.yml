@@ -578,8 +578,8 @@ transport:
   title: "Orden de movimiento de items nº %1 (%2 items)"
   arrivals:
     title: Ingresos de mercaderia
-  verification:
-    title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"
+    verification:
+      title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"
   departures:
     pos_to_wh:
       title: Transporte de mercaderia desde local hacia deposito
@@ -606,6 +606,7 @@ categories:
   empty: No hay categorías disponibles
   count: "%1 categorías listadas"
   list: Categorías disponibles
+
 category:
   not_found: "Categoría inexistente"
   missing: No tengo ninguna categoría con el identificador dado (%1)

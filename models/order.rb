@@ -52,16 +52,16 @@ class Order < Sequel::Model
 
   def materials
     materials = Material
-      .select(:materials__m_id, :m_name, :c_id)
-      .select_append(:c_name)
-      .join(:products_materials, [:m_id])
-      .join(:products, products__p_id: :products_materials__product_id)
-      .join(:items, [:p_id])
-      .join(:line_items, line_items__i_id: :items__i_id, o_id: self.o_id)
-      .join(:materials_categories, materials_categories__c_id: :materials__c_id)
-      .select_group(:m_id, :m_name, :c_name, :materials__c_id)
-      .select_append{sum(:m_qty).as(m_qty)}
-      .all
+    .select(:materials__m_id, :m_name, :c_id)
+    .select_append(:c_name)
+    .join(:products_materials, [:m_id])
+    .join(:products, products__p_id: :products_materials__product_id)
+    .join(:items, [:p_id])
+    .join(:line_items, line_items__i_id: :items__i_id, o_id: self.o_id)
+    .join(:materials_categories, materials_categories__c_id: :materials__c_id)
+    .select_group(:m_id, :m_name, :c_name, :materials__c_id)
+    .select_append{sum(:m_qty).as(m_qty)}
+    .all
     materials.each do |mat|
       mat[:m_qty] = BigDecimal.new(mat[:m_qty], 3)
     end
@@ -264,6 +264,7 @@ class Order < Sequel::Model
       message = R18n.t.order.void
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
       return true
+    end
   end
 
   def create_new type
@@ -272,13 +273,13 @@ class Order < Sequel::Model
     current_location = u.current_location[:name]
 
     order = Order
-              .filter(type: type)
-              .filter(o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
-              .order(:created_at)
-              .first
+    .filter(type: type)
+    .filter(o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
+    .order(:created_at)
+    .first
     if order.class ==  NilClass
       order = Order
-              .create(type: type, o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
+      .create(type: type, o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
       message = R18n.t.order.created(order.type)
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: current_location, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     end
@@ -309,90 +310,6 @@ class Order < Sequel::Model
 
   def create_or_load_sale
     create_new Order::SALE
-  end
-
-
-  def get_orders
-    Order
-      .select(:o_id, :o_code, :type, :o_status, :o_loc, :o_dst, :orders__created_at, :u_id, :username)
-      .join(:users, user_id: :u_id)
-  end
-
-  def get_order_by_code code
-    order = get_orders
-      .filter( o_code: remove_dash_from_code(code))
-      .first
-    if order.nil?
-      order = Order.new
-      order.errors.add(t.errors.inexistent_order.to_s, t.errors.invalid_order.to_s)
-    end
-    order
-  end
-
-  def get_orders_at_location location
-    get_orders
-      .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
-  end
-
-  def get_orders_at_destination location
-    get_orders
-      .filter( o_dst: location.to_s)
-  end
-
-  def get_orders_with_type type
-    get_orders
-      .filter(type: type)
-  end
-
-  def get_orders_at_location_with_type location, type
-    get_orders_at_location(location)
-      .filter(type: type)
-  end
-
-  def get_orders_at_location_with_type_and_status location, type, o_status
-    get_orders_at_location_with_type( location, type)
-      .filter( o_status: o_status)
-  end
-
-  def get_orders_at_destination_with_type_and_status location, type, o_status
-    get_orders_at_destination( location )
-      .filter(type: type)
-      .filter( o_status: o_status)
-  end
-
-  def get_orders_at_location_with_type_status_and_id location, type, o_status, o_id
-    get_orders_at_location_with_type_and_status( location, type, o_status)
-      .filter(o_id: o_id)
-      .first
-  end
-
-  def get_orders_at_location_with_type_and_id location, type, o_id
-    get_orders_at_location_with_type(location, type)
-      .filter(o_id: o_id)
-      .first
-  end
-
-  def get_packaging_orders
-    get_orders_with_type Order::PACKAGING
-  end
-
-  def get_packaging_orders_in_location location
-    get_orders_at_location_with_type location, Order::PACKAGING
-  end
-
-  def get_packaging_order o_id, location
-    order = get_packaging_orders_in_location(location)
-      .filter(o_id: o_id.to_i)
-      .filter(o_status: [Order::OPEN, Order::MUST_VERIFY])
-      .first
-    if order.class == Order
-      return order
-    else
-      message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::PACKAGING, o_id)
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR).save
-      return Order.new
-    end
-    return false
   end
 
   def finish_return
@@ -437,9 +354,9 @@ class Order < Sequel::Model
   def types_at_location location
     orders = Order.
       select(:type)
-      .filter( Sequel.or(o_loc: location, o_dst: location) )
-      .group(:type)
-      .all
+    .filter( Sequel.or(o_loc: location, o_dst: location) )
+    .group(:type)
+    .all
     types = []
     orders.each { |order| types << order.type}
     types
@@ -450,4 +367,3 @@ class Order < Sequel::Model
   end
 
 end
-

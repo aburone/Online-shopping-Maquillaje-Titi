@@ -91,13 +91,13 @@ class OrderTest < Test::Unit::TestCase
     Product[193].add_item label, order.o_id
     item = Item[label.i_id]
     order.add_item(item)
-
+  end
 
   def add_new_item order
-      label = get_printed_label
-      Product.new.get_rand.add_item label, order.o_id
-      item = Item[label.i_id]
-      order.add_item(item)
+    label = get_printed_label
+    Product.new.get_rand.add_item label, order.o_id
+    item = Item[label.i_id]
+    order.add_item(item)
   end
 
 
@@ -163,6 +163,7 @@ class OrderTest < Test::Unit::TestCase
   def test_should_get_a_zero_if_there_are_no_payments
     order = Order.new
     assert_equal 0, order.credit_total
+  end
 
   def test_should_get_order_by_code
     code = "BEE-B72"

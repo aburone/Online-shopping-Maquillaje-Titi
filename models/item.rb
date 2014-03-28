@@ -518,5 +518,6 @@ class Item < Sequel::Model
     errors.add("Error inesperado", "Que hacemos?")
     return self
   end
+
 end
 
