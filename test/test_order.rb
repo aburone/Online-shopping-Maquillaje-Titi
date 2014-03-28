@@ -91,7 +91,7 @@ class OrderTest < Test::Unit::TestCase
     Product[193].add_item label, order.o_id
     item = Item[label.i_id]
     order.add_item(item)
-  end
+
 
   def add_new_item order
       label = get_printed_label
@@ -105,19 +105,6 @@ class OrderTest < Test::Unit::TestCase
     code = "BEE-B72"
     ret = Order.new.remove_dash_from_code(code)
     assert_equal("BEEB72", ret, "Invalid code returned #{ret}")
-  end
-
-  def test_should_get_order_by_code
-    code = "BEE-B72"
-    order = Order.new.get_orders_at_location_with_type_status_and_code Location::S1, Order::SALE, Order::FINISHED, code
-    assert_equal(2657, order.o_id)
-  end
-
-  def test_should_get_empty_order_with_error_if_the_code_is_invalid
-    code = "XXX-XXXX"
-    order = Order.new.get_orders_at_location_with_type_status_and_code Location::S1, Order::SALE, Order::FINISHED, code
-    assert( order.empty? == true , "The order isn't empty or is not an order (nil?)")
-    assert_equal [t.errors.inexistent_order.to_s, t.errors.invalid_order_id.to_s].flatten.join(": "), order.errors.to_a.flatten.join(": ")
   end
 
   def test_should_not_allow_to_add_empty_items
@@ -176,6 +163,18 @@ class OrderTest < Test::Unit::TestCase
   def test_should_get_a_zero_if_there_are_no_payments
     order = Order.new
     assert_equal 0, order.credit_total
+
+  def test_should_get_order_by_code
+    code = "BEE-B72"
+    order = Order.new.get_orders_at_location_with_type_status_and_code Location::S1, Order::SALE, Order::FINISHED, code
+    assert_equal(2657, order.o_id)
+  end
+
+  def test_should_get_empty_order_with_error_if_the_code_is_invalid
+    code = "XXX-XXXX"
+    order = Order.new.get_orders_at_location_with_type_status_and_code Location::S1, Order::SALE, Order::FINISHED, code
+    assert( order.empty? == true , "The order isn't empty or is not an order (nil?)")
+    assert_equal [t.errors.inexistent_order.to_s, t.errors.invalid_order_id.to_s].flatten.join(": "), order.errors.to_a.flatten.join(": ")
   end
 
 end

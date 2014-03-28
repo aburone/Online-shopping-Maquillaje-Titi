@@ -264,6 +264,133 @@ class Order < Sequel::Model
       message = R18n.t.order.void
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
       return true
+  end
+
+  def create_new type
+    u = User.new
+    current_user_id = u.current_user_id
+    current_location = u.current_location[:name]
+
+    order = Order
+              .filter(type: type)
+              .filter(o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
+              .order(:created_at)
+              .first
+    if order.class ==  NilClass
+      order = Order
+              .create(type: type, o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
+      message = R18n.t.order.created(order.type)
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: current_location, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
+    end
+    order
+  end
+
+  def create_invalidation origin
+    u = User.new
+    current_user_id = u.current_user_id
+    order = Order.create(type: Order::INVALIDATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
+    message = R18n.t.order.created(order.type)
+    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
+    order
+  end
+
+  def create_transmutation origin
+    u = User.new
+    current_user_id = u.current_user_id
+    order = Order.create(type: Order::TRANSMUTATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
+    message = R18n.t.order.created(order.type)
+    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
+    order
+  end
+
+  def create_packaging #TODO: eliminar de los test y borrar
+    create_new Order::PACKAGING
+  end
+
+  def create_or_load_sale
+    create_new Order::SALE
+  end
+
+
+  def get_orders
+    Order
+      .select(:o_id, :o_code, :type, :o_status, :o_loc, :o_dst, :orders__created_at, :u_id, :username)
+      .join(:users, user_id: :u_id)
+  end
+
+  def get_order_by_code code
+    order = get_orders
+      .filter( o_code: remove_dash_from_code(code))
+      .first
+    if order.nil?
+      order = Order.new
+      order.errors.add(t.errors.inexistent_order.to_s, t.errors.invalid_order.to_s)
+    end
+    order
+  end
+
+  def get_orders_at_location location
+    get_orders
+      .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
+  end
+
+  def get_orders_at_destination location
+    get_orders
+      .filter( o_dst: location.to_s)
+  end
+
+  def get_orders_with_type type
+    get_orders
+      .filter(type: type)
+  end
+
+  def get_orders_at_location_with_type location, type
+    get_orders_at_location(location)
+      .filter(type: type)
+  end
+
+  def get_orders_at_location_with_type_and_status location, type, o_status
+    get_orders_at_location_with_type( location, type)
+      .filter( o_status: o_status)
+  end
+
+  def get_orders_at_destination_with_type_and_status location, type, o_status
+    get_orders_at_destination( location )
+      .filter(type: type)
+      .filter( o_status: o_status)
+  end
+
+  def get_orders_at_location_with_type_status_and_id location, type, o_status, o_id
+    get_orders_at_location_with_type_and_status( location, type, o_status)
+      .filter(o_id: o_id)
+      .first
+  end
+
+  def get_orders_at_location_with_type_and_id location, type, o_id
+    get_orders_at_location_with_type(location, type)
+      .filter(o_id: o_id)
+      .first
+  end
+
+  def get_packaging_orders
+    get_orders_with_type Order::PACKAGING
+  end
+
+  def get_packaging_orders_in_location location
+    get_orders_at_location_with_type location, Order::PACKAGING
+  end
+
+  def get_packaging_order o_id, location
+    order = get_packaging_orders_in_location(location)
+      .filter(o_id: o_id.to_i)
+      .filter(o_status: [Order::OPEN, Order::MUST_VERIFY])
+      .first
+    if order.class == Order
+      return order
+    else
+      message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::PACKAGING, o_id)
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR).save
+      return Order.new
     end
     return false
   end

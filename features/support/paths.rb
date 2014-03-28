@@ -25,9 +25,9 @@ module NavigationHelpers
     when /allocation_list/
       '/admin/production/allocation/select'
 
-
     when /sales/
       '/ventas'
+
     when /returns/
       '/sales/returns'
 

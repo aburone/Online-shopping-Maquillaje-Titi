@@ -35,4 +35,3 @@ And I give it a valid code, but ist's not a sale, then I should see an error
 
 
 # # not older than x days?
-
