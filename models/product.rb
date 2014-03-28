@@ -10,10 +10,10 @@ class Product < Sequel::Model
   many_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
 
 
-  ATTIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :description, :notes, :img, :img_extra]
-  # same as ATTIBUTES but with the neccesary table references for get_ functions
+  ATTRIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :description, :notes, :img, :img_extra]
+  # same as ATTRIBUTES but with the neccesary table references for get_ functions
   COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :description, :notes, :products__img, :img_extra]
-  EXCLUDED_ATTIBUTES_IN_DUPLICATION = [:p_id, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation]
+  EXCLUDED_ATTRIBUTES_IN_DUPLICATION = [:p_id, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation]
 
   STORE_ONLY_1 = "STORE_ONLY_1"
   STORE_ONLY_2 = "STORE_ONLY_2"
@@ -314,7 +314,7 @@ class Product < Sequel::Model
   end
 
   def update_from product
-    columns_to_copy = ATTIBUTES - EXCLUDED_ATTIBUTES_IN_DUPLICATION
+    columns_to_copy = ATTRIBUTES - EXCLUDED_ATTRIBUTES_IN_DUPLICATION
     columns_to_copy.each { |col| self[col] = product[col] }
     self
   end
@@ -336,7 +336,7 @@ class Product < Sequel::Model
   end
 
   def save (opts=OPTS)
-    opts = opts.merge({columns: Product::ATTIBUTES})
+    opts = opts.merge({columns: Product::ATTRIBUTES})
     self.end_of_life = false if self.archived
     begin
       super opts
@@ -478,7 +478,6 @@ class Product < Sequel::Model
     out += "\timg_extra:          #{@values[:img_extra]}\n"
     out += "\tnotes:              #{@values[:notes]}\n"
     echo out
-    out
   end
 
   def set_life_point life_point

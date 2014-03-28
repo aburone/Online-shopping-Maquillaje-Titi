@@ -16,12 +16,12 @@ class User < UserAuth
   end
 
   def current_user_id
-    current_user_id = Thread.current.thread_variable_get(:user_id) 
+    current_user_id = Thread.current.thread_variable_get(:user_id)
     current_user_id ||= 1 # system
   end
 
   def current_user_name
-    current_username = Thread.current.thread_variable_get(:username) 
+    current_username = Thread.current.thread_variable_get(:username)
     current_username ||= "system"
   end
 

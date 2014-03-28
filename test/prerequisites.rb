@@ -106,7 +106,7 @@ class Product
     max_pos = Product.filter(archived: false).count(:p_id)
     rnd = rand(max_pos)
     prod = Product.filter(archived: false).limit(5, rnd).first
-    p = Product.new.get prod.p_id
+    Product.new.get prod.p_id
   end
 end
 
@@ -119,6 +119,16 @@ class Material
     else
       raise "No materials available"
     end
+  end
+end
+
+class User
+  def current_location= new_location
+    Thread.current.thread_variable_set(:current_location, {name: new_location, translation: ConstantsTranslator.new(new_location).t})
+  end
+
+  def current_user_id= new_user_id
+    Thread.current.thread_variable_set(:user_id, new_user_id)
   end
 end
 

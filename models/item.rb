@@ -6,16 +6,20 @@ class Item < Sequel::Model
   many_to_one :product, key: :p_id
   many_to_many :orders, class: :Order, join_table: :line_items, left_key: :i_id, right_key: :o_id
 
-  NEW="NEW"
-  PRINTED="PRINTED"
-  ASSIGNED="ASSIGNED"
-  MUST_VERIFY="MUST_VERIFY"
-  VERIFIED="VERIFIED"
-  READY="READY"
-  ERROR="ERROR"
-  VOID="VOID"
-  ON_CART="ON_CART"
-  SOLD="SOLD"
+  NEW         ="NEW"
+  PRINTED     ="PRINTED"
+  ASSIGNED    ="ASSIGNED"
+  MUST_VERIFY ="MUST_VERIFY"
+  VERIFIED    ="VERIFIED"
+  READY       ="READY"
+  ERROR       ="ERROR"
+  VOID        ="VOID"
+  ON_CART     ="ON_CART"
+  SOLD        ="SOLD"
+  RETURNING   ="RETURNING"
+  ATTRIBUTES = [:i_id, :p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc, :created_at]
+
+  @sale_id = 666
 
   def split_input_into_ids input
     ids = []
@@ -33,6 +37,16 @@ class Item < Sequel::Model
     reason.strip!
     raise ArgumentError, "Es necesario especificar la razon para invalidar el item" if reason.length < 5
     reason
+  end
+
+  def save (opts=OPTS)
+    opts = opts.merge({columns: Item::ATTRIBUTES})
+    begin
+      super opts
+    rescue => message
+      errors.add "General", message
+    end
+    self
   end
 
   def void! reason
@@ -118,7 +132,24 @@ class Item < Sequel::Model
     @values[:i_status] = item.i_status
     @values[:i_loc] = item.i_loc
     @values[:created_at] = item.created_at
+
+    @sale_id = item[:sale] if item[:sale]
+    @sale_id ||= item.o_id if item.o_id
     self
+  end
+
+  def sale_id
+    @sale_id
+  end
+
+  def o_id
+    @values[:o_id]
+  end
+
+  def order_missmatch sale_id
+    return false if self.sale_id == sale_id
+    errors.add("Error de ingreso", "Este item pertenece a la orden #{self.sale_id}, mientras que la orden de venta actual es la #{sale_id}.")
+    return true
   end
 
   def missing i_id
@@ -198,6 +229,22 @@ class Item < Sequel::Model
     return false
   end
 
+  def is_returning
+    if self.i_status == Item::RETURNING
+      errors.add("Item en devolución", "Este item ya está en la devolución. No podes agregarlo nuevamente.")
+      return true
+    end
+    return false
+  end
+
+  def has_not_been_sold
+    if self.i_status != Item::SOLD
+      errors.add(R18n.t.return.errors.invalid_status.to_s, R18n.t.return.errors.this_item_is_not_in_sold_status.to_s)
+      return true
+    end
+    return false
+  end
+
   def is_not_ready
     if @values[:i_status] != Item::READY
       errors.add("Item no listo", "Este item esta en un estado #{ConstantsTranslator.new(@values[:i_status]).t}. No podes operar sobre el.")
@@ -256,29 +303,29 @@ class Item < Sequel::Model
                   .select_append{default(:i_price_pro).as(i_price_pro)}
                   .select_append{default(:i_status).as(i_status)}
                   .first
-      @values[:p_id] = defaults[:p_id]
-      @values[:p_name] = defaults[:p_name]
-      @values[:i_price] = defaults[:i_price]
+      @values[:p_id]        = defaults[:p_id]
+      @values[:p_name]      = defaults[:p_name]
+      @values[:i_price]     = defaults[:i_price]
       @values[:i_price_pro] = defaults[:i_price_pro]
-      @values[:i_status] = Item::PRINTED
+      @values[:i_status]    = Item::PRINTED
       save validate: false
       self
     end
   end
 
   def print
-    out = "\n"
-    out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
-    out += "\ti_id:  #{@values[:i_id]}\n"
-    out += "\tp_id:  #{@values[:p_id]}\n"
-    out += "\tp_name:  #{@values[:p_name]}\n"
-    out += @values[:i_price] ? "\ti_price: #{sprintf("%0.2f", @values[:i_price])}\n" : "\ti_price: \n"
-    out += @values[:i_price_pro] ? "\ti_price_pro: #{sprintf("%0.2f", @values[:i_price_pro])}\n" : "\ti_price_pro: \n"
-    out += "\ti_status: #{@values[:i_status]}\n"
-    out += "\ti_loc: #{@values[:i_loc]}\n"
-    created = @values[:created_at] ? Utils::local_datetime_format(@values[:created_at]) : ""
-    out += "\tcreated: #{created}\n"
-    print out
+    out     = "\n"
+    out     += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
+    out     += "\ti_id:  #{self.i_id}\n"
+    out     += "\tp_id:  #{self.p_id}\n"
+    out     += "\tp_name:  #{self.p_name}\n"
+    out     += self.i_price ? "\ti_price: #{sprintf("%0.2f", self.i_price)}\n" : "\ti_price: \n"
+    out     += self.i_price_pro ? "\ti_price_pro: #{sprintf("%0.2f", self.i_price_pro)}\n" : "\ti_price_pro: \n"
+    out     += "\ti_status: #{self.i_status}\n"
+    out     += "\ti_loc: #{self.i_loc}\n"
+    created = self.created_at ? Utils::local_datetime_format(self.created_at) : ""
+    out     += "\tcreated: #{created}\n"
+    puts out
   end
 
   def validate
@@ -434,5 +481,42 @@ class Item < Sequel::Model
     return self
   end
 
+  def get_for_return i_id, return_id
+    i_id = i_id.to_s.strip
+    sale_id = SalesToReturn.filter(return: return_id).first[:sale]
+    item = Item
+            .filter(i_status: Item::SOLD, i_loc: User.new.current_location[:name], type: Order::SALE, i_id: i_id, o_id: sale_id)
+            .join(:line_items, [:i_id])
+            .join(:orders, [:o_id])
+            .order(:orders__o_id)
+            .last
+
+    return item unless item.nil?
+    return self if missing(i_id)
+    item = Item
+            .filter(i_id: i_id, type: Order::SALE)
+            .join(:line_items, [:i_id])
+            .join(:orders, [:o_id])
+            .order(:orders__o_id)
+            .last
+    if item.nil?
+      item = Item
+              .filter(i_id: i_id)
+              .join(:line_items, [:i_id])
+              .join(:orders, [:o_id])
+              .order(:orders__o_id)
+              .last
+    end
+    update_from item
+    return self if is_returning
+    return self if has_not_been_sold
+    return self if order_missmatch sale_id
+    return self if has_been_void
+    return self if is_from_production
+    return self if is_from_another_location
+    return self if is_on_cart return_id
+    errors.add("Error inesperado", "Que hacemos?")
+    return self
+  end
 end
 

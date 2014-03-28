@@ -407,7 +407,7 @@ class ProductTest < Test::Unit::TestCase
     DB.transaction(rollback: :always) do
       orig = Product[193]
       dest = orig.duplicate
-      copied_columns = Product::ATTIBUTES - Product::EXCLUDED_ATTIBUTES_IN_DUPLICATION
+      copied_columns = Product::ATTRIBUTES - Product::EXCLUDED_ATTRIBUTES_IN_DUPLICATION
       copied_columns.each do |col|
         assert_equal orig[col], dest[col]
       end

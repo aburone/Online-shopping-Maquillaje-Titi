@@ -11,25 +11,28 @@ When It ask for a order code
 And I give it a valid code
 And The order is a sale
 And The order is finished
+And The order has items
 Then It should ask for the items to be returned
+And I should be able to finish the order and download the pdf
+
+# prevent double devolution
+Given I go to returns
+When It ask for a order code
+And I give it an used code, then I should see an error
 
 
-# Scenario: Fail to return some items
+Scenario: Fail to return some items
 
-# Given I go to returns
-# When It ask for a order code
-# And I give it a invalid code
-# Then I should see an error
-
-# Given I go to returns
-# When It ask for a order code
-# And I give it a valid code
-# But The order is not a sale
-# Then I should see an error
+Given I go to returns
+When It ask for a order code
+And I give it an invalid code, then I should see an error
 
 
-# not older than x days?
+Given I go to returns
+When It ask for a order code
+And I give it a valid code, but ist's not a sale, then I should see an error
 
-# prevent double devolution, new status
 
-# empty code?
+
+# # not older than x days?
+

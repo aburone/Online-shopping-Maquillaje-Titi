@@ -6,8 +6,8 @@ include R18n::Helpers
     current_user_id = User.new.current_user_id
 
     if order.nil?
-      flash[:error_invalid_order] = R18n::t.errors.invalid_order
-      log = ActionsLog.new.set(msg: "#{R18n::t.errors.invalid_order} #{params[:label]}", u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::WARN)
+      flash[:error_invalid_order] = R18n::t.errors.invalid_order_id
+      log = ActionsLog.new.set(msg: "#{R18n::t.errors.invalid_order_id} #{params[:label]}", u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::WARN)
       log.save
       error = true
     end

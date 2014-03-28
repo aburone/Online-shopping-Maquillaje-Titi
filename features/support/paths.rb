@@ -18,8 +18,6 @@ module NavigationHelpers
       '/admin/materials'
     when /production/
       '/admin/production'
-    when /labels/
-      '/admin/production/labels'
     when /packaging_list/
       '/admin/production/packaging/select'
     when /verification_list/
@@ -27,20 +25,9 @@ module NavigationHelpers
     when /allocation_list/
       '/admin/production/allocation/select'
 
-    when /departure_wh_to_wh/
-      "/admin/transport/departures/wh_to_wh/select"
-    when /departure_wh_to_pos/
-      "/admin/transport/departures/wh_to_pos/select"
-    when /departure_pos_to_wh/
-      "/sales/transport/departures/pos_to_wh/select"
-    when /warehouse_arrivals/
-      "/admin/transport/arrivals/select"
-
 
     when /sales/
       '/ventas'
-    when /store_arrivals/
-      "/sales/transport/arrivals/select"
     when /returns/
       '/sales/returns'
 

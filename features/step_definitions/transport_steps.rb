@@ -1,3 +1,40 @@
+When(/^I go to warehouse_arrivals$/) do
+  visit "/admin/transport/arrivals/select"
+  page.status_code.should == 200
+  page.should have_content( t.transport.arrivals.title )
+end
+
+When(/^I go to packaging_list$/) do
+  visit "/admin/production/packaging/select"
+  page.status_code.should == 200
+  page.should have_content( t.production.packaging_select.title )
+end
+
+When(/^I go to departure_pos_to_wh$/) do
+  visit "/sales/transport/departures/pos_to_wh/select"
+  page.status_code.should == 200
+  page.should have_content( t.transport.departures.pos_to_wh.title )
+end
+
+When(/^I go to departure_wh_to_pos$/) do
+  visit "/admin/transport/departures/wh_to_pos/select"
+  page.status_code.should == 200
+  page.should have_content( t.transport.departures.wh_to_pos.title )
+end
+
+When(/^I go to departure_wh_to_wh$/) do
+  visit "/admin/transport/departures/wh_to_wh/select"
+  page.status_code.should == 200
+  page.should have_content( t.transport.departures.wh_to_wh.title )
+end
+
+When(/^I go to store_arrivals$/) do
+  visit "/sales/transport/arrivals/select"
+  page.status_code.should == 200
+  page.should have_content( t.transport.arrivals.title )
+end
+
+
 When /^I fill with some items from s1$/ do
   init_r18
 
@@ -161,7 +198,7 @@ end
 def remove_item id
   count = all('.item').count
   p "Removing one item of #{count}"
-  click_link( "Remover un item de la orden" ) 
+  click_link( "Remover un item de la orden" )
   add2 id
   all('.item').count.should == count - 1
 end
@@ -169,7 +206,7 @@ end
 def remove_bulk id
   count = all('.item').count
   p "Removing one bulk of #{count}"
-  click_link( "Remover un granel de la orden" ) 
+  click_link( "Remover un granel de la orden" )
   add2 id
   all('.item').count.should == count - 1
 end

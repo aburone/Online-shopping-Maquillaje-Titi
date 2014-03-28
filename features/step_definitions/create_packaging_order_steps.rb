@@ -13,7 +13,13 @@ When /^I fill with a printed label$/ do
 end
 
 When /^I select a packaging order for verification$/ do
-  all('.item').last.first(:link).click
+  items = all('.item')
+  if items.empty?
+    puts "There are no items to click!"
+    "There are no items to click!".should == false
+  else
+    items.last.first(:link).click
+  end
 end
 
 When /^I remove one item I should see one less$/ do

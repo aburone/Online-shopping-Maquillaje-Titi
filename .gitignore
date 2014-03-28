@@ -1,4 +1,4 @@
-.idea
+.tags*
 logs
 Gemfile.lock
 *.gem

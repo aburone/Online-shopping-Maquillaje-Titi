@@ -7,6 +7,4 @@ Rake::TestTask.new do |t|
   t.verbose = false
   # rake test TESTOPTS=-v
   # rake test TESTOPTS=--priority-mode -v
-
-
 end

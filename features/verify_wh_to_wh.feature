@@ -5,9 +5,8 @@ Scenario: Verify wh_to_wh order
 Given I am logged-in into backend with location WAREHOUSE_1
 
 When I go to warehouse_arrivals
-Then I should see "Ingresos"
 
-When I select a packaging order for verification
+And I select a packaging order for verification
 Then I should see "Verificando ingreso de mercaderia "
 # And I should see 4 item
 

@@ -1,7 +1,7 @@
 class Sales < AppController
 
   get '/make_sale' do
-    @order = Order.new.create_or_load_sale
+    @order = Order.new.create_or_load(Order::SALE)
     @items = @order.items
     @cart = @order.items_as_cart
 
@@ -13,7 +13,7 @@ class Sales < AppController
 
   post '/make_sale/add_item' do
     i_id = params[:i_id].to_s.strip
-    order = Order.new.create_or_load_sale
+    order = Order.new.create_or_load(Order::SALE)
     item = Item.new.get_for_sale i_id, order.o_id
     if item.errors.count > 0
       message = item.errors.to_a.flatten.join(": ")
@@ -28,20 +28,20 @@ class Sales < AppController
   end
 
   post "/sales/make_sale/cancel" do
-    order = Order.new.create_or_load_sale
+    order = Order.new.create_or_load(Order::SALE)
     order.cancel_sale
     flash[:notice] = "Orden cancelada"
     redirect to('/')
   end
 
   post "/sales/make_sale/pro" do
-    message = Order.new.create_or_load_sale.recalculate_as(params[:type].to_sym)
+    message = Order.new.create_or_load(Order::SALE).recalculate_as(params[:type].to_sym)
     flash[:notice] = message
     redirect to('/make_sale')
   end
 
   post "/sales/make_sale/checkout" do
-    @order = Order.new.create_or_load_sale
+    @order = Order.new.create_or_load(Order::SALE)
     @cart = @order.items_as_cart
     @cart_total = @order.cart_total
     slim :sales_checkout, layout: :layout_sales
@@ -49,7 +49,7 @@ class Sales < AppController
 
   post "/sales/make_sale/finish" do
     DB.transaction do
-      @order = Order.new.create_or_load_sale
+      @order = Order.new.create_or_load(Order::SALE)
       items = @order.items
       @cart_total = @order.cart_total
       begin

@@ -1,0 +1,11 @@
+-# coding: UTF-8
+
+- @title = t.credit_note.title
+
+form.grid-form
+  fieldset
+    legend = t.credit_note.generated(credit_total, o_code)
+    div data-row-span="1"
+      div data-field-span="1"
+        label for="action" = t.credit_note.print_instructions
+        input type="submit" name="action" value="#{t.actions.print}"

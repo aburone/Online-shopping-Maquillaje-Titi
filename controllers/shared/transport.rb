@@ -1,7 +1,7 @@
 module Transport
 
   def redir_if_erroneous_item order, item # TODO: kill
-    if item.errors.count > 0 
+    if item.errors.count > 0
       message = item.errors.to_a.flatten.join(": ")
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: item.p_id).save
       flash[:error_add_item] = item.errors
@@ -10,7 +10,7 @@ module Transport
   end
 
   def redir_if_erroneous_bulk order, bulk # TODO: kill
-    if bulk.errors.count > 0 
+    if bulk.errors.count > 0
       message = bulk.errors.to_a.flatten.join(": ")
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, m_id: bulk.m_id).save
       flash[:error_add_bulk] = bulk.errors
@@ -36,10 +36,10 @@ module Transport
       begin
         DB.transaction do
           if order.type == Order::WH_TO_POS or order.type == Order::WH_TO_WH or order.type == Order::POS_TO_WH
-            order.items.each do |item| 
+            order.items.each do |item|
               item.change_status(Item::READY, order.o_id).save if item.i_status == Item::VERIFIED
             end
-            order.bulks.each do |bulk| 
+            order.bulks.each do |bulk|
               bulk.change_status(Bulk::NEW, order.o_id).save if bulk.b_status == Bulk::VERIFIED
             end
             order.change_status Order::VERIFIED
@@ -133,7 +133,7 @@ module Transport
       if id.size == 12
         @item = Item.new.get_for_verification id, order.o_id
         redir_if_erroneous_item order, @item
-        begin    
+        begin
           @item.change_status Item::VERIFIED, order.o_id
           flash[:notice] = "Verificado"
           redirect to("/transport/arrivals/#{order.o_id}")
@@ -143,7 +143,7 @@ module Transport
       elsif id.size == 13
         @bulk = Bulk.new.get_for_verification id, order.o_id
         redir_if_erroneous_bulk order, @bulk
-        begin    
+        begin
           @bulk.change_status Bulk::VERIFIED, order.o_id
           flash[:notice] = "Verificado"
           redirect to("/transport/arrivals/#{order.o_id}")
@@ -169,14 +169,14 @@ module Transport
         @module ="sales"
         @route = "transport/arrivals/wh_to_pos"
         slim :verify_transport_order, layout: :layout_sales, locals: {sec_nav: :nav_sales_transport}
-      when Order::POS_TO_WH 
+      when Order::POS_TO_WH
         @module ="admin"
         @route = "transport/arrivals/pos_to_wh"
-        slim :verify_transport_order, layout: :layout_backend, locals: {sec_nav: :nav_production} 
-      when Order::WH_TO_WH 
+        slim :verify_transport_order, layout: :layout_backend, locals: {sec_nav: :nav_production}
+      when Order::WH_TO_WH
         @module ="admin"
         @route = "transport/arrivals/wh_to_wh"
-        slim :verify_transport_order, layout: :layout_backend, locals: {sec_nav: :nav_production} 
+        slim :verify_transport_order, layout: :layout_backend, locals: {sec_nav: :nav_production}
     end
   end
 
@@ -194,7 +194,7 @@ class Sales < AppController
   end
 
   post '/transport/departures/pos_to_wh/new' do
-    order = Order.new.create_new Order::POS_TO_WH
+    order = Order.new.create_or_load Order::POS_TO_WH
     redirect to("/transport/departures/#{order.type.downcase}/#{order.o_id}/add")
   end
 
@@ -209,16 +209,16 @@ class Sales < AppController
     @route = "/transport/departures/#{@order.type.downcase}"
     slim :select_item_to_add_to_transport_order, layout: :layout_sales, locals: {sec_nav: :nav_sales_transport}
   end
-                       
+
   route :get, :post, ['/transport/departures/pos_to_wh/:o_id/item/remove'] do
     @order = get_orders_at_location_with_type_status_and_id_or_redirect current_location[:name], o_type_from_route, Order::OPEN, params[:o_id].to_i, "/transport/departures/pos_to_wh/select"
     if params[:id].nil?
       slim :remove_item, layout: :layout_sales, locals: {sec_nav: :nav_sales_transport, action_url: "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/item/remove", title: t.production.remotion.title(@order.o_id)}
     else
       item = get_item_for_removal params[:id], @order
-      redirect_if_has_errors item, "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add" 
+      redirect_if_has_errors item, "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add"
       remove_item_from_order @order, item
-      redirect to "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add" 
+      redirect to "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add"
     end
   end
 
@@ -234,7 +234,7 @@ class Sales < AppController
 
   route :get, ["/transport/arrivals", "/transport/arrivals/select"] do
     @orders = Order.new.get_orders_at_destination_with_type_and_status(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE).all
-    slim :orders_list, layout: :layout_sales, locals: {title: "Ingresos", sec_nav: :nav_sales_transport, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/sales/transport/arrivals/o_id"}
+    slim :orders_list, layout: :layout_sales, locals: {title: t.transport.arrivals.title, sec_nav: :nav_sales_transport, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/sales/transport/arrivals/o_id"}
   end
 
   route :get, :post, '/transport/arrivals/:o_id/?' do
@@ -248,7 +248,7 @@ class Sales < AppController
       slim :remove_item, layout: :layout_sales, locals: {sec_nav: :nav_sales_transport, action_url: "/transport/arrivals/wh_to_pos/#{@order.o_id}/item/remove", title: t.production.remotion.title(@order.o_id)}
     else
       @item = get_item_for_removal params[:id], @order
-      redirect_if_has_errors @item, "/transport/arrivals/#{@order.o_id}" 
+      redirect_if_has_errors @item, "/transport/arrivals/#{@order.o_id}"
       begin
         @item.change_status(Item::ERROR, params[:o_id].to_i)
       rescue => detail
@@ -267,7 +267,7 @@ class Sales < AppController
         order[:o_dst] = params[:o_dst] if Location.new.valid? params[:o_dst]
         order.save columns: [:o_dst]
         order.change_status(Order::EN_ROUTE)
-        order.items.each do |item| 
+        order.items.each do |item|
           item.i_loc=params[:o_dst] if Location.new.valid? params[:o_dst]
           item.save
         end
@@ -278,7 +278,7 @@ class Sales < AppController
     redirect to "/transport/departures/#{order.type.downcase}/select"
   end
 
-  post '/transport/arrivals/:o_id/finish' do 
+  post '/transport/arrivals/:o_id/finish' do
     finish_verification Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE, params[:o_id])
   end
 
@@ -310,7 +310,7 @@ class Backend < AppController
       slim :remove_item, layout: :layout_backend, locals: {sec_nav: :nav_production, action_url: "/transport/arrivals/#{@order.type.downcase}/#{@order.o_id}/item/remove", title: t.production.remotion.title(@order.o_id)}
     else
       @item = get_item_for_removal params[:id], @order
-      redirect_if_has_errors @item, "/transport/arrivals/#{@order.o_id}" 
+      redirect_if_has_errors @item, "/transport/arrivals/#{@order.o_id}"
       begin
         @item.change_status(Item::ERROR, params[:o_id].to_i)
       rescue => detail
@@ -326,7 +326,7 @@ class Backend < AppController
       slim :remove_item, layout: :layout_backend, locals: {sec_nav: :nav_production, action_url: "/transport/arrivals/wh_to_wh/#{@order.o_id}/bulk/remove", title: t.production.bulk_remotion.title(@order.o_id)}
     else
       @bulk = get_bulk_for_removal params[:id], @order
-      redirect_if_has_errors @bulk, "/transport/arrivals/#{@order.o_id}" 
+      redirect_if_has_errors @bulk, "/transport/arrivals/#{@order.o_id}"
 
       begin
         @bulk.change_status(Bulk::ERROR, params[:o_id].to_i)
@@ -346,9 +346,9 @@ class Backend < AppController
       slim :remove_item, layout: :layout_backend, locals: {sec_nav: :nav_production, action_url: "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/item/remove", title: t.production.remotion.title(@order.o_id)}
     else
       item = get_item_for_removal params[:id], @order
-      redirect_if_has_errors item, "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add" 
+      redirect_if_has_errors item, "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add"
       remove_item_from_order @order, item
-      redirect to "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add" 
+      redirect to "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add"
     end
   end
 
@@ -358,9 +358,9 @@ class Backend < AppController
       slim :remove_item, layout: :layout_backend, locals: {sec_nav: :nav_production, action_url: "/transport/departures/wh_to_wh/#{@order.o_id}/bulk/remove", title: t.production.bulk_remotion.title(@order.o_id)}
     else
       bulk = get_bulk_for_removal params[:id], @order
-      redirect_if_has_errors bulk, "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add" 
+      redirect_if_has_errors bulk, "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add"
       remove_bulk_from_order @order, bulk
-      redirect to "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add" 
+      redirect to "/transport/departures/#{@order.type.downcase}/#{@order.o_id}/add"
     end
   end
 
@@ -375,7 +375,7 @@ class Backend < AppController
 
   route :get, ["/transport/arrivals/select"] do
     @orders = Order.new.get_orders_at_destination_with_type_and_status(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE).all
-    slim :orders_list, layout: :layout_backend, locals: {title: "Ingresos", sec_nav: :nav_production, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/admin/transport/arrivals/o_id"}
+    slim :orders_list, layout: :layout_backend, locals: {title: t.transport.arrivals.title, sec_nav: :nav_production, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/admin/transport/arrivals/o_id"}
   end
 
   route :get, :post, '/transport/arrivals/:o_id' do
@@ -383,7 +383,7 @@ class Backend < AppController
     verify order, Order::WH_TO_WH, params[:i_id]
   end
 
-  post '/transport/arrivals/:o_id/finish' do 
+  post '/transport/arrivals/:o_id/finish' do
     finish_verification Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE, params[:o_id])
   end
 
@@ -393,7 +393,7 @@ class Backend < AppController
   end
 
   post '/transport/departures/wh_to_wh/new/?' do
-    order = Order.new.create_new Order::WH_TO_WH
+    order = Order.new.create_or_load Order::WH_TO_WH
     redirect to("/transport/departures/wh_to_wh/#{order.o_id}/add")
   end
 
@@ -403,7 +403,7 @@ class Backend < AppController
   end
 
   post '/transport/departures/wh_to_pos/new/?' do
-    order = Order.new.create_new Order::WH_TO_POS
+    order = Order.new.create_or_load Order::WH_TO_POS
     redirect to("/transport/departures/wh_to_pos/#{order.o_id}/add")
   end
 
@@ -422,8 +422,8 @@ class Backend < AppController
         if @item.errors.size > 0
           flash.now[:error] = @item.errors.to_a.flatten.join(": ")
           @product = Product.new
-        else 
-          begin    
+        else
+          begin
             @order.add_item @item
             @item.change_status Item::MUST_VERIFY, params[:o_id].to_i
             @product = Product[@item.p_id]
@@ -438,8 +438,8 @@ class Backend < AppController
         if @bulk.errors.size > 0
           flash.now[:error] = @bulk.errors.to_a.flatten.join(": ")
           @material = Material.new
-        else 
-          begin    
+        else
+          begin
             @order.add_bulk @bulk
             @bulk.change_status Bulk::MUST_VERIFY, params[:o_id].to_i
             @material = Material[@bulk.m_id]
@@ -471,11 +471,11 @@ class Backend < AppController
         order[:o_dst] = params[:o_dst] if Location.new.valid? params[:o_dst]
         order.save columns: [:o_dst]
         order.change_status(Order::EN_ROUTE)
-        order.items.each do |item| 
+        order.items.each do |item|
           item.i_loc=params[:o_dst] if Location.new.valid? params[:o_dst]
           item.save
         end
-        order.bulks.each do |bulk| 
+        order.bulks.each do |bulk|
           bulk.b_loc=params[:o_dst] if Location.new.valid? params[:o_dst]
           bulk.save
         end

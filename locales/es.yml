@@ -25,6 +25,7 @@ actions:
   changed_status: Estado cambiado a %1
   scan_label: Escanee el ID
   select_product: Seleccionar el producto
+  print: Imprimir
 errors:
   nil_params: "Los parametros dados son de un valor nulos"
   invalid_params: Los parametros dados son invalidos
@@ -35,10 +36,12 @@ errors:
   inexistent_label: "Etiqueta inexistente"
   inexistent_item: "Item inexistente"
   inexistent_bulk: "Bulk inexistente"
-  inexistent_order: "Ordern inexistente"
+  inexistent_order: "Orden inexistente"
+  invalid_order_id: "Identificador de orden inválido"
   inexistent_product: "Código de producto inexistente"
-  invalid_order: "Identificador de orden inválido"
   invalid_label: "Etiqueta inválida"
+  cant_add_empty_items_to_order: "No se pueden agregar items vacios a una orden"
+  sale_id_missmatch: "La orden de venta dada no se corresponde con devolucion actual"
   previously_assigned_label: "Etiqueta previamente asignada a otro item"
   void_label: "Etiqueta invalidada por sistema"
   invalid_label_status: "Etiqueta con estado inválido: %1"
@@ -419,6 +422,8 @@ constant:
   INVENTORY: Carga inicial de inventario
   INVALIDATION: Invalidacion de items
   TRANSMUTATION: Transmutacion de items
+  RETURN: Devolución de items
+  CREDIT_NOTE: Nota de crédito
   IN_USE: En Uso
   EMPTY: Vacio
   NEW: Nuevo
@@ -438,6 +443,7 @@ constant:
   SALE: Venta
   ON_CART: En carrito
   SOLD: Vendido
+  RETURNING: En devolución
 locations:
   WAREHOUSE_1: Deposito 1
   WAREHOUSE_2: Deposito 2
@@ -548,6 +554,8 @@ order:
   user_is_verfying_order_of_wrong_type: "%1 esta intentando verificar la orden Nº %2 con estado %3 que es de un tipo inválido %4"
   sure_to_cancel_load_order: "Esto borrara la orden. Todas las etiquetas y productos seran dissociados."
   sure_to_cancel_sale_order: "Esto borrara la orden. Todos los items volveran a estar disponibles para la venta"
+  sure_to_cancel_return_order: "Esto borrara la orden. Todos los items volveran al estado Vendido"
+  sure_to_finish_return_order: "Esto finalizara la devolución. Se generara una nota de crédito y los items volveran a estar disponibles para la venta"
   cancelled: "La orden Nº %1 fue cancelada. Todas las etiquetas y productos fueron dissociados."
   not_a_packaging: Esta no es una orden de carga
   missing: Orden %1 inexistente o inaccesible desde este modulo
@@ -560,13 +568,30 @@ order:
     title: "Orden de movimiento de items nº %1 (%2 items)"
   arrival_verification:
     title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"
-  wh_to_pos:
-    title: "Transporte de mercaderia entre deposito y punto de venta"
-  wh_to_wh:
-    title: "Transporte de mercaderia entre depositos"
-  pos_to_wh:
-    title: Transporte de mercaderia desde local hacia deposito
-returns:
+return:
   title: Devolución de items
   verify_order_code_legend: Las devoluciones solo se pueden hacer con el código de la venta original
   enter_order_code: Ingrese el código de la orden de venta original
+  scan_label: Escanee el proximo item a devolver
+  sale_details: "Detalles de la venta original Nº %1 (%2)"
+  return_details: "Detalles de la devolucion Nº %1 (%2)"
+  finished: "Devolucion finalizada"
+  failed: "Devolución fallida"
+  errors:
+    invalid_status: "Estado inválido"
+    this_item_is_not_in_sold_status: "Este item no esta en estado Vendido. No podes operar sobre el."
+credit_note:
+  title: Nota de crédito
+  generated: Se generó una nota de crédito por %1 con el código identificador %2
+  print_instructions: Bajar un pdf para imprimir
+
+transport:
+  arrivals:
+    title: Ingresos de mercaderia
+  departures:
+    pos_to_wh:
+      title: Transporte de mercaderia desde local hacia deposito
+    wh_to_pos:
+      title: "Transporte de mercaderia entre deposito y punto de venta"
+    wh_to_wh:
+      title: "Transporte de mercaderia entre depositos"

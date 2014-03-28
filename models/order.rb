@@ -14,7 +14,7 @@ class Order < Sequel::Model
   CREDIT_NOTE="CREDIT_NOTE"
   INVALIDATION="INVALIDATION"
   TRANSMUTATION="TRANSMUTATION"
-  TYPES = [PACKAGING, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION, TRANSMUTATION]
+  TYPES = [PACKAGING, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION, TRANSMUTATION, RETURN, CREDIT_NOTE]
 
   OPEN="OPEN"
   MUST_VERIFY="MUST_VERIFY"
@@ -22,6 +22,9 @@ class Order < Sequel::Model
   FINISHED="FINISHED"
   EN_ROUTE="EN_ROUTE"
   VOID="VOID"
+
+  ATTRIBUTES = [:o_id, :type, :o_status, :o_loc, :u_id, :created_at]
+  require_relative 'order_sql.rb'
 
   def empty?
     return @values[:o_id].nil? ? true : false
@@ -88,10 +91,22 @@ class Order < Sequel::Model
       errors.add "General", message
       return message
     end
-    if item.i_status == Item::NEW
+    if item.i_status == Item::NEW && !item.i_id.nil?
       message = R18n::t.errors.label_wasnt_printed
       ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR, i_id: item.i_id, p_id: item.p_id).save
       errors.add "General", message
+      return message
+    end
+    if item.i_id.nil?
+      message = R18n::t.errors.cant_add_empty_items_to_order.to_s
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR, i_id: item.i_id, p_id: item.p_id).save
+      errors.add "General", message
+      return message
+    end
+    if item.errors.count > 0
+      message = "#{item.errors.to_a.flatten.join(": ")}"
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR, i_id: item.i_id, p_id: item.p_id).save
+      errors.add item.errors.flatten.flatten[0], item.errors.flatten.flatten[1]
       return message
     end
     begin
@@ -103,8 +118,11 @@ class Order < Sequel::Model
         ActionsLog.new.set(msg: this.errors.to_s, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR, i_id: item.i_id, p_id: item.p_id).save
         return this.errors.to_s
       end
+    rescue Sequel::UniqueConstraintViolation => detail
+      errors.add "Error de ingreso", "Item agregado con anterioridad"
     rescue => detail
-      print detail.message
+      errors.add "General", detail.message
+      puts detail.message
     end
   end
 
@@ -145,8 +163,11 @@ class Order < Sequel::Model
         ActionsLog.new.set(msg: this.errors.to_s, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR, b_id: bulk.b_id, m_id: bulk.m_id).save
         return this.errors.to_s
       end
+    rescue Sequel::UniqueConstraintViolation => detail
+      errors.add "Error de ingreso", "Granel agregado con anterioridad"
     rescue => detail
-      print detail.message
+      errors.add "General", detail.message
+      puts detail.message
     end
   end
 
@@ -196,7 +217,7 @@ class Order < Sequel::Model
     out += "\tu_id:   #{@values[:u_id]}\n"
     created = @values[:created_at] ? Utils::local_datetime_format(@values[:created_at]) : "Never"
     out += "\tcreated: #{created}\n"
-    echo out
+    puts out
   end
 
   def cancel
@@ -208,7 +229,9 @@ class Order < Sequel::Model
       save columns: [:o_id, :type, :o_status, :o_loc, :o_dst, :u_id, :created_at]
       message = R18n.t.order.void
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+      return true
     end
+    return false
   end
 
   def cancel_sale
@@ -221,245 +244,43 @@ class Order < Sequel::Model
       end
       remove_all_items
       @values[:o_status] = Order::VOID
-      save columns: [:o_id, :type, :o_status, :o_loc, :u_id, :created_at]
+      save columns: Order::ATTRIBUTES
       message = R18n.t.order.void
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
     end
   end
 
-  def create_new type
-    u = User.new
-    current_user_id = u.current_user_id
-    current_location = u.current_location[:name]
-
-    order = Order
-              .filter(type: type)
-              .filter(o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
-              .order(:created_at)
-              .first
-    if order.class ==  NilClass
-      order = Order
-              .create(type: type, o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
-      message = R18n.t.order.created(order.type)
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: current_location, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
-    end
-    order
-  end
-
-  def create_invalidation origin
-    u = User.new
-    current_user_id = u.current_user_id
-    order = Order.create(type: Order::INVALIDATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
-    message = R18n.t.order.created(order.type)
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
-    order
-  end
-
-  def create_transmutation origin
-    u = User.new
-    current_user_id = u.current_user_id
-    order = Order.create(type: Order::TRANSMUTATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
-    message = R18n.t.order.created(order.type)
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
-    order
-  end
-
-  def create_packaging #TODO: eliminar de los test y borrar
-    create_new Order::PACKAGING
-  end
-
-  def create_or_load_sale
-    create_new Order::SALE
-  end
-
-
-  def get_orders
-    Order
-      .select(:o_id, :o_code, :type, :o_status, :o_loc, :o_dst, :orders__created_at, :u_id, :username)
-      .join(:users, user_id: :u_id)
-  end
-
-
-  def get_orders_at_location location
-    get_orders
-      .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
-  end
-
-  def get_orders_at_destination location
-    get_orders
-      .filter( o_dst: location.to_s)
-  end
-
-  def get_orders_with_type type
-    get_orders
-      .filter(type: type)
-  end
-
-  def get_orders_at_location_with_type location, type
-    get_orders_at_location(location)
-      .filter(type: type)
-  end
-
-  def get_orders_at_location_with_type_and_status location, type, o_status
-    get_orders_at_location_with_type( location, type)
-      .filter( o_status: o_status)
-  end
-
-  def get_orders_at_destination_with_type_and_status location, type, o_status
-    get_orders_at_destination( location )
-      .filter(type: type)
-      .filter( o_status: o_status)
-  end
-
-  def get_orders_at_location_with_type_status_and_id location, type, o_status, o_id
-    get_orders_at_location_with_type_and_status( location, type, o_status)
-      .filter(o_id: o_id)
-      .first
-  end
-
-  def get_orders_at_location_with_type_status_and_code location, type, o_status, o_code
-    get_orders_at_location_with_type_and_status( location, type, o_status)
-      .filter(o_code: remove_dash_from_code(o_code.to_s))
-      .first
-  end
-
-  def get_orders_at_location_with_type_and_id location, type, o_id
-    get_orders_at_location_with_type(location, type)
-      .filter(o_id: o_id)
-      .first
-  end
-
-  def get_packaging_orders
-    get_orders_with_type Order::PACKAGING
-  end
-
-  def get_packaging_orders_in_location location
-    get_orders_at_location_with_type location, Order::PACKAGING
-  end
-
-  def get_packaging_order o_id, location
-    order = get_packaging_orders_in_location(location)
-      .filter(o_id: o_id.to_i)
-      .filter(o_status: [Order::OPEN, Order::MUST_VERIFY])
-      .first
-    if order.class == Order
-      return order
-    else
-      message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::PACKAGING, o_id)
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR).save
-      return Order.new
-    end
-  end
-
-  def get_open_packaging_orders location
-    get_packaging_orders_in_location(location)
-      .filter(o_status: Order::OPEN)
-  end
-
-  def get_unverified_packaging_orders location
-    get_packaging_orders_in_location(location)
-      .filter(o_status: Order::MUST_VERIFY)
-  end
-
-  def get_packaging_order_for_verification o_id, location, log=true
-    order = get_packaging_orders_in_location(location)
-      .filter(o_status: Order::MUST_VERIFY)
-      .filter(o_id: o_id.to_i)
-      .first
-    if order.class == Order
-      if order.type == Order::PACKAGING
-        if order.o_status == Order::MUST_VERIFY
-          message = R18n.t.order.user_is_verifying(User.new.current_user_name, order.type, order.o_id)
-          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::NOTICE, o_id: order.o_id).save if log
-          return order
-        else
-          message = R18n.t.order.user_is_verfying_order_in_invalid_status(User.new.current_user_name, order.type, order.o_id, order.o_status)
-          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::ERROR, o_id: order.o_id).save
-          order = Order.new
-          order.errors.add("", message)
-          return order
-        end
-      else
-        message = R18n.t.order.user_is_verfying_order_of_wrong_type(User.new.current_user_name, order.o_id, order.o_status, order.type)
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::ERROR, o_id: order.o_id).save
-        order = Order.new
-        order.errors.add("", message)
-        return order
+  def cancel_return
+    DB.transaction do
+      items = self.items
+      items.each do |item|
+        message = "Removiendo #{item.p_name} de la orden #{@values[:o_id]}"
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id], i_id: item.i_id, p_id: item.p_id).save
+        item.change_status Item::SOLD, @values[:o_id]
       end
-    else
-      order = Order.new
-      message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::PACKAGING, o_id)
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: location, lvl: ActionsLog::ERROR).save
-      order = Order.new
-      order.errors.add("", message)
-      return order
+      remove_all_items
+      @values[:o_status] = Order::VOID
+      save columns: Order::ATTRIBUTES
+      message = R18n.t.order.void
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+      return true
     end
+    return false
   end
 
-  def get_verified_packaging_orders location
-    get_packaging_orders_in_location(location)
-      .filter(o_status: Order::VERIFIED)
-  end
-
-  def get_order_for_allocation o_id, location
-    get_packaging_orders
-      .filter(o_status: Order::VERIFIED)
-      .filter(o_id: o_id.to_i)
-      .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
-      .first
-  end
-
-  def get_wh_to_pos
-    get_orders
-      .filter(type: Order::WH_TO_POS)
-  end
-
-  def get_wh_to_pos__open location
-    get_wh_to_pos
-      .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
-      .filter(o_status: Order::OPEN)
-  end
-
-  def get_wh_to_pos__open_by_id o_id, location
-    get_wh_to_pos
-      .filter( Sequel.or(o_loc: location.to_s, o_dst: location.to_s) )
-      .filter(o_id: o_id.to_i)
-  end
-
-  def get_wh_to_pos__en_route destination
-    get_wh_to_pos
-      .filter(o_dst: destination.to_s)
-      .filter(o_status: Order::EN_ROUTE)
-  end
-
-  def get_wh_to_pos__en_route_by_id destination, o_id
-    get_wh_to_pos__en_route(destination)
-      .filter(o_id: o_id.to_i)
-      .first
-  end
-
-  def get_inventory_imputation
-    get_orders
-      .filter(type: Order::INVENTORY)
-      .filter(o_status: Order::VERIFIED)
-      .order(:o_id).reverse
-  end
-
-  def items_as_cart
-    Item
-      .select(:p_id, :p_name, :i_price, :i_price_pro)
-      .select_append{sum(1).as(qty)}
-      .join(:line_items, line_items__i_id: :items__i_id)
-      .join(:orders, line_items__o_id: :orders__o_id, orders__o_id: @values[:o_id])
-      .group(:p_id, :p_name, :i_price, :i_price_pro)
-  end
-
-  def cart_total
-    Item
-      .select{sum(:i_price).as(total)}
-      .join(:line_items, line_items__i_id: :items__i_id)
-      .join(:orders, line_items__o_id: :orders__o_id, orders__o_id: @values[:o_id])
-      .first[:total]
+  def finish_return
+    DB.transaction do
+      items = self.items
+      if items.count > 0
+        items.each { |item| item.change_status(Item::READY, self.o_id).save if item.i_status == Item::RETURNING }
+        self.change_status Order::FINISHED
+        save columns: Order::ATTRIBUTES
+        message = R18n.t.return.finished
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: self.o_id).save
+        return true
+      end
+    end
+    return false
   end
 
   def recalculate_as( type )
@@ -496,4 +317,10 @@ class Order < Sequel::Model
     orders.each { |order| types << order.type}
     types
   end
+
+  def sale_id
+    @values[:sale_id]
+  end
+
 end
+

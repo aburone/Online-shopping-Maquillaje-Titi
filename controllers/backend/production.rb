@@ -37,7 +37,7 @@ class Backend < AppController
   end
 
   post '/production/packaging/new' do
-    order = Order.new.create_new Order::PACKAGING
+    order = Order.new.create_or_load Order::PACKAGING
     redirect to("/production/packaging/#{order.o_id}")
   end
 
@@ -55,7 +55,7 @@ class Backend < AppController
     poor_redirect_if_nil_order order, "packaging"
 
     order.finish_load
-    if order.errors.count > 0 
+    if order.errors.count > 0
       flash[:error_finish] = order.errors
       redirect to("/production/packaging/#{order.o_id}")
     end
@@ -133,7 +133,7 @@ class Backend < AppController
       if params[:i_id]
         i_id = params[:i_id].to_s.strip
         item =  Label.new.get_printed_by_id i_id, @order.o_id
-        if item.errors.count > 0 
+        if item.errors.count > 0
           message = item.errors.to_a.flatten.join(": ")
           ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: @order.o_id, p_id: @product.p_id).save
           flash[:error_add_item] = item.errors
@@ -141,13 +141,13 @@ class Backend < AppController
         end
 
         assigned_msg = @product.add_item item, @order.o_id
-        if @product.errors.count > 0 
+        if @product.errors.count > 0
           flash[:error_add_item] = @product.errors
           redirect to("/production/packaging/#{@order.o_id}/#{@product.p_id}")
         else
           @item = Item[i_id]
           added_msg = @order.add_item @item
-          if @order.errors.count > 0 
+          if @order.errors.count > 0
             flash[:error_add_item_to_order] = @order.errors
             redirect to("/production/packaging/#{@order.o_id}/#{@product.p_id}")
           end
@@ -186,7 +186,7 @@ class Backend < AppController
     if params[:i_id]
       @current_item = Item.new.get_for_verification params[:i_id], @order.o_id
       redirect_if_nil_item @current_item, params[:i_id], "/production/verification/#{@order.o_id}"
-      begin    
+      begin
         @current_item.change_status Item::VERIFIED, params[:o_id].to_i
         flash.now[:notice] = "Verificado"
       rescue => detail
@@ -202,7 +202,7 @@ class Backend < AppController
     slim :verify_packaging, layout: :layout_backend, locals: {sec_nav: :nav_production}
   end
 
-  post '/production/verification/:o_id/:i_id/void' do 
+  post '/production/verification/:o_id/:i_id/void' do
     @order = Order[params[:o_id].to_i]
     @item = Item[params[:i_id].to_s.strip]
     @order.remove_item(@item)
@@ -214,7 +214,7 @@ class Backend < AppController
     slim :void_item, layout: false, locals: {show_backtrack: false}
   end
 
-  post '/production/verification/:o_id/finish' do 
+  post '/production/verification/:o_id/finish' do
     @order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::PACKAGING, Order::MUST_VERIFY, params[:o_id].to_i)
     poor_redirect_if_nil_order @order, "verification"
 
@@ -259,6 +259,6 @@ class Backend < AppController
       flash[:error] = detail.message
       redirect to("/production/allocation/#{order.o_id}")
     end
-  end    
+  end
 
 end
