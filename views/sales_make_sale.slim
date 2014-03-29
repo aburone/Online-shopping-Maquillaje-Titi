@@ -18,4 +18,4 @@ h2 Lista de items en esta venta
 
 - unless @cart.nil? or @cart.empty?
   == slim :items_cart, locals: {can_edit: true, focus: false}
-  == slim :items_list, locals: {can_edit: false, focus: false}
+  / == slim :items_list, locals: {can_edit: false, focus: false}
