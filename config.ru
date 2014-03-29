@@ -15,6 +15,9 @@ use Rack::Csrf, raise: true, field: 'csrf', key: 'csrf', header: 'X_CSRF_TOKEN',
 
 use Rack::Deflater
 
+require 'pdfkit'
+use PDFKit::Middleware
+
 require './app_controller'
 require './backend'
 require './sales'

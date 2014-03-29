@@ -21,6 +21,8 @@ gem "sinatra-r18n"
 gem "thin"
 gem "rubytree"
 gem "awesome_print"
+gem "pdfkit"
+gem "wkhtmltopdf-binary"
 
 group :development, :test do
   gem "rspec"

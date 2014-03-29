@@ -31,6 +31,13 @@ class AppController < Sinatra::Base
   I18n.enforce_available_locales = false
 
 
+  PDFKit.configure do |config|
+    config.default_options = { page_size: 'A4',
+      margin_top: 5, margin_left: 5, margin_right: 5,
+      footer_center: "#{Utils::local_datetime_format Time.now}", footer_right: '[page] de [toPage]',
+      encoding: 'UTF-8', print_media_type: true }
+  end
+
   @@queue = Queue.new
   @@running = true
   def enqueue message

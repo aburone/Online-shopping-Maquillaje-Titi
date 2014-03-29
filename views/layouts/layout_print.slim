@@ -6,12 +6,9 @@ html lang="es"
     meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"
     link rel="stylesheet" href="/backend.css"
     link rel="stylesheet" href="/print.css"
-    meta http-equiv="refresh" content="2;URL=/sales"
-    script
-      | function printpage() { window.print();}
-  body onload="printpage()"
+  body
     article
-      img.header src="/media/logo_titi_print.png"
+      img.header src="#{settings.full_host}/media/logo_titi_print.png"
 
       h1=@title
       section.main
