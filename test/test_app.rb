@@ -45,4 +45,5 @@ class AppTest < Test::Unit::TestCase
      :user_id=>2,
      :current_location=>{:name=>"WAREHOUSE_1", :translation=>"Deposito 1", :level=>2}}
   end
+
 end

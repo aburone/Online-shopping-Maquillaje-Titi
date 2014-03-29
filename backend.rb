@@ -17,7 +17,7 @@ class Backend < AppController
     set_locale
     Thread.current.thread_variable_set(:login_path, "/admin/login")
     Thread.current.thread_variable_set(:root_path, "../admin")
-    unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"] 
+    unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"]
     protected! unless (request.env["REQUEST_PATH"].nil? or unprotected_routes.include? request.env["REQUEST_PATH"])
     Thread.current.thread_variable_set(:layout, :layout_backend)
   end

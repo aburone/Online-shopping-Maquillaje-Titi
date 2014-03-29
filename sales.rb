@@ -14,7 +14,7 @@ class Sales < AppController
     set_locale
     Thread.current.thread_variable_set(:login_path, "/sales/login")
     Thread.current.thread_variable_set(:root_path, "../sales")
-    unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"] 
+    unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"]
     protected! unless (unprotected_routes.include? request.env["REQUEST_PATH"])
     Thread.current.thread_variable_set(:layout, :layout_sales)
   end
