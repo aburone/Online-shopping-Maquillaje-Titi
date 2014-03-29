@@ -48,22 +48,29 @@ class Sales < AppController
   end
 
   post "/sales/make_sale/finish" do
-    DB.transaction do
-      @order = Order.new.create_or_load(Order::SALE)
-      items = @order.items
-      @cart_total = @order.cart_total
-      begin
+    begin
+      DB.transaction do
+        @order = Order.new.create_or_load(Order::SALE)
+        items = @order.items
+        @cart_total = @order.cart_total
+        Line_payment.new.set_all(o_id: @order.o_id, payment_type: Line_payment::TYPE[:CASH], payment_code: "", payment_ammount: @cart_total).save
         BookRecord.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total).save
-        # TODO: save payment
-      rescue Sequel::ValidationFailed => e
-        flash[:error] = e.message
-        redirect to("/make_sale")
+        items.each { |item| item.change_status Item::SOLD, @order.o_id }
+        @order.change_status Order::FINISHED
+        @cart = @order.items_as_cart
       end
-      items.each { |item| item.change_status Item::SOLD, @order.o_id }
-      @order.change_status Order::FINISHED
-      @cart = @order.items_as_cart
+    rescue Sequel::ValidationFailed => e
+      flash[:error] = e.message
+      redirect to("/make_sale")
     end
-    slim :sales_bill, layout: :layout_print
+
+    response.headers['Content-Type'] = "application/pdf"
+    response.headers['Content-Disposition'] = "attachment; filename=venta-#{@order.o_code}.pdf"
+    html = slim :sales_bill, layout: :layout_print
+    kit = PDFKit.new(html, :page_size => 'a4')
+    kit.stylesheets << "public/backend.css"
+    kit.stylesheets << "public/print.css"
+    kit.to_pdf
   end
 
 end
