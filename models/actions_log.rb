@@ -71,7 +71,7 @@ class ActionsLog < Sequel::Model(:actions_log)
   def get_logins username
     observee = User.new.get_by_id User.new.current_user_id
     observed = User.new.get_user username
-    raise SecurityError, "No podes mirar los datos de este usuario" unless observee.level > observed.level
+    raise SecurityError, "No podes mirar los datos de este usuario" unless observee.level > observed.level || observee.user_id == observed.user_id
     username = username.to_s.strip
     normal = ActionsLog
               .select(Sequel.as(Sequel.lit("min(at)"), :at), Sequel.lit("date(at)"), Sequel.as("Primer evento del dia en esta locación", :msg), Sequel.as("1", :lvl), Sequel.as("", :b_id), Sequel.as("", :m_id),  Sequel.as("", :i_id), Sequel.as("", :p_id), Sequel.as("", :o_id), :u_id, :l_id, :username)
