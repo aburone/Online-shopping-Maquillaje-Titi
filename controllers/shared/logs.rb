@@ -1,16 +1,7 @@
 module Logs
   def get_logs
     if params.empty?
-      art_date = Time.now.getlocal("-03:00").to_date.iso8601
-      sub = Sequel.date_sub(art_date, {days:1})
-      @logs = ActionsLog
-                .select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
-                .join(:users, user_id: :u_id)
-                .where{Sequel.expr(:at) >= sub}
-                .order(:id)
-                .reverse
-                .limit(500)
-                .all
+      @logs = ActionsLog.new.get_today
     else
       @logs = ActionsLog
       params.each do |key, value|

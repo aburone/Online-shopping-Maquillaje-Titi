@@ -41,4 +41,20 @@ class ActionsLog < Sequel::Model(:actions_log)
     out += "\tl_id: #{@values[:l_id]} #{@values[:l_id].class}\n"
     echo out
   end
+
+  def get_today
+    ap Time.now.getlocal("-00:00")
+    ap Time.now.getlocal("-03:00")
+    ap Time.now.getlocal("-12:00")
+    today = Sequel.date_sub(Time.now.getlocal("-12:00").to_date.iso8601, {days:1})
+    ActionsLog
+      .select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
+      .join(:users, user_id: :u_id)
+      .where{Sequel.expr(:at) >= today}
+      .order(:id)
+      .reverse
+      .limit(500)
+      .all
+  end
+
 end
