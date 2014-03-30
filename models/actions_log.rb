@@ -74,7 +74,7 @@ class ActionsLog < Sequel::Model(:actions_log)
     raise SecurityError, "No podes mirar los datos de este usuario" unless observee.level > observed.level
     username = username.to_s.strip
     normal = ActionsLog
-              .select(Sequel.as(Sequel.lit("min(at)"), :at), Sequel.lit("date(at)"), :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
+              .select(Sequel.as(Sequel.lit("min(at)"), :at), Sequel.lit("date(at)"), Sequel.as(Sequel.lit("Primer evento del día"), :msg), :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
               .join(:users, user_id: :u_id)
               .where(username: username)
               .group(Sequel.lit("date(at)"), :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
