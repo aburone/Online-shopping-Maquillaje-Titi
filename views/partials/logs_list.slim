@@ -1,8 +1,8 @@
-- @focus = "focus" if @focus.nil?
-- if @logs.empty?
+- focus = "focus" if focus.nil?
+- if logs.empty?
   p = t.logs.empty
 - else
-  table.logs.quicksearch.tablesorter.items data-label="#{t.actions.filter}" data-quicksearch="#{@focus}"
+  table.logs.quicksearch.tablesorter.items data-label="#{t.actions.filter}" data-quicksearch="#{focus}"
     thead
       tr
         th = t.event.fields.at
@@ -16,7 +16,7 @@
         th = t.event.fields.o_id
         th = t.event.fields.p_id
     tbody
-      - @logs.each do |event|
+      - logs.each do |event|
         tr.event.item
           td.ajax_filter_by_me = Utils::local_datetime_format event[:at]
           td.ajax_filter_by_me #{event[:msg]}
@@ -33,5 +33,5 @@
           td.ajax_filter_by_me.number #{p_id}
     tfoot
       tr
-        td colspan="8" = t.logs.count(@logs.count)
+        td colspan="8" = t.logs.count(logs.count)
 

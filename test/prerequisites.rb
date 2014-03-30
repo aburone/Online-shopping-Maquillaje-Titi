@@ -6,6 +6,7 @@ require "awesome_print"
 require 'sinatra'
 require 'sinatra/r18n'
 require 'sinatra/config_file'
+require 'pdfkit'
 config_file '../../config.yml'
 require 'tree'
 ENV["TZ"] = "GMT"

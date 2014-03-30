@@ -89,7 +89,6 @@ class AppController < Sinatra::Base
   configure :production do
     disable :raise_errors
     disable :show_exceptions
-    # set :dump_errors, false
   end
 
   configure :development do

@@ -43,18 +43,43 @@ class ActionsLog < Sequel::Model(:actions_log)
   end
 
   def get_today
-    ap Time.now.getlocal("-00:00")
-    ap Time.now.getlocal("-03:00")
-    ap Time.now.getlocal("-12:00")
-    today = Sequel.date_sub(Time.now.getlocal("-12:00").to_date.iso8601, {days:1})
+    yesterday = Sequel.date_sub(Time.now.getlocal("-00:00").to_date.iso8601, {days:1})
     ActionsLog
       .select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
       .join(:users, user_id: :u_id)
-      .where{Sequel.expr(:at) >= today}
-      .order(:id)
+      .where{Sequel.expr(:at) > yesterday}
+      .order(:at)
       .reverse
       .limit(500)
       .all
+  end
+
+  def get_with_hash params
+    logs = ActionsLog
+    params.each do |key, value|
+      logs = logs.where( key.to_sym => value) if ["at", "msg", "lvl", "b_id", "m_id", "i_id", "p_id", "o_id", "u_id", "l_id"].include? key unless value.nil? or value.to_s.strip.empty?
+    end
+    logs
+      .select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
+      .join(:users, user_id: :u_id)
+      .order(:at)
+      .reverse
+      .limit(500)
+      .all
+  end
+
+  def get_logins username
+    observee = User.new.get_by_id User.new.current_user_id
+    observed = User.new.get_user username
+    raise SecurityError, "No podes mirar los datos de este usuario" unless observee.level > observed.level
+    username = username.to_s.strip
+    normal = ActionsLog
+              .select(Sequel.as(Sequel.lit("min(at)"), :at), Sequel.lit("date(at)"), :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
+              .join(:users, user_id: :u_id)
+              .where(username: username, msg: R18n.t.auth.loggedin(username) )
+              .group(Sequel.lit("date(at)"), :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
+              .limit(500)
+    normal.order(:at).reverse.all
   end
 
 end
