@@ -10,7 +10,7 @@ Sequel.migration do
        `created_at` datetime DEFAULT NULL,
        PRIMARY KEY (`lp_id`),
        KEY `lp_o_id` (`o_id`),
-       CONSTRAINT `lp_order_id` FOREIGN KEY (`o_id`) REFERENCES `orders` (`o_id`) ON DELETE RESTRICT,
+       CONSTRAINT `lp_order_id` FOREIGN KEY (`o_id`) REFERENCES `orders` (`o_id`) ON DELETE RESTRICT
        ) ENGINE=InnoDB  ROW_FORMAT=DYNAMIC;
     '
 
