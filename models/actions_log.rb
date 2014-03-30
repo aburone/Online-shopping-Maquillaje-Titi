@@ -76,7 +76,7 @@ class ActionsLog < Sequel::Model(:actions_log)
     normal = ActionsLog
               .select(Sequel.as(Sequel.lit("min(at)"), :at), Sequel.lit("date(at)"), :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
               .join(:users, user_id: :u_id)
-              .where(username: username, msg: R18n.t.auth.loggedin(username) )
+              .where(username: username)
               .group(Sequel.lit("date(at)"), :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
               .limit(500)
     normal.order(:at).reverse.all
