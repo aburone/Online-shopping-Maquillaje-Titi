@@ -1,5 +1,5 @@
 aside
-  form.v_island_1 action=url("/sales/make_sale/pro") method="post"
+  form.v_island_1 action=url("/make_sale/pro") method="post"
     == Rack::Csrf.tag(env)
     label for="type" Descuento Pro?
     br
@@ -8,14 +8,14 @@ aside
 
 
 
-  form.v_island_1 action=url("/sales/make_sale/cancel") method="post"
+  form.v_island_1 action=url("/make_sale/cancel") method="post"
     == Rack::Csrf.tag(env)
     label for="cancel_sale" = t.actions.cancel_sale
     br
     input.ajax_confirm data-confirm_message="#{t.order.sure_to_cancel_sale_order}" name="cancel_sale" type="submit" value="#{t.actions.cancel}"
 
 
-  form.v_island_1 action=url("/sales/make_sale/checkout") method="post"
+  form.v_island_1 action=url("/make_sale/checkout") method="post"
     == Rack::Csrf.tag(env)
     label for="checkout" Cobrar
     br
