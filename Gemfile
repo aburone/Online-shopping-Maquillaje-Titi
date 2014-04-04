@@ -25,6 +25,7 @@ gem "pdfkit"
 gem "wkhtmltopdf-binary"
 
 group :development, :test do
+  gem "rb-inotify"
   gem "rspec"
   gem "webrat"
   gem "capybara"

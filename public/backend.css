@@ -540,7 +540,6 @@ table.tablesorter th {
 
   100% {
     -webkit-transform: translateY(0); } }
-
 @keyframes bounceInDown {
   0% {
     opacity: 0;
@@ -555,7 +554,6 @@ table.tablesorter th {
 
   100% {
     transform: translateY(0); } }
-
 .bounceOutUp {
   -webkit-animation: 1.5s bounceOutUp forwards ease-in-out;
   -ms-animation: 1.5s bounceOutUp forwards ease-in-out;
@@ -572,7 +570,6 @@ table.tablesorter th {
   100% {
     opacity: 0;
     -webkit-transform: translateY(-2000px); } }
-
 @keyframes bounceOutUp {
   0% {
     transform: translateY(0); }
@@ -584,7 +581,6 @@ table.tablesorter th {
   100% {
     opacity: 0;
     transform: translateY(-2000px); } }
-
 .no_delay {
   -webkit-animation-delay: 0;
   -ms-animation-delay: 0;
@@ -808,6 +804,12 @@ aside {
 
 .normal_header {
   position: relative; }
+
+.ajax_hide_on_click {
+  transition: opacity 1s; }
+
+.hide {
+  opacity: 0; }
 
 .toggle_link {
   cursor: help;

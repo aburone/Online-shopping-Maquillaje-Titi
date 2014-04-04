@@ -40,8 +40,12 @@ class Sales < AppController
 
   post "/make_sale/checkout" do
     @order = Order.new.create_or_load(Order::SALE)
-    @cart = @order.items_as_cart
+    @cart = @order.items_as_cart.all
     @cart_total = @order.cart_total
+    if @cart.empty?
+      flash[:error] = "No poder cobrar una venta vacia"
+      redirect to("/make_sale")
+    end
     slim :sales_checkout, layout: :layout_sales
   end
 
@@ -49,26 +53,33 @@ class Sales < AppController
     begin
       DB.transaction do
         @order = Order.new.create_or_load(Order::SALE)
-        items = @order.items
         @cart_total = @order.cart_total
+        items = @order.items
         Line_payment.new.set_all(o_id: @order.o_id, payment_type: Line_payment::TYPE[:CASH], payment_code: "", payment_ammount: @cart_total).save
         BookRecord.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total).save
         items.each { |item| item.change_status Item::SOLD, @order.o_id }
         @order.change_status Order::FINISHED
-        @cart = @order.items_as_cart
+        @cart = @order.items_as_cart.all
       end
     rescue Sequel::ValidationFailed => e
       flash[:error] = e.message
       redirect to("/make_sale")
     end
 
-    response.headers['Content-Type'] = "application/pdf"
-    response.headers['Content-Disposition'] = "attachment; filename=venta-#{@order.o_code}.pdf"
+    headers "Refresh" => "Refresh: 10; /sales"
+
     html = slim :sales_bill, layout: :layout_print
     kit = PDFKit.new(html, :page_size => 'a4')
     kit.stylesheets << "public/backend.css"
     kit.stylesheets << "public/print.css"
-    kit.to_pdf
+    pdf_file = kit.to_pdf
+
+    tmp = Tempfile.new(["venta-#{@order.o_code}", "pdf"])
+    tmp.binmode
+    tmp << pdf_file
+    tmp.close
+    send_file tmp.path, filename: "venta-#{@order.o_code}.pdf", type: 'application/pdf', disposition: 'attachment'
+    tmp.unlink
   end
 
 end

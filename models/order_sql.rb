@@ -259,11 +259,12 @@ class Order < Sequel::Model
   end
 
   def cart_total
-    Item
+    cart_total = Item
       .select{sum(:i_price).as(total)}
       .join(:line_items, line_items__i_id: :items__i_id)
       .join(:orders, line_items__o_id: :orders__o_id, orders__o_id: @values[:o_id])
       .first[:total]
+    return cart_total.nil? ? 0 : cart_total
   end
 
   def credit_total

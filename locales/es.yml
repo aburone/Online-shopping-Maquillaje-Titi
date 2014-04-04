@@ -89,10 +89,12 @@ fields:
   desc: Descripción
 
 nav:
+
   frontend:
     products: "Productos"
     contact: "Contacto"
     photos: "Fotos y links"
+
   backend:
     materials: "Materiales"
     materials_list: Materiales
@@ -131,6 +133,7 @@ nav:
     arrivals: Ingresos de mercaderia
     arrivals_list: Ordenes por verificar
     arrivals_verifying: Verificando
+
   sales:
     admin: Administracion
     inventory_review: Carga de inventario
@@ -140,6 +143,7 @@ nav:
     logout: "Salir"
     items: Items
     make_sale: Hacer venta
+    returns: Devoluciónes
     products: "Productos"
     transport: Transporte de mercaderia
     arrivals: Ingresos de mercaderia

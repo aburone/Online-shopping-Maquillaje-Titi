@@ -1,5 +1,13 @@
 $(document).ready(function () {
 
+
+  el = document.querySelectorAll('.ajax_hide_on_click');
+  for ( var i = 0; i < el.length; i++ ) {
+      el[i].addEventListener("click", function(){
+        this.classList.add('hide');
+      }, false);
+  }
+
   // click to edit
   $('.ajax_click_to_edit_sku').editable('/admin/products/ajax_update', {
       indicator:'Actualizando...', tooltip:'Click para editar...', width:230,
@@ -23,11 +31,11 @@ $(document).ready(function () {
   $('.ajax_confirm').click(function(){
     var answer = confirm( $(this).data('confirm_message') );
     return answer
-  });  
+  });
 
   $('.ajax_hide_items').click(function(){
     $('.items').hide("slow");
-  });  
+  });
 
 
   $(".toggle_me").hide();
@@ -97,7 +105,7 @@ $(document).ready(function () {
     if(e.keyCode == 13) {
       $(this).closest("form").submit();
     }
-  }); 
+  });
 
   $('input[type=tel].number.positive').on({'focus': function(e){
       original = this.value;
@@ -124,7 +132,7 @@ $(document).ready(function () {
         update_exact_price();
       }
     }
-  }); 
+  });
 
 
   function is_number(value) {
@@ -210,7 +218,7 @@ $(document).ready(function () {
       };
     });
   }
-  // DOM Ready      
+  // DOM Ready
   $(function() {
      $(".persist_area").each(function() {
          floating_header = $(".persist_header", this);

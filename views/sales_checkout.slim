@@ -3,8 +3,13 @@
 == slim :items_cart, locals: {can_edit: true, focus: false}
 
 
-form.v_island_1 action=url("/make_sale/finish") method="post"
+form.grid-form action=url("/make_sale/finish") method="post"
   == Rack::Csrf.tag(env)
-  label for="finish" Cobrar venta
-  br
-  input name="finish" type="submit" value="Cobrar #{Utils::money_format @cart_total, 2}"
+  fieldset
+    legend Acciones
+    div data-row-span="2"
+      div data-field-span="1"
+        label for="finish" Cobrar venta
+        input.ajax_hide_on_click data-url="http://localhost:3000/sales" name="finish" type="submit" value="Cobrar #{Utils::money_format @cart_total, 2}"
+      div data-field-span="1"
+        a href="/sales/make_sale" Volver a la venta
