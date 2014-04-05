@@ -155,14 +155,9 @@ class OrderTest < Test::Unit::TestCase
     end
   end
 
-  def test_should_get_a_total_if_there_are_payments
-    order = Order[10011]
-    assert_equal 72.5, order.credit_total
-  end
-
   def test_should_get_a_zero_if_there_are_no_payments
     order = Order.new
-    assert_equal 0, order.credit_total
+    assert_equal 0, order.payments_total
   end
 
   def test_should_get_order_by_code

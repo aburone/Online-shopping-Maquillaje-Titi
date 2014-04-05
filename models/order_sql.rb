@@ -81,6 +81,19 @@ class Order < Sequel::Model
       .filter(type: type)
   end
 
+  def get_orders_with_type_status_and_code type, o_status, o_code
+    order = get_orders
+      .filter(type: type)
+      .filter(o_status: o_status)
+      .filter(o_code: remove_dash_from_code(o_code.to_s))
+      .first
+    if order.nil?
+      order = Order.new
+      order.errors.add R18n.t.errors.inexistent_order.to_s, R18n.t.errors.invalid_order_id.to_s
+    end
+    order
+  end
+
   def get_orders_at_location_with_type location, type
     get_orders_at_location(location)
       .filter(type: type)
@@ -249,7 +262,7 @@ class Order < Sequel::Model
       .group(:p_id, :p_name, :i_price, :i_price_pro)
   end
 
-  def items_as_cart_detailed
+  def detailed_items_as_cart
     Item
       .select(:items__i_id, :p_name, :i_price, :i_price_pro)
       .select_append( Sequel.as(Sequel.lit("1"), :qty) )
@@ -268,11 +281,34 @@ class Order < Sequel::Model
   end
 
   def credit_total
-    credit_total = Line_payment
-      .select{abs(sum(:payment_ammount)).as(total)}
+    credit_total = Credit_note
+      .select{abs(sum(:cr_ammount)).as(total)}
       .filter(o_id: self.o_id)
       .first[:total]
     return credit_total.nil? ? 0 : credit_total
+  end
+
+  def credits
+    Credit_note
+      .select(*Credit_note::COLUMNS)
+      .join(:orders, [:o_id])
+      .where(credit_notes__o_id: self.o_id)
+      .all
+  end
+
+  def payments
+    Line_payment
+      .join(:orders, [:o_id])
+      .where(line_payments__o_id: self.o_id)
+      .all
+  end
+
+  def payments_total
+    payments_total = Line_payment
+      .select{abs(sum(:payment_ammount)).as(total)}
+      .filter(o_id: self.o_id)
+      .first[:total]
+    return payments_total.nil? ? 0 : payments_total
   end
 
 end

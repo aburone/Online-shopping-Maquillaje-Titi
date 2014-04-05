@@ -2,6 +2,29 @@
 
 == slim :items_cart, locals: {can_edit: true, focus: false}
 
+== slim :payments_list, locals: {payments: @payments}
+
+div.grid-form
+  fieldset
+    legend Total
+    div data-row-span="2"
+      div data-field-span="1"
+      div data-field-span="1"
+        = "#{Utils::money_format @cart_total - @payments_total, 2}"
+
+
+form.grid-form action=url("/make_sale/add_credit_note") method="post"
+  == Rack::Csrf.tag(env)
+  fieldset
+    legend Créditos
+    div data-row-span="4"
+      div data-field-span="1"
+        label for="o_code" Ingresar código de descuento
+        input name="o_code" type="text"
+      div data-field-span="1"
+        label for="add_credit" = t.actions.confirm
+        input.ajax_hide_on_click name="add_credit" type="submit" value="#{t.actions.confirm}"
+
 
 form.grid-form action=url("/make_sale/finish") method="post"
   == Rack::Csrf.tag(env)
@@ -10,6 +33,6 @@ form.grid-form action=url("/make_sale/finish") method="post"
     div data-row-span="2"
       div data-field-span="1"
         label for="finish" Cobrar venta
-        input.ajax_hide_on_click data-url="http://localhost:3000/sales" name="finish" type="submit" value="Cobrar #{Utils::money_format @cart_total, 2}"
+        input.ajax_hide_on_click name="finish" type="submit" value="Cobrar #{Utils::money_format @cart_total - @payments_total, 2}"
       div data-field-span="1"
         a href="/sales/make_sale" Volver a la venta

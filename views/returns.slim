@@ -1,5 +1,6 @@
 - @title = t.return.title
 
+/ Ask for order
 - if @sale_order.empty?
   form.grid-form action=url("/returns") method="post"
     == Rack::Csrf.tag(env)
@@ -14,6 +15,8 @@
           label for="verify" = t.actions.start_verification
           input type="submit" name="verify" value="#{t.actions.verify}"
 
+
+/ Ask for item
 - unless @sale_order.empty?
   form.grid-form action=url("/returns/#{@sale_order.o_code}") method="post"
     == Rack::Csrf.tag(env)
@@ -26,11 +29,13 @@
         div data-field-span="1"
           input type="submit" name="confirm" value="#{t.actions.confirm}"
 
+/ If there are items
 - unless @return_order.nil?
   h2 = t.return.return_details @return_order.o_id, @return_order.o_code_with_dash
   - @cart = @return_cart
   == slim :items_cart_detailed, locals: {}
 
+  / Actions
   div.grid-form
     fieldset
       legend = t.actions.actions
@@ -44,6 +49,7 @@
             == Rack::Csrf.tag(env)
             input.ajax_confirm data-confirm_message="#{t.order.sure_to_finish_return_order}" type="submit" value="#{t.actions.finish}"
 
+/ Original sales
 - unless @sale_order.empty?
   h2 = t.return.sale_details @sale_order.o_id, @sale_order.o_code_with_dash
   - @cart = @sale_cart

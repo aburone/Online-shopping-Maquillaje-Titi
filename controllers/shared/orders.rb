@@ -25,7 +25,13 @@ module Orders
         @items = @order.items
       end
     end
-    slim :orders, layout: Thread.current.thread_variable_get(:layout), locals: {sec_nav: :nav_orders, base_url: request.env['REQUEST_PATH']}
+
+    if @order && @order.type == Order::CREDIT_NOTE
+      credits = @order.credits
+      slim :credit_note, layout: Thread.current.thread_variable_get(:layout), locals: {order: @order, credits: credits, sec_nav: :nav_orders, base_url: request.env['REQUEST_PATH']}
+    else
+      slim :orders, layout: Thread.current.thread_variable_get(:layout), locals: {sec_nav: :nav_orders, base_url: request.env['REQUEST_PATH']}
+    end
   end
 end
 

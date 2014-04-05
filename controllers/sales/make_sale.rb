@@ -25,6 +25,18 @@ class Sales < AppController
     redirect to('/make_sale')
   end
 
+  post '/make_sale/add_credit_note' do
+    sale_order = Order.new.create_or_load(Order::SALE)
+    o_code = params[:o_code].to_s.strip
+    credit_order = Order.new.get_orders_with_type_status_and_code(Order::CREDIT_NOTE, Order::OPEN, o_code)
+    DB.transaction do
+      Line_payment.new.set_all(o_id: sale_order.o_id, payment_type: Line_payment::CREDIT_NOTE, payment_code: credit_order.o_code, payment_ammount: credit_order.credit_total).save
+      credit_order.change_status Order::FINISHED
+      credit_order.credits.each { |credit| credit.change_status Cr_status::USED, credit_order.o_id}
+    end
+    redirect to("/make_sale/checkout")
+  end
+
   post "/make_sale/cancel" do
     order = Order.new.create_or_load(Order::SALE)
     order.cancel_sale
@@ -38,10 +50,12 @@ class Sales < AppController
     redirect to('/make_sale')
   end
 
-  post "/make_sale/checkout" do
+  route :get, :post, "/make_sale/checkout" do
     @order = Order.new.create_or_load(Order::SALE)
     @cart = @order.items_as_cart.all
     @cart_total = @order.cart_total
+    @payments = @order.payments
+    @payments_total = @order.payments_total
     if @cart.empty?
       flash[:error] = "No poder cobrar una venta vacia"
       redirect to("/make_sale")
@@ -54,9 +68,10 @@ class Sales < AppController
       DB.transaction do
         @order = Order.new.create_or_load(Order::SALE)
         @cart_total = @order.cart_total
+        @payments_total = @order.payments_total
         items = @order.items
-        Line_payment.new.set_all(o_id: @order.o_id, payment_type: Line_payment::TYPE[:CASH], payment_code: "", payment_ammount: @cart_total).save
-        BookRecord.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total).save
+        Line_payment.new.set_all(o_id: @order.o_id, payment_type: Line_payment::CASH, payment_code: "", payment_ammount: @cart_total - @payments_total).save
+        BookRecord.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total - @payments_total).save
         items.each { |item| item.change_status Item::SOLD, @order.o_id }
         @order.change_status Order::FINISHED
         @cart = @order.items_as_cart.all
