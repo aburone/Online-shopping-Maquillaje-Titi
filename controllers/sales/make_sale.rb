@@ -70,7 +70,7 @@ class Sales < AppController
         @cart_total = @order.cart_total
         @payments_total = @order.payments_total
         items = @order.items
-        Line_payment.new.set_all(o_id: @order.o_id, payment_type: Line_payment::CASH, payment_code: "", payment_ammount: @cart_total - @payments_total).save
+        # Line_payment.new.set_all(o_id: @order.o_id, payment_type: Line_payment::CASH, payment_code: "", payment_ammount: @cart_total - @payments_total).save
         BookRecord.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total - @payments_total).save
         items.each { |item| item.change_status Item::SOLD, @order.o_id }
         @order.change_status Order::FINISHED
