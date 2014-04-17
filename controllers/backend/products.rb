@@ -35,30 +35,43 @@ class Backend < AppController
     redirect to("/products")
   end
 
-  route :get, :put, '/products/mass_load' do
+  route :get, :put, '/products/update_by_sku' do
     @products = []
     unless params[:raw_data].nil?
-      keys = {sku_on_a: 0, sku_on_b: 1, sku_on_c: 2}
       sku_cols = []
+      keys = {sku_on_a: 0, sku_on_b: 1, sku_on_c: 2}
       params.select { |key, value| sku_cols << keys[key.to_sym] if keys.has_key? key.to_sym }
+
       rows = params[:raw_data].to_s.split("\n").collect { |row| row.split("\t").collect{ |col| col.gsub(/\n|\r|\t/, '').squeeze(" ").strip} }
       rows.each do |row|
         sku = row.select.with_index{ |col, i| col if sku_cols.include? i }.reject(&:empty?).join('')
         sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
+
         product = Product.new.get_by_sku sku
         unless product.empty?
-          new_buy_cost = BigDecimal.new(Utils::as_number(row[params[:cost_on].to_i]), 4)
+
+          new_buy_cost = params[:buy_cost_on].empty? ? 0 : BigDecimal.new(Utils::as_number(row[params[:buy_cost_on].to_i]), 4)
           product[:new_buy_cost] = new_buy_cost > 0 ? new_buy_cost : product.buy_cost
+
+          new_ideal_markup = params[:ideal_markup_on].empty? ? 0 : BigDecimal.new(Utils::as_number(row[params[:ideal_markup_on].to_i]), 4)
+          product[:new_ideal_markup] = new_ideal_markup > 0 ? new_ideal_markup : product.ideal_markup
+
+          new_price = params[:price_on].empty? ? 0 : BigDecimal.new(Utils::as_number(row[params[:price_on].to_i]), 4)
+          product[:new_price] = new_price > 0 ? new_price : product.price
+
           @products << product
-          if params[:confirm] && new_buy_cost > 0
+          if params[:confirm]
             p = product.dup
-            p.buy_cost = BigDecimal.new(Utils::as_number(row[params[:cost_on].to_i]), 4)
+            p.buy_cost = new_buy_cost
+            p.ideal_markup = new_ideal_markup
+            p.price = new_price
+            p.recalculate_markups
             p.save
           end
         end
       end
     end
-    slim :mass_load, layout: :layout_backend, locals: {}
+    slim :update_by_sku, layout: :layout_backend, locals: {}
   end
 
   get '/products/sku' do

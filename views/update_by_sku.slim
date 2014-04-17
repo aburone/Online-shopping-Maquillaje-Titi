@@ -1,26 +1,44 @@
 -# coding: UTF-8
-- @title = "Actualizacion de precios por SKU"
+- @title = t.products.update_by_sku.title
 
-form.grid-form action=url("/products/mass_load") method="post"
+form.grid-form action=url("/products/update_by_sku") method="post"
   == Rack::Csrf.tag(env)
   input type="hidden" name="_method" value="put"
 
   fieldset
     legend Configuracion
-    div data-row-span="2"
+    div data-row-span="4"
       div data-field-span="1"
         label Donde esta el SKU? (tilda multiples para concatenar)
         label for="sku_on_a" Columna A
         input type="checkbox" name="sku_on_a" id="sku_on_a" checked=("checked" unless params[:sku_on_a].nil?)
+        br
         label for="sku_on_b"  Columna B
         input type="checkbox" name="sku_on_b" id="sku_on_b" checked=("checked" unless params[:sku_on_b].nil?)
+        br
         label for="sku_on_c"  Columna C
         input type="checkbox" name="sku_on_c" id="sku_on_c" checked=("checked" unless params[:sku_on_c].nil?)
+
       div data-field-span="1"
-        label Donde esta el nuevo costo de compra?
-        select name="cost_on"
+        label Nuevo costo de compra
+        select name="buy_cost_on"
+          option value="" Sin cambios
           - ("A".."Z").each.with_index do |letter, i|
-            option value="#{i}" selected=("selected" if params[:cost_on].to_i==i) Columna #{letter}
+            option value="#{i}" selected=("selected" if params[:buy_cost_on].to_i==i unless params[:buy_cost_on].nil? || params[:buy_cost_on].empty?) Columna #{letter}
+
+      div data-field-span="1"
+        label Nuevo markup ideal
+        select name="ideal_markup_on"
+          option value="" Sin cambios
+          - ("A".."Z").each.with_index do |letter, i|
+            option value="#{i}" selected=("selected" if params[:ideal_markup_on].to_i==i unless params[:ideal_markup_on].nil? || params[:ideal_markup_on].empty?) Columna #{letter}
+
+      div data-field-span="1"
+        label Nuevo precio
+        select name="price_on"
+          option value="" Sin cambios
+          - ("A".."Z").each.with_index do |letter, i|
+            option value="#{i}" selected=("selected" if params[:price_on].to_i==i unless params[:price_on].nil? || params[:price_on].empty?) Columna #{letter}
 
 
 
@@ -43,8 +61,8 @@ form.grid-form action=url("/products/mass_load") method="post"
 
 - unless @products.empty?
     table class="items tablesorter quicksearch persist_area" data-label="#{t.actions.filter}" data-quicksearch="focus"
-      thead class="persist_header" 
-        tr 
+      thead class="persist_header"
+        tr
           th.sm_cell = t.product.fields.id
           th.bg_cell = t.product.fields.name
           th.md_cell = t.product.fields.brand
@@ -61,6 +79,6 @@ form.grid-form action=url("/products/mass_load") method="post"
             td.md_cell.number = Utils::number_format product.buy_cost, 2
             td.md_cell.number = Utils::number_format product[:new_buy_cost], 2
             td.md_cell.number #{Utils::number_format (product[:new_buy_cost] * 100 / product.buy_cost)-100, 2} %
-            td.sm_cell 
+            td.sm_cell
               a href="/admin/products/#{product.p_id}"
                 img src="/media/Icon-Edit.png" width="32" height="32"

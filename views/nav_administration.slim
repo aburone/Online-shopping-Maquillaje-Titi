@@ -19,13 +19,13 @@ aside
           span class="#{inside?("/admin/inventory")} " Ajustes
         li: ul
           li
+            a class="#{inside?("/admin/products/update_by_sku")}" href=url('/products/update_by_sku') = t.products.update_by_sku.title
+          li
             a class="#{inside?("/admin/inventory/adjustments/mass_price_adjustments")}" href=url('/inventory/adjustments/mass_price_adjustments') = t.nav.backend.mass_price_adjustment
           li
             a class="#{inside?("/admin/inventory/void_items")}" href=url('/inventory/void_items') = t.nav.backend.void_items
           li
             a class="#{inside?("/admin/inventory/transmute_items")}" href=url('/inventory/transmute_items') = t.nav.backend.transmute_items
-          li
-            a class="#{inside?("/admin/products/mass_load")}" href=url('/products/mass_load') = t.nav.backend.mass_load
 
       li: ul
         li

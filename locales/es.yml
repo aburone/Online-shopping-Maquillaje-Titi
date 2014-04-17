@@ -107,7 +107,6 @@ nav:
     products_relationships: "Relaciones"
     categories: "Categorías"
     sku: Editar SKUs
-    mass_load: Carga masiva de costos
     items: Items disponibles
     void_items: Invalidacion de items
     transmute_items: Transmutacion de items
@@ -297,6 +296,8 @@ products:
     caption: "Copia y pega los SKUs de la lista tal cual estan. El sistema va a limpiar espacios multiples, tabulaciones o cualquier otro caracter de control."
   sure_to_update_all: Esta accion recalcula los valores de todos los productos. Estas seguro de continuar?
   updating_in_background: "Actualizando productos en background. La tarea tarda aproximadamente 30 segundos"
+  update_by_sku:
+    title: "Actualizacion por SKU"
 
 product:
   read_placeholder: "ej: 4256"
