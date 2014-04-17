@@ -4,16 +4,17 @@
     fieldset
       legend Pagos
       - payments.each do |payment|
+        - p payment
         - payment_total += payment.payment_ammount
-        div data-row-span="2"
-          div data-field-span="1"
-            p Monto:
-          div data-field-span="1"
-            p = Utils::money_format(payment.payment_ammount * -1, 2 )
+        div data-row-span="8"
+          div data-field-span="6"
+            p = t.credit_note.title payment.payment_code.upcase.insert(3, '-')
+          div data-field-span="2"
+            p = Utils::money_format(payment.payment_ammount * 1, 2 )
 
   - if payments.count > 1
-    div data-row-span="2"
-      div data-field-span="1"
+    div data-row-span="8"
+      div data-field-span="6"
         p Pagos totales:
-      div data-field-span="1"
+      div data-field-span="2"
         p = Utils::money_format(payment_total * -1, 2 )

@@ -574,7 +574,7 @@ return:
     this_item_is_not_in_sold_status: "Este item no esta en estado Vendido. No podes operar sobre el."
 
 credit_note:
-  title: Nota de crédito
+  title: Nota de crédito %1
   generated: Se generó una nota de crédito por %1 con el código identificador %2
   print_instructions: Bajar un pdf para imprimir
 
