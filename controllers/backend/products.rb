@@ -36,18 +36,20 @@ class Backend < AppController
   end
 
   route :get, :put, '/products/update_by_sku' do
-    @products = []
+    products = []
     unless params[:raw_data].nil?
       sku_cols = []
       keys = {sku_on_a: 0, sku_on_b: 1, sku_on_c: 2}
       params.select { |key, value| sku_cols << keys[key.to_sym] if keys.has_key? key.to_sym }
 
       rows = params[:raw_data].to_s.split("\n").collect { |row| row.split("\t").collect{ |col| col.gsub(/\n|\r|\t/, '').squeeze(" ").strip} }
+      missing_skus = []
       rows.each do |row|
         sku = row.select.with_index{ |col, i| col if sku_cols.include? i }.reject(&:empty?).join('')
         sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
 
         product = Product.new.get_by_sku sku
+        missing_skus << sku if product.empty?
         unless product.empty?
 
           new_buy_cost = params[:buy_cost_on].empty? ? 0 : BigDecimal.new(Utils::as_number(row[params[:buy_cost_on].to_i]), 4)
@@ -59,7 +61,7 @@ class Backend < AppController
           new_price = params[:price_on].empty? ? 0 : BigDecimal.new(Utils::as_number(row[params[:price_on].to_i]), 4)
           product[:new_price] = new_price > 0 ? new_price : product.price
 
-          @products << product
+          products << product
           if params[:confirm]
             p = product.dup
             p.buy_cost = new_buy_cost
@@ -71,7 +73,8 @@ class Backend < AppController
         end
       end
     end
-    slim :update_by_sku, layout: :layout_backend, locals: {}
+    flash['error'] = {"#{t.products.update_by_sku.errors_found missing_skus.size}".to_sym => missing_skus} unless missing_skus.empty?
+    slim :update_by_sku, layout: :layout_backend, locals: {products: products, missing_skus: missing_skus}
   end
 
   get '/products/sku' do

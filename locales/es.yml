@@ -298,6 +298,14 @@ products:
   updating_in_background: "Actualizando productos en background. La tarea tarda aproximadamente 30 segundos"
   update_by_sku:
     title: "Actualizacion por SKU"
+    errors_found: !!pl
+      0: "No hay errores"
+      1: "Hay un SKU erroneo:"
+      n: "Error en los siguientes %1 SKUs:"
+    ok: !!pl
+      0: "Ningun producto fue actualizado"
+      1: "Un producto actualizado correctamente"
+      n: "%1 productos actualizados correctamente"
 
 product:
   read_placeholder: "ej: 4256"
