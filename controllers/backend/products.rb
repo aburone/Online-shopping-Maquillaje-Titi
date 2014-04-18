@@ -37,13 +37,13 @@ class Backend < AppController
 
   route :get, :put, '/products/update_by_sku' do
     products = []
+    missing_skus = []
     unless params[:raw_data].nil?
       sku_cols = []
       keys = {sku_on_a: 0, sku_on_b: 1, sku_on_c: 2}
       params.select { |key, value| sku_cols << keys[key.to_sym] if keys.has_key? key.to_sym }
 
       rows = params[:raw_data].to_s.split("\n").collect { |row| row.split("\t").collect{ |col| col.gsub(/\n|\r|\t/, '').squeeze(" ").strip} }
-      missing_skus = []
       rows.each do |row|
         sku = row.select.with_index{ |col, i| col if sku_cols.include? i }.reject(&:empty?).join('')
         sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
