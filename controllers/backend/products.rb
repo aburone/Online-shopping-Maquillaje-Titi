@@ -64,9 +64,9 @@ class Backend < AppController
           products << product
           if params[:confirm]
             p = product.dup
-            p.buy_cost = new_buy_cost
-            p.ideal_markup = new_ideal_markup
-            p.price = new_price
+            p.buy_cost = product[:new_buy_cost]
+            p.ideal_markup = product[:new_ideal_markup]
+            p.price = product[:new_price]
             p.recalculate_markups
             p.save
           end
