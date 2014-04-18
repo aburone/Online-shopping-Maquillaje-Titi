@@ -25,9 +25,3 @@ Sequel.migration do
     run 'DROP TABLE line_payments'
   end
 end
-CREATE TABLE `credits` (
-  `credit_id` int(5) unsigned NOT NULL AUTO_INCREMENT,
-  `description` char(60) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'INVALID',
-  `status` char(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'INVALID',
-  `ammount` decimal(6,2) unsigned NOT NULL DEFAULT '0.00',
-  PRIMARY KEY (`credit_id`)
