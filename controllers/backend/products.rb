@@ -49,7 +49,7 @@ class Backend < AppController
         sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
 
         product = Product.new.get_by_sku sku
-        missing_skus << sku if product.empty?
+        missing_skus << sku if product.empty? unless sku.empty?
         unless product.empty?
 
           new_buy_cost = params[:buy_cost_on].empty? ? 0 : BigDecimal.new(Utils::as_number(row[params[:buy_cost_on].to_i]), 4)
@@ -72,8 +72,8 @@ class Backend < AppController
           end
         end
       end
+      flash['error'] = {"#{t.products.update_by_sku.errors_found missing_skus.size}".to_sym => missing_skus} unless missing_skus.empty?
     end
-    flash['error'] = {"#{t.products.update_by_sku.errors_found missing_skus.size}".to_sym => missing_skus} unless missing_skus.empty?
     slim :update_by_sku, layout: :layout_backend, locals: {products: products, missing_skus: missing_skus}
   end
 
