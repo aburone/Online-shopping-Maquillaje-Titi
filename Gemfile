@@ -6,7 +6,7 @@ gem "slim"
 gem "sinatra"
 gem "sinatra-contrib"
 gem "sinatra-flash"
-gem "bcrypt-ruby"
+gem "bcrypt"
 gem "mysql2"
 gem "sequel"
 gem "sass"
@@ -32,7 +32,7 @@ group :development, :test do
   gem "cucumber"
   gem "cucumber-sinatra"
   gem "poltergeist"
-  gem "phantomjs", :require => 'phantomjs/poltergeist' # install executable running ruby pathphantomjs.rb the add to path PATH=$PATH:/home/user/.phantomjs/1.9.7/x86_64-linux/bin
+  gem "phantomjs", :require => 'phantomjs/poltergeist' # install executable running ruby pathphantomjs.rb then add to path PATH=$PATH:/home/user/.phantomjs/1.9.7/x86_64-linux/bin
   gem 'test-unit','= 2.5.5'
 end
 

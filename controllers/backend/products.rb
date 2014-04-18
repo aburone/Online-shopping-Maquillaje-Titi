@@ -72,7 +72,7 @@ class Backend < AppController
           end
         end
       end
-      flash['error'] = {"#{t.products.update_by_sku.errors_found missing_skus.size}".to_sym => missing_skus} unless missing_skus.empty?
+      flash.now['error'] = {"#{t.products.update_by_sku.errors_found missing_skus.size}".to_sym => missing_skus} unless missing_skus.empty?
     end
     slim :update_by_sku, layout: :layout_backend, locals: {products: products, missing_skus: missing_skus}
   end
