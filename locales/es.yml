@@ -163,7 +163,7 @@ auth:
   loggedout: "Sesión terminada"
   hello: "Hola %1"
 
-admin:
+administration:
   title: Administración
 
 materials:
@@ -346,9 +346,9 @@ product:
     qty: "Cantidad"
     materials: "Materiales"
     parts: "Partes"
-    trimester_direct_ideal_stock: "Ideal para local"
-    trimester_indirect_ideal_stock: "Ideal para kits"
-    trimester_ideal_stock: "Ideal global"
+    direct_ideal_stock: "Ideal para local"
+    indirect_ideal_stock: "Ideal para kits"
+    ideal_stock: "Ideal global"
     stock_warehouse_1: "Deposito 1"
     stock_warehouse_2: "Deposito 2"
     stock_store_1: "Local 1"
@@ -640,6 +640,12 @@ reports_materials_to_buy: !!pl
   0: "Reporte de materiales por comprar en el dia del juicio final"
   1: "Reporte de materiales por comprar para un mes"
   n: "Reporte de materiales por comprar para %1 meses"
+reports_products_to_move: !!pl
+  0: "Reporte de productos por mover desde %2 hacia Local 1 en el dia del juicio final"
+  1: "Reporte de productos por mover desde %2 hacia Local 1 para un mes"
+  n: "Reporte de productos por mover desde %2 hacia Local 1 para %1 meses"
+click_in_category_and_space_to_filter: "Click en la categoria y despues tocar espacio para filtrar"
+click_in_category_or_brand_and_space_to_filter: "Click en la categoria o marca y despues tocar espacio para filtrar"
 
 returns:
   title: Devolución de items

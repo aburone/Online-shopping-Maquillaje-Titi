@@ -590,7 +590,7 @@ class ProductTest < Test::Unit::TestCase
       calculated_indirect_ideal_stock = BigDecimal.new(0)
       product.assemblies.each do |assembly|
         assembly.update_indirect_ideal_stock
-        calculated_indirect_ideal_stock += assembly[:part_qty] * assembly.inventory.global.ideal unless assembly.archived
+        calculated_indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived
       end
       calculated_indirect_ideal_stock *= 2
 
@@ -617,7 +617,7 @@ class ProductTest < Test::Unit::TestCase
 
   def test_inventory_should_return_same_values_as_stored_object
     product = Product.new.get 135
-    assert_equal product.ideal_stock.round(2).to_s("F"), product.inventory.global.ideal.round(2).to_s("F")
+    assert_equal product.ideal_stock.round(2).to_s("F"), product.inventory(1).global.ideal.round(2).to_s("F")
   end
 
   def ideal_para_kits

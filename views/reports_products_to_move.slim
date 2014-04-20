@@ -1,0 +1,14 @@
+form.grid-form action=url("/production/reports/products_to_move") method="post"
+  == Rack::Csrf.tag(env)
+
+  fieldset
+    legend Recalcular periodo
+    div data-row-span="10"
+      div data-field-span="1"
+        label for="months" Meses
+        input type="text" name="months" size=3 maxlength=3 required="required" value="#{months}"
+      div data-field-span="1"
+        label for="submit" &nbsp;
+        input type="submit" value="Recalcular"
+
+== slim :products_list, locals: {can_edit: false, full_row: false, price_pro_col: false, persistent_headers: true, multi_stock_col: true, use_virtual_stocks: true, stock_deviation_col: true, to_move_col: true, click_to_filter: true, caption: t.click_in_category_or_brand_and_space_to_filter }

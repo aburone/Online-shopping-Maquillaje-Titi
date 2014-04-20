@@ -74,7 +74,7 @@ class Product < Sequel::Model
 
   def update_indirect_ideal_stock
     self.indirect_ideal_stock = BigDecimal.new(0)
-    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] * assembly.inventory.global.ideal unless assembly.archived}
+    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived}
     self.indirect_ideal_stock *= 2
     self.ideal_stock = self.direct_ideal_stock * 2 + self.indirect_ideal_stock
     self
@@ -103,7 +103,7 @@ class Product < Sequel::Model
       .where(products__p_id: @values[:p_id])
       .first[:stock_warehouse_2]
 
-    self.stock_deviation = inventory.global.deviation
+    self.stock_deviation = inventory(1).global.deviation
     archive_or_revive
     self
   end
@@ -645,15 +645,15 @@ class Product < Sequel::Model
     end
 
     def must_be_archived
-      self.end_of_life and inventory.global.virtual == 0
+      self.end_of_life and inventory(1).global.virtual == 0
     end
 
     def must_be_revived
-      self.archived and inventory.global.virtual > 0
+      self.archived and inventory(1).global.virtual > 0
     end
 
     def archive
-      if inventory.global.virtual == 0
+      if inventory(1).global.virtual == 0
         self.end_of_life = false
         self.archived =  true
         message = "Archivado por agotar existencias"
@@ -671,7 +671,7 @@ class Product < Sequel::Model
     end
 
     def revive
-      if inventory.global.virtual > 0
+      if inventory(1).global.virtual > 0
         self.end_of_life = true
         self.archived =  false
         message = 'Producto seteado en estado "Fin de vida" por tener stock'

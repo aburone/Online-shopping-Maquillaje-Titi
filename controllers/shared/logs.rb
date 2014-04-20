@@ -27,7 +27,6 @@ end
 class Backend < AppController
   include Logs
   get '/logs' do get_and_render_logs end
-  route :get, ['/logs/logins/:username', '/reports/logins/:username'] do get_and_render_logins params[:username] end
 end
 
 class Sales < AppController
