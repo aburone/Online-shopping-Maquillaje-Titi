@@ -16,7 +16,7 @@ class Backend < AppController
   end
 
   get '/reports/products_to_buy' do
-    reports_products_to_buy settings.desired_months_worth_of_items_in_store
+    reports_products_to_buy 3
   end
   post '/reports/products_to_buy/months' do
     redirect to params[:months].nil? ? "/reports/products_to_buy" : "/reports/products_to_buy/#{params[:months].to_i}/months"
@@ -112,12 +112,12 @@ class Backend < AppController
     products = Product.new.get_saleable_at_all_locations(list)
     @products = []
     products.map do |product|
-      product[:stock_deviation] = product.inventory.store_1.v_deviation
-      product[:stock_deviation_percentile] = product.inventory.store_1.v_deviation_percentile
-      product[:ideal_stock] = product.inventory.store_1.ideal
+      product[:stock_deviation] = product.inventory(settings.desired_months_worth_of_items_in_store).store_1.v_deviation
+      product[:stock_deviation_percentile] = product.inventory(settings.desired_months_worth_of_items_in_store).store_1.v_deviation_percentile
+      product[:ideal_stock] = product.inventory(settings.desired_months_worth_of_items_in_store).store_1.ideal
       product[:to_move] = BigDecimal.new(0)
-      product[:to_move] = product.inventory.store_1.v_deviation * -1 unless product.inventory.store_1.virtual >= product.inventory.store_1.ideal
-      stock_in_current_location = eval("product.inventory.#{current_location[:name].downcase}.stock")
+      product[:to_move] = product.inventory(settings.desired_months_worth_of_items_in_store).store_1.v_deviation * -1 unless product.inventory(settings.desired_months_worth_of_items_in_store).store_1.virtual >= product.inventory.store_1.ideal
+      stock_in_current_location = eval("product.inventory(settings.desired_months_worth_of_items_in_store).#{current_location[:name].downcase}.stock")
       product[:to_move] = stock_in_current_location if product[:to_move] > stock_in_current_location
       if stock_in_current_location > 0 and (product.end_of_life or product.ideal_stock == 0)
         product[:stock_deviation] = stock_in_current_location * -1
