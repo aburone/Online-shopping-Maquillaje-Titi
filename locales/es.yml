@@ -375,6 +375,8 @@ product:
     non_tercerized: Envasable
     live: Activo
     end_of_life: Fin de vida
+    created_at: Creado el
+    price_updated_at: Precio actualizado
   assemblies:
     not_found: Este producto no es parte de ningun otro
     list: Productos que usan al actual como parte

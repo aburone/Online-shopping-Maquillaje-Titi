@@ -47,7 +47,7 @@
         div data-field-span="1"
           label for="buy_cost" = t.product.fields.buy_cost
           - buy_cost_filler = @product[:sale_cost] == 0 ? "" : 0
-          input.positive.number type="tel"  name="buy_cost" id="ajax_product_buy_cost" size=5 maxlength=10 required="required" value="#{Utils::number_format @product[:buy_cost], 2, buy_cost_filler}"
+          input.positive.number type="tel"  name="buy_cost" id="ajax_product_buy_cost" autofocus="" size=5 maxlength=10 required="required" value="#{Utils::number_format @product[:buy_cost], 2, buy_cost_filler}"
 
         div.readonly data-field-span="1"
           label for="parts_cost" = t.product.fields.parts_cost
@@ -56,7 +56,6 @@
         div.readonly data-field-span="1"
           label for="materials_cost" = t.product.fields.materials_cost
           input.positive.number type="tel"  name="materials_cost" id="ajax_product_materials_cost" size=5 maxlength=10 readonly="readonly" tabindex="-1" value="#{Utils::number_format @product[:materials_cost], 2, 0}"
-
 
         div.readonly data-field-span="1"
           label for="sale_cost" = t.product.fields.sale_cost
@@ -76,6 +75,14 @@
         div data-field-span="1"
           label for="price_pro" = t.product.fields.price_pro
           input.positive.number type="tel"  name="price_pro" size=5 maxlength=10 value="#{Utils::number_format @product[:price_pro], 2, 0}"
+
+      div data-row-span="9"
+        div.readonly data-field-span="1"
+          label for="price_updated_at" = t.product.fields.price_updated_at
+          input type="text"  name="price_updated_at" id="price_updated_at" readonly="readonly" tabindex="-1" value="#{l @product[:price_updated_at]}"
+        div.readonly data-field-span="1"
+          label for="created_at" = t.product.fields.created_at
+          input type="text"  name="created_at" id="created_at" readonly="readonly" tabindex="-1" value="#{l @product[:created_at]}"
 
       div data-row-span="3"
         div data-field-span="2"
