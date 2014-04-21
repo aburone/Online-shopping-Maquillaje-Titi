@@ -8,7 +8,9 @@ class Material < Sequel::Model(:materials)
   many_to_one :MaterialCategory, key: :c_id
   many_to_many :products, left_key: :m_id, right_key: :product_id, join_table: :products_materials
 
-  COLUMNS = [ :m_id, :c_id, :m_name, :m_notes, :created_at, :m_ideal_stock, :m_price ]
+  ATTRIBUTES = [ :m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :created_at ]
+  # same as ATTRIBUTES but with the neccesary table references for get_ functions
+  COLUMNS = [ :materials__m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :materials__created_at ]
 
   def products
     self.products_dataset.join(:categories, [:c_id]).select_append{:c_name}.all
@@ -133,7 +135,7 @@ class Material < Sequel::Model(:materials)
 
 
   def update_from_hash(hash_values)
-    wanted_keys = [ :m_name, :m_notes, :c_id ]
+    wanted_keys = [ :m_name, :m_notes, :c_id, :SKU ]
     hash_values.select { |key, value| self[key.to_sym]=value if wanted_keys.include? key.to_sym unless value.nil?}
 
     numerical_keys = [ :m_ideal_stock, :m_price ]
@@ -218,7 +220,7 @@ class Material < Sequel::Model(:materials)
   private
     def base_query warehouse_name
       valid = [Bulk::NEW, Bulk::IN_USE, Bulk::VOID]
-      Material.select_group(:materials__m_id, :m_name, :c_id, :c_name, :m_notes, :m_ideal_stock, :m_price)
+      Material.select_group(*Material::COLUMNS , :c_name)
         .left_join(:bulks___b1, b1__m_id: :materials__m_id, b1__b_status: valid, b1__b_loc: warehouse_name)
         .join(:materials_categories, [:c_id])
         .select_append{sum(:b1__b_qty).as(m_qty)}

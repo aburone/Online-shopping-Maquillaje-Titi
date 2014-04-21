@@ -7,6 +7,8 @@
 - quicksearch = " quicksearch" if can_filter
 - click_to_filter = false if click_to_filter.nil? unless click_to_filter == true
 
+- sku_col = false if sku_col.nil? unless sku_col == true
+
 - stock_col = true if stock_col.nil?
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
 - stock_col = multi_stock_col ? false : stock_col
@@ -22,10 +24,12 @@
 - else
   table id="#{ajax_id}" class="items tablesorter#{quicksearch}#{persist_area}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
     caption #{caption}
-    thead class="#{persist_header}" 
+    thead class="#{persist_header}"
       tr
         th = t.material.fields.category
         th = t.material.fields.id
+        - if sku_col
+          th = t.material.fields.SKU
         th = t.material.fields.name
 
         - if stock_col or multi_stock_col
@@ -59,8 +63,10 @@
         tr.item class="#{ajax_item}"
           td class="#{ajax_click_to_filter}" #{I18n.transliterate( material[:c_name] )}
           td #{material[:m_id]}
+          - if sku_col
+            td #{material[:SKU]}
           td.m_name #{ I18n.transliterate( material[:m_name] )}
-  
+
           - if stock_col or multi_stock_col
             td.number == Utils::money_format material[:m_price], 2
           - if stock_col

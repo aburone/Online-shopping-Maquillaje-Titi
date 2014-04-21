@@ -189,6 +189,7 @@ material:
   bulks_not_found: No hay graneles asociados con este material
   fields:
     id: ID
+    SKU: SKU
     category: Categoría
     name: "Nombre"
     m_notes: Notas internas

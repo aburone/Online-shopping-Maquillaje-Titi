@@ -10,10 +10,13 @@
       input type="hidden" name="_method" value="put"
       input type="hidden" name="m_id" value="#{@material[:m_id]}"
 
-      div data-row-span="2"
-        div data-field-span="1"
+      div data-row-span="5"
+        div data-field-span="2"
           label for="m_name" = t.material.fields.name
-          input autofocus="" type="text" name="m_name" size=50 maxlength=80 required="required" value="#{@material[:m_name]}"
+          input autofocus="" type="text" name="m_name" size=50 maxlength=80 required="" value="#{@material[:m_name]}"
+        div data-field-span="2"
+          label for="SKU" = t.material.fields.SKU
+          input autofocus="" type="text" name="SKU" size=50 maxlength=80 value="#{@material[:SKU]}"
         div data-field-span="1"
           label for="c_id" = t.material.fields.category
           select name="c_id"
