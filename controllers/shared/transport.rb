@@ -34,17 +34,22 @@ module Transport
       redirect to("/transport/arrivals/#{order.o_id}")
     else
       begin
+        processed_items = 0
         DB.transaction do
           if order.type == Order::WH_TO_POS or order.type == Order::WH_TO_WH or order.type == Order::POS_TO_WH
             order.items.each do |item|
               item.change_status(Item::READY, order.o_id).save if item.i_status == Item::VERIFIED
+              processed_items += 1
             end
             order.bulks.each do |bulk|
               bulk.change_status(Bulk::NEW, order.o_id).save if bulk.b_status == Bulk::VERIFIED
+              processed_items += 1
             end
             order.change_status Order::VERIFIED
           end
         end
+        ap order
+        flash[:notice] = t.transport.arrivals.ok(processed_items, ConstantsTranslator.new(order.o_dst).t)
       rescue => e
         flash[:error] = e.message
       end

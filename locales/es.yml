@@ -596,6 +596,7 @@ transport:
     title: Ingresos de mercaderia
     verification:
       title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"
+    ok: "%1 items ingresados correctamente a %2"
   departures:
     pos_to_wh:
       title: Transporte de mercaderia desde local hacia deposito
