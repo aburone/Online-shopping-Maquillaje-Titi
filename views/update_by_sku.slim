@@ -47,6 +47,7 @@ form.grid-form action=url("/products/update_by_sku") method="post"
     div data-row-span="1"
       div data-field-span="1"
         label for="raw_data" Pegar datos
+        - params[:raw_data] = "" unless params[:confirm].nil?
         textarea name="raw_data" rows="10" cols="50" = params[:raw_data]
   fieldset
     legend Acciones
@@ -60,6 +61,9 @@ form.grid-form action=url("/products/update_by_sku") method="post"
         input.ajax_confirm name="confirm" data-confirm_message="Esto va a modificar los costos de compra. No se puede deshacer" type="submit" value="Actualizar los costos de compra"
 
 - unless products.empty?
+  - if params[:confirm].nil?
+    div.static_flash.static_warning
+      p EJECUCIÓN DE PRUEBA
   div.static_flash.static_notice
     p = t.products.update_by_sku.ok products.size
   - unless missing_skus.empty?
