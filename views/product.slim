@@ -10,7 +10,6 @@
 - if @product.nil?
   p No tengo productos con el id especificado
 - else
-
   form.grid-form action=url("/products/#{@product[:p_id]}") method="post"
     == Rack::Csrf.tag(env)
     input type="hidden" name="_method" value="put"
@@ -72,9 +71,9 @@
         div data-field-span="1"
           label for="price" = t.product.fields.price
           input.positive.number type="tel" name="price" id="ajax_product_price" size=5 maxlength=10 required="required" value="#{Utils::number_format(@product[:price], 2, "") }"
-        div data-field-span="1"
+        div.readonly data-field-span="1"
           label for="price_pro" = t.product.fields.price_pro
-          input.positive.number type="tel"  name="price_pro" size=5 maxlength=10 value="#{Utils::number_format @product[:price_pro], 2, 0}"
+          input.positive.number type="tel"  name="price_pro" readonly="" value="#{Utils::number_format @product[:price_pro], 2, 0}"
 
       div data-row-span="9"
         div.readonly data-field-span="1"

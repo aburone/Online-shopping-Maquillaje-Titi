@@ -183,7 +183,7 @@ class Product < Sequel::Model
       start_price = self.exact_price.dup
       self.exact_price *= mod
       self.price = price_round self.exact_price
-      self.price_pro = price_round(self.price*0.7) if self.br_name == "Mila Marzi"
+      self.price_pro = (self.price * 0.95).round 1
       update_costs
       if log
         message = "Precio ajustado *#{mod.to_s("F")} de $ #{start_price.to_s("F")} a $ #{self.price.to_s("F")}: #{self.p_name}"
@@ -338,6 +338,8 @@ class Product < Sequel::Model
   def save (opts=OPTS)
     opts = opts.merge({columns: Product::ATTRIBUTES})
     self.end_of_life = false if self.archived
+    self.price_pro = (self.price * 0.95).round 1
+
     begin
       super opts
       if self.p_name and not self.archived

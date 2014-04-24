@@ -13,8 +13,7 @@ class Backend < AppController
         ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE)
       end
 
-      products.map do |pr|
-        product = Product.new.get(pr.p_id)
+      products.map do |product|
         product.price_mod(mod, save)
         product.save verify: false if save
         final_products << product
@@ -23,7 +22,6 @@ class Backend < AppController
       if save
           message = "Actualizancion masiva de todos los items en proceso o listos para ser vendidos. Multiplicador: #{mod.to_f}"
           ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE)
-
 
           DB.run "UPDATE items
           JOIN products using(p_id)
@@ -40,10 +38,10 @@ class Backend < AppController
     if !params[:mod].nil? && params[:mod].empty?
       flash[:warning] = "Tenes que decirme por cuanto multiplicar."
       redirect to("/inventory/adjustments/mass_price_adjustments")
-    elsif !params[:mod].nil? && params[:mod] == "0" 
+    elsif !params[:mod].nil? && params[:mod] == "0"
       flash[:warning] = "Multiplicar por cero no es una buena idea."
       redirect to("/inventory/adjustments/mass_price_adjustments")
-    elsif !params[:mod].nil? && params[:mod] <= "0" 
+    elsif !params[:mod].nil? && params[:mod] <= "0"
       flash[:warning] = "Que estas intentando probar?."
       redirect to("/inventory/adjustments/mass_price_adjustments")
     elsif !params[:mod].nil? && @mod.nil?
