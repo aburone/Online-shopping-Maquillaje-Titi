@@ -605,7 +605,7 @@ class Product < Sequel::Model
     alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :description, :notes, :img, :img_extra ]
     hash_values.select { |key, value| eval("self.#{key}=value.to_s") if alpha_keys.include? key.to_sym unless value.nil?}
 
-    checkbox_keys = [:published_price, :published]
+    checkbox_keys = [:published_price, :published, :on_request]
     checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }
 
     true_false_keys = [:tercerized]
