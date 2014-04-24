@@ -366,7 +366,7 @@ product:
     markup_deviation_percentile: "%"
     exact_price: "Precio exacto"
     price: "Precio"
-    price_pro: Pro?
+    price_pro: Pro
     published: Publicar en pagina?
     published_price: Publicar precio?
     units: "(cc, gr o cm)"
@@ -378,6 +378,7 @@ product:
     end_of_life: Fin de vida
     created_at: Creado el
     price_updated_at: Precio actualizado
+    on_request: "Por pedido"
   assemblies:
     not_found: Este producto no es parte de ningun otro
     list: Productos que usan al actual como parte

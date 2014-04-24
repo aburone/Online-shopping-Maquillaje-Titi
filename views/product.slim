@@ -136,7 +136,7 @@
             li "Fin de vida" indica que un producto debe seguir vendiendose hasta agotar existencias. Si hay stock en deposito y no en local, el sistema va a pedir su transferencia. Una vez agotadas las existencias, sera "Archivado" automaticamente
             li "Archivado" se utiliza cuando un producto no se desea seguir comercializando. No figurara mas en ningun reporte de produccion o compra.
 
-      div data-row-span="2"
+      div data-row-span="3"
         div data-field-span="1"
           label Tipo
           input type="radio" name="tercerized" id="is_tercerized" value="true" checked=("checked" if @product.tercerized)
@@ -144,6 +144,10 @@
           br
           input type="radio" name="tercerized" id="non_tercerized" value="false" checked=("checked" if !@product.tercerized)
           label for="non_tercerized" = t.product.fields.non_tercerized
+
+        div data-field-span="1"
+          label for="on_request" = t.product.fields.on_request
+          input type="checkbox" name="on_request" id="on_request" checked=("checked" if @product.on_request)
 
         div data-field-span="1"
           label Ciclo de vida

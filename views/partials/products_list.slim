@@ -22,6 +22,7 @@
 - persist_area = persistent_headers ? " persist_area" : ""
 - persist_header = persistent_headers ? " persist_header" : ""
 - caption = caption.nil? ? "" : caption
+- status_col ||= false
 
 - if @products.empty?
   p = t.products.empty
@@ -62,6 +63,8 @@
           th.sm_cell.small_content %
         - if to_move_col
           th.sm_cell Enviar
+        - if status_col
+          th.md_cell Estado
         - if can_edit
           th.sm_cell = t.actions.actions
     tfoot
@@ -113,10 +116,6 @@
           - if stock_deviation_col
             - col_class = (product[:stock_deviation] > 0) ? "number overstocked" : (product[:stock_deviation] < 0) ? "number understocked" : "number"
             - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
-
-
-            / - p product[:stock_deviation].to_s("F") if product.p_id == 758
-            / - p product[:stock_deviation].abs < 1 if product.p_id == 758
             - product[:stock_deviation] = -1 if product[:stock_deviation] < 0 and product[:stock_deviation] > -1
             - stock_deviation_for_humans = Utils::number_format(product[:stock_deviation].round, 0, "-")
             td.sm_cell class="#{col_class}" #{stock_deviation_for_humans}
@@ -125,6 +124,8 @@
             td.sm_cell class="#{col_class}" #{stock_deviation_percentile}
           - if to_move_col
             td.sm_cell.number #{Utils::number_format product[:to_move], 0}
+          - if status_col
+            td.md_cell #{product.status}
           - if can_edit
             td.sm_cell
               - if edit_link == "void"

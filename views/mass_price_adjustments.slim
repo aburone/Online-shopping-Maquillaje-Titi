@@ -1,20 +1,24 @@
 -# coding: UTF-8
 - @title =  t.inventory.mass_price_adjustments.title
 p = t.inventory.mass_price_adjustments.intro
+- mod = @mod.to_f > 0 ? @mod.to_f : ""
 
 form.grid-form action=url("/inventory/adjustments/mass_price_adjustments") method="post"
   == Rack::Csrf.tag(env)
-  div data-row-span="4"
-    div data-field-span="1"
-      label for="mod" = t.inventory.mass_price_adjustments.mod_label
-      - mod = @mod.to_f > 0 ? @mod.to_f : ""
-      input.positive.number type="tel" step="any" min=0 name="mod" id="mod" size=5 maxlength=8 required="required" autofocus="autofocus" value="#{mod}"
-    div data-field-span="1"
-      label for="test" = t.actions.test
-      input name="test" type="submit" value="#{t.inventory.mass_price_adjustments.test}"
-    div data-field-span="1"
-      label for="confirm" = t.actions.confirm
-      input.ajax_confirm name="confirm" data-confirm_message="#{t.inventory.mass_price_adjustments.confirm_message}" type="submit" value="#{t.inventory.mass_price_adjustments.submit_text}"
+  fieldset
+    legend Ajustar
+    div data-row-span="4"
+      div data-field-span="1"
+        label for="mod" = t.inventory.mass_price_adjustments.mod_label
+        input.positive.number type="tel" step="any" min=0 name="mod" id="mod" size=5 maxlength=8 required="required" autofocus="" value="#{mod}"
+
+      div data-field-span="1"
+        label for="test" = t.actions.test
+        input name="test" type="submit" value="#{t.inventory.mass_price_adjustments.test}"
+
+      div data-field-span="1"
+        label for="confirm" = t.actions.confirm
+        input.ajax_confirm name="confirm" data-confirm_message="#{t.inventory.mass_price_adjustments.confirm_message}" type="submit" value="#{t.inventory.mass_price_adjustments.submit_text}"
 
 
 == slim :products_list, locals: {can_edit: true, edit_link: :edit_product, full_row: true, stock_col: true} unless @products.nil?

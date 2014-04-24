@@ -6,6 +6,8 @@ aside
           span class="#{inside?("/admin/administration/reports")}" Informes
         li: ul
           li
+            a class="#{inside?("/admin/administration/reports/price_list")}" href=url('/administration/reports/price_list') Lista de precios
+          li
             a class="#{inside?("/admin/administration/reports/markups")}" href=url('/administration/reports/markups') Desviacion de markup
           li
             a class="#{inside?("/admin/administration/reports/products_to_buy")}" href=url('/administration/reports/products_to_buy') Productos a comprar

@@ -1,5 +1,12 @@
 class Backend < AppController
 
+  get '/administration/reports/price_list' do
+    @products = Product.new.get_list.order(:categories__c_name, :products__p_name).all
+    slim :products_list, layout: :layout_backend, locals: {title: "Lista de precios", sec_nav: :nav_administration,
+      status_col: true
+    }
+  end
+
   route :get, '/administration/reports/logins/:username' do
     get_and_render_logins params[:username]
   end
