@@ -6,6 +6,7 @@ class ProductTest < Test::Unit::TestCase
     @valid = Product.new.get_rand
     @valid.sale_cost = BigDecimal.new 10
     @valid.price = BigDecimal.new 20
+    assert_equal @valid.price, BigDecimal.new(20), "Shit"
     @valid.exact_price = BigDecimal.new 19.54, 5
     @valid.recalculate_markups
     @valid.p_name = "ProductTest @valid"
@@ -575,11 +576,11 @@ class ProductTest < Test::Unit::TestCase
 
   def test_should_get_materials_cost
     product = Product[2]
-    cost =  BigDecimal.new(0, 2)
+    cost =  BigDecimal.new(0, 3)
     product.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
-
-    assert_equal cost.round(2).to_s("F"), product.materials_cost.to_s("F")
-    expected_cost = BigDecimal.new(85.73, 4)
+    # 1 * 3.355 + 100 * 0.287 + 1 * 0.88 = 32.935
+    assert_equal cost.round(3).to_s("F"), product.materials_cost.to_s("F")
+    expected_cost = BigDecimal.new(32.935, 6)
     assert_equal expected_cost, product.materials_cost, "#{expected_cost.to_s("F")} expected but was #{product.materials_cost.to_s("F")}"
   end
 

@@ -127,7 +127,7 @@ nav:
     wh_to_wh: Hacia otro deposito
     wh_to_pos: Hacia punto de venta
     orders: Ordenes
-    mass_price_adjustment: Ajustes de precios
+    mass_price_adjustment: Ajuste masivo de precios
     accounts: Plan de cuentas
     arrivals: Ingresos de mercaderia
     arrivals_list: Ordenes por verificar

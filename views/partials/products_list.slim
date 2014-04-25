@@ -2,7 +2,6 @@
 - focus_text = focus ? "focus" : "no_focus"
 - can_filter = true if can_filter.nil? and focus
 - quicksearch = " quicksearch" if can_filter
-- full_row = true if full_row.nil?
 - sku_col = false if sku_col.nil? unless sku_col == true
 - price_pro_col = true if price_pro_col.nil?
 - stock_col = false if stock_col.nil? unless stock_col == true
@@ -23,6 +22,10 @@
 - persist_header = persistent_headers ? " persist_header" : ""
 - caption = caption.nil? ? "" : caption
 - status_col ||= false
+- price_updated_at_col ||= false
+- buy_cost_col ||= false
+- full_row ||= true
+- price_col ||= true
 
 - if @products.empty?
   p = t.products.empty
@@ -37,6 +40,8 @@
         th.md_cell = t.product.fields.brand
         - if sku_col
           th.sm_cell = t.actions.click_to_edit
+        - if buy_cost_col
+          th.sd_cell #{t.product.fields.buy_cost}
         - if full_row
           th.smm_cell = t.product.fields.price
         - if full_row and price_pro_col
@@ -65,6 +70,8 @@
           th.sm_cell Enviar
         - if status_col
           th.md_cell Estado
+        - if price_updated_at_col
+          th.md_cell #{t.product.fields.price_updated_at}
         - if can_edit
           th.sm_cell = t.actions.actions
     tfoot
@@ -86,9 +93,11 @@
           - if sku_col
             td.bg_cell
               span.ajax_click_to_edit.ajax_click_to_edit_sku title="Click para editar..." id="#{product.p_id}" #{product[:sku]}
-          - if full_row
-            td.smm_cell.number #{Utils::money_format product[:price], 2}
-          - if full_row and price_pro_col
+          - if buy_cost_col
+            td.smm_cell.number #{Utils::money_format product[:buy_cost], 2}
+          - if full_row | price_col
+            td.smm_cell.number #{Utils::money_format product.price, 2}
+          - if full_row | price_col
             td.smm_cell.number #{Utils::money_format product[:price_pro], 2}
           - if ideal_markup_col
             td.sm_cell.number #{Utils::number_format product[:ideal_markup], 2}
@@ -126,6 +135,8 @@
             td.sm_cell.number #{Utils::number_format product[:to_move], 0}
           - if status_col
             td.md_cell #{product.status}
+          - if price_updated_at_col
+            td.md_cell #{l product.price_updated_at}
           - if can_edit
             td.sm_cell
               - if edit_link == "void"

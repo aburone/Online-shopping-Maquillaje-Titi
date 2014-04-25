@@ -11,12 +11,12 @@ class AppTest < Test::Unit::TestCase
   def test_should_see_login_form
     get '/'
     assert_equal 401, last_response.status, "Not trying to authenticate"
-    assert_match /login_form/, last_response.body, "No login form"
+    assert_match(/login_form/, last_response.body, "No login form")
   end
 
   def test_should_try_to_authenticate
     get '/', {}, 'rack.session' => get_sess
-    assert_match /Administración/, last_response.body, "Wrong place"
+    assert_match(/Administración/, last_response.body, "Wrong place")
     kill_session
 
 

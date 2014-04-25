@@ -1,7 +1,7 @@
 class Backend < AppController
 
   get '/administration/reports/price_list' do
-    @products = Product.new.get_list.order(:categories__c_name, :products__p_name).all
+    @products = Product.new.get_all_but_archived.order(:categories__c_name, :products__p_name).all
     slim :products_list, layout: :layout_backend, locals: {title: "Lista de precios", sec_nav: :nav_administration,
       status_col: true
     }
@@ -12,7 +12,7 @@ class Backend < AppController
   end
 
   get '/administration/reports/markups' do
-    @products = Product.new.get_list.order(:categories__c_name, :products__p_name).all
+    @products = Product.new.get_all_but_archived.order(:categories__c_name, :products__p_name).all
     @products.sort_by! { |product| product[:markup_deviation_percentile] }
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
@@ -28,7 +28,7 @@ class Backend < AppController
 
 
   get '/production/reports/to_package/:mode' do
-    list = Product.new.get_list.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name)
+    list = Product.new.get_all_but_archived.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name)
     @products = Product.new.get_saleable_at_all_locations list
     months = 0
     @products.map do |product|
@@ -82,7 +82,7 @@ class Backend < AppController
     reports_products_to_buy months
   end
   def reports_products_to_buy months
-    list = Product.new.get_list.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).all
+    list = Product.new.get_all_but_archived.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).all
     @products = Product.new.get_saleable_at_all_locations list
     @products.map do |product|
       product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
@@ -119,7 +119,7 @@ class Backend < AppController
     reports_products_to_move months
   end
   def reports_products_to_move months
-    list = Product.new.get_list.order(:categories__c_name, :products__p_name)
+    list = Product.new.get_all_but_archived.order(:categories__c_name, :products__p_name)
     products = Product.new.get_saleable_at_all_locations(list)
     @products = []
     products.map do |product|

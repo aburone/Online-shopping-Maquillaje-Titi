@@ -35,48 +35,6 @@ class Backend < AppController
     redirect to("/products")
   end
 
-  route :get, :put, '/products/update_by_sku' do
-    products = []
-    missing_skus = []
-    unless params[:raw_data].nil?
-      sku_cols = []
-      keys = {sku_on_a: 0, sku_on_b: 1, sku_on_c: 2}
-      params.select { |key, value| sku_cols << keys[key.to_sym] if keys.has_key? key.to_sym }
-
-      rows = params[:raw_data].to_s.split("\n").collect { |row| row.split("\t").collect{ |col| col.gsub(/\n|\r|\t/, '').squeeze(" ").strip} }
-      rows.each do |row|
-        sku = row.select.with_index{ |col, i| col if sku_cols.include? i }.reject(&:empty?).join('')
-        sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
-
-        product = Product.new.get_by_sku sku
-        missing_skus << sku if product.empty? unless sku.empty?
-        unless product.empty?
-
-          new_buy_cost = params[:buy_cost_on].empty? ? 0 : BigDecimal.new(Utils::as_number(row[params[:buy_cost_on].to_i]), 4)
-          product[:new_buy_cost] = new_buy_cost > 0 ? new_buy_cost : product.buy_cost
-
-          new_ideal_markup = params[:ideal_markup_on].empty? ? 0 : BigDecimal.new(Utils::as_number(row[params[:ideal_markup_on].to_i]), 4)
-          product[:new_ideal_markup] = new_ideal_markup > 0 ? new_ideal_markup : product.ideal_markup
-
-          new_price = params[:price_on].empty? ? 0 : BigDecimal.new(Utils::as_number(row[params[:price_on].to_i]), 4)
-          product[:new_price] = new_price > 0 ? new_price : product.price
-
-          products << product
-          if params[:confirm]
-            p = product.dup
-            p.buy_cost = product[:new_buy_cost]
-            p.ideal_markup = product[:new_ideal_markup]
-            p.price = product[:new_price]
-            p.recalculate_markups
-            p.save
-          end
-        end
-      end
-      flash.now['error'] = {"#{t.products.update_by_sku.errors_found missing_skus.size}".to_sym => missing_skus} unless missing_skus.empty?
-    end
-    slim :update_by_sku, layout: :layout_backend, locals: {products: products, missing_skus: missing_skus}
-  end
-
   get '/products/sku' do
     @products = Product.new.get_saleable_at_location(current_location[:name]).order(:c_name, :p_name).all
     slim :products_list, layout: :layout_backend, locals: {full_row: false, sku_col: true, can_edit: true, edit_link: :edit_product, title: R18n.t.products.sku_editor.title, caption: R18n.t.products.sku_editor.caption}
@@ -157,7 +115,7 @@ class Backend < AppController
       flash[:error] = @item.errors unless @item.errors.empty?
       redirect to('/inventory/transmute_items') unless @item.errors.empty?
       @product = Product[@item.p_id]
-      @products = Product.new.get_list.order(:c_name, :p_name).all
+      @products = Product.new.get_all_but_archived.order(:c_name, :p_name).all
     end
     @item ||= Item.new
     @product ||= Product.new
@@ -201,7 +159,7 @@ class Backend < AppController
   end
 
   get '/products_relationships/?' do
-    products = Product.new.get_list.order(:c_name, :p_name).all
+    products = Product.new.get_all_but_archived.order(:c_name, :p_name).all
     @relationships = []
     products.each do |p|
       relationship = {product: p, materials: p.materials, parts: p.parts}

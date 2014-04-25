@@ -94,7 +94,7 @@ class AppController < Sinatra::Base
   configure :development do
     enable :show_exceptions
 
-    # require_relative 'models/stdout_logger'
+    require_relative 'models/stdout_logger' if settings.debug_sql
     require 'sinatra/reloader'
     register Sinatra::Reloader
     enable :reload_templates

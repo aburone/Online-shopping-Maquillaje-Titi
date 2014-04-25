@@ -48,7 +48,6 @@ module Transport
             order.change_status Order::VERIFIED
           end
         end
-        ap order
         flash[:notice] = t.transport.arrivals.ok(processed_items, ConstantsTranslator.new(order.o_dst).t)
       rescue => e
         flash[:error] = e.message

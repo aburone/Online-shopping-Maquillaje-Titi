@@ -12,11 +12,12 @@ class Item < Sequel::Model
   MUST_VERIFY ="MUST_VERIFY"
   VERIFIED    ="VERIFIED"
   READY       ="READY"
-  ERROR       ="ERROR"
-  VOID        ="VOID"
+  SALE        ="SALE"
   ON_CART     ="ON_CART"
   SOLD        ="SOLD"
   RETURNING   ="RETURNING"
+  ERROR       ="ERROR"
+  VOID        ="VOID"
   ATTRIBUTES = [:i_id, :p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc, :created_at]
 
   @sale_id = 666
@@ -475,7 +476,7 @@ class Item < Sequel::Model
     return self if missing(i_id)
     update_from Item[i_id]
     return self if has_been_void
-    return self if has_been_sold # TODO: anulacion de venta
+    return self if has_been_sold
     return self if is_not_ready
     errors.add("Error inesperado", "Que hacemos?")
     return self

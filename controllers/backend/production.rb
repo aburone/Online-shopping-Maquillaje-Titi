@@ -156,7 +156,7 @@ class Backend < AppController
         flash[:notice] = [assigned_msg, added_msg]
       end
     else
-      @products = Product.new.get_list.order(:c_name, :p_name).all
+      @products = Product.new.get_all_but_archived.order(:c_name, :p_name).all
     end
 
     @item ||= Item.new

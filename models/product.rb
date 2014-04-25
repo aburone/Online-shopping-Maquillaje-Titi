@@ -50,11 +50,11 @@ class Product < Sequel::Model
   end
 
   def materials_cost
-    cost = BigDecimal.new 0, 4
+    cost = BigDecimal.new 0, 6
     self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
     p "el costo de materiales retorno nil" if cost.nil?
-    self.materials_cost = cost.round(2)
-    cost.round(2)
+    self.materials_cost = cost.round(3)
+    cost.round(3)
   end
 
   def parts_cost
@@ -167,6 +167,16 @@ class Product < Sequel::Model
     @inventory
   end
 
+  def price= price
+    @values['price'] = price_round price
+    self[:price] = @values['price']
+    self.price_pro = (self.price * 0.95).round 1
+  end
+
+  def price
+    self[:price]
+  end
+
   def price_round exact_price
     price = exact_price
     frac = price.abs.modulo(1)
@@ -177,16 +187,29 @@ class Product < Sequel::Model
     price
   end
 
+  def buy_cost_mod mod, log=true
+    mod = BigDecimal.new(mod.to_s.gsub(',', '.'), 15)
+    if mod > 0
+      start_buy_cost = self.buy_cost.dup
+      self.buy_cost *= mod
+      recalculate_markups
+      message = "Costo de compra ajustado *#{mod.to_s("F")} de $ #{start_buy_cost.to_s("F")} a $ #{self.buy_cost.to_s("F")}: #{self.p_name}"
+      if log
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: self.p_id).save
+      end
+    end
+    self
+  end
+
   def price_mod mod, log=true
     mod = BigDecimal.new(mod.to_s.gsub(',', '.'), 15)
     if mod > 0
       start_price = self.exact_price.dup
       self.exact_price *= mod
-      self.price = price_round self.exact_price
-      self.price_pro = (self.price * 0.95).round 1
-      update_costs
+      self.price = self.exact_price
+      recalculate_markups
+      message = "Precio ajustado *#{mod.to_s("F")} de $ #{start_price.to_s("F")} a $ #{self.price.to_s("F")}: #{self.p_name}"
       if log
-        message = "Precio ajustado *#{mod.to_s("F")} de $ #{start_price.to_s("F")} a $ #{self.price.to_s("F")}: #{self.p_name}"
         ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: self.p_id).save
       end
     end
@@ -338,7 +361,6 @@ class Product < Sequel::Model
   def save (opts=OPTS)
     opts = opts.merge({columns: Product::ATTRIBUTES})
     self.end_of_life = false if self.archived
-    self.price_pro = (self.price * 0.95).round 1
 
     begin
       super opts
@@ -383,7 +405,7 @@ class Product < Sequel::Model
     label.p_id = @values[:p_id]
     label.p_name = @values[:p_name]
     label.i_status = Item::ASSIGNED
-    label.i_price = @values[:price]
+    label.i_price = self.price
     label.i_price_pro = @values[:price_pro]
     begin
       label.save
@@ -466,7 +488,7 @@ class Product < Sequel::Model
     out += "\tideal_markup:       #{Utils::number_format @values[:ideal_markup], 3}\n"
     out += "\treal_markup:        #{Utils::number_format @values[:real_markup], 3}\n"
     out += "\texact_price:        #{Utils::number_format @values[:exact_price], 5}\n"
-    out += "\tprice:              #{Utils::number_format @values[:price], 5}\n"
+    out += "\tprice:              #{Utils::number_format self.price, 5}\n"
     out += "\tprice_pro:          #{Utils::number_format @values[:price_pro], 2}\n"
 
     out += "\tpublished:          #{@values[:published]}\n"
@@ -511,12 +533,17 @@ class Product < Sequel::Model
     product
   end
 
-  def get_list
+  def get_all
     Product
       .select_group(*Product::COLUMNS, :categories__c_name)
       .join(:categories, [:c_id])
       .join(:brands, [:br_id])
       .select_append{ Sequel.case( {{Sequel.lit('real_markup / ideal_markup') => nil} => 0}, Sequel.lit('(real_markup * 100 / ideal_markup) - 100') ).as(markup_deviation_percentile)}
+      .order(:c_name, :p_name)
+  end
+
+  def get_all_but_archived
+    get_all
       .where(archived: 0)
   end
 
@@ -535,7 +562,7 @@ class Product < Sequel::Model
   end
 
   def get_saleable_at_all_locations products = nil
-    products = get_list.order(:categories__c_name, :products__p_name) if products.nil?
+    products = get_all_but_archived.order(:categories__c_name, :products__p_name) if products.nil?
     new_products = []
     products.map do |product|
       product.update_stocks
@@ -583,7 +610,7 @@ class Product < Sequel::Model
     end
 
     errors.add("El precio exacto", "no puede ser cero" ) if @values[:exact_price] == 0
-    errors.add("El precio", "no puede ser cero" ) if @values[:price] == 0
+    errors.add("El precio", "no puede ser cero" ) if self.price == 0
   end
 
 
@@ -628,8 +655,7 @@ class Product < Sequel::Model
   private
     def cast
       @values[:exact_price] = @values[:exact_price] ? BigDecimal.new(@values[:exact_price], 0) : BigDecimal.new(0, 2)
-      @values[:price] = @values[:price] ? BigDecimal.new(@values[:price], 0) : BigDecimal.new(0, 2)
-      @values[:price_pro] = @values[:price_pro] ? BigDecimal.new(@values[:price_pro], 0) : BigDecimal.new(0, 2)
+      self.price = @values[:price] ? BigDecimal.new(@values[:price], 0) : BigDecimal.new(0, 2)
       @values[:direct_ideal_stock] = @values[:direct_ideal_stock] ? BigDecimal.new(@values[:direct_ideal_stock], 0) : BigDecimal.new(0, 2)
       @values[:indirect_ideal_stock] = @values[:direct_ideal_stock] ? BigDecimal.new(@values[:indirect_ideal_stock], 0) : BigDecimal.new(0, 2)
       @values[:ideal_stock] = @values[:direct_ideal_stock] + @values[:indirect_ideal_stock]

@@ -70,7 +70,7 @@
           input.positive.number type="tel"  name="exact_price" id="ajax_product_exact_price" size=5 maxlength=10 readonly="readonly" tabindex="-1" required="required" value="#{Utils::number_format @product[:exact_price], 5, ""}"
         div data-field-span="1"
           label for="price" = t.product.fields.price
-          input.positive.number type="tel" name="price" id="ajax_product_price" size=5 maxlength=10 required="required" value="#{Utils::number_format(@product[:price], 2, "") }"
+          input.positive.number type="tel" name="price" id="ajax_product_price" size=5 maxlength=10 required="required" value="#{Utils::number_format(@product.price, 2, "") }"
         div.readonly data-field-span="1"
           label for="price_pro" = t.product.fields.price_pro
           input.positive.number type="tel"  name="price_pro" readonly="" value="#{Utils::number_format @product[:price_pro], 2, 0}"

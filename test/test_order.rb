@@ -150,7 +150,7 @@ class OrderTest < Test::Unit::TestCase
   def test_return_orders_should_allow_items_from_sales_only
     DB.transaction(rollback: :always) do
       User.new.current_location = Location::S1
-      unsold_item = Item.new.get_for_return "338-52a71a28 ", 6943
+      unsold_item = Item.new.get_for_return " 343-3dd0313b ", 6943
       assert_equal "#{t.return.errors.invalid_status.to_s}: #{t.return.errors.this_item_is_not_in_sold_status.to_s}", unsold_item.errors.to_a.flatten.join(": ")
     end
   end

@@ -160,7 +160,7 @@ class Material < Sequel::Model(:materials)
     errors.add(:m_id, R18n.t.errors.positive_feedback(m_id) ) unless m_id.class == Fixnum && m_id > 0
   end
 
-  def to_s
+  def print
     @values[:m_qty] ||= 0
     out = "\n"
     out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
@@ -173,7 +173,7 @@ class Material < Sequel::Model(:materials)
     out += "\tm_price: #{Utils::number_format self[:m_price], 3}\n"
     out += "\tm_ideal_stock: #{Utils::number_format self[:m_ideal_stock], 2}\n"
     out += "\tcreated: #{Utils::local_datetime_format  @values[:created_at]}\n"
-    out
+    p out
   end
 
   def bulks warehouse_name

@@ -24,7 +24,11 @@ class Backend < AppController
 
   get '/?' do
     protected! # needed by cucumber
-    slim :admin, layout: Thread.current.thread_variable_get(:layout)
+    slim :admin, layout: Thread.current.thread_variable_get(:layout), locals: {sec_nav: :nav_administration, title: t.administration.title}
+  end
+
+  get '/administration' do
+    slim :admin, layout: Thread.current.thread_variable_get(:layout), locals: {sec_nav: :nav_administration, title: t.administration.title}
   end
 
   get '/log' do

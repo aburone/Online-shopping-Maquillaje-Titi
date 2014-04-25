@@ -1,7 +1,7 @@
 -# coding: UTF-8
 - @title = t.products.update_by_sku.title
 
-form.grid-form action=url("/products/update_by_sku") method="post"
+form.grid-form action=url("/administration/adjustments/update_by_sku") method="post"
   == Rack::Csrf.tag(env)
   input type="hidden" name="_method" value="put"
 
