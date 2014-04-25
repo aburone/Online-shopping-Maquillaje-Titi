@@ -43,14 +43,14 @@ class ActionsLog < Sequel::Model(:actions_log)
   end
 
   def get_today
-    yesterday = Sequel.date_sub(Time.now.getlocal("-00:00").to_date.iso8601, {days:1})
+    yesterday = Sequel.date_sub(Time.now.getlocal("-03:00").to_date.iso8601, {days:1})
     ActionsLog
       .select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
       .join(:users, user_id: :u_id)
       .where{Sequel.expr(:at) > yesterday}
       .order(:at)
       .reverse
-      .limit(500)
+      .limit(5000)
       .all
   end
 
@@ -64,7 +64,7 @@ class ActionsLog < Sequel::Model(:actions_log)
       .join(:users, user_id: :u_id)
       .order(:at)
       .reverse
-      .limit(500)
+      .limit(5000)
       .all
   end
 
@@ -77,6 +77,7 @@ class ActionsLog < Sequel::Model(:actions_log)
               .select(Sequel.as(Sequel.lit("min(at)"), :at), Sequel.lit("date(at)"), Sequel.as("Primer evento del dia en esta locación", :msg), Sequel.as("1", :lvl), Sequel.as("", :b_id), Sequel.as("", :m_id),  Sequel.as("", :i_id), Sequel.as("", :p_id), Sequel.as("", :o_id), :u_id, :l_id, :username)
               .join(:users, user_id: :u_id)
               .where(username: username)
+              .where(Sequel.negate(l_id: "GLOBAL"))
               .group(Sequel.lit("date(at)"), :u_id, :username, :l_id)
               .limit(500)
     normal.order(:at).reverse.all
