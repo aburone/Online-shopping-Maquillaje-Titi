@@ -328,6 +328,7 @@ product:
   part_added: "Agregado %1 x %2"
   part_updated: "Actualizado %1 x %2"
   part_removed: "Borrado %1"
+  updating_all_items: "Actualizando todos los items de %1"
   errors:
     archived: Este producto esta archivado, no podes usarlo
   fields:
@@ -612,7 +613,7 @@ inventory:
     intro: "Esto aplicara un ajuste de precios de venta al publico en todos los productos. Los precios se multiplican por el factor ingresado."
     mod_label: Escribir el modificador
     confirm_message: Estas seguro de modificar todos los precios?
-    submit_text: Actualizar todos los precios de venta
+    submit_text: Actualizar todos los productos listados
     test: Ejecucion de prueba
 
 accounts:

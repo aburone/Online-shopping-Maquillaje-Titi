@@ -48,7 +48,7 @@ class ActionsLog < Sequel::Model(:actions_log)
       .select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
       .join(:users, user_id: :u_id)
       .where{Sequel.expr(:at) > yesterday}
-      .order(:at)
+      .order(:at, :id)
       .reverse
       .limit(5000)
       .all

@@ -365,7 +365,7 @@ class Product < Sequel::Model
     begin
       super opts
       if self.p_name and not self.archived
-        message = "Actualizancion de precio de todos los items de #{@values[:p_name]}"
+        message = R18n.t.product.updating_all_items self[:p_name]
         ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
         DB.run "UPDATE items
         JOIN products using(p_id)

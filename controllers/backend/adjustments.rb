@@ -16,36 +16,34 @@ class Backend < AppController
       flash[:warning] = "Anda a jugar al medio de la autopista."
       redirect to("/administration/adjustments/mass_price_adjustments")
     else
-      @products = mass_price_adjustments(mod, params['attribute'], params[:confirm] == R18n.t.inventory.mass_price_adjustments.submit_text) if mod
+      @products = mass_price_adjustments(mod, params, params[:confirm] == R18n.t.inventory.mass_price_adjustments.submit_text) if mod
       flash.now[:notice] = "Precios actualizados con un indice de #{mod.to_f}" if params[:confirm] == R18n.t.inventory.mass_price_adjustments.submit_text and mod
       slim :mass_price_adjustments, layout: :layout_backend, locals: {sec_nav: :nav_administration, mod: mod}
     end
   end
 
   def mass_price_adjustments mod, attribute, save
+    attribute = params['attribute'].to_sym
+    br_id = params['br_id'].to_i > 0 ? params['br_id'].to_i : false
+
     final_products = []
     threshold = Sequel.date_sub(Time.now.getlocal("-00:03").to_date.iso8601, {days: settings.price_updated_at_threshold})
-    products = Product.new.get_all
-                .where{Sequel.expr(:price_updated_at) < threshold}
-                .all
+    products = Product.new.get_all.where{Sequel.expr(:price_updated_at) < threshold}
+    products = products.where(br_id: br_id) if br_id
+    products = products.all
     DB.transaction do
       if save
-        message = "Actualizancion masiva de #{eval("t.product.fields.#{attribute}")} de productos. multiplicador: #{mod.to_f}"
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE)
+        brand_message = br_id ? " con marca #{Brand[br_id].br_name}"  : ""
+        message = "Actualizancion masiva de #{eval("t.product.fields.#{attribute.to_s}")} de productos#{brand_message}. multiplicador: #{mod.to_f}"
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
       end
       products.map do |product|
-        product.price_mod(mod, save) if attribute == 'price'
-        product.buy_cost_mod(mod, save) if attribute == 'buy_cost'
+        product.price_mod(mod, save) if attribute == :price
+        product.buy_cost_mod(mod, save) if attribute == :buy_cost
+
+        product.price_updated_at = Time.now.getlocal("-03:00")
         product.save verify: false if save
         final_products << product
-      end
-      if save & attribute == 'price'
-          message = "Actualizancion masiva de todos los items en proceso o listos para ser vendidos. Multiplicador: #{mod.to_f}"
-          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE)
-          DB.run "UPDATE items
-          JOIN products using(p_id)
-          SET items.i_price = products.price, items.i_price_pro = products.price_pro
-          WHERE i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
       end
     end
     final_products

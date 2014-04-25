@@ -7,7 +7,7 @@ form.grid-form action=url("/administration/adjustments/mass_price_adjustments") 
   == Rack::Csrf.tag(env)
   fieldset
     legend Configurar
-    div data-row-span="2"
+    div data-row-span="3"
 
       div data-field-span="1"
         label for="mod" = t.inventory.mass_price_adjustments.mod_label
@@ -19,6 +19,13 @@ form.grid-form action=url("/administration/adjustments/mass_price_adjustments") 
           option value=""
           - [:buy_cost, :price].each do |attribute|
             option value="#{attribute}" selected=("selected" if params['attribute'].to_sym==attribute unless params[:attribute].nil? || params[:attribute].empty?) #{eval("t.product.fields.#{attribute}")}
+
+      div data-field-span="1"
+        label Seleccionar marca
+        select name="br_id"
+          option value=""
+          - Brand.all.each do |brand|
+            option value="#{brand.br_id}" selected=("selected" if params['br_id'].to_i == brand.br_id unless params[:br_id].nil? || params[:br_id].empty?) #{brand.br_name}
 
   fieldset
     legend Ajustar
