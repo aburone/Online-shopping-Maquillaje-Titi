@@ -21,49 +21,63 @@ aside
           span class="#{inside?("/admin/inventory")} " Ajustes
         li: ul
           li
-            a class="#{inside?("/admin/administration/adjustments/update_by_sku")}" href=url('/administration/adjustments/update_by_sku') = t.products.update_by_sku.title
+            span Productos
+          li: ul
+            li
+              a class="#{inside?("/admin/administration/adjustments/update_products_by_sku")}" href=url('/administration/adjustments/update_products_by_sku') = t.products.update_by_sku.title
+            li
+              a class="#{inside?("/admin/administration/adjustments/mass_price_adjustments")}" href=url('/administration/adjustments/mass_price_adjustments') = t.nav.backend.mass_price_adjustment
+            li
+              form action=url("/products/update_all") method="post"
+                == Rack::Csrf.tag(env)
+                input.ajax_confirm data-confirm_message="#{t.products.sure_to_update_all}" type="submit" value="#{t.nav.backend.update_products}"
           li
-            a class="#{inside?("/admin/administration/adjustments/mass_price_adjustments")}" href=url('/administration/adjustments/mass_price_adjustments') = t.nav.backend.mass_price_adjustment
+            span Items
+          li: ul
+            li
+              a class="#{inside?("/admin/inventory/void_items")}" href=url('/inventory/void_items') = t.nav.backend.void_items
+            li
+              a class="#{inside?("/admin/inventory/transmute_items")}" href=url('/inventory/transmute_items') = t.nav.backend.transmute_items
           li
-            a class="#{inside?("/admin/inventory/void_items")}" href=url('/inventory/void_items') = t.nav.backend.void_items
-          li
-            a class="#{inside?("/admin/inventory/transmute_items")}" href=url('/inventory/transmute_items') = t.nav.backend.transmute_items
+            span Materiales
+          li: ul
+            li
+              a class="#{inside?("/admin/administration/adjustments/update_materials_by_sku")}" href=url('/administration/adjustments/update_materials_by_sku') = t.materials.update_by_sku.title
+            li
+              form action=url("/materials/update_ideal_stocks") method="post"
+                == Rack::Csrf.tag(env)
+                input.ajax_confirm data-confirm_message="#{t.materials.sure_to_update_ideal_stocks}" type="submit" value="#{t.nav.backend.update_ideal_stocks_for_materials}"
 
       li: ul
         li
-          span class="#{inside?("/admin/products")}" Productos
+          span class="#{inside?("/admin/products")}" Edición
         li: ul
           li
-            a class="#{current?("/admin/products")}" href=url('/products') = t.nav.backend.products
-          li
-            form action=url("/products/new") method="post"
-              == Rack::Csrf.tag(env)
-              input type="submit" value="#{t.nav.backend.new_product}"
-          li
-            a class="#{current?("/admin/products_relationships")}" href=url('/products_relationships') = t.nav.backend.products_relationships
-          li
-            a class="#{inside?("/admin/products/categories")}" href=url('/products/categories') = t.nav.backend.categories
-          li
-            a class="#{inside?("/admin/products/sku")}" href=url('/products/sku') = t.nav.backend.sku
-          li
-            form action=url("/products/update_all") method="post"
-              == Rack::Csrf.tag(env)
-              input.ajax_confirm data-confirm_message="#{t.products.sure_to_update_all}" type="submit" value="#{t.nav.backend.update_products}"
+            span class="#{inside?("/admin/products")}" Productos
+          li: ul
+            li
+              a class="#{current?("/admin/products")}" href=url('/products') = t.nav.backend.products
+            li
+              form action=url("/products/new") method="post"
+                == Rack::Csrf.tag(env)
+                input type="submit" value="#{t.nav.backend.new_product}"
+            li
+              a class="#{current?("/admin/products_relationships")}" href=url('/products_relationships') = t.nav.backend.products_relationships
+            li
+              a class="#{inside?("/admin/products/categories")}" href=url('/products/categories') = t.nav.backend.categories
+            li
+              a class="#{inside?("/admin/products/sku")}" href=url('/products/sku') = t.nav.backend.sku
 
-      li: ul
-        li
-          span class="#{inside?("/admin/materials")}" Materiales
         li: ul
           li
-            a class="#{current?("/admin/materials")}" href=url('/materials') = t.nav.backend.materials_list
-          li
-            form action=url("/materials/new") method="post"
-              == Rack::Csrf.tag(env)
-              input type="submit" value="#{t.nav.backend.new_material}"
-          li
-            form action=url("/materials/update_ideal_stocks") method="post"
-              == Rack::Csrf.tag(env)
-              input.ajax_confirm data-confirm_message="#{t.materials.sure_to_update_ideal_stocks}" type="submit" value="#{t.nav.backend.update_ideal_stocks_for_materials}"
+            span class="#{inside?("/admin/materials")}" Materiales
+          li: ul
+            li
+              a class="#{current?("/admin/materials")}" href=url('/materials') = t.nav.backend.materials_list
+            li
+              form action=url("/materials/new") method="post"
+                == Rack::Csrf.tag(env)
+                input type="submit" value="#{t.nav.backend.new_material}"
 
       - if settings.accounts_enabled
         li: ul

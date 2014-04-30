@@ -50,15 +50,12 @@ class Backend < AppController
   end
 
 
-  route :get, :put, '/administration/adjustments/update_by_sku' do
+  route :get, :put, '/administration/adjustments/update_products_by_sku' do
     products = []
     missing_skus = []
     unless params[:raw_data].nil?
-      sku_cols = []
-      keys = {sku_on_a: 0, sku_on_b: 1, sku_on_c: 2}
-      params.select { |key, value| sku_cols << keys[key.to_sym] if keys.has_key? key.to_sym }
-
-      rows = params[:raw_data].to_s.split("\n").collect { |row| row.split("\t").collect{ |col| col.gsub(/\n|\r|\t/, '').squeeze(" ").strip} }
+      sku_cols = get_sku_cols params
+      rows = clean_tabbed_data params[:raw_data]
       rows.each do |row|
         sku = row.select.with_index{ |col, i| col if sku_cols.include? i }.reject(&:empty?).join('')
         sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
@@ -89,6 +86,48 @@ class Backend < AppController
       end
       flash.now['error'] = {"#{t.products.update_by_sku.errors_found missing_skus.size}".to_sym => missing_skus} unless missing_skus.empty?
     end
-    slim :update_by_sku, layout: :layout_backend, locals: {products: products, missing_skus: missing_skus}
+    slim :update_products_by_sku, layout: :layout_backend, locals: {products: products, missing_skus: missing_skus}
+  end
+
+
+  route :get, :put, '/administration/adjustments/update_materials_by_sku' do
+    materials = []
+    missing_skus = []
+    unless params[:raw_data].nil?
+      sku_cols = get_sku_cols params
+      rows = clean_tabbed_data params[:raw_data]
+      rows.each do |row|
+        sku = row.select.with_index{ |col, i| col if sku_cols.include? i }.reject(&:empty?).join('')
+        sku = sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
+
+        material = Material.new.get_by_sku sku
+        missing_skus << sku if material.empty? unless sku.empty?
+        unless material.empty?
+
+          new_m_price = params[:m_price_on].empty? ? 0 : BigDecimal.new(Utils::as_number(row[params[:m_price_on].to_i]), 6)
+          material[:new_m_price] = new_m_price > 0 ? new_m_price : material.m_price
+
+          materials << material
+          if params[:confirm]
+            m = material.dup
+            m.m_price = material[:new_m_price]
+            m.save
+          end
+        end
+      end
+      flash.now['error'] = {"#{t.materials.update_by_sku.errors_found missing_skus.size}".to_sym => missing_skus} unless missing_skus.empty?
+    end
+    slim :update_materials_by_sku, layout: :layout_backend, locals: {materials: materials, missing_skus: missing_skus}
+  end
+
+  def get_sku_cols params
+    sku_cols = []
+    keys = {sku_on_a: 0, sku_on_b: 1, sku_on_c: 2}
+    params.select { |key, value| sku_cols << keys[key.to_sym] if keys.has_key? key.to_sym }
+    sku_cols
+  end
+
+  def clean_tabbed_data raw
+    raw.to_s.split("\n").collect { |row| row.split("\t").collect{ |col| col.gsub(/\n|\r|\t/, '').squeeze(" ").strip} }
   end
 end

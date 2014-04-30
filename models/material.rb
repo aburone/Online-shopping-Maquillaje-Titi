@@ -9,8 +9,19 @@ class Material < Sequel::Model(:materials)
   many_to_many :products, left_key: :m_id, right_key: :product_id, join_table: :products_materials
 
   ATTRIBUTES = [ :m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :created_at ]
-  # same as ATTRIBUTES but with the neccesary table references for get_ functions
+  # same as ATTRIBUTES but with the needed table references for get_ functions
   COLUMNS = [ :materials__m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :materials__created_at ]
+
+  def empty?
+    return @values[:m_id].nil? ? true : false
+  end
+
+  def get_by_sku sku
+    sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
+    material = Material.filter(sku: sku).first
+    material ||= Material.new
+    material
+  end
 
   def products
     self.products_dataset.join(:categories, [:c_id]).select_append{:c_name}.all

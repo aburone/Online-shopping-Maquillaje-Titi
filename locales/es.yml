@@ -171,6 +171,16 @@ materials:
   empty: "No hay materiales cargados en la base"
   count: "%1 materiales listados"
   sure_to_update_ideal_stocks: Esta accion ejecuta un proceso muy intensivo y LENTO sobre la base de datos. Estas seguro de continuar?
+  update_by_sku:
+    title: "Actualizacion por SKU"
+    errors_found: !!pl
+      0: "No hay errores"
+      1: "Hay un SKU erroneo"
+      n: "Error en los siguientes %1 SKUs"
+    ok: !!pl
+      0: "Ningun material fue actualizado"
+      1: "Un material actualizado correctamente"
+      n: "%1 materiales actualizados correctamente"
 
 material:
   updated: "Cambios guardados con exito"
@@ -197,7 +207,7 @@ material:
     ideal_stock: Ideal
     stock_deviation: Desvio
     stock_deviation_percentile: "%"
-    price: "Precio"
+    price: "Costo"
     units: "(cc, gr o cm)"
     edit: Editar
     actions: Acciones

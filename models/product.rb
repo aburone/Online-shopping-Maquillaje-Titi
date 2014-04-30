@@ -529,7 +529,7 @@ class Product < Sequel::Model
   def get_by_sku sku
     sku.to_s.gsub(/\n|\r|\t/, '').squeeze(" ").strip
     product = Product.filter(sku: sku).first
-    return Product.new if product.nil?
+    product ||= Product.new
     product
   end
 

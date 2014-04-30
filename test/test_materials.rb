@@ -40,7 +40,7 @@ class MaterialTest < Test::Unit::TestCase
     m.m_id = 1
     m.m_name = nil
     assert_equal(false, m.valid?, "The name can't be nil")
-    
+
     assert_equal( [R18n.t.errors.presence], m.errors[:Nombre])
     puts "\n" + m.errors.to_s if m.errors.size != 1
   end
@@ -129,7 +129,7 @@ end
 
       product = material.products[0]
       # materials = product.materials
-      # materials.each { |m| p "#{m.m_id}: #{Utils::number_format m[:m_qty], 2} x #{m.m_price.to_s "F"} = #{(m[:m_qty]*m.m_price).to_s "F"}" } 
+      # materials.each { |m| p "#{m.m_id}: #{Utils::number_format m[:m_qty], 2} x #{m.m_price.to_s "F"} = #{(m[:m_qty]*m.m_price).to_s "F"}" }
       # p_mat = nil
       start_cost = product.materials_cost.dup
 
@@ -138,10 +138,18 @@ end
 
       product = material.products[0]
       # materials = product.materials
-      # materials.each { |m| p "#{m.m_id}: #{Utils::number_format m[:m_qty], 2} x #{m.m_price.to_s "F"} = #{(m[:m_qty]*m.m_price).to_s "F"}" } 
+      # materials.each { |m| p "#{m.m_id}: #{Utils::number_format m[:m_qty], 2} x #{m.m_price.to_s "F"} = #{(m[:m_qty]*m.m_price).to_s "F"}" }
       # p_mat = nil
       end_cost = product.materials_cost.dup
       assert_equal start_cost + 5*8, end_cost, "#{Utils::number_format start_cost + 5*8, 3} != #{Utils::number_format end_cost, 3}"
+    end
+  end
+
+  def test_should_get_an_empty_material_for_invalid_sku
+    DB.transaction(rollback: :always) do
+      sku = rand
+      material = Material.new.get_by_sku sku
+      assert material.empty?
     end
   end
 end
