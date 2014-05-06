@@ -3,7 +3,6 @@
 - can_filter = true if can_filter.nil? and focus
 - quicksearch = " quicksearch" if can_filter
 - sku_col = false if sku_col.nil? unless sku_col == true
-- price_pro_col = true if price_pro_col.nil?
 - stock_col = false if stock_col.nil? unless stock_col == true
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
 - stock_col = multi_stock_col ? false : stock_col
@@ -24,8 +23,9 @@
 - status_col ||= false
 - price_updated_at_col ||= false
 - buy_cost_col ||= false
-- full_row ||= true
-- price_col ||= true
+- full_row ||= true unless full_row === false
+- price_col ||= true unless price_col === false
+- price_pro_col ||= true unless price_pro_col === false
 
 - if @products.empty?
   p = t.products.empty
@@ -42,7 +42,7 @@
           th.sm_cell = t.actions.click_to_edit
         - if buy_cost_col
           th.sd_cell #{t.product.fields.buy_cost}
-        - if full_row
+        - if full_row and price_col
           th.smm_cell = t.product.fields.price
         - if full_row and price_pro_col
           th.smm_cell = t.product.fields.price_pro
@@ -52,20 +52,22 @@
           th.sm_cell = t.product.fields.real_markup
         - if markup_deviation_percentile_col
           th.sm_cell.small_content = t.product.fields.markup_deviation_percentile
+
         - if stock_col
           th.sm_cell = t.product.fields.qty
         - if multi_stock_col
           th.sm_cell = t.locations.short.WAREHOUSE_1
           th.sm_cell = t.locations.short.WAREHOUSE_2
           - if !use_virtual_stocks
-            th.sm_cell = t.locations.short.STORE_1
+            th.smm_cell = t.locations.short.STORE_1
           - if use_virtual_stocks
-            th.sm_cell = t.locations.short.VIRTUAL_STORE_1
+            th.smm_cell = t.locations.short.VIRTUAL_STORE_1
         - if stock_col or multi_stock_col
-          th.sm_cell Ideal
+          th.smm_cell Ideal
         - if stock_deviation_col
           th.sm_cell Desvio
-          th.sm_cell.small_content %
+          th.smm_cell.small_content %
+
         - if to_move_col
           th.sm_cell Enviar
         - if status_col
@@ -95,9 +97,9 @@
               span.ajax_click_to_edit.ajax_click_to_edit_sku title="Click para editar..." id="#{product.p_id}" #{product[:sku]}
           - if buy_cost_col
             td.smm_cell.number #{Utils::money_format product[:buy_cost], 2}
-          - if full_row | price_col
+          - if full_row & price_col
             td.smm_cell.number #{Utils::money_format product.price, 2}
-          - if full_row | price_col
+          - if full_row & price_pro_col
             td.smm_cell.number #{Utils::money_format product[:price_pro], 2}
           - if ideal_markup_col
             td.sm_cell.number #{Utils::number_format product[:ideal_markup], 2}
@@ -111,15 +113,16 @@
               - col_class = "number underpriced"
               - markup_deviation_percentile = "Invalido"
             td.sm_cell class="#{col_class}" #{markup_deviation_percentile}
+
           - if stock_col
             td.sm_cell.number #{Utils::number_format product[:qty], 0}
           - if multi_stock_col
             td.sm_cell.number #{Utils::number_format product[:stock_warehouse_1], 0}
             td.sm_cell.number #{Utils::number_format product[:stock_warehouse_2], 0}
             - if !use_virtual_stocks
-              td.sm_cell.number #{Utils::number_format product[:stock_store_1], 0}
+              td.smm_cell.number #{Utils::number_format product[:stock_store_1], 0}
             - if use_virtual_stocks
-                td.sm_cell.number #{Utils::number_format product[:virtual_stock_store_1], 0}
+                td.smm_cell.number #{Utils::number_format product[:virtual_stock_store_1], 0}
           - if stock_col or multi_stock_col
             td.sm_cell.number #{Utils::number_format product[:ideal_stock], 2}
           - if stock_deviation_col
@@ -130,7 +133,9 @@
             td.sm_cell class="#{col_class}" #{stock_deviation_for_humans}
             - col_class = (product[:stock_deviation_percentile] > 0) ? "number overstocked" : (product[:stock_deviation_percentile] < 0) ? "number understocked" : "number"
             - stock_deviation_percentile = product[:stock_deviation_percentile] == 0 ? "-" : "#{Utils::number_format product[:stock_deviation_percentile], 1} %"
-            td.sm_cell class="#{col_class}" #{stock_deviation_percentile}
+            td.smm_cell class="#{col_class}" #{stock_deviation_percentile}
+
+
           - if to_move_col
             td.sm_cell.number #{Utils::number_format product[:to_move], 0}
           - if status_col
