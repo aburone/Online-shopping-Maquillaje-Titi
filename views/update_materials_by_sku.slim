@@ -42,7 +42,7 @@ form.grid-form action=url("/administration/adjustments/update_materials_by_sku")
         input name="test" type="submit" value="#{t.inventory.mass_price_adjustments.test}"
       div data-field-span="1"
         label for="confirm" = t.actions.confirm
-        input.ajax_confirm name="confirm" data-confirm_message="Esto va a modificar los costos de compra. No se puede deshacer" type="submit" value="Actualizar los costos de compra"
+        input.ajax_confirm name="confirm" data-confirm_message="#{t.materials.update_by_sku.confirm_message}" type="submit" value="#{t.materials.update_by_sku.confirm}"
 
 - unless materials.empty?
   - if params[:confirm].nil?

@@ -173,6 +173,8 @@ materials:
   sure_to_update_ideal_stocks: Esta accion ejecuta un proceso muy intensivo y LENTO sobre la base de datos. Estas seguro de continuar?
   update_by_sku:
     title: "Actualizacion por SKU"
+    confirm: Actualizar los costos de compra
+    confirm_message: Esto va a modificar los costos de compra. No se puede deshacer
     errors_found: !!pl
       0: "No hay errores"
       1: "Hay un SKU erroneo"
@@ -309,6 +311,8 @@ products:
   updating_in_background: "Actualizando productos en background. La tarea tarda aproximadamente 30 segundos"
   update_by_sku:
     title: "Actualizacion por SKU"
+    confirm: Actualizar los valores seleccionados
+    confirm_message: Esto va a modificar los valores seleccionados. No se puede deshacer
     errors_found: !!pl
       0: "No hay errores"
       1: "Hay un SKU erroneo:"
