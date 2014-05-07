@@ -18,6 +18,7 @@
 - persistent_headers = false if persistent_headers.nil? unless persistent_headers == true
 - persist_area = persistent_headers ? " persist_area" : ""
 - persist_header = persistent_headers ? " persist_header" : ""
+- price_updated_at_col ||= false
 
 - if @materials.nil? or @materials.empty?
   p = t.materials.empty
@@ -34,6 +35,8 @@
 
         - if stock_col or multi_stock_col
           th = t.material.fields.price
+        - if price_updated_at_col
+          th = t.material.fields.price_updated_at
         - if stock_col
           th.sm_cell = t.material.fields.qty
         - if multi_stock_col
@@ -69,6 +72,8 @@
 
           - if stock_col or multi_stock_col
             td.number == Utils::money_format material[:m_price], 2
+          - if price_updated_at_col
+            td = material.price_updated_at.strftime "%Y-%m-%d" unless material.price_updated_at.nil?
           - if stock_col
             td.sm_cell.number = Utils::number_format material[:m_qty], 0
           - if multi_stock_col

@@ -8,9 +8,9 @@ class Material < Sequel::Model(:materials)
   many_to_one :MaterialCategory, key: :c_id
   many_to_many :products, left_key: :m_id, right_key: :product_id, join_table: :products_materials
 
-  ATTRIBUTES = [ :m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :created_at ]
+  ATTRIBUTES = [ :m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :created_at, :price_updated_at ]
   # same as ATTRIBUTES but with the needed table references for get_ functions
-  COLUMNS = [ :materials__m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :materials__created_at ]
+  COLUMNS = [ :materials__m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :materials__created_at, :materials__price_updated_at ]
 
   def empty?
     return @values[:m_id].nil? ? true : false

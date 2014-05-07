@@ -1,7 +1,7 @@
 -# coding: UTF-8
 - @title = t.materials.title
 
-== slim :materials_list, locals: {sku_col: true, stock_col: true}
+== slim :materials_list, locals: {sku_col: true, stock_col: true, price_updated_at_col: true}
   section.new
     form action=url("/materials/new") method="post"
       input type="submit" value="#{t.material.new}"

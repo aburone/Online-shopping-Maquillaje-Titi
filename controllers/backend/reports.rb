@@ -22,7 +22,8 @@ class Backend < AppController
       real_markup_col: true,
       ideal_markup_col: true,
       markup_deviation_percentile_col: true,
-      persistent_headers: true
+      persistent_headers: true,
+      price_updated_at_col: true
     }
   end
 

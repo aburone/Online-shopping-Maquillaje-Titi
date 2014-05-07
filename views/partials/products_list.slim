@@ -21,11 +21,11 @@
 - persist_header = persistent_headers ? " persist_header" : ""
 - caption = caption.nil? ? "" : caption
 - status_col ||= false
-- price_updated_at_col ||= false
 - buy_cost_col ||= false
 - full_row ||= true unless full_row === false
 - price_col ||= true unless price_col === false
 - price_pro_col ||= true unless price_pro_col === false
+- price_updated_at_col ||= false
 
 - if @products.empty?
   p = t.products.empty
@@ -141,7 +141,7 @@
           - if status_col
             td.md_cell #{product.status}
           - if price_updated_at_col
-            td.md_cell #{l product.price_updated_at}
+            td.md_cell #{product.price_updated_at.strftime "%Y-%m-%d" unless product.price_updated_at.nil?}
           - if can_edit
             td.sm_cell
               - if edit_link == "void"

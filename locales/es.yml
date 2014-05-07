@@ -213,6 +213,8 @@ material:
     units: "(cc, gr o cm)"
     edit: Editar
     actions: Acciones
+    created_at: Creado el
+    price_updated_at: Costo actualizado
 
 relationships:
   title: Relaciones
@@ -392,7 +394,7 @@ product:
     live: Activo
     end_of_life: Fin de vida
     created_at: Creado el
-    price_updated_at: Precio actualizado
+    price_updated_at: Costo actualizado
     on_request: "Por pedido"
   assemblies:
     not_found: Este producto no es parte de ningun otro
