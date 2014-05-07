@@ -168,23 +168,13 @@ class Product < Sequel::Model
   end
 
   def price= price
-    @values['price'] = price_round price
-    self[:price] = @values['price']
-    self.price_pro = (self.price * 0.95).round 1
+    price = price > 100 ? price.round : price.round(1)
+    self[:price] = BigDecimal.new(price, 1)
+    self.price_pro = (self.price * 0.95).round(1)
   end
 
   def price
     self[:price]
-  end
-
-  def price_round exact_price
-    price = exact_price
-    frac = price.abs.modulo(1)
-    if frac > 0
-      price += frac >= 0.5 ? -frac + 1 : -frac + 0.5
-      price += 0.5 if frac < 0.5 and price > 100
-    end
-    price
   end
 
   def buy_cost_mod mod, log=true
