@@ -439,80 +439,32 @@ class Product < Sequel::Model
     ActionsLog.new.set(msg: assigned_msg, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, i_id: item.i_id, p_id: @values[:p_id]).save
   end
 
-  def whith_obj obj
-    product = Product.new
-    COLUMNS.map { |col| product[col.to_sym] = obj[col.to_sym]}
-    product
-  end
-
-  def print
-    out = "\n"
-    out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
-    out += "\tp_id:               #{@values[:p_id]}\n"
-    out += "\tc_id:               #{@values[:c_id]}\n"
-    out += "\tbr_id:              #{@values[:br_id]}\n"
-
-    out += "\tp_name:             #{@values[:p_name]}\n"
-    out += "\tp_short_name:       #{@values[:p_short_name]}\n"
-    out += "\tbr_name:            #{@values[:br_name]}\n"
-    out += "\tpackaging:          #{@values[:packaging]}\n"
-    out += "\tsize:               #{@values[:size]}\n"
-    out += "\tcolor:              #{@values[:color]}\n"
-    out += "\tsku:                #{@values[:sku]}\n"
-    out += "\tpublic_sku:                #{@values[:public_sku]}\n"
-
-    out += "\td_ideal_stock:        #{Utils::number_format @values[:direct_ideal_stock], 0}\n"
-    out += "\ti_ideal_stock:        #{Utils::number_format @values[:indirect_ideal_stock], 0}\n"
-    out += "\tideal_stock:        #{Utils::number_format @values[:ideal_stock], 0}\n"
-    out += "\tstock_deviation:    #{Utils::number_format @values[:stock_deviation], 0}\n"
-    out += "\tstock_deviation_%:  #{Utils::number_format @values[:stock_deviation_percentile], 2}\n"
-    out += "\tstock_warehouse_1:  #{Utils::number_format @values[:stock_warehouse_1], 0}\n"
-    out += "\tstock_warehouse_2:  #{Utils::number_format @values[:stock_warehouse_2], 0}\n"
-    out += "\tstock_store_1:      #{Utils::number_format @values[:stock_store_1], 0}\n"
-    out += "\ten_route_stock_store_1: #{Utils::number_format @values[:en_route_stock_store_1], 0}\n"
-    out += "\tvirtual_stock_store_1:      #{Utils::number_format @values[:virtual_stock_store_1], 0}\n"
-    out += "\tbuy_cost:           #{Utils::number_format @values[:buy_cost], 2}\n"
-    out += "\tparts_cost:         #{Utils::number_format @values[:parts_cost], 2}\n"
-    out += "\tmaterials_cost:     #{Utils::number_format @values[:materials_cost], 2}\n"
-    out += "\tsale_cost:          #{Utils::number_format @values[:sale_cost], 2}\n"
-    out += "\tideal_markup:       #{Utils::number_format @values[:ideal_markup], 3}\n"
-    out += "\treal_markup:        #{Utils::number_format @values[:real_markup], 3}\n"
-    out += "\texact_price:        #{Utils::number_format @values[:exact_price], 5}\n"
-    out += "\tprice:              #{Utils::number_format self.price, 5}\n"
-    out += "\tprice_pro:          #{Utils::number_format @values[:price_pro], 2}\n"
-
-    out += "\tpublished:          #{@values[:published]}\n"
-    out += "\tpublished_price:    #{@values[:published_price]}\n"
-    out += "\ttercerized:         #{@values[:tercerized]}\n"
-    out += "\tend_of_life:        #{@values[:end_of_life]}\n"
-    out += "\tarchived:           #{@values[:archived]}\n"
-    out += "\tdescription:        #{@values[:description]}\n"
-    out += "\tnotes:              #{@values[:notes]}\n"
-    out += "\timg:                #{@values[:img]}\n"
-    out += "\timg_extra:          #{@values[:img_extra]}\n"
-    out += "\tnotes:              #{@values[:notes]}\n"
-    echo out
-  end
-
-  def set_life_point life_point
-    case life_point
-      when "live"
+  def set_life_phase life_phase
+    return self if life_phase.nil?
+    case life_phase.to_sym
+      when :active
         self.end_of_life = false
         self.archived = false
-      when "end_of_life"
+      when :end_of_life
         self.end_of_life = true
         self.archived = false
-      when "archived"
+      when :archived
         archive
     end
     self
   end
 
+  def life_phase
+    return :archived if self.archived
+    return :end_of_life if self.end_of_life
+    return :active
+  end
+
   def status
-    status = R18n.t.product.fields.live.to_s
+    status = R18n.t.product.fields.life_cicle.active.to_s
     status = R18n.t.product.fields.on_request.to_s if self.on_request
-    status = R18n.t.product.fields.end_of_life.to_s if self.end_of_life
-    status = R18n.t.product.fields.archived.to_s if self.archived
+    status = R18n.t.product.fields.life_cicle.end_of_life.to_s if self.end_of_life
+    status = R18n.t.product.fields.life_cicle.archived.to_s if self.archived
     status
   end
 
@@ -535,6 +487,11 @@ class Product < Sequel::Model
   def get_all_but_archived
     get_all
       .where(archived: 0)
+  end
+
+  def get_active
+    get_all_but_archived
+      .where(end_of_life: 0)
   end
 
   def get_saleable_at_location location
@@ -628,7 +585,7 @@ class Product < Sequel::Model
     true_false_keys = [:tercerized]
     true_false_keys.each { |key| self[key.to_sym] = hash_values[key] == "true" ? 1 : 0 }
 
-    set_life_point hash_values[:life_point]
+    set_life_phase hash_values[:life_phase]
 
     unless hash_values[:brand].nil?
       brand_json = JSON.parse(hash_values[:brand])

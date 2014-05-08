@@ -1,7 +1,7 @@
 class Backend < AppController
 
   get '/administration/reports/price_list' do
-    @products = Product.new.get_all_but_archived.order(:categories__c_name, :products__p_name).all
+    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
     slim :products_list, layout: :layout_backend, locals: {title: "Lista de precios", sec_nav: :nav_administration,
       status_col: true
     }
@@ -9,6 +9,19 @@ class Backend < AppController
 
   route :get, '/administration/reports/logins/:username' do
     get_and_render_logins params[:username]
+  end
+
+  get '/administration/reports/products_flags' do
+    @products = Product.new.get_all.order(:categories__c_name, :products__p_name).all
+    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de flags", sec_nav: :nav_administration,
+      can_edit: true, edit_link: :edit_product,
+      price_col: true,
+      price_pro_col: false,
+      stock_col: false,
+      persistent_headers: true,
+      price_updated_at_col: true,
+      flags_cols: true
+    }
   end
 
   get '/administration/reports/markups' do
@@ -26,7 +39,6 @@ class Backend < AppController
       price_updated_at_col: true
     }
   end
-
 
   get '/production/reports/to_package/:mode' do
     list = Product.new.get_all_but_archived.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name)

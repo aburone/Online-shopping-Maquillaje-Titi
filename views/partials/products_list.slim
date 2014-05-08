@@ -26,6 +26,7 @@
 - price_col ||= true unless price_col === false
 - price_pro_col ||= true unless price_pro_col === false
 - price_updated_at_col ||= false
+- flags_cols ||= false
 
 - if @products.empty?
   p = t.products.empty
@@ -71,11 +72,15 @@
         - if to_move_col
           th.sm_cell Enviar
         - if status_col
-          th.md_cell Estado
+          th.sm_cell Estado
         - if price_updated_at_col
           th.md_cell #{t.product.fields.price_updated_at}
+        - if flags_cols
+          th.smm_cell #{t.product.fields.life_cicle.life_phase}
+          th.smm_cell #{t.product.fields.on_request}
+          th.smm_cell #{t.product.fields.tercerized}
         - if can_edit
-          th.sm_cell = t.actions.actions
+          th.smm_cell = t.actions.actions
     tfoot
       tr
         - colspan = 4
@@ -139,11 +144,15 @@
           - if to_move_col
             td.sm_cell.number #{Utils::number_format product[:to_move], 0}
           - if status_col
-            td.md_cell #{product.status}
+            td.sm_cell #{product.status}
           - if price_updated_at_col
             td.md_cell #{product.price_updated_at.strftime "%Y-%m-%d" unless product.price_updated_at.nil?}
+          - if flags_cols
+            td.smm_cell #{eval("t.product.fields.life_cicle.#{product.life_phase}")}
+            td.smm_cell #{t.product.fields.on_request if product.on_request}
+            td.smm_cell #{product.tercerized ? t.product.fields.is_tercerized : t.product.fields.non_tercerized}
           - if can_edit
-            td.sm_cell
+            td.smm_cell
               - if edit_link == "void"
                 a href="#"
                   img src="/media/Icon-Edit.png" width="32" height="32"

@@ -387,15 +387,18 @@ product:
     published: Publicar en pagina?
     published_price: Publicar precio?
     units: "(cc, gr o cm)"
-    archived: Archivado
     tercerized: Comprable / Envasable
     is_tercerized: Comprable
     non_tercerized: Envasable
-    live: Activo
-    end_of_life: Fin de vida
     created_at: Creado el
     price_updated_at: Costo actualizado
     on_request: "Por pedido"
+    life_cicle:
+      title: Ciclo de vida
+      life_phase: Fase
+      active: Activo
+      end_of_life: Fin de vida
+      archived: Archivado
   assemblies:
     not_found: Este producto no es parte de ningun otro
     list: Productos que usan al actual como parte
