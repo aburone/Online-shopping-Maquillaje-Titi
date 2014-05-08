@@ -489,7 +489,7 @@ class Product < Sequel::Model
       .where(archived: 0)
   end
 
-  def get_active
+  def get_live
     get_all_but_archived
       .where(end_of_life: 0)
   end
