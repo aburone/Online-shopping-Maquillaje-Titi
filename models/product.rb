@@ -8,6 +8,7 @@ class Product < Sequel::Model
   Product.nested_attributes :items
   many_to_many :materials , left_key: :product_id, right_key: :m_id, join_table: :products_materials
   many_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
+  many_to_many :distributors , left_key: :p_id, right_key: :d_id, join_table: :products_to_distributors
 
 
   ATTRIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :on_request, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :description, :notes, :img, :img_extra, :created_at, :price_updated_at]
@@ -564,6 +565,7 @@ class Product < Sequel::Model
 
   def update_from_hash(hash_values)
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
+
     numerical_keys = [ :direct_ideal_stock, :indirect_ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :stock_deviation, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
     hash_values.select do |key, value|
       if numerical_keys.include? key.to_sym

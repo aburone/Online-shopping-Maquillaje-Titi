@@ -638,5 +638,22 @@ class ProductTest < Test::Unit::TestCase
     # 138 de pastilla blanca
   end
 
+  def test_should_get_distributors
+    p_mila = Product[941]
+    assert_equal 1, p_mila.distributors.count
+
+    d_mila = Distributor[15]
+    assert d_mila.products.count > 1
+  end
+
+  def test_should_add_product_to_distributor
+    DB.transaction(rollback: :always) do
+      distributor = Distributor.new.get_rand
+      old_count = distributor.products.count
+      distributor.add_product @valid
+      new_count = distributor.products.count
+      assert_equal old_count +1 , new_count
+    end
+  end
 end
 

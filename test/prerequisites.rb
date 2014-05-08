@@ -123,6 +123,18 @@ class Material
   end
 end
 
+class Distributor
+  def get_rand
+    max_pos = Distributor.count(:d_id)
+    if max_pos > 0
+      rnd = rand(max_pos)
+      return Distributor.limit(1, rnd).first
+    else
+      raise "No distributors available"
+    end
+  end
+end
+
 class User
   def current_location= new_location
     Thread.current.thread_variable_set(:current_location, {name: new_location, translation: ConstantsTranslator.new(new_location).t})

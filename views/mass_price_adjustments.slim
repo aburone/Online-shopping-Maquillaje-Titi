@@ -7,25 +7,36 @@ form.grid-form action=url("/administration/adjustments/mass_price_adjustments") 
   == Rack::Csrf.tag(env)
   fieldset
     legend Configurar
-    div data-row-span="3"
+    div data-row-span="9"
 
       div data-field-span="1"
         label for="mod" = t.inventory.mass_price_adjustments.mod_label
         input.positive.number type="tel" step="any" min=0 name="mod" id="mod" size=5 maxlength=8 required="required" autofocus="" value="#{mod}"
 
-      div data-field-span="1"
+      div data-field-span="2"
         label Seleccionar el atributo a modificar
         select name="attribute" required=""
           option value=""
           - [:buy_cost, :price].each do |attribute|
             option value="#{attribute}" selected=("selected" if params['attribute'].to_sym==attribute unless params[:attribute].nil? || params[:attribute].empty?) #{eval("t.product.fields.#{attribute}")}
 
-      div data-field-span="1"
+      div data-field-span="2"
         label Seleccionar marca
         select name="br_id"
           option value=""
           - Brand.all.each do |brand|
             option value="#{brand.br_id}" selected=("selected" if params['br_id'].to_i == brand.br_id unless params[:br_id].nil? || params[:br_id].empty?) #{brand.br_name}
+
+      div data-field-span="2"
+        label Seleccionar proveedor
+        select name="d_id"
+          option value=""
+          - Distributor.all.each do |distributor|
+            option selected=("selected" if params['d_id'].to_i == distributor.d_id) value="#{distributor.d_id}" = distributor.d_name
+
+      div data-field-span="2"
+        label for="p_name" Nombre contiene
+        input type="text"  name="p_name" id="p_name" value="#{params['p_name'].to_s}"
 
   fieldset
     legend Ajustar

@@ -399,6 +399,7 @@ product:
       active: Activo
       end_of_life: Fin de vida
       archived: Archivado
+    distributor: Distribuidor
   assemblies:
     not_found: Este producto no es parte de ningun otro
     list: Productos que usan al actual como parte

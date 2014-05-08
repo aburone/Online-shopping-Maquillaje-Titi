@@ -296,6 +296,8 @@ class Backend < AppController
     @p_assemblies = @product.assemblies
     @categories = Category.all
     @brands = Brand.all
+    @distributors = Distributor.all
+    @p_distributors = @product.distributors
     @product.validate
     flash.now[:error] = @product.errors.to_a.flatten.join(": ") if @product.errors.count > 0
     slim :product, layout: :layout_backend

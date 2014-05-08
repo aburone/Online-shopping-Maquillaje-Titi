@@ -1,6 +1,7 @@
 class Backend < AppController
 
   route :get, :post, '/administration/adjustments/mass_price_adjustments' do
+    ap params
     params[:mod] = params[:mod].to_s.gsub(',', '.') unless params[:mod].nil?
     mod =  BigDecimal.new(params[:mod], 2) unless params[:mod].nil? or params[:mod].to_f <= 0
     if !params[:mod].nil? && params[:mod].empty?
@@ -25,11 +26,15 @@ class Backend < AppController
   def mass_price_adjustments mod, attribute, save
     attribute = params['attribute'].to_sym
     br_id = params['br_id'].to_i > 0 ? params['br_id'].to_i : false
+    d_id = params['d_id'].to_i > 0 ? params['d_id'].to_i : false
+    p_name = params['p_name'].to_s.empty? ? false : params['p_name'].to_s
 
     final_products = []
     threshold = Sequel.date_sub(Time.now.getlocal("-00:03").to_date.iso8601, {days: settings.price_updated_at_threshold})
     products = Product.new.get_all.where{Sequel.expr(:price_updated_at) < threshold}
+    products = products.join(:products_to_distributors, [:p_id]).join(:distributors, [:d_id]).where(d_id: d_id) if d_id
     products = products.where(br_id: br_id) if br_id
+    products = products.where("p_name LIKE :p_name", p_name: "%#{p_name}%") if p_name
     products = products.all
     DB.transaction do
       if save

@@ -75,6 +75,7 @@
           label for="price_pro" = t.product.fields.price_pro
           input.positive.number type="tel"  name="price_pro" readonly="" value="#{Utils::number_format @product[:price_pro], 2, 0}"
 
+
       div data-row-span="9"
         div.readonly data-field-span="1"
           label for="price_updated_at" = t.product.fields.price_updated_at
@@ -83,10 +84,18 @@
           label for="created_at" = t.product.fields.created_at
           input type="text"  name="created_at" id="created_at" readonly="readonly" tabindex="-1" value="#{l @product[:created_at]}"
 
-      div data-row-span="3"
+      div data-row-span="4"
         div data-field-span="2"
           label for="notes" = t.product.fields.notes
           textarea name="notes" rows="3" cols="50" = @product[:notes]
+        div data-field-span="1"
+          label for="d_id" = t.product.fields.distributor
+          - @p_distributors.each do |distributor|
+            p #{distributor.d_name}
+            p Acá va a dar opcion a elegir un principal y varios secundarios
+          / select name="d_id"
+          /     - @distributors.each do |distributor|
+          /       option selected=("selected" if @p_distributors[0].d_id == distributor.d_id) value="#{distributor.d_id}" = distributor.d_name
         div data-field-span="1"
           label for="sku" = t.product.fields.sku
           input type="text" name="sku" size=5 maxlength=60 value="#{@product[:sku]}"
