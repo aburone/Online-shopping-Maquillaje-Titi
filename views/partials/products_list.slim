@@ -129,7 +129,7 @@
             - if use_virtual_stocks
                 td.smm_cell.number #{Utils::number_format product[:virtual_stock_store_1], 0}
           - if stock_col or multi_stock_col
-            td.sm_cell.number #{Utils::number_format product[:ideal_stock], 2}
+            td.sm_cell.number #{Utils::number_format product.inventory(1).store_1.ideal, 2, 0}
           - if stock_deviation_col
             - col_class = (product[:stock_deviation] > 0) ? "number overstocked" : (product[:stock_deviation] < 0) ? "number understocked" : "number"
             - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
