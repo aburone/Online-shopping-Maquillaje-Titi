@@ -84,7 +84,7 @@ class Sales < AppController
     headers "Refresh" => "Refresh: 10; /sales"
 
     html = slim :sales_bill, layout: :layout_print
-    kit = PDFKit.new(html, :page_size => 'a4')
+    kit = PDFKit.new(html, page_size: 'a4', print_media_type: true)
     kit.stylesheets << "public/backend.css"
     kit.stylesheets << "public/print.css"
     pdf_file = kit.to_pdf
