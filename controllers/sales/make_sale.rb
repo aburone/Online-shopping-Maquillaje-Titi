@@ -81,7 +81,7 @@ class Sales < AppController
       redirect to("/make_sale")
     end
 
-    headers "Refresh" => "3; /sales"
+    headers "Refresh" => "5; /sales"
 
     html = slim :sales_bill, layout: :layout_print
 
