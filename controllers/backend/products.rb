@@ -176,7 +176,7 @@ class Backend < AppController
   post '/products/new/?' do
     begin
       p_id = Product.new.create_default
-      flash[:notice] = R18n.t.product.created
+      flash[:warning] = R18n.t.product.created
       redirect to("/products/#{p_id}")
     rescue Sequel::UniqueConstraintViolation => e
       puts e.message
@@ -298,8 +298,9 @@ class Backend < AppController
     @brands = Brand.all
     @distributors = Distributor.all
     @p_distributors = @product.distributors
+    ap @p_distributors
     @product.validate
-    flash.now[:error] = @product.errors.to_a.flatten.join(": ") if @product.errors.count > 0
+    flash.now[:error] = @product.errors if @product.errors.count > 0
     slim :product, layout: :layout_backend
   end
 

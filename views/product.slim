@@ -23,6 +23,7 @@
         div data-field-span="2"
           label for="brand" = t.product.fields.brand
           select name="brand" required="required"
+            option value="" ELEGIR
             - @brands.each do |brand|
               option selected=("selected" if brand.br_id == @product.br_id) value="#{JSON.generate({br_id: brand.br_id, br_name: brand.br_name})}" =  brand.br_name
         div data-field-span="1"

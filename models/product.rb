@@ -13,7 +13,7 @@ class Product < Sequel::Model
 
   ATTRIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :on_request, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :description, :notes, :img, :img_extra, :created_at, :price_updated_at]
   # same as ATTRIBUTES but with the neccesary table references for get_ functions
-  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_id, :packaging, :size, :color, :sku, :notes, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :tercerized, :published, :on_request, :archived, :end_of_life, :products__img, :img_extra, :products__created_at, :price_updated_at, :products__description, :brands__br_name]
+  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :notes, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :tercerized, :published, :on_request, :archived, :end_of_life, :products__img, :img_extra, :products__created_at, :products__price_updated_at, :products__description, :brands__br_name]
   EXCLUDED_ATTRIBUTES_IN_DUPLICATION = [:p_id, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation, :created_at, :price_updated_at]
 
   STORE_ONLY_1 = "STORE_ONLY_1"
@@ -28,13 +28,10 @@ class Product < Sequel::Model
 
   def get p_id
     return Product.new unless p_id.to_i > 0
-    product = Product.select_group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :on_request, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :notes, :img_extra, :products__created_at, :price_updated_at)
+    product = Product.select_group(*Product::COLUMNS, :brands__br_name, :categories__c_name)
                 .filter(products__p_id: p_id.to_i)
                 .left_join(:categories, [:c_id])
                 .left_join(:brands, [:br_id])
-                .select_append{:brands__br_name}
-                .select_append{:categories__c_name}
-                .group(:products__p_id, :products__p_name, :products__br_id, :products__description, :products__img, :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :on_request, :stock_deviation, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :notes, :img_extra, :brands__br_name, :categories__c_name, :products__created_at, :price_updated_at)
                 .first
     return Product.new if product.nil?
 
@@ -320,7 +317,6 @@ class Product < Sequel::Model
     dest_id = create_default
     dest = Product[dest_id]
     dest.update_from(self)
-    dest[:public_sku] = rand
     dest.save
     self.parts.map { |part| dest.add_part part }
     self.materials.map { |material| dest.add_material material }
@@ -335,8 +331,15 @@ class Product < Sequel::Model
 
   def create_default
     last_p_id = "ERROR"
+    previous = Product.where(p_short_name: "NEW").first
+    return previous.p_id unless previous.nil?
     DB.transaction do
       product = Product.new
+      product[:public_sku] = rand
+      product[:sku] = product[:public_sku]
+      if product.errors.count > 0
+        raise product.errors.to_a.flatten.join(": ")
+      end
       product.save validate: false
       last_p_id = DB.fetch( "SELECT last_insert_id() AS p_id" ).first[:p_id]
       message = R18n.t.product.created
@@ -363,8 +366,8 @@ class Product < Sequel::Model
         SET items.i_price = products.price, items.i_price_pro = products.price_pro, items.p_name = products.p_name
         WHERE p_id = #{@values[:p_id]} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
       end
-    rescue Sequel::UniqueConstraintViolation
-      errors.add "SKU duplicado", "Ya existe un producto con ese sku"
+    rescue Sequel::UniqueConstraintViolation => e
+      errors.add "Error de duplicacion", e.message
     end
     self
   end
@@ -547,17 +550,13 @@ class Product < Sequel::Model
     validates_schema_types [:img, :img]
     validates_schema_types [:img_extra, :img_extra]
 
-    validates_presence [:p_name, :p_short_name, :br_name, :br_id, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :exact_price, :price]
+    validates_presence [:p_name, :p_short_name, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :exact_price, :price]
 
-    errors.add("El costo de compra", "no puede ser cero" ) if @values[:buy_cost] + @values[:sale_cost] == 0
-
-    errors.add("El markup ideal", "no puede ser cero" ) if @values[:ideal_markup] == 0
-    if @values[:real_markup] == 0
-      errors.add("El markup real", "no puede ser cero. Producto #{@values[:p_id]}" )
-      puts self
-    end
-
-    errors.add("El precio exacto", "no puede ser cero" ) if @values[:exact_price] == 0
+    errors.add("La marca", "No puede estar vacia" ) if self[:br_id].nil?
+    errors.add("El costo de compra", "no puede ser cero" ) if self[:buy_cost] + self[:sale_cost] == 0 unless self[:buy_cost].nil? || self[:sale_cost].nil?
+    errors.add("El markup ideal", "no puede ser cero" ) if self[:ideal_markup] == 0
+    errors.add("El markup real", "no puede ser cero." ) if self[:real_markup] == 0
+    errors.add("El precio exacto", "no puede ser cero" ) if self[:exact_price] == 0
     errors.add("El precio", "no puede ser cero" ) if self.price == 0
   end
 
