@@ -10,6 +10,7 @@
 - sku_col = false if sku_col.nil? unless sku_col == true
 
 - stock_col = true if stock_col.nil?
+- ideal_stock_col ||= false
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
 - stock_col = multi_stock_col ? false : stock_col
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
@@ -39,6 +40,8 @@
           th = t.material.fields.price_updated_at
         - if stock_col
           th.sm_cell = t.material.fields.qty
+        - if ideal_stock_col
+          th.sm_cell = t.material.fields.ideal_stock
         - if multi_stock_col
           th.sm_cell = t.locations.short.WAREHOUSE_1
           th.sm_cell = t.locations.short.WAREHOUSE_2
@@ -76,6 +79,8 @@
             td = material.price_updated_at.strftime "%Y-%m-%d" unless material.price_updated_at.nil?
           - if stock_col
             td.sm_cell.number = Utils::number_format material[:m_qty], 0
+          - if ideal_stock_col
+            td.sm_cell.number = Utils::number_format material[:m_ideal_stock]*settings.desired_months_worth_of_bulk_in_warehouse, 0
           - if multi_stock_col
             td.sm_cell.number = Utils::number_format material[:stock_warehouse_1], 0
             td.sm_cell.number = Utils::number_format material[:stock_warehouse_2], 0
