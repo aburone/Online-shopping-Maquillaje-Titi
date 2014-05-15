@@ -107,8 +107,8 @@ class Material < Sequel::Model(:materials)
     products.each do |product|
       materials = product.materials
       materials.each do |p_material|
-        needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : (p_material[:m_qty] * product.ideal_stock)
-        p "  #{product.p_name} (#{product.p_id}): #{p_material[:m_qty].to_s("F")} x #{product.ideal_stock.to_s("F")} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
+        needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : (p_material[:m_qty] * product.direct_ideal_stock)
+        p "  #{product.p_name} (#{product.p_id}): #{p_material[:m_qty].to_s("F")} x #{product.direct_ideal_stock.to_s("F")} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
         total_needed += needed if p_material.m_id == @values[:m_id]
       end
     end
@@ -119,8 +119,8 @@ class Material < Sequel::Model(:materials)
       parts.each do |product_part|
         materials = product_part.materials
         materials.each do |p_material|
-          needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : p_material[:m_qty] * product_part[:part_qty] * product_part.ideal_stock
-          p "  #{product.p_name} (#{product.p_id}) -> #{product_part.p_name} (#{product_part.p_id}): #{p_material[:m_qty].to_s("F")} x #{product_part[:part_qty].to_s("F")} x #{product_part.ideal_stock.to_s("F")} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
+          needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : p_material[:m_qty] * product_part[:part_qty] * product_part.direct_ideal_stock
+          p "  #{product.p_name} (#{product.p_id}) -> #{product_part.p_name} (#{product_part.p_id}): #{p_material[:m_qty].to_s("F")} x #{product_part[:part_qty].to_s("F")} x #{product_part.direct_ideal_stock.to_s("F")} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
           total_needed += needed if p_material.m_id == @values[:m_id]
         end
       end
