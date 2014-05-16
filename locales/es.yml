@@ -127,7 +127,11 @@ nav:
     wh_to_wh: Hacia otro deposito
     wh_to_pos: Hacia punto de venta
     orders: Ordenes
-    mass_price_adjustment: Ajuste masivo de precios
+    update_products_by_sku: "Actualizacion por SKU"
+    update_products_by_filter: "Actualizacion por Filtro"
+    update_materials_by_sku: "Actualizacion por SKU"
+    update_materials_by_filter: "Actualizacion por Filtro"
+
     accounts: Plan de cuentas
     arrivals: Ingresos de mercaderia
     arrivals_list: Ordenes por verificar
@@ -172,7 +176,7 @@ materials:
   count: "%1 materiales listados"
   sure_to_update_ideal_stocks: Esta accion ejecuta un proceso muy intensivo y LENTO sobre la base de datos. Estas seguro de continuar?
   update_by_sku:
-    title: "Actualizacion por SKU"
+    title: "Actualizacion de materiales por SKU"
     confirm: Actualizar los costos de compra
     confirm_message: Esto va a modificar los costos de compra. No se puede deshacer
     errors_found: !!pl
@@ -183,6 +187,13 @@ materials:
       0: "Ningun material fue actualizado"
       1: "Un material actualizado correctamente"
       n: "%1 materiales actualizados correctamente"
+  update_by_filter:
+    title: Ajuste de costos de materiales por medio de filtro
+    intro: "Esto aplicara un ajuste de valores a todos los materiales alcanzados por el filtro dado. Los valores se multiplican por el factor ingresado. Los materiales cuyo costo fue modificado en los ultimos %1 días no seran afectados."
+    mod_label: Modificador
+    confirm_message: Estas seguro de modificar todos los valores?
+    submit_text: Actualizar todos los materiales listados
+    test: Ejecucion de prueba
 
 material:
   updated: "Cambios guardados con exito"
@@ -312,7 +323,7 @@ products:
   sure_to_update_all: Esta accion recalcula los valores de todos los productos. Estas seguro de continuar?
   updating_in_background: "Actualizando productos en background. La tarea tarda aproximadamente 30 segundos"
   update_by_sku:
-    title: "Actualizacion por SKU"
+    title: "Actualizacion de productos por SKU"
     confirm: Actualizar los valores seleccionados
     confirm_message: Esto va a modificar los valores seleccionados. No se puede deshacer
     errors_found: !!pl
@@ -323,6 +334,13 @@ products:
       0: "Ningun producto fue actualizado"
       1: "Un producto actualizado correctamente"
       n: "%1 productos actualizados correctamente"
+  update_by_filter:
+    title: Ajuste de valores de productos por medio de filtro
+    intro: "Esto aplicara un ajuste de valores a todos los productos alcanzados por el filtro dado. Los valores se multiplican por el factor ingresado. Los productos cuyo costo fue modificado en los ultimos %1 días no seran afectados."
+    mod_label: Modificador
+    confirm_message: Estas seguro de modificar todos los valores?
+    submit_text: Actualizar todos los productos listados
+    test: Ejecucion de prueba
 
 product:
   read_placeholder: "ej: 4256"
@@ -626,15 +644,6 @@ transport:
       title: "Transporte de mercaderia entre deposito y punto de venta"
     wh_to_wh:
       title: "Transporte de mercaderia entre depositos"
-
-inventory:
-  mass_price_adjustments:
-    title: Ajuste masivo de precios
-    intro: "Esto aplicara un ajuste de precios de venta al publico en todos los productos. Los precios se multiplican por el factor ingresado."
-    mod_label: Escribir el modificador
-    confirm_message: Estas seguro de modificar todos los precios?
-    submit_text: Actualizar todos los productos listados
-    test: Ejecucion de prueba
 
 accounts:
   plan:

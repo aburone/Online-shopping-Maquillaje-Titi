@@ -3,13 +3,13 @@ require_relative 'prerequisites'
 class OrderTest < Test::Unit::TestCase
 
   def test_should_allow_only_one_packaging_order_open_per_user
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       assert_equal Order.new.create_or_load(Order::PACKAGING).o_id, Order.new.create_or_load(Order::PACKAGING).o_id
     end
   end
 
   def test_should_add_item_to_order
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       label = get_printed_label
       order = Order.new.create_or_load(Order::PACKAGING)
       Product.new.get_rand.add_item label, order.o_id
@@ -25,7 +25,7 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_should_reject_to_add_items_with_status_new
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       order = Order.new.create_or_load(Order::PACKAGING)
       item = get_new_item
       assert_equal R18n::t.errors.label_wasnt_printed, order.add_item(item)
@@ -33,7 +33,7 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_should_remove_item_from_order
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       label = get_printed_label
       order = Order.new.create_or_load(Order::PACKAGING)
       Product.new.get_rand.add_item(label, order.o_id)
@@ -49,7 +49,7 @@ class OrderTest < Test::Unit::TestCase
 
 
   def test_should_remove_all_items_from_order
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       order = Order.new.create_or_load(Order::PACKAGING)
       add_new_item order
       add_new_item order
@@ -63,7 +63,7 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_should_get_materials
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       order = Order.new.create_or_load(Order::PACKAGING)
       add_new_item order
       add_new_item order
@@ -77,7 +77,7 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_shoud_get_parts
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       order = Order.new.create_or_load(Order::PACKAGING)
       add_new_item_with_parts order
       add_new_item_with_parts order
@@ -108,7 +108,7 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_should_not_allow_to_add_empty_items
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       order = Order.new
       item = Item.new
       order.add_item item
@@ -118,7 +118,7 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_return_orders_raise_error_if_called_with_incorrect_sale_id_and_there_is_another_return_order_in_progress
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       User.new.current_location = Location::S1
       User.new.current_user_id = 1
       exception = assert_raise(ArgumentError) {Order.new.create_or_load_return 666}
@@ -127,7 +127,7 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_return_orders_should_reject_items_from_non_associated_sale
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       User.new.current_location = Location::S1
       return_id = 6943
       sale_id = SalesToReturn.filter(return: return_id).first[:sale]
@@ -138,7 +138,7 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_return_orders_should_accept_items_from_associated_sale
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       User.new.current_location = Location::S1
 
       return_id = 6943
@@ -148,7 +148,7 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_return_orders_should_allow_items_from_sales_only
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       User.new.current_location = Location::S1
       unsold_item = Item.new.get_for_return " 343-3dd0313b ", 6943
       assert_equal "#{t.return.errors.invalid_status.to_s}: #{t.return.errors.this_item_is_not_in_sold_status.to_s}", unsold_item.errors.to_a.flatten.join(": ")

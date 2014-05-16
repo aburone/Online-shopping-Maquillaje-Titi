@@ -10,9 +10,9 @@ class AccountsTest < Test::Unit::TestCase
   end
 
   def test_transaction_cant_be_empty
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       exception = assert_raise(RuntimeError) {@transaction.save}
-      assert_equal(R18n.t.errors.empty_transaction, exception.message) 
+      assert_equal(R18n.t.errors.empty_transaction, exception.message)
     end
 end
 
@@ -26,17 +26,17 @@ end
 
 
   def test_transaction_description_cant_be_empty
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       transaction = Transaction.new("     " , AccountPlan.new($settings))
       transaction.add(loc: Location::S1, orig: "Recaudacion", dest: "Caja", amount: 1000)
       exception = assert_raise(Sequel::ValidationFailed) {transaction.save}
-      assert_equal("#{t.fields.t_desc.to_sym} #{t.errors.presence}", exception.message) 
+      assert_equal("#{t.fields.t_desc.to_sym} #{t.errors.presence}", exception.message)
     end
   end
 
 
   def test_multiple_transactions
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       transaction = Transaction.new("1 Deuda original (desglosar)" , AccountPlan.new($settings))
       transaction.add(orig: "TODOS LOS MATERIALES", dest: "Fondo de comercio a pagar", amount: 100000)
       transaction.save
@@ -106,14 +106,14 @@ end
     orig = "Liquido corporal blanco"
     dest = "Caja"
     exception = assert_raise(RuntimeError) {transaction.add(orig: orig, dest: dest, amount: 500)}
-    assert_equal(R18n.t.errors.accounts_of_same_group(orig, dest), exception.message) 
+    assert_equal(R18n.t.errors.accounts_of_same_group(orig, dest), exception.message)
   end
 
   def test_operation_shoud_have_a_transaction
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       record = AccountRecord.new( r_orig: "Viaticos", r_dest: "Caja", r_amount: "10")
       exception = assert_raise(Sequel::ValidationFailed) { record.save }
-      assert_equal(" #{R18n.t.errors.record_without_transaction}", exception.message) 
+      assert_equal(" #{R18n.t.errors.record_without_transaction}", exception.message)
     end
   end
 
@@ -125,13 +125,13 @@ end
     amount = 500
 
     exception = assert_raise(ArgumentError) {transaction.add(dest: dest, amount: amount)}
-    assert_equal("missing keyword: orig", exception.message) 
+    assert_equal("missing keyword: orig", exception.message)
 
     exception = assert_raise(ArgumentError) {transaction.add(orig: orig, amount: amount)}
-    assert_equal("missing keyword: dest", exception.message) 
+    assert_equal("missing keyword: dest", exception.message)
 
     exception = assert_raise(ArgumentError) {transaction.add(orig: orig, dest: dest)}
-    assert_equal("missing keyword: amount", exception.message) 
+    assert_equal("missing keyword: amount", exception.message)
   end
 
 

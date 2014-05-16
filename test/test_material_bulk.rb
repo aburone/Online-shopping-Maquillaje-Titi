@@ -37,7 +37,7 @@ class MaterialBulkTest < Test::Unit::TestCase
   # end
 
   def test_get_bulk_by_id_should_join_material_name
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       Bulk.new.create Material.select(:m_id).first[:m_id], 0.02, Location::W1
       first = Bulk.select(:b_id).first
       bulk = Bulk.new.get_by_id first.b_id

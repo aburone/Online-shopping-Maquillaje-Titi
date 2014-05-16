@@ -62,7 +62,7 @@ class ItemTest < Test::Unit::TestCase
   end
 
   def test_should_dissociate
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       item = get_assigned_item
       item = item.dissociate
       defaults = Item
@@ -85,17 +85,17 @@ class ItemTest < Test::Unit::TestCase
   end
 
   def test_change_status_of_void_item_should_fail
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       item = Item.new.get_rand
       item[:i_status] = Item::VOID
       assert_raise SecurityError do
         item.change_status Item::READY, 0
       end
     end
-  end  
+  end
 
   def test_manual_void_must_invalidate_location
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       item = Item.new.get_rand
       origin = item.i_loc.dup
       item.void! "Testing Item::void!"
@@ -109,7 +109,7 @@ class ItemTest < Test::Unit::TestCase
   end
 
   def test_manual_void_must_create_invalidation_order
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       auto_increment = DB.fetch('SHOW TABLE STATUS LIKE "orders"').first[:Auto_increment]
       item = Item.new.get_rand
       item.void! "Testing Item::void!"
@@ -121,7 +121,7 @@ class ItemTest < Test::Unit::TestCase
   end
 
   def test_manual_void_add_item_to_invalidation_order
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       item = Item.new.get_rand
       item.void! "Testing Item::void!"
       order = Order.last
@@ -131,7 +131,7 @@ class ItemTest < Test::Unit::TestCase
   end
 
   def test_manual_void_must_ask_reason
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       item = Item.new.get_rand
       assert_raise ArgumentError do
         item.void! "     "
@@ -140,7 +140,7 @@ class ItemTest < Test::Unit::TestCase
   end
 
   def test_manual_void_reason_cant_be_shorter_than_5_chars
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       item = Item.new.get_rand
       assert_raise ArgumentError do
         item.void! "1234"
@@ -149,14 +149,14 @@ class ItemTest < Test::Unit::TestCase
   end
 
   def test_manual_void_reason_must_be_at_least_5_chars
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       item = Item.new.get_rand
       item.void! "12345"
     end
   end
 
   def test_manual_void_should_not_allow_vod_a_voided_item
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       item = Item.new.get_rand
       item.void! "12345"
       assert_raise SecurityError do
@@ -178,7 +178,7 @@ class ItemTest < Test::Unit::TestCase
     input = "
      \t348-fba3ee06
     348-fc1d5f02
-    351-2c9e4d19 
+    351-2c9e4d19
     "
     assert_equal ["348-fba3ee06", "348-fc1d5f02", "351-2c9e4d19"], Item.new.split_input_into_ids(input)
   end
@@ -189,7 +189,7 @@ class ItemTest < Test::Unit::TestCase
     input = "
      \t#{i1.i_id}
     #{i2.i_id}
-    351-2c9e4d19INVALID 
+    351-2c9e4d19INVALID
     "
     i_ids = Item.new.split_input_into_ids(input)
     items = Item.filter(i_id: i_ids).all
@@ -227,10 +227,10 @@ class ItemTest < Test::Unit::TestCase
   end
 
   def test_should_transmute_item
-    # DB.transaction(rollback: :always) do
+    # DB.transaction(rollback: :always, isolation: :uncommitted) do
       item = Item.new.get_rand
       product = Product.new.get_rand
-      item.transmute!("test_should_transmute_item", product.p_id) 
+      item.transmute!("test_should_transmute_item", product.p_id)
       assert_equal product.p_id, item.p_id
       assert_equal product.p_name, item.p_name
       assert_equal product.price, item.i_price

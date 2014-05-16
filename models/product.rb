@@ -34,7 +34,7 @@ class Product < Sequel::Model
                 .left_join(:brands, [:br_id])
                 .first
     return Product.new if product.nil?
-
+    product.br_name = product[:br_name]
     product.update_costs
     product.recalculate_markups
     product.update_stocks
@@ -175,31 +175,25 @@ class Product < Sequel::Model
     self[:price]
   end
 
-  def buy_cost_mod mod, log=true
+  def buy_cost_mod mod
     mod = BigDecimal.new(mod.to_s.gsub(',', '.'), 15)
     if mod > 0
-      start_buy_cost = self.buy_cost.dup
+      self[:old_buy_cost] = self.buy_cost.dup
       self.buy_cost *= mod
+      self[:new_buy_cost] = self.buy_cost
       recalculate_markups
-      message = "Costo de compra ajustado *#{mod.to_s("F")} de $ #{start_buy_cost.to_s("F")} a $ #{self.buy_cost.to_s("F")}: #{self.p_name}"
-      if log
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: self.p_id).save
-      end
     end
     self
   end
 
-  def price_mod mod, log=true
+  def price_mod mod
     mod = BigDecimal.new(mod.to_s.gsub(',', '.'), 15)
     if mod > 0
-      start_price = self.exact_price.dup
+      self[:old_price] = self.price.dup
       self.exact_price *= mod
       self.price = self.exact_price
+      self[:new_price] = self.price
       recalculate_markups
-      message = "Precio ajustado *#{mod.to_s("F")} de $ #{start_price.to_s("F")} a $ #{self.price.to_s("F")}: #{self.p_name}"
-      if log
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: self.p_id).save
-      end
     end
     self
   end

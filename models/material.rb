@@ -31,6 +31,12 @@ class Material < Sequel::Model(:materials)
     self[:m_price] = price
   end
 
+  def price_mod mod
+    self[:old_buy_cost] = self.m_price.dup
+    self.m_price *= mod
+    self[:new_buy_cost] = self.m_price
+  end
+
   def save (opts=OPTS)
     opts = opts.merge({columns: Material::COLUMNS})
     begin
@@ -171,22 +177,6 @@ class Material < Sequel::Model(:materials)
     errors.add(:m_id, R18n.t.errors.positive_feedback(m_id) ) unless m_id.class == Fixnum && m_id > 0
   end
 
-  def print
-    @values[:m_qty] ||= 0
-    out = "\n"
-    out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
-    out += "\tm_name:  #{@values[:m_name]}\n"
-    out += "\tm_notes:  #{@values[:m_notes]}\n"
-    out += "\tm_id:  #{@values[:m_id]}\n"
-    out += "\tc_id:  #{@values[:c_id]}\n"
-    out += "\tc_name: " + (@values[:c_name].nil? ? "\n" : @values[:c_name] + "\n")
-    out += "\tm_qty: #{sprintf("%0.2f", @values[:m_qty])}\n"
-    out += "\tm_price: #{Utils::number_format self[:m_price], 3}\n"
-    out += "\tm_ideal_stock: #{Utils::number_format self[:m_ideal_stock], 2}\n"
-    out += "\tcreated: #{Utils::local_datetime_format  @values[:created_at]}\n"
-    p out
-  end
-
   def bulks warehouse_name
     begin
       Bulk.filter(m_id: @values[:m_id], b_loc: warehouse_name).order(:b_status, :created_at).all
@@ -207,10 +197,8 @@ class Material < Sequel::Model(:materials)
 
   def get_list warehouse_name
     begin
-      materials = base_query(warehouse_name)
+      base_query(warehouse_name)
         .order(:c_name, :m_name)
-        .all
-      materials
     rescue Exception => @e
       p @e
       return []

@@ -1,7 +1,7 @@
 -# coding: UTF-8
 - @title = t.products.update_by_sku.title
 
-form.grid-form action=url("/administration/adjustments/update_products_by_sku") method="post"
+form.grid-form action=url("/administration/adjustments/products/by_sku") method="post"
   == Rack::Csrf.tag(env)
   input type="hidden" name="_method" value="put"
 
@@ -55,7 +55,7 @@ form.grid-form action=url("/administration/adjustments/update_products_by_sku") 
 
       div data-field-span="1"
         label for="test" = t.actions.test
-        input name="test" type="submit" value="#{t.inventory.mass_price_adjustments.test}"
+        input name="test" type="submit" value="#{t.products.update_by_filter.test}"
       div data-field-span="1"
         label for="confirm" = t.actions.confirm
         input.ajax_confirm name="confirm" data-confirm_message="#{t.products.update_by_sku.confirm_message}" type="submit" value="#{t.products.update_by_sku.confirm}"
@@ -92,7 +92,6 @@ form.grid-form action=url("/administration/adjustments/update_products_by_sku") 
         th.sm_cell Nuevo
         th.sm_cell Dif.
 
-        th.sm_cell Editar
     tfoot
       tr
         td colspan=6 = t.products.update_by_sku.ok products.size
@@ -114,7 +113,3 @@ form.grid-form action=url("/administration/adjustments/update_products_by_sku") 
           td.sm_cell.number = Utils::number_format product.price, 2
           td.sm_cell.number = Utils::number_format product[:new_price], 2
           td.sm_cell.number #{Utils::number_format (product[:new_price] * 100 / product.price)-100, 2} %
-
-          td.sm_cell
-            a href="/admin/products/#{product.p_id}"
-              img src="/media/Icon-Edit.png" width="32" height="32"

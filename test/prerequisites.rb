@@ -58,7 +58,7 @@ def get_new_item
 end
 
 def get_assigned_item
-  DB.transaction(rollback: :always) do
+  DB.transaction(rollback: :always, isolation: :uncommitted) do
     label = get_printed_label
     Product.new.get_rand.add_item label, nil
     Item[label.i_id]

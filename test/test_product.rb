@@ -39,7 +39,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_add_label_to_product
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       label = get_printed_label
       product = Product.new.get_rand
       before = product.items.count
@@ -58,7 +58,7 @@ class ProductTest < Test::Unit::TestCase
   def test_should_remove_label_from_product
     product = Product.new.get_rand
     step1, step2, step3 = 0
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       label = get_printed_label
       step1 = product.items.count
       product.add_item label, nil
@@ -115,12 +115,12 @@ class ProductTest < Test::Unit::TestCase
   def test_check_cost
     Product.all.each do |product|
       if product.exact_price < product.sale_cost
-        p "error in product #{product.p_id}: #{product.exact_price.to_s "F"} < #{product.sale_cost.to_s "F"}"
+        p "Inconsistent product (price lower than cost) #{product.p_id}: #{product.exact_price.to_s "F"} < #{product.sale_cost.to_s "F"}"
         product.exact_price = product.sale_cost * 2
         product.save
       end
-      if product.price < product.exact_price
-        p "error in product #{product.p_id}: #{product.price.to_s "F"} < #{product.exact_price.to_s "F"}"
+      if product.price*1.1 < product.exact_price
+        p "Inconsistent product (price lower than exact_price) #{product.p_id}: #{(product.price*1.1).to_s "F"} < #{product.exact_price.to_s "F"}"
         product.price = product.price = product.exact_price
         product.save
       end
@@ -149,7 +149,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_should_include_archived
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = 1.1
       expected = 21.5 # 21.494
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -159,7 +159,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_0_89
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = 0.89
       expected = 17.4 # 19.54 * 0.89 = 17.39
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -169,7 +169,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_0_01
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = 0.01
       expected = 0.2 # 0.2
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -179,7 +179,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_1_0009
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = 1.0009
       expected = 19.6 # 19.54 * 1.009 = 19.5575
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -189,7 +189,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_1_1
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = 1.1
       expected = 21.5 # 21.494
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -199,7 +199,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_1_01
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = 1.01
       expected = 19.7 # 19.7354
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -209,7 +209,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_1_11
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = 1.11
       expected = 21.7 # 19.54 * 1.11 = 21.68
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -219,7 +219,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_1_13
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = 1.13
       expected = 22.1 # 19.54 * 1.13 = 22.08
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -229,7 +229,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_1_5
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = 1.5
       expected = 29.3 # 19.54 * 1.5 = 29.31
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -239,7 +239,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_5_123
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = 5.123
       expected = 100 # 19.54 * 5.123 = 100.10342
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -249,7 +249,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_with_comma_1_0009
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = "1,0009"
       expected = 19.6 # 19.54 * 1.009 = 19.5575
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -259,7 +259,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_with_comma_1_1
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = "1,1"
       expected = 21.5 # 21.494
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -269,7 +269,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_with_comma_1_01
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = "1,01"
       expected = 19.7 # 19.7354
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -279,7 +279,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_with_comma_1_11
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = "1,11"
       expected = 21.7 # 19.54 * 1.11 = 21.68
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -289,7 +289,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_with_comma_1_13
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = "1,13"
       expected = 22.1 # 19.54 * 1.13 = 22.08
       expected_price = BigDecimal.new("#{expected}", 1)
@@ -299,7 +299,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_with_comma_1_5
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = "1,5"
       expected = 29.3 # 19.54 * 1.5 = 29.31
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -309,7 +309,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_with_comma_0_89
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = "0.89"
       expected = 17.4 # 19.54 * 0.89 = 17.39
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -319,7 +319,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_with_comma_0_01
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = "0,01"
       expected = 0.2 # 0.2
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -329,7 +329,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_with_comma_5_123
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       mod = "5,123"
       expected = 100 # 19.54 * 5.123 = 100.10342
       expected_price = BigDecimal.new("#{expected}", 2)
@@ -339,7 +339,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_reject_nil_numerical_values
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       product = Product.new.get_rand
       product.direct_ideal_stock=10
       product.indirect_ideal_stock=0
@@ -350,7 +350,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_ignore_non_present_values
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       product = Product.new.get_rand
       product.direct_ideal_stock=10
       product.indirect_ideal_stock=0
@@ -361,7 +361,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_reject_invalid_strings_in_numerical_values
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       product = Product.new.get_rand
       product.direct_ideal_stock=10
       product.indirect_ideal_stock=10
@@ -372,7 +372,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_reject_badly_formatted_numbers
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       product = Product.new.get_rand
       product.direct_ideal_stock=10
       product.indirect_ideal_stock=10
@@ -384,7 +384,7 @@ class ProductTest < Test::Unit::TestCase
 
 
   def test_should_update_from_hash
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       hash = {direct_ideal_stock: "90,00", indirect_ideal_stock: "90,00", stock_warehouse_1: "100,00", buy_cost: "1,0", sale_cost: "1,0"}
       @valid.update_from_hash hash
       assert_equal BigDecimal.new(180).to_s("F"), @valid.ideal_stock.to_s("F"), "Erroneous ideal_stock 1"
@@ -393,11 +393,11 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_save_when_updated_from_hash
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       hash = {direct_ideal_stock: "5", indirect_ideal_stock: "7", ideal_markup: "100,00", buy_cost: "1,0", sale_cost: "1,0"}
       product = Product.new.get_rand
       product.update_from_hash hash
-      product.save validate: false
+      product.save
       product = Product.new.get product.p_id
       assert_equal BigDecimal.new(12), product.ideal_stock, "Erroneous ideal_stock 2"
       assert_equal 100, product.ideal_markup, "Erroneous ideal_markup"
@@ -405,7 +405,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_duplicate_products
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       orig = Product[193]
       dest = orig.duplicate
       copied_columns = Product::ATTRIBUTES - Product::EXCLUDED_ATTRIBUTES_IN_DUPLICATION
@@ -431,7 +431,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_add_material_to_product
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       material = Material.new.get_rand
       material[:m_qty] = 5
       prev_count = @valid.materials.count
@@ -442,7 +442,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_not_allow_to_add_material_with_zero_qty_to_product
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       material = Material.new.get_rand
       material[:m_qty] = 0
       prev_count = @valid.materials.count
@@ -454,7 +454,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_update_material_qty
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       material = Material.new.get_rand
       material[:m_qty] = 5
       count1 = @valid.materials.count
@@ -486,7 +486,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_add_part_to_product
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       part = Product.new.get_rand
       part[:part_qty] = 5
       prev_count = @valid.parts.count
@@ -497,7 +497,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_not_allow_to_add_part_with_zero_qty_to_product
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       part = Product.new.get_rand
       part[:part_qty] = 0
       prev_count = @valid.parts.count
@@ -509,7 +509,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_update_part_qty
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       part = Product.new.get_rand
       part[:part_qty] = 5
       count1 = @valid.parts.count
@@ -541,7 +541,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_get_product_by_sku
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       sku = rand
       @valid.sku = sku
       orig = @valid.save
@@ -551,7 +551,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_get_an_empty_product_for_invalid_sku
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       sku = rand
       product = Product.new.get_by_sku sku
       assert product.empty?
@@ -559,7 +559,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_clean_given_sku
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       sku = "    a e i \n \r \t o     u    "
       @valid.sku = sku
       assert_equal "a e i o u", @valid.sku
@@ -567,7 +567,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_return_nil_if_empty_sku
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       sku = ""
       @valid.sku = sku
       assert_equal nil, @valid.sku
@@ -585,7 +585,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_calculate_ideal_stock
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       product = Product.new.get 135
       product.update_indirect_ideal_stock
       calculated_indirect_ideal_stock = BigDecimal.new(0)
@@ -605,7 +605,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_ideal_stock_should_not_be_modified_by_stored_procedure
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       product = Product.new.get 135
       product.ideal_stock = 10
       assert_equal 10, product.ideal_stock, "Erroneous ideal stock "
@@ -621,7 +621,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_round_price_to_1_decimal_if_under_100
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       @valid.price = 6.5555
       assert_equal BigDecimal.new(6.5, 1), @valid.price, "Erroneous price"
     end
@@ -647,7 +647,7 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_should_add_product_to_distributor
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       distributor = Distributor.new.get_rand
       old_count = distributor.products.count
       distributor.add_product @valid
@@ -655,5 +655,6 @@ class ProductTest < Test::Unit::TestCase
       assert_equal old_count +1 , new_count
     end
   end
+
 end
 

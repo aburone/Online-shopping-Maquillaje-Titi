@@ -26,9 +26,9 @@ aside
             span Productos
           li: ul
             li
-              a class="#{inside?("/admin/administration/adjustments/update_products_by_sku")}" href=url('/administration/adjustments/update_products_by_sku') = t.products.update_by_sku.title
+              a class="#{inside?("/admin/administration/adjustments/products/by_sku")}" href=url('/administration/adjustments/products/by_sku') = t.nav.backend.update_products_by_sku
             li
-              a class="#{inside?("/admin/administration/adjustments/mass_price_adjustments")}" href=url('/administration/adjustments/mass_price_adjustments') = t.nav.backend.mass_price_adjustment
+              a class="#{inside?("/admin/administration/adjustments/products/by_filter")}" href=url('/administration/adjustments/products/by_filter') = t.nav.backend.update_products_by_filter
             li
               form action=url("/products/update_all") method="post"
                 == Rack::Csrf.tag(env)
@@ -44,7 +44,9 @@ aside
             span Materiales
           li: ul
             li
-              a class="#{inside?("/admin/administration/adjustments/update_materials_by_sku")}" href=url('/administration/adjustments/update_materials_by_sku') = t.materials.update_by_sku.title
+              a class="#{inside?("/admin/administration/adjustments/materials/by_sku")}" href=url('/administration/adjustments/materials/by_sku') = t.nav.backend.update_materials_by_sku
+            li
+              a class="#{inside?("/admin/administration/adjustments/materials/by_filter")}" href=url('/administration/adjustments/materials/by_filter') = t.nav.backend.update_materials_by_filter
             li
               form action=url("/materials/update_ideal_stocks") method="post"
                 == Rack::Csrf.tag(env)

@@ -1,7 +1,7 @@
 class Backend < AppController
 
   get '/materials' do
-    @materials = Material.new.get_list(current_location[:name])
+    @materials = Material.new.get_list(current_location[:name]).all
     slim :materials, layout: :layout_backend
   end
   post '/materials/new' do
@@ -72,7 +72,7 @@ class Backend < AppController
       flash[:notice] = t.bulk.updated
       redirect to("/materials/#{bulk[:m_id]}")
     else
-      flash[:error] = bulk.errors 
+      flash[:error] = bulk.errors
       redirect to("/materials/#{bulk[:m_id]}")
     end
   end

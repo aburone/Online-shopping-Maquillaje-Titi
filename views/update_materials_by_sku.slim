@@ -1,7 +1,7 @@
 -# coding: UTF-8
 - @title = t.materials.update_by_sku.title
 
-form.grid-form action=url("/administration/adjustments/update_materials_by_sku") method="post"
+form.grid-form action=url("/administration/adjustments/materials/by_sku") method="post"
   == Rack::Csrf.tag(env)
   input type="hidden" name="_method" value="put"
 
@@ -39,7 +39,7 @@ form.grid-form action=url("/administration/adjustments/update_materials_by_sku")
 
       div data-field-span="1"
         label for="test" = t.actions.test
-        input name="test" type="submit" value="#{t.inventory.mass_price_adjustments.test}"
+        input name="test" type="submit" value="#{t.products.update_by_filter.test}"
       div data-field-span="1"
         label for="confirm" = t.actions.confirm
         input.ajax_confirm name="confirm" data-confirm_message="#{t.materials.update_by_sku.confirm_message}" type="submit" value="#{t.materials.update_by_sku.confirm}"

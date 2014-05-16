@@ -115,7 +115,7 @@ class Backend < AppController
     reports_materials_to_buy months
   end
   def reports_materials_to_buy months
-    @materials = Material.new.get_list([Location::W1, Location::W2])
+    @materials = Material.new.get_list([Location::W1, Location::W2]).all
     @materials.map do |material|
       material.update_stocks
       material.recalculate_ideals months

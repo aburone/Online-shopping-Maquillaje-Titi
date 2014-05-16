@@ -121,6 +121,10 @@ table.tablesorter th {
   -moz-box-sizing: border-box;
   box-sizing: border-box; }
 
+.grid-form {
+  margin-right: 1em;
+  border-right: 1px solid silver; }
+
 .grid-form select {
   font-size: 18px;
   padding: 0;

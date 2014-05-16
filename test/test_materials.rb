@@ -109,7 +109,7 @@ end
       mat.m_name = rand
       mat.save
     end
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       begin
         mat = Material.new.create_default
       rescue Sequel::UniqueConstraintViolation => e
@@ -124,7 +124,7 @@ end
   end
 
   def test_if_m_price_is_updated_all_products_that_use_it_have_to_be_updated
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       material = Material[127]
 
       product = material.products[0]
@@ -146,7 +146,7 @@ end
   end
 
   def test_should_get_an_empty_material_for_invalid_sku
-    DB.transaction(rollback: :always) do
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
       sku = rand
       material = Material.new.get_by_sku sku
       assert material.empty?
