@@ -1,7 +1,24 @@
 module ApplicationHelper
+  def save_and_redirect object, redirect
+    if object.errors.count == 0 && object.valid?
+      object.save
+      flash[:notice] = eval("R18n.t.#{object.class.to_s.downcase}.updated")
+    else
+      flash[:error] = object.errors
+    end
+    redirect to redirect
+  end
+
   def redirect_if_has_errors object, redirect
     if object.errors.size > 0
       flash[:error] = object.errors.to_a.flatten.join(": ")
+      redirect to redirect
+    end
+  end
+
+  def redirect_if_empty_or_nil object, redirect
+    if object.nil? or object.empty?
+      flash[:error] = R18n.t.errors.invalid_params
       redirect to redirect
     end
   end
