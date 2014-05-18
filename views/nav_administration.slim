@@ -83,6 +83,17 @@ aside
                 == Rack::Csrf.tag(env)
                 input type="submit" value="#{t.nav.backend.new_material}"
 
+        li: ul
+          li
+            span class="#{inside?("/admin/distributors")}" = t.nav.backend.distributors
+          li: ul
+            li
+              a class="#{current?("/admin/distributors")}" href=url('/distributors') = t.nav.backend.distributors
+            li
+              form action=url("/distributors/new") method="post"
+                == Rack::Csrf.tag(env)
+                input type="submit" value="#{t.nav.backend.new_distributor}"
+
       - if settings.accounts_enabled
         li: ul
           li.subsection

@@ -1,0 +1,43 @@
+- ajax_id = ajax_id.nil? ? "" : ajax_id
+- focus = true
+- focus_text = focus ? "focus" : "no_focus"
+- caption ||= ""
+- can_edit = true unless can_edit === false
+- can_filter = true unless can_filter === false
+- quicksearch = " quicksearch" if can_filter
+
+
+- persistent_headers = false if persistent_headers.nil? unless persistent_headers == true
+- persist_area = persistent_headers ? " persist_area" : ""
+- persist_header = persistent_headers ? " persist_header" : ""
+
+- if distributors.nil? or distributors.empty?
+  p = t.distributors.empty
+- else
+  table id="#{ajax_id}" class="items tablesorter#{quicksearch}#{persist_area}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+    caption #{caption}
+    thead class="#{persist_header}"
+      tr
+        th = t.distributor.fields.d_id
+        th = t.distributor.fields.d_name
+        th = t.distributor.fields.d_has_pricelist
+        th = t.distributor.fields.d_notes
+        - if can_edit
+          th = t.actions.edit
+    tfoot
+      tr
+        td colspan="3" = t.distributors.count(distributors.count)
+    tbody
+      - ajax_item = can_edit ? " ajax_item" : ""
+      - distributors.each do |distributor|
+        tr.item class="#{ajax_item}"
+          td #{distributor.d_id}
+          td #{ I18n.transliterate( distributor.d_name )}
+          td.small_content #{distributor.d_has_pricelist ? "Si" : ""}
+          td #{distributor.d_notes}
+
+          - if can_edit
+            td.sd_cell
+              a.edit href="/admin/distributors/#{distributor.d_id}"
+                img src="/media/Icon-Edit.png" width="32" height="32" data-id="#{distributor.d_id}"
+

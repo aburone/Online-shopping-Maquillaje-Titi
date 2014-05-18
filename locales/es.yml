@@ -87,6 +87,7 @@ fields:
   t_id: "El ID de la transacción"
   t_desc: "La descripción de la transacción"
   desc: Descripción
+  details: Detalles
 
 nav:
 
@@ -98,12 +99,14 @@ nav:
   backend:
     materials: "Materiales"
     materials_list: Materiales
+    distributors: Proveedores
     update_ideal_stocks_for_materials: Actualizar stocks ideales
     update_products: Recalcular productos
     bulks_list: Graneles disponibles
     products: "Productos"
     new_product: "Crear producto"
     new_material: "Crear material"
+    new_distributor: "Crear proveedor"
     products_relationships: "Relaciones"
     categories: "Categorías"
     sku: Editar SKUs
@@ -686,3 +689,20 @@ returns:
   title: Devolución de items
   verify_order_code_legend: Las devoluciones solo se pueden hacer con el código de la venta original
   enter_order_code: Ingrese el código de la orden de venta original
+
+distributors:
+  title: "Edición de proveedores"
+  empty: No hay proveedores disponibles
+  count: "%1 proveedores listados"
+  list: proveedores disponibles
+
+distributor:
+  title: Editando proveedor “%1”
+  new: Creando un nuevo proveedor
+  updated: "Cambios guardados con exito"
+  duplicated_name:  "El nombre “%1” ya esta siendo utilizado"
+  fields:
+    d_id: ID
+    d_name: Nombre
+    d_has_pricelist: ¿Da lista de precios?
+    d_notes: Notas
