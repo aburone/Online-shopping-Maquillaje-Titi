@@ -2,8 +2,8 @@ class Sales < AppController
 
   get '/make_sale' do
     @order = Order.new.create_or_load(Order::SALE)
-    @items = @order.items.order(:p_name)
-    @cart = @order.items_as_cart
+    @items = @order.items
+    @cart = @order.items_as_cart.order(:p_name)
     @cart_total = 0
     @cart.each { |line_item| @cart_total += line_item[:i_price]*line_item[:qty] }
     slim :make_sale, layout: :layout_sales, locals: {sec_nav: :nav_sales_actions}
