@@ -2,7 +2,7 @@
 require 'sequel'
 
 class Distributor < Sequel::Model(:distributors)
-  many_to_many :Distributors , left_key: :d_id, right_key: :p_id, join_table: :Distributors_to_distributors
+  many_to_many :products , left_key: :d_id, right_key: :p_id, join_table: :products_to_distributors
   many_to_many :materials , left_key: :d_id, right_key: :m_id, join_table: :materials_to_distributors
 
   ATTRIBUTES = [:d_id, :d_name, :d_has_pricelist, :d_notes, :created_at, :updated_at]
