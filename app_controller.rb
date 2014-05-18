@@ -71,6 +71,8 @@ class AppController < Sinatra::Base
       cache_control :no_cache, :no_store, :must_revalidate, :proxy_revalidate
     end
 
+    require_relative 'models/stdout_logger' if settings.debug_sql
+
     #slim
     Slim::Engine.set_default_options pretty: true, sort_attrs: false
     set :static, true
@@ -94,7 +96,6 @@ class AppController < Sinatra::Base
   configure :development do
     enable :show_exceptions
 
-    require_relative 'models/stdout_logger' if settings.debug_sql
     require 'sinatra/reloader'
     register Sinatra::Reloader
     enable :reload_templates
