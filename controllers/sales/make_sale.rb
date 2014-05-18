@@ -2,7 +2,7 @@ class Sales < AppController
 
   get '/make_sale' do
     @order = Order.new.create_or_load(Order::SALE)
-    @items = @order.items
+    @items = @order.items.order(:p_name)
     @cart = @order.items_as_cart
     @cart_total = 0
     @cart.each { |line_item| @cart_total += line_item[:i_price]*line_item[:qty] }
