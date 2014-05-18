@@ -99,7 +99,7 @@ class Backend < AppController
     private
       def get_products_by_filter
         threshold = Sequel.date_sub(Time.now.getlocal("-00:03").to_date.iso8601, {days: @price_updated_at_threshold})
-        products = Product.new.get_all.where{Sequel.expr(:products__price_updated_at) < threshold}
+        products = Product.new.get_all.where{Sequel.expr(:products__price_updated_at) < threshold}.where(archived: 0)
         products = products.join(:products_to_distributors, [:p_id]).join(:distributors, [:d_id]).where(d_id: @d_id) if @d_id
         products = products.where(br_id: @br_id) if @br_id
         products = products.where("p_name LIKE :p_name", p_name: "%#{@p_name}%") if @p_name
