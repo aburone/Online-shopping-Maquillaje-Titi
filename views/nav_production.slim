@@ -2,20 +2,7 @@ aside
   nav role="navigation"
     ul
       li: ul
-        li
-          spam class="#{inside?("/admin/production")}" = t.nav.backend.production
-        li: ul
-          li
-            a class="#{inside?("/admin/production/labels")}" href=url('/production/labels') = t.nav.backend.labels
-          li
-            a class="#{inside?("/admin/production/packaging")}" href=url('/production/packaging/select') = t.nav.backend.packaging
-          li
-            a class="#{inside?("/admin/production/verification")}" href=url('/production/verification/select') = t.nav.backend.verify_packaging
-          li
-            a class="#{inside?("/admin/production/allocation")}" href=url('/production/allocation/select') = t.nav.backend.packaging_orders_allocation
-
-      li: ul
-        li
+        li.subsection
           span class="#{inside?("/admin/production/reports")}" Informes
         li: ul
           li
@@ -33,31 +20,26 @@ aside
               a class="#{inside?("/admin/production/reports/to_package/all_locations_2")}" href=url('/production/reports/to_package/all_locations_2') Local y deposito, para 2 meses
             li
               a class="#{inside?("/admin/production/reports/to_package/all_locations_3")}" href=url('/production/reports/to_package/all_locations_3') Local y deposito, para 3 meses
-          li
+          li.subsection
             a class="#{inside?("/admin/production/reports/products_to_move")}" href=url('/production/reports/products_to_move') Productos por enviar
 
 
       li: ul
-        li
-          span class="#{inside?("/admin/products")}" Productos
+        li.subsection
+          spam class="#{inside?("/admin/production")}" = t.nav.backend.production
         li: ul
           li
-            a class="#{current?("/admin/products")}" href=url('/products') = t.nav.backend.products
+            a class="#{inside?("/admin/production/labels")}" href=url('/production/labels') = t.nav.backend.labels
           li
-            a class="#{inside?("/admin/products/items")}" href=url('/products/items') = t.nav.backend.items
-
-      li: ul
-        li
-          span class="#{inside?("/admin/materials")}" Materiales
-        li: ul
+            a class="#{inside?("/admin/production/packaging")}" href=url('/production/packaging/select') = t.nav.backend.packaging
           li
-            a class="#{current?("/admin/materials")}" href=url('/materials') = t.nav.backend.materials_list
+            a class="#{inside?("/admin/production/verification")}" href=url('/production/verification/select') = t.nav.backend.verify_packaging
           li
-            a class="#{current?("/admin/bulks")}" href=url('/bulks') = t.nav.backend.bulks_list
+            a class="#{inside?("/admin/production/allocation")}" href=url('/production/allocation/select') = t.nav.backend.packaging_orders_allocation
 
 
       li: ul
-        li
+        li.subsection
           spam class="#{inside?("/admin/transport")}" = t.nav.backend.transport
         li: ul
           li
@@ -74,4 +56,24 @@ aside
               a class="#{inside?("/admin/transport/arrivals/select")}" href=url('/transport/arrivals/select') Ordenes en entrada
             li
               a class="#{inside?("/admin/transport/arrivals/pending")}" href=url('/transport/arrivals/pending') Lista de items por verificar
+
+
+      li: ul
+        li.subsection
+          span class="#{inside?("/admin/products")}" Productos
+        li: ul
+          li
+            a class="#{current?("/admin/products")}" href=url('/products') = t.nav.backend.products
+          li
+            a class="#{inside?("/admin/products/items")}" href=url('/products/items') = t.nav.backend.items
+
+      li: ul
+        li.subsection
+          span class="#{inside?("/admin/materials")}" Materiales
+        li: ul
+          li
+            a class="#{current?("/admin/materials")}" href=url('/materials') = t.nav.backend.materials_list
+          li
+            a class="#{current?("/admin/bulks")}" href=url('/bulks') = t.nav.backend.bulks_list
+
 

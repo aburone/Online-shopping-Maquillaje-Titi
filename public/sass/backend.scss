@@ -90,8 +90,8 @@ a:hover, a:focus, .items th:hover, .item:hover, .item_hover, .ajax_item:hover {b
   .main_nav .first {padding-left: 0.7em}
 }
 .current {@include current}
-nav li {padding-left:1em}
-
+nav li {padding-left:2em}
+.subsection {font-weight: bold}
 
 aside {
   float:right;

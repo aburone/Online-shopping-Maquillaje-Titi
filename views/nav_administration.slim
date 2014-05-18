@@ -2,7 +2,7 @@ aside
   nav role="navigation"
     ul
       li: ul
-        li
+        li.subsection
           span class="#{inside?("/admin/administration/reports")}" Informes
         li: ul
           li
@@ -19,7 +19,7 @@ aside
             a class="#{inside?("/admin/administration/reports/products_flags")}" href=url('/administration/reports/products_flags') Flags de productos
 
       li: ul
-        li
+        li.subsection
           span class="#{inside?("/admin/inventory")} " Ajustes
         li: ul
           li
@@ -53,7 +53,7 @@ aside
                 input.ajax_confirm data-confirm_message="#{t.materials.sure_to_update_ideal_stocks}" type="submit" value="#{t.nav.backend.update_ideal_stocks_for_materials}"
 
       li: ul
-        li
+        li.subsection
           span class="#{inside?("/admin/products")}" Edición
         li: ul
           li
@@ -85,7 +85,7 @@ aside
 
       - if settings.accounts_enabled
         li: ul
-          li
+          li.subsection
             span class="#{inside?("/admin/materials")}" Contabilidad
           li: ul
             li

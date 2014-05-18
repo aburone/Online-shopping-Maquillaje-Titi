@@ -788,7 +788,10 @@ a:hover, a:focus, .items th:hover, .item:hover, .item_hover, .ajax_item:hover {
   color: darkblue; }
 
 nav li {
-  padding-left: 1em; }
+  padding-left: 2em; }
+
+.subsection {
+  font-weight: bold; }
 
 aside {
   float: right;
