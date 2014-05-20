@@ -7,12 +7,25 @@ class Distributor < Sequel::Model(:distributors)
 
   ATTRIBUTES = [:d_id, :d_name, :d_has_pricelist, :d_notes, :created_at, :updated_at]
   # same as ATTRIBUTES but with the neccesary table references for get_ functions
-  COLUMNS = [:d_id, :d_name, :d_has_pricelist, :d_notes, :created_at, :updated_at]
+  COLUMNS = [:distributors__d_id, :d_name, :d_has_pricelist, :d_notes, :distributors__created_at, :distributors__updated_at]
+
+  def to_json attributes = Distributor::ATTRIBUTES
+      hash = {}
+      attributes.each do |var|
+          hash[var] = method(var).call
+      end
+      hash.to_json
+  end
+  def from_json! string
+      JSON.load(string).each do |var, val|
+          self.instance_variable_set var, val
+      end
+  end
 
   def get d_id
     return Distributor.new unless d_id.to_i > 0
     distributor = Distributor.select_group(*Distributor::COLUMNS).where(d_id: d_id.to_i).first
-    return Distributor.new if Distributor.nil?
+    return Distributor.new if distributor.nil?
     distributor
   end
 
@@ -38,8 +51,11 @@ class Distributor < Sequel::Model(:distributors)
 
 end
 
-class DistributorDistributor < Sequel::Model(:Distributors_to_distributors)
+class ProductDistributor < Sequel::Model(:products_to_distributors)
+  ATTRIBUTES = [:ptd_id, :p_id, :d_id, :relation_created_at]
+  # same as ATTRIBUTES but with the neccesary table references for get_ functions
+  COLUMNS = [:products_to_distributors__ptd_id, :products_to_distributors__p_id, :products_to_distributors__d_id, :relation_created_at]
 end
 
-class MaterialDistributor < Sequel::Model(:materialss_to_distributors)
+class MaterialDistributor < Sequel::Model(:materials_to_distributors)
 end
