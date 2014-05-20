@@ -1,5 +1,29 @@
 class Backend < AppController
 
+  post '/products/:p_id/ajax_add_distributor/:d_id' do
+    product = Product.new.get params[:p_id].to_i
+    return "#{h t.product.missing params[:p_id].to_s}" if product.empty?
+    distributor = Distributor.new.get params[:d_id].to_i
+    return "#{h t.distributor.missing params[:d_id].to_s}" if distributor.empty?
+    begin
+      distributor.add_product product.p_id
+    rescue Sequel::UniqueConstraintViolation
+      distributor.remove_product product.p_id
+    end
+    slim :product_distributors, layout: false, locals: {p_distributors: product.distributors.all}
+  end
+
+  helpers do
+
+  def h(text)
+    Rack::Utils.escape_html(text)
+  end
+
+    def product_distributors product
+      product.distributors.select(:d_name, :distributors__d_id).all.map{ |o| o.to_json [:d_name, :d_id] }
+    end
+  end
+
   post '/products/update_all' do
     begin
       Thread.new do
@@ -297,8 +321,7 @@ class Backend < AppController
     @categories = Category.all
     @brands = Brand.all
     @distributors = Distributor.all
-    @p_distributors = @product.distributors
-    ap @p_distributors
+    @p_distributors = @product.distributors.all
     @product.validate
     flash.now[:error] = @product.errors if @product.errors.count > 0
     slim :product, layout: :layout_backend

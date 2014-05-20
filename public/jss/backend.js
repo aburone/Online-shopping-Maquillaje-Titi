@@ -80,6 +80,42 @@ $(document).ready(function () {
   },10000)
 
 
+  // vanilla js ajax
+  var distributor_selector=document.querySelector("#ajax_add_distributor");
+  distributor_selector.addEventListener('change', function(){
+    var http = new XMLHttpRequest();
+    var url = '/admin/products/' + this.dataset.p_id + '/ajax_add_distributor/' + this.value;
+    var params = this.dataset.csrfKey + "=" + this.dataset.csrfToken;
+    http.open("POST", url, true);
+    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    http.setRequestHeader("Content-length", params.length);
+    http.setRequestHeader("Connection", "close");
+    http.onreadystatechange = function() {//Call a function when the state changes.
+        if(http.readyState == 4 && http.status == 200) {
+          var product_distributors_list=document.querySelector("#ajax_product_distributors");
+          product_distributors_list.innerHTML = http.responseText;
+          distributor_selector.value="";
+        }
+    }
+    http.send(params);
+  }, false);
+
+
+
+  // DOM manupulation demo
+  function popupate_product_distributors_list(responseText) {
+    var product_distributors_list=document.querySelector("#ajax_product_distributors");
+    product_distributors_list.innerHTML = "";
+    var json = JSON.parse(responseText);
+    product_distributors_list.appendChild(createP("⚫ " + JSON.parse(json[i]).d_name));
+  }
+  function createP(text) {
+    var p = document.createElement("p");
+    p.appendChild( document.createTextNode(text) );
+    return p;
+  }
+
+
 
   $('.edit_bulk').click(function(e) {
     e.preventDefault();

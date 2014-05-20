@@ -366,6 +366,8 @@ product:
   part_updated: "Actualizado %1 x %2"
   part_removed: "Borrado %1"
   updating_all_items: "Actualizando todos los items de %1"
+  no_distributor: No tengo proveedor
+  distributor_select_explanation: Selecciona de la lista para agregar o quitar proveedores
   errors:
     archived: Este producto esta archivado, no podes usarlo
   fields:
@@ -701,6 +703,7 @@ distributor:
   new: Creando un nuevo proveedor
   updated: "Cambios guardados con exito"
   duplicated_name:  "El nombre “%1” ya esta siendo utilizado"
+  missing: No tengo ningun proveedor con el identificador dado (%1)
   fields:
     d_id: ID
     d_name: Nombre
