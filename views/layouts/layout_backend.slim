@@ -26,4 +26,7 @@ html lang="es"
       footer
         script src="/jquery-2.0.3.min.js"
         script src="/jquery.plugins-min.js"
-        script src="/backend-min.js?#{date}"
+        - if self.class.development?
+          script src="/jss/backend.js"
+        - else
+          script src="/backend-min.js?#{date}"
