@@ -85,7 +85,7 @@ $(document).ready(function () {
   distributor_selector.addEventListener('change', function(){
     var http = new XMLHttpRequest();
     var url = '/admin/products/' + this.dataset.p_id + '/ajax_add_distributor/' + this.value;
-    var params = this.dataset.csrfKey + "=" + this.dataset.csrfToken;
+    var params = this.dataset.csrfKey + "=" + encodeURIComponent(this.dataset.csrfToken);
     http.open("POST", url, true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     http.onreadystatechange = function() {//Call a function when the state changes.
