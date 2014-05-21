@@ -1,7 +1,6 @@
 class Backend < AppController
 
   post '/products/:p_id/ajax_add_distributor/:d_id' do
-    ap params
     product = Product.new.get params[:p_id].to_i
     return "#{h t.product.missing params[:p_id].to_s}" if product.empty?
     distributor = Distributor.new.get params[:d_id].to_i
