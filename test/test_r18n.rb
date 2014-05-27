@@ -7,14 +7,14 @@ class R18nTest < Test::Unit::TestCase
 
   def test_setup
     # en = R18n::locale('en')
-    # # p en 
+    # # p en
     # p en.class
     # R18n::change(en)
-    # pp r18n.locale
+    # p r18n.locale
 
         # i18n = R18n::I18n.new('en')
     # R18n.set(i18n)
-    # pp R18n.get
+    # p R18n.get
   end
 
 end
@@ -44,7 +44,7 @@ end
 # p locale.title
 # p R18n::get
 # p locale.week_start
-# pp  t.actions.finish
+# p  t.actions.finish
 
 
 # localizacion de numeros meses y demas

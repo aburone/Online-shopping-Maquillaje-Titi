@@ -58,4 +58,7 @@ class ProductDistributor < Sequel::Model(:products_to_distributors)
 end
 
 class MaterialDistributor < Sequel::Model(:materials_to_distributors)
+  ATTRIBUTES = [:mtd_id, :m_id, :d_id, :relation_created_at]
+  # same as ATTRIBUTES but with the neccesary table references for get_ functions
+  COLUMNS = [:materials_to_distributors__mtd_id, :materials_to_distributors__m_id, :materials_to_distributors__d_id, :relation_created_at]
 end

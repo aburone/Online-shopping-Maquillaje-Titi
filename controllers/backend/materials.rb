@@ -1,5 +1,18 @@
 class Backend < AppController
 
+  post '/materials/:m_id/ajax_add_distributor/:d_id' do
+    material = Material.new.get_by_id params[:m_id].to_i, current_location[:name]
+    return "#{h t.material.missing params[:m_id].to_s}" if material.empty?
+    distributor = Distributor.new.get params[:d_id].to_i
+    return "#{h t.distributor.missing params[:d_id].to_s}" if distributor.empty?
+    begin
+      distributor.add_material material.m_id
+    rescue Sequel::UniqueConstraintViolation
+      distributor.remove_material material.m_id
+    end
+    slim :item_distributors, layout: false, locals: {i_distributors: material.distributors.all}
+  end
+
   get '/materials' do
     @materials = Material.new.get_list(current_location[:name]).all
     slim :materials, layout: :layout_backend
@@ -23,6 +36,7 @@ class Backend < AppController
     @materials_categories = MaterialsCategory.all
     @bulks = @material.bulks current_location[:name]
     @products = @material.products
+    @i_distributors = @material.distributors.all
     slim :material, layout: :layout_backend
   end
   put '/materials/:id' do

@@ -1,9 +1,9 @@
-- if p_distributors.empty?
+- if i_distributors.empty?
   p #{t.product.no_distributor}
   p #{t.product.distributor_select_explanation}
 - else
   p #{t.product.distributor_select_explanation}
-  - p_distributors.each.with_index do |distributor, i|
+  - i_distributors.each.with_index do |distributor, i|
     - if i === 0
       p Primario
     - elsif i === 1

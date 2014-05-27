@@ -27,6 +27,7 @@ html lang="es"
         script src="/jquery-2.0.3.min.js"
         script src="/jquery.plugins-min.js"
         - if self.class.development?
-          script src="/jss/backend.js"
+          script src="/backend-min.js?#{date}"
+          / script src="/jss/backend.js"
         - else
           script src="/backend-min.js?#{date}"

@@ -1,5 +1,60 @@
-$(document).ready(function () {
+document.addEventListener("DOMContentLoaded", function(event) {
 
+  // vanilla js ajax
+  var distributor_selector=document.querySelector("#ajax_add_distributor");
+  if(distributor_selector) {
+    distributor_selector.addEventListener('change', function(){
+      var http = new XMLHttpRequest();
+      var distributors_list=document.querySelector("#ajax_distributors");
+      var messages=document.querySelector(".messages");
+
+      http.addEventListener("loadstart", function startProgress() {
+        distributors_list.innerHTML = "Cargando...";
+      });
+
+      http.addEventListener("progress", function onprogress(evt) {
+        if(evt.lengthComputable) {
+          messages.max = evt.total;
+          messages.value = evt.loaded;
+        }
+      });
+
+      http.addEventListener("abort", transferCanceled, false);
+      http.addEventListener("error", transferFailed, false);
+
+      http.addEventListener("load", function load(evt) {
+        if(http.status == 200) {
+          distributors_list.innerHTML = http.responseText;
+          setFlash(messages, "Cambios en proveedores guardados con exito", "notice")
+        } else {
+          distributors_list.innerHTML = "Error: " + http.responseText;
+          setFlash(messages, http.responseText, "error")
+        }
+        distributor_selector.value="";
+      });
+
+      var url = this.dataset.url + this.value;
+      http.open("POST", url, true);
+      http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      var params = this.dataset.csrfKey + "=" + encodeURIComponent(this.dataset.csrfToken);
+      http.send(params);
+    }, false);
+  }
+
+  function setFlash(parent, message, type) {
+    parent.innerHTML = "";
+    var flash = createElem("div", "⚫ " + message);
+    flash.className += "flash flash_" + type + " bounceInDown";
+    parent.appendChild(flash);
+  }
+
+  function transferFailed(evt) {
+    alert("Error de transferencia.");
+  }
+
+  function transferCanceled(evt) {
+    alert("Transferencia cancelada.");
+  }
 
   el = document.querySelectorAll('.ajax_hide_on_click');
   for ( var i = 0; i < el.length; i++ ) {
@@ -80,37 +135,22 @@ $(document).ready(function () {
   },10000)
 
 
-  // vanilla js ajax
-  var distributor_selector=document.querySelector("#ajax_add_distributor");
-  distributor_selector.addEventListener('change', function(){
-    var http = new XMLHttpRequest();
-    var url = '/admin/products/' + this.dataset.p_id + '/ajax_add_distributor/' + this.value;
-    var params = this.dataset.csrfKey + "=" + encodeURIComponent(this.dataset.csrfToken);
-    http.open("POST", url, true);
-    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    http.onreadystatechange = function() {//Call a function when the state changes.
-        if(http.readyState == 4 && http.status == 200) {
-          var product_distributors_list=document.querySelector("#ajax_product_distributors");
-          product_distributors_list.innerHTML = http.responseText;
-          distributor_selector.value="";
-        }
-    }
-    http.send(params);
-  }, false);
-
-
-
   // DOM manupulation demo
-  function popupate_product_distributors_list(responseText) {
-    var product_distributors_list=document.querySelector("#ajax_product_distributors");
-    product_distributors_list.innerHTML = "";
+  function popupate_distributors_list(responseText) {
+    var distributors_list=document.querySelector("#ajax_item_distributors");
+    distributors_list.innerHTML = "";
     var json = JSON.parse(responseText);
-    product_distributors_list.appendChild(createP("⚫ " + JSON.parse(json[i]).d_name));
+    distributors_list.appendChild(createP("⚫ " + JSON.parse(json[i]).d_name));
   }
   function createP(text) {
     var p = document.createElement("p");
     p.appendChild( document.createTextNode(text) );
     return p;
+  }
+  function createElem(elem, text) {
+    var e = document.createElement(elem);
+    e.appendChild( document.createTextNode(text) );
+    return e;
   }
 
 

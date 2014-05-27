@@ -229,6 +229,7 @@ material:
     actions: Acciones
     created_at: Creado el
     price_updated_at: Costo actualizado
+    distributor: Proveedor
 
 relationships:
   title: Relaciones
@@ -422,7 +423,7 @@ product:
       active: Activo
       end_of_life: Fin de vida
       archived: Archivado
-    distributor: Distribuidor
+    distributor: Proveedor
   assemblies:
     not_found: Este producto no es parte de ningun otro
     list: Productos que usan al actual como parte

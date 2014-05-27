@@ -2,6 +2,7 @@
 require 'sinatra/flash'
 require_relative 'sinatra/auth'
 require_relative 'sinatra/my_flash'
+require_relative 'sinatra/csrf'
 
 class Backend < AppController
   register Sinatra::ConfigFile
@@ -9,6 +10,9 @@ class Backend < AppController
 
   register Sinatra::Auth
   register Sinatra::Flash
+  register Sinatra::Csrf
+  apply_csrf_protection
+
   set :name, "Backend"
   helpers ApplicationHelper
 
@@ -18,6 +22,7 @@ class Backend < AppController
     Thread.current.thread_variable_set(:login_path, "/admin/login")
     Thread.current.thread_variable_set(:root_path, "../admin")
     unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"]
+
     protected! unless (request.env["REQUEST_PATH"].nil? or unprotected_routes.include? request.env["REQUEST_PATH"])
     Thread.current.thread_variable_set(:layout, :layout_backend)
   end

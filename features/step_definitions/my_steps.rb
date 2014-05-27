@@ -1,12 +1,12 @@
 
-When /^I verify all items$/ do 
+When /^I verify all items$/ do
   i_ids = []
   all('.item').each { |item| i_ids <<  item.first('td').text }
   i_ids.each do |i_id|
     fill_in 'i_id', with: "#{i_id}"
     click_button("Aceptar")
     with_scope('.flash') { page.should have_content("Verificado") }
-    # page.should have_content( "Verificando ingreso de mercaderia" ) 
+    # page.should have_content( "Verificando ingreso de mercaderia" )
   end
 end
 
@@ -33,7 +33,7 @@ Then /^Show me the page$/ do
 end
 
 Then /^show me the session cookies$/ do
-  pp Capybara.current_session.driver.request.cookies
+  ap Capybara.current_session.driver.request.cookies
 end
 
 Then /^within id (.+) I should see (\d+) (.+)$/ do |id, number, classs|

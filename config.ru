@@ -7,16 +7,33 @@ config_file '../config.yml'
 use Rack::MethodOverride
 
 require 'encrypted_cookie'
-require "rack/csrf"
 use Rack::Session::EncryptedCookie, secret: settings.cookie_secret, expire_after: settings.session_length
-
-#https://github.com/baldowl/rack_csrf
-use Rack::Csrf, raise: true, field: 'csrf', key: 'csrf', header: 'X_CSRF_TOKEN', :skip => ['POST:/admin/products/ajax_update']
 
 use Rack::Deflater
 
 require 'pdfkit'
 use PDFKit::Middleware
+
+class ExceptionHandling
+  def initialize(app)
+    @app = app
+  end
+
+  def call(env)
+    begin
+      @app.call env
+    rescue Rack::Csrf::InvalidCsrfToken => e
+      env['rack.errors'].puts e
+      env['rack.errors'].puts e.backtrace.join("\n")
+      env['rack.errors'].flush
+      message = "Protección Csrf inválida. Estas logueado? Proba recargar."
+      p message
+      [403, {'Content-Type' => 'text/html', 'Content-Length' => message.length}, [message]]
+    end
+  end
+end
+
+use ExceptionHandling
 
 require './app_controller'
 require './backend'
@@ -26,7 +43,3 @@ map('/') { run Frontend }
 map('/admin') { run Backend }
 map('/ventas') { run Ventas }
 map('/sales') { run Sales }
-
-
-
-

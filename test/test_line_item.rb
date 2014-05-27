@@ -2,10 +2,6 @@
 
 class LineItemTest < Test::Unit::TestCase
 
-  # def test_should_get
-  #   pp Line_item.all
-  # end
-
   def test_get_mat
 
     order = Order.first
@@ -21,14 +17,14 @@ class LineItemTest < Test::Unit::TestCase
 
       bulks_in_use = []
       bulks_missing = []
-      materials.each do |material| 
+      materials.each do |material|
         bulks = Bulk
           .where(b_loc: Location::W1)
           .where(m_id: material.m_id)
           .where(b_status: Bulk::IN_USE)
           .all
 
-        bulks.each do |bulk| 
+        bulks.each do |bulk|
           if bulk.b_qty >= material[:m_qty]
             bulks_in_use << bulk
           else

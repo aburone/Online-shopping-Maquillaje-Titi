@@ -4,7 +4,6 @@ Encoding.default_external = 'utf-8'
 require 'sinatra/base'
 require 'sequel'
 require 'slim'
-require 'pp'
 require "awesome_print"
 require 'sinatra/r18n'
 require "sinatra/multi_route"
@@ -86,16 +85,14 @@ class AppController < Sinatra::Base
 
   configure :production, :development do
     enable :logging
-  end
-
-  configure :production do
     disable :raise_errors
     disable :show_exceptions
   end
 
-  configure :development do
-    enable :show_exceptions
+  configure :production do
+  end
 
+  configure :development do
     require 'sinatra/reloader'
     register Sinatra::Reloader
     enable :reload_templates
@@ -109,19 +106,20 @@ class AppController < Sinatra::Base
   configure :test do
   end
 
-  get '/404' do
-    slim :not_found, layout: false
-  end
   not_found do
     slim :not_found, layout: false
   end
+
   error do
-    pp request.env['sinatra.route']
-    pp request.env['REQUEST_PATH']
-    pp request.env['sinatra.error']
-    @error = request.env['sinatra.error'].message
-    slim :error, layout: :layout_bare
+    logger.error request.env['sinatra.error']
+    ap $@
+    logger.error $!.class
+    logger.error "Message: #{$!.message}"
+    logger.error "Route: #{request.env['sinatra.route']}"
+    logger.error "Request path: #{request.env['REQUEST_PATH']}"
+    slim :error, layout: :layout_bare, locals: {error: $!, backtrace: $@, title: "Error del servidor"}
   end
+
 
   def set_locale
     # session[:locale] = extract_locale_from_accept_language_header || 'es'
@@ -136,6 +134,17 @@ class AppController < Sinatra::Base
   #     'es'
   #   end
   # end
+
+  helpers do
+
+    def h(text)
+      Rack::Utils.escape_html(text)
+    end
+
+    def item_distributors item
+      item.distributors.select(:d_name, :distributors__d_id).all.map{ |o| o.to_json [:d_name, :d_id] }
+    end
+  end
 
 end
 

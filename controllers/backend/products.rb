@@ -10,18 +10,7 @@ class Backend < AppController
     rescue Sequel::UniqueConstraintViolation
       distributor.remove_product product.p_id
     end
-    slim :product_distributors, layout: false, locals: {p_distributors: product.distributors.all}
-  end
-
-  helpers do
-
-  def h(text)
-    Rack::Utils.escape_html(text)
-  end
-
-    def product_distributors product
-      product.distributors.select(:d_name, :distributors__d_id).all.map{ |o| o.to_json [:d_name, :d_id] }
-    end
+    slim :item_distributors, layout: false, locals: {i_distributors: product.distributors.all}
   end
 
   post '/products/update_all' do
@@ -321,7 +310,7 @@ class Backend < AppController
     @categories = Category.all
     @brands = Brand.all
     @distributors = Distributor.all
-    @p_distributors = @product.distributors.all
+    @i_distributors = @product.distributors.all
     @product.validate
     flash.now[:error] = @product.errors if @product.errors.count > 0
     slim :product, layout: :layout_backend

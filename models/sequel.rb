@@ -5,7 +5,7 @@ Sequel::Model.plugin :defaults_setter
   # Sequel::Model.plugin :association_pks
   # Material.plugin :association_pks
   #   mat = Material[38]
-  #   pp mat.bulk_pks
+  #   ap mat.bulk_pks
 
 
   # Sequel::Model.plugin :tactical_eager_loading
@@ -22,7 +22,6 @@ Sequel::Model.plugin :defaults_setter
 
 
 Sequel::Model.plugin :dataset_associations
-    # pp Material.filter(m_id: 38).bulks.all
 
 Sequel::Model.plugin :nested_attributes
 Sequel::Model.plugin :skip_create_refresh # necesario por el trigger que regenera el id

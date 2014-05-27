@@ -1,11 +1,6 @@
 require_relative 'prerequisites'
 
 class LocationTest < Test::Unit::TestCase
-    # def test_list
-    #   Location::ENABLED_WAREHOUSES.each { |store| p store}
-    #   Location::ENABLED_STORES.each { |store| p store}
-    #   pp Location.new.stores
-    # end
 
   def test_warehouses
     t = Location.new.warehouses

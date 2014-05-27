@@ -14,10 +14,12 @@ class DistributorTest < Test::Unit::TestCase
 
   def test_should_get_distributors
     p_mila = Product[941]
-    assert_equal 1, p_mila.distributors.count
+    count = p_mila.distributors.all.count
+    assert_equal 1, count, "la cantidad de distrobuidores es #{count}"
 
     d_mila = Distributor[15]
-    assert d_mila.products.count > 1
+
+    assert d_mila.products.count > 1, "La cantidad de productos es #{d_mila.products.count}"
   end
 
   def test_should_add_product_to_distributor
@@ -37,7 +39,7 @@ class DistributorTest < Test::Unit::TestCase
 
       distributor1.add_product @valid_product
       distributor2.add_product @valid_product
-      assert_equal  distributor2.d_id, @valid_product.distributors.last.d_id
+      assert_equal  distributor2.d_id, @valid_product.distributors.all.last.d_id
     end
   end
 

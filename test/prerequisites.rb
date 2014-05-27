@@ -1,12 +1,13 @@
 require 'test/unit'
 require 'rack/test'
 require 'sequel'
-require 'pp'
 require "awesome_print"
 require 'sinatra'
 require 'sinatra/r18n'
 require 'sinatra/config_file'
 require 'pdfkit'
+require_relative '../sinatra/csrf'
+
 config_file '../../config.yml'
 require 'tree'
 ENV["TZ"] = "GMT"
@@ -17,7 +18,6 @@ R18n.set('es') # during tests it must be set explicitly
 include R18n::Helpers
 
 require 'encrypted_cookie'
-require "rack/csrf"
 use Rack::Session::EncryptedCookie, secret: settings.cookie_secret, expire_after: settings.session_length
 
 require_relative '../helpers/init'
