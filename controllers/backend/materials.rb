@@ -36,7 +36,8 @@ class Backend < AppController
     @materials_categories = MaterialsCategory.all
     @bulks = @material.bulks current_location[:name]
     @products = @material.products
-    @i_distributors = @material.distributors.all
+    @distributors = Distributor.order(:d_name).all
+    @i_distributors = @material.distributors.order(:d_name).all
     slim :material, layout: :layout_backend
   end
   put '/materials/:id' do

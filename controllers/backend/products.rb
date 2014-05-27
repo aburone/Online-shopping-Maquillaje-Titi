@@ -309,7 +309,7 @@ class Backend < AppController
     @p_assemblies = @product.assemblies
     @categories = Category.all
     @brands = Brand.all
-    @distributors = Distributor.all
+    @distributors = Distributor.order(:d_name).all
     @i_distributors = @product.distributors.all
     @product.validate
     flash.now[:error] = @product.errors if @product.errors.count > 0

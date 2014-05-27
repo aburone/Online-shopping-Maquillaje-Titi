@@ -30,7 +30,7 @@
             == slim :item_distributors, locals: {i_distributors: @i_distributors}
           select#ajax_add_distributor data-url="/admin/materials/#{@material.m_id}/ajax_add_distributor/" data-csrf-key="#{Rack::Csrf.key}" data-csrf-token="#{Rack::Csrf.token(env)}" name="d_id"
             option value=""
-            - Distributor.all.each do |distributor|
+            - @distributors.each do |distributor|
               option selected=("selected" if params['d_id'].to_i == distributor.d_id) value="#{distributor.d_id}" = distributor.d_name
 
         div data-field-span="1"
