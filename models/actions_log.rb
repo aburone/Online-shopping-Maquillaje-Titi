@@ -8,6 +8,10 @@ class ActionsLog < Sequel::Model(:actions_log)
   WARN = 2
   ERROR = 3
 
+  def name
+    self.msg
+  end
+
   def perform
     self.save
   end

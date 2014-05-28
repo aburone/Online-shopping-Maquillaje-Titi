@@ -38,6 +38,10 @@ class Product < Sequel::Model
     end
   end
 
+  def name
+    self.p_name
+  end
+
   def price= price
     price = price > 100 ? price.round : price.round(1)
     self[:price] = BigDecimal.new(price, 1)

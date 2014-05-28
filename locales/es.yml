@@ -178,6 +178,7 @@ materials:
   empty: "No hay materiales cargados en la base"
   count: "%1 materiales listados"
   sure_to_update_ideal_stocks: Esta accion ejecuta un proceso muy intensivo y LENTO sobre la base de datos. Estas seguro de continuar?
+  updating_in_background: "Actualizando materiales en background. La tarea tarda aproximadamente 2 minutos"
   update_by_sku:
     title: "Actualizacion de materiales por SKU"
     confirm: Actualizar los costos de compra

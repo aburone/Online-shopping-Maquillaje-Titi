@@ -1,5 +1,15 @@
 class Backend < AppController
 
+  post '/products/update_all' do
+    products = Product.filter(archived: false).order(:p_name).all
+    products.each do |product|
+      enqueue product
+    end
+
+    flash[:warning] = R18n.t.products.updating_in_background
+    redirect to("/products")
+  end
+
   post '/products/:p_id/ajax_add_distributor/:d_id' do
     product = Product.new.get params[:p_id].to_i
     return "#{h t.product.missing params[:p_id].to_s}" if product.empty?
@@ -11,17 +21,6 @@ class Backend < AppController
       distributor.remove_product product.p_id
     end
     slim :item_distributors, layout: false, locals: {i_distributors: product.distributors.all}
-  end
-
-  post '/products/update_all' do
-    products = Product.filter(archived: false).order(:p_name).all
-    products.each do |product|
-      p "enqueue #{product.p_id} #{product.p_name}"
-      enqueue product
-    end
-
-    flash[:warning] = R18n.t.products.updating_in_background
-    redirect to("/products")
   end
 
   get '/products/sku' do

@@ -40,17 +40,17 @@ class AppController < Sinatra::Base
   @@queue = Queue.new
   @@running = true
   def enqueue message
+    p "enqueue #{message.name}"
     @@queue << message
   end
   Thread.new do
-    while 1
+    while @@running
       task = @@queue.pop
       begin
-        p "pop #{task.class} #{task.p_name}"
+        p "pop #{task.class} #{task.name}"
         task.validate
         if task.errors.count > 0
           ap task
-          # ap task.errors.full_messages
         end
         task.perform
       rescue => e

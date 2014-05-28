@@ -1,5 +1,14 @@
 class Backend < AppController
 
+  post '/materials/update_ideal_stocks' do
+    Material.order(:m_name).all.each do |material|
+      enqueue material
+    end
+
+    flash[:warning] = R18n.t.materials.updating_in_background
+    redirect to("/materials")
+  end
+
   post '/materials/:m_id/ajax_add_distributor/:d_id' do
     material = Material.new.get_by_id params[:m_id].to_i, current_location[:name]
     return "#{h t.material.missing params[:m_id].to_s}" if material.empty?
@@ -50,16 +59,6 @@ class Backend < AppController
       flash[:error] = material.errors
     end
     redirect to("/materials/#{material[:m_id]}")
-  end
-  post '/materials/update_ideal_stocks' do
-    Thread.new do
-      Material.all.each do |m|
-        m.calculate_ideal_stock
-        m.save
-      end
-    end
-    flash[:warning] = "Actualizando materiales en background. La tarea tarda aproximadamente 2 minutos"
-    redirect to("/materials")
   end
 
   get '/bulks' do
