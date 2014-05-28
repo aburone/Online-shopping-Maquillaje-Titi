@@ -24,7 +24,7 @@ class Product < Sequel::Model
       self.update_costs
       self.recalculate_markups
       self.update_stocks
-      self.update_indirect_ideal_stock
+      self.update_ideal_stock
       self.save validate: false
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::INFO, p_id: self.p_id).save
       self.validate

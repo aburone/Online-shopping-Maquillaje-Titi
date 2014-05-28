@@ -605,23 +605,19 @@ class ProductTest < Test::Unit::TestCase
   def test_should_calculate_ideal_stock
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       product = Product.new.get 135
-      product.update_indirect_ideal_stock
+      product.update_ideal_stock
 
       calculated_indirect_ideal_stock = BigDecimal.new(0)
       product.assemblies.each do |assembly|
-        assembly.update_indirect_ideal_stock
+        assembly.update_ideal_stock
         calculated_indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived
       end
       calculated_indirect_ideal_stock *= 2
-
-ap product.direct_ideal_stock
-ap product.indirect_ideal_stock
-ap product.ideal_stock
-
-      assert_equal (calculated_indirect_ideal_stock).round(2).to_s("F"), product.indirect_ideal_stock.round(2).to_s("F"), "Erroneous indirect ideal stock"
+      assert_equal calculated_indirect_ideal_stock.round(2).to_s("F"), product.indirect_ideal_stock.round(2).to_s("F"), "Erroneous indirect ideal stock"
       assert_equal (calculated_indirect_ideal_stock + product.direct_ideal_stock * 2).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
-      assert_equal BigDecimal.new(78.64, 4).round(2).to_s("F"), calculated_indirect_ideal_stock.round(2).to_s("F"), "Erroneous calculated_indirect_ideal_stock"
-      assert_equal BigDecimal.new(110.64, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
+
+      assert_equal BigDecimal.new(101.32, 6).round(2).to_s("F"), calculated_indirect_ideal_stock.round(2).to_s("F"), "Erroneous calculated_indirect_ideal_stock"
+      assert_equal BigDecimal.new(197.32, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
       assert_equal 0, (product.ideal_stock - calculated_indirect_ideal_stock - product.direct_ideal_stock * 2).round, "Erroneous ideal stock relation"
 
     end
@@ -629,7 +625,7 @@ ap product.ideal_stock
 
   def test_inventory_should_return_same_values_as_stored_object
     product = Product.new.get 135
-    assert_equal product.ideal_stock.round(2).to_s("F"), product.inventory(1).global.ideal.round(2).to_s("F")
+    assert_equal product.ideal_stock.round(2).to_s("F"), product.inventory(1).global.ideal.round(2).to_s("F"), "Stored and calculated are different"
   end
 
   def ideal_para_kits

@@ -156,8 +156,8 @@ end
   def test_should_calculate_ideal_stock
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       material = Material[38]
-      ap material
-      ap material.calculate_ideal_stock
+      material.calculate_ideal_stock debug=false
+      assert_equal BigDecimal.new(2233.4, 6), material.m_ideal_stock
     end
 
   end
