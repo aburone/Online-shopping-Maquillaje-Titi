@@ -17,6 +17,28 @@ class Product < Sequel::Model
   require_relative 'product_sql.rb'
 
 
+  def perform
+    # TODO: raise errors as warning message
+    begin
+      message = "Recalculando producto #{self.p_id}: #{self.p_name}"
+      self.update_costs
+      self.recalculate_markups
+      self.update_stocks
+      self.update_indirect_ideal_stock
+      self.save validate: false
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::INFO, p_id: self.p_id).save
+      self.validate
+      if self.errors.count > 0
+        message = "Error recalculando producto #{self.p_id} #{self.p_name}: #{self.errors.to_a.flatten.join(" ")}"
+        ActionsLog.new.set(msg: message[0..254], u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR, p_id: self.p_id).save
+      end
+    rescue => detail
+      message = "Error critico: #{detail.message} #{$@}"
+      ActionsLog.new.set(msg: message[0..254], u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR).save
+    end
+    self.save
+  end
+
   def price= price
     price = price > 100 ? price.round : price.round(1)
     self[:price] = BigDecimal.new(price, 1)
@@ -116,14 +138,6 @@ class Product < Sequel::Model
   def recalculate_markups
     self[:real_markup] = self[:price] / self[:sale_cost] if self[:sale_cost] > 0
     self[:ideal_markup] = self[:real_markup] if self[:ideal_markup] == 0 and self[:real_markup] > 0
-    self
-  end
-
-  def update_indirect_ideal_stock
-    self.indirect_ideal_stock = BigDecimal.new(0)
-    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived}
-    self.indirect_ideal_stock *= 2
-    self.ideal_stock = self.direct_ideal_stock * 2 + self.indirect_ideal_stock
     self
   end
 

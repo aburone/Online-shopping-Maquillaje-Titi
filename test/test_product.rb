@@ -584,26 +584,6 @@ class ProductTest < Test::Unit::TestCase
     assert_equal expected_cost, product.materials_cost, "#{expected_cost.to_s("F")} expected but was #{product.materials_cost.to_s("F")}"
   end
 
-  def test_should_calculate_ideal_stock
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get 135
-      product.update_indirect_ideal_stock
-      calculated_indirect_ideal_stock = BigDecimal.new(0)
-      product.assemblies.each do |assembly|
-        assembly.update_indirect_ideal_stock
-        calculated_indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived
-      end
-      calculated_indirect_ideal_stock *= 2
-
-      assert_equal (calculated_indirect_ideal_stock).round(2).to_s("F"), product.indirect_ideal_stock.round(2).to_s("F"), "Erroneous indirect ideal stock"
-      assert_equal (calculated_indirect_ideal_stock + product.direct_ideal_stock * 2).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
-      assert_equal BigDecimal.new(78.64, 4).round(2).to_s("F"), calculated_indirect_ideal_stock.round(2).to_s("F"), "Erroneous calculated_indirect_ideal_stock"
-      assert_equal BigDecimal.new(110.64, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
-      assert_equal 0, (product.ideal_stock - calculated_indirect_ideal_stock - product.direct_ideal_stock * 2).round, "Erroneous ideal stock relation"
-
-    end
-  end
-
   def test_should_ideal_stock_should_not_be_modified_by_stored_procedure
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       product = Product.new.get 135
@@ -615,16 +595,41 @@ class ProductTest < Test::Unit::TestCase
     end
   end
 
-  def test_inventory_should_return_same_values_as_stored_object
-    product = Product.new.get 135
-    assert_equal product.ideal_stock.round(2).to_s("F"), product.inventory(1).global.ideal.round(2).to_s("F")
-  end
-
   def test_should_round_price_to_1_decimal_if_under_100
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       @valid.price = 6.5555
       assert_equal BigDecimal.new(6.5, 1), @valid.price, "Erroneous price"
     end
+  end
+
+  def test_should_calculate_ideal_stock
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      product = Product.new.get 135
+      product.update_indirect_ideal_stock
+
+      calculated_indirect_ideal_stock = BigDecimal.new(0)
+      product.assemblies.each do |assembly|
+        assembly.update_indirect_ideal_stock
+        calculated_indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived
+      end
+      calculated_indirect_ideal_stock *= 2
+
+ap product.direct_ideal_stock
+ap product.indirect_ideal_stock
+ap product.ideal_stock
+
+      assert_equal (calculated_indirect_ideal_stock).round(2).to_s("F"), product.indirect_ideal_stock.round(2).to_s("F"), "Erroneous indirect ideal stock"
+      assert_equal (calculated_indirect_ideal_stock + product.direct_ideal_stock * 2).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
+      assert_equal BigDecimal.new(78.64, 4).round(2).to_s("F"), calculated_indirect_ideal_stock.round(2).to_s("F"), "Erroneous calculated_indirect_ideal_stock"
+      assert_equal BigDecimal.new(110.64, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
+      assert_equal 0, (product.ideal_stock - calculated_indirect_ideal_stock - product.direct_ideal_stock * 2).round, "Erroneous ideal stock relation"
+
+    end
+  end
+
+  def test_inventory_should_return_same_values_as_stored_object
+    product = Product.new.get 135
+    assert_equal product.ideal_stock.round(2).to_s("F"), product.inventory(1).global.ideal.round(2).to_s("F")
   end
 
   def ideal_para_kits

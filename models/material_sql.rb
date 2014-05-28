@@ -12,6 +12,39 @@ class Material < Sequel::Model(:materials)
   # same as ATTRIBUTES but with the needed table references for get_ functions
   COLUMNS = [ :materials__m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :materials__created_at, :materials__price_updated_at ]
 
+
+  def calculate_ideal_stock
+    p "#{@values[:m_name]} (#{@values[:m_id]})"
+    total_needed = BigDecimal.new(0)
+    products = self.products
+    products.each do |product|
+      materials = product.materials
+      materials.each do |p_material|
+        needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : (p_material[:m_qty] * product.direct_ideal_stock)
+        p "  #{product.p_name} (#{product.p_id}): #{p_material[:m_qty].to_s("F")} x #{product.direct_ideal_stock.to_s("F")} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
+        total_needed += needed if p_material.m_id == @values[:m_id]
+      end
+    end
+    p "Partial needed: #{total_needed.to_s("F")}"
+    products = Product.all
+    products.each do |product|
+      parts = product.parts
+      parts.each do |product_part|
+        materials = product_part.materials
+        materials.each do |p_material|
+          needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : p_material[:m_qty] * product_part[:part_qty] * product_part.direct_ideal_stock
+          p "  #{product.p_name} (#{product.p_id}) -> #{product_part.p_name} (#{product_part.p_id}): #{p_material[:m_qty].to_s("F")} x #{product_part[:part_qty].to_s("F")} x #{product_part.direct_ideal_stock.to_s("F")} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
+          total_needed += needed if p_material.m_id == @values[:m_id]
+        end
+      end
+    end
+    p "Total needed: #{total_needed.to_s("F")}"
+    p ""
+    @values[:m_ideal_stock] = total_needed
+    save columns: COLUMNS
+    total_needed
+  end
+
   def distributors
     return [] unless self.m_id.to_i > 0
     distributors = Distributor
@@ -30,7 +63,7 @@ class Material < Sequel::Model(:materials)
   end
 
   def products
-    self.products_dataset.join(:categories, [:c_id]).select_append{:c_name}.all
+    self.products_dataset.join(:categories, [:c_id]).select_append{:c_name}.order(:p_name).all
   end
 
   def save (opts=OPTS)
@@ -87,38 +120,6 @@ class Material < Sequel::Model(:materials)
       .first[:stock_warehouse_2]
     stock ||= 0
     @values[:stock_warehouse_2] = BigDecimal.new stock
-  end
-
-  def calculate_ideal_stock
-    p "#{@values[:m_name]} (#{@values[:m_id]})"
-    total_needed = BigDecimal.new(0)
-    products = self.products
-    products.each do |product|
-      materials = product.materials
-      materials.each do |p_material|
-        needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : (p_material[:m_qty] * product.direct_ideal_stock)
-        p "  #{product.p_name} (#{product.p_id}): #{p_material[:m_qty].to_s("F")} x #{product.direct_ideal_stock.to_s("F")} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
-        total_needed += needed if p_material.m_id == @values[:m_id]
-      end
-    end
-    p "Partial needed: #{total_needed.to_s("F")}"
-    products = Product.all
-    products.each do |product|
-      parts = product.parts
-      parts.each do |product_part|
-        materials = product_part.materials
-        materials.each do |p_material|
-          needed = (product[:archived] or product[:end_of_life]) ? BigDecimal.new(0) : p_material[:m_qty] * product_part[:part_qty] * product_part.direct_ideal_stock
-          p "  #{product.p_name} (#{product.p_id}) -> #{product_part.p_name} (#{product_part.p_id}): #{p_material[:m_qty].to_s("F")} x #{product_part[:part_qty].to_s("F")} x #{product_part.direct_ideal_stock.to_s("F")} = #{needed.to_s("F")}" if p_material.m_id == @values[:m_id]
-          total_needed += needed if p_material.m_id == @values[:m_id]
-        end
-      end
-    end
-    p "Total needed: #{total_needed.to_s("F")}"
-    p ""
-    @values[:m_ideal_stock] = total_needed
-    save columns: COLUMNS
-    total_needed
   end
 
   def create_default

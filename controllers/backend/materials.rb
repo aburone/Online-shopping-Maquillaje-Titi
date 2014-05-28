@@ -53,7 +53,10 @@ class Backend < AppController
   end
   post '/materials/update_ideal_stocks' do
     Thread.new do
-      Material.all.each { |m| m.calculate_ideal_stock }
+      Material.all.each do |m|
+        m.calculate_ideal_stock
+        m.save
+      end
     end
     flash[:warning] = "Actualizando materiales en background. La tarea tarda aproximadamente 2 minutos"
     redirect to("/materials")

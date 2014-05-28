@@ -75,7 +75,7 @@ end
     assert_equal(false, m.valid?, "The id can't be negative")
     assert_equal( [R18n.t.errors.positive_feedback(-1)], m.errors[:m_id])
     puts "\n" + m.errors.to_s if m.errors.size != 1
-end
+  end
 
   def test_should_reject_zero_id
     m = Material.new
@@ -152,4 +152,14 @@ end
       assert material.empty?
     end
   end
+
+  def test_should_calculate_ideal_stock
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      material = Material[38]
+      ap material
+      ap material.calculate_ideal_stock
+    end
+
+  end
+
 end

@@ -43,9 +43,20 @@ class AppController < Sinatra::Base
     @@queue << message
   end
   Thread.new do
-    while @@running
-      #sleep(1)
-      @@queue.pop.perform
+    while 1
+      task = @@queue.pop
+      begin
+        p "pop #{task.class} #{task.p_name}"
+        task.validate
+        if task.errors.count > 0
+          ap task
+          # ap task.errors.full_messages
+        end
+        task.perform
+      rescue => e
+        ap e.message
+        ap e.class
+      end
     end
   end
 

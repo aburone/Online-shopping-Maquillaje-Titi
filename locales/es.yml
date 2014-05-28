@@ -366,7 +366,6 @@ product:
   part_added: "Agregado %1 x %2"
   part_updated: "Actualizado %1 x %2"
   part_removed: "Borrado %1"
-  updating_all_items: "Actualizando todos los items de %1"
   no_distributor: No tengo proveedor
   distributor_select_explanation: Selecciona de la lista para agregar o quitar proveedores
   errors:

@@ -11,6 +11,15 @@ class Product < Sequel::Model
   COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :notes, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :tercerized, :published, :on_request, :archived, :end_of_life, :products__img, :img_extra, :products__created_at, :products__price_updated_at, :products__description, :brands__br_name]
   EXCLUDED_ATTRIBUTES_IN_DUPLICATION = [:p_id, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation, :created_at, :price_updated_at]
 
+
+  def update_indirect_ideal_stock
+    self.indirect_ideal_stock = BigDecimal.new(0)
+    self.assemblies.each { |assembly| self.indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived}
+    self.indirect_ideal_stock *= 2
+    self.ideal_stock = self.direct_ideal_stock * 2 + self.indirect_ideal_stock
+    self
+  end
+
   def distributors
     return [] unless self.p_id.to_i > 0
     distributors = Distributor
@@ -62,12 +71,12 @@ class Product < Sequel::Model
     begin
       super opts
       if self.p_name and not self.archived
-        message = R18n.t.product.updating_all_items self[:p_name]
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: @values[:p_id]).save
+        message = "Actualizando todos los items de #{self.p_name}"
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: self.p_id).save
         DB.run "UPDATE items
         JOIN products using(p_id)
         SET items.i_price = products.price, items.i_price_pro = products.price_pro, items.p_name = products.p_name
-        WHERE p_id = #{@values[:p_id]} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
+        WHERE p_id = #{self.p_id} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
       end
     rescue Sequel::UniqueConstraintViolation => e
       errors.add "Error de duplicacion", e.message
@@ -178,7 +187,7 @@ class Product < Sequel::Model
 
   def materials
     condition = "product_id = #{self.p_id}"
-    Material.join( ProductsMaterial.where{condition}, [:m_id]).all
+    Material.join( ProductsMaterial.where{condition}, [:m_id]).order(:m_name).all
   end
 
   def add_material material
