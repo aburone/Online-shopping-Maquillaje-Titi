@@ -416,13 +416,18 @@ product:
     non_tercerized: Envasable
     created_at: Creado el
     price_updated_at: Costo actualizado
-    on_request: "Por pedido"
     life_cicle:
       title: Ciclo de vida
       life_phase: Fase
       active: Activo
       end_of_life: Fin de vida
       archived: Archivado
+    sale_mode:
+      title: Modo de venta
+      mode: Venta
+      normal: Normal
+      on_request: "Por pedido"
+      non_saleable: "Solo kits"
     distributor: Proveedor
   assemblies:
     not_found: Este producto no es parte de ningun otro

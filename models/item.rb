@@ -222,6 +222,15 @@ class Item < Sequel::Model
     return false
   end
 
+  def is_non_saleable
+    product = Product[self.p_id]
+    if product.non_saleable
+      errors.add("Este item no es para la venta", "Este item es parte de un kit y no puede venderse por separado")
+      return true
+    end
+    return false
+  end
+
   def has_been_void
     if @values[:i_status] == Item::VOID
       errors.add("Item anulado", "Este item fue Invalidado. No podes operar sobre el.")
@@ -428,7 +437,8 @@ class Item < Sequel::Model
   def get_for_sale i_id, o_id
     i_id = i_id.to_s.strip
     item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
-    return item unless item.nil?
+    product = Product[item.p_id]
+    return item unless item.nil? || product.non_saleable
     return self if missing(i_id)
     update_from Item[i_id]
 
@@ -437,6 +447,7 @@ class Item < Sequel::Model
     return self if is_from_another_location
     return self if is_on_cart o_id
     return self if has_been_sold
+    return self if is_non_saleable
     errors.add("Error inesperado", "Que hacemos?")
     return self
   end
@@ -444,7 +455,8 @@ class Item < Sequel::Model
   def get_for_transport i_id, o_id
     i_id = i_id.to_s.strip
     item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
-    return item unless item.nil?
+    product = Product[item.p_id]
+    return item unless item.nil? || product.non_saleable
     return self if missing(i_id)
     update_from Item[i_id]
     return self if has_been_void
@@ -492,7 +504,8 @@ class Item < Sequel::Model
             .order(:orders__o_id)
             .last
 
-    return item unless item.nil?
+    product = Product[item.p_id]
+    return item unless item.nil? || product.non_saleable
     return self if missing(i_id)
     item = Item
             .filter(i_id: i_id, type: Order::SALE)

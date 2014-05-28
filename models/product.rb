@@ -130,6 +130,28 @@ class Product < Sequel::Model
     return :active
   end
 
+  def set_sale_mode sale_mode
+    return self if sale_mode.nil?
+    case sale_mode.to_sym
+      when :normal
+        self.on_request = false
+        self.non_saleable = false
+      when :on_request
+        self.on_request = true
+        self.non_saleable = false
+      when :non_saleable
+        self.on_request = false
+        self.non_saleable = true
+    end
+    self
+  end
+
+  def sale_mode
+    return :non_saleable if self.non_saleable
+    return :on_request if self.on_request
+    return :normal
+  end
+
   def status
     status = R18n.t.product.fields.life_cicle.active.to_s
     status = R18n.t.product.fields.on_request.to_s if self.on_request
@@ -234,7 +256,7 @@ class Product < Sequel::Model
     validates_presence [:p_name, :p_short_name, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :exact_price, :price]
 
     errors.add("La marca", "No puede estar vacia" ) if self[:br_id].nil?
-    errors.add("El costo de compra", "no puede ser cero" ) if self[:buy_cost] + self[:sale_cost] == 0 unless self[:buy_cost].nil? || self[:sale_cost].nil?
+    errors.add("El costo de compra", "no puede ser cero" ) if self.buy_cost + self.sale_cost == 0
     errors.add("El markup ideal", "no puede ser cero" ) if self[:ideal_markup] == 0
     errors.add("El markup real", "no puede ser cero." ) if self[:real_markup] == 0
     errors.add("El precio exacto", "no puede ser cero" ) if self[:exact_price] == 0
@@ -246,7 +268,7 @@ class Product < Sequel::Model
   def update_from_hash(hash_values)
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
 
-    numerical_keys = [ :direct_ideal_stock, :indirect_ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :stock_deviation, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
+    numerical_keys = [ :direct_ideal_stock, :indirect_ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :stock_deviation, :buy_cost, :materials_cost, :parts_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
     hash_values.select do |key, value|
       if numerical_keys.include? key.to_sym
         unless value.nil? or (value.class == String and value.length == 0)
@@ -261,13 +283,15 @@ class Product < Sequel::Model
     alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :description, :notes, :img, :img_extra ]
     hash_values.select { |key, value| eval("self.#{key}=value.to_s") if alpha_keys.include? key.to_sym unless value.nil?}
 
-    checkbox_keys = [:published_price, :published, :on_request]
+    checkbox_keys = [:published_price, :published]
+    #, :on_request
     checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }
 
     true_false_keys = [:tercerized]
     true_false_keys.each { |key| self[key.to_sym] = hash_values[key] == "true" ? 1 : 0 }
 
     set_life_phase hash_values[:life_phase]
+    set_sale_mode hash_values[:sale_mode]
 
     unless hash_values[:brand].nil?
       brand_json = JSON.parse(hash_values[:brand])

@@ -157,8 +157,16 @@
           label for="non_tercerized" = t.product.fields.non_tercerized
 
         div data-field-span="1"
-          label for="on_request" = t.product.fields.on_request
-          input type="checkbox" name="on_request" id="on_request" checked=("checked" if @product.on_request)
+          label = t.product.fields.sale_mode.title
+          input type="radio" name="sale_mode" id="normal" value="normal" checked=("checked" if not (@product.on_request and @product.non_saleable) )
+          label for="normal" = t.product.fields.sale_mode.normal
+          br
+          input type="radio" name="sale_mode" id="on_request" value="on_request" checked=("checked" if @product.on_request)
+          label for="on_request" = t.product.fields.sale_mode.on_request
+          br
+          input type="radio" name="sale_mode" id="non_saleable" value="non_saleable" checked=("checked" if @product.non_saleable)
+          label for="non_saleable" = t.product.fields.sale_mode.non_saleable
+
 
         div data-field-span="1"
           label = t.product.fields.life_cicle.title
