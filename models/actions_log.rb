@@ -50,7 +50,7 @@ class ActionsLog < Sequel::Model(:actions_log)
       .where{Sequel.expr(:at) > yesterday}
       .order(:at, :id)
       .reverse
-      .limit(500)
+      .limit(5000)
       .all
   end
 

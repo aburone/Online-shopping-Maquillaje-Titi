@@ -36,7 +36,6 @@ class Product < Sequel::Model
       message = "Error critico: #{detail.message} #{$@}"
       ActionsLog.new.set(msg: message[0..254], u_id: User.new.current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR).save
     end
-    self.save
   end
 
   def price= price
