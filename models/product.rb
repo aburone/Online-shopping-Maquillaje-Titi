@@ -153,10 +153,11 @@ class Product < Sequel::Model
   end
 
   def status
-    status = R18n.t.product.fields.life_cicle.active.to_s
-    status = R18n.t.product.fields.on_request.to_s if self.on_request
-    status = R18n.t.product.fields.life_cicle.end_of_life.to_s if self.end_of_life
-    status = R18n.t.product.fields.life_cicle.archived.to_s if self.archived
+    status = R18n.t.product.fields.life_cycle.active.to_s
+    status = R18n.t.product.fields.sale_mode.on_request.to_s if self.on_request
+    status = R18n.t.product.fields.sale_mode.non_saleable.to_s if self.non_saleable
+    status = R18n.t.product.fields.life_cycle.end_of_life.to_s if self.end_of_life
+    status = R18n.t.product.fields.life_cycle.archived.to_s if self.archived
     status
   end
 

@@ -76,7 +76,7 @@
         - if price_updated_at_col
           th.md_cell #{t.product.fields.price_updated_at}
         - if flags_cols
-          th.smm_cell #{t.product.fields.life_cicle.life_phase}
+          th.smm_cell #{t.product.fields.life_cycle.life_phase}
           th.smm_cell #{t.product.fields.sale_mode.mode}
           th.smm_cell #{t.product.fields.tercerized}
         - if can_edit
@@ -148,7 +148,7 @@
           - if price_updated_at_col
             td.md_cell #{product.price_updated_at.strftime "%Y-%m-%d" unless product.price_updated_at.nil?}
           - if flags_cols
-            td.smm_cell #{eval("t.product.fields.life_cicle.#{product.life_phase}")}
+            td.smm_cell #{eval("t.product.fields.life_cycle.#{product.life_phase}")}
             td.smm_cell #{eval("t.product.fields.sale_mode.#{product.sale_mode}")}
             td.smm_cell #{product.tercerized ? t.product.fields.is_tercerized : t.product.fields.non_tercerized}
           - if can_edit

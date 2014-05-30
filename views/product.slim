@@ -169,15 +169,15 @@
 
 
         div data-field-span="1"
-          label = t.product.fields.life_cicle.title
+          label = t.product.fields.life_cycle.title
           input type="radio" name="life_phase" id="active" value="active" checked=("checked" if not (@product.end_of_life and @product.archived) )
-          label for="active" = t.product.fields.life_cicle.active
+          label for="active" = t.product.fields.life_cycle.active
           br
           input type="radio" name="life_phase" id="end_of_life" value="end_of_life" checked=("checked" if @product.end_of_life)
-          label for="end_of_life" = t.product.fields.life_cicle.end_of_life
+          label for="end_of_life" = t.product.fields.life_cycle.end_of_life
           br
           input type="radio" name="life_phase" id="archived" value="archived" checked=("checked" if @product.archived)
-          label for="archived" = t.product.fields.life_cicle.archived
+          label for="archived" = t.product.fields.life_cycle.archived
     fieldset
       legend Atributos para la pagina publica
       div data-row-span="3"

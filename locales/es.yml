@@ -416,7 +416,7 @@ product:
     non_tercerized: Envasable
     created_at: Creado el
     price_updated_at: Costo actualizado
-    life_cicle:
+    life_cycle:
       title: Ciclo de vida
       life_phase: Fase
       active: Activo
