@@ -3,7 +3,7 @@ aside
     ul
       li: ul
         li.subsection
-          span class="#{inside?("/admin/production/reports")}" Informes
+          span class="#{inside?("/admin/production/reports")}" = t.nav.backend.production
         li: ul
           li
             span class="#{inside?("/admin/production/reports/to_package")}" Productos por envasar
@@ -20,13 +20,7 @@ aside
               a class="#{inside?("/admin/production/reports/to_package/all_locations_2")}" href=url('/production/reports/to_package/all_locations_2') Local y deposito, para 2 meses
             li
               a class="#{inside?("/admin/production/reports/to_package/all_locations_3")}" href=url('/production/reports/to_package/all_locations_3') Local y deposito, para 3 meses
-          li.subsection
-            a class="#{inside?("/admin/production/reports/products_to_move")}" href=url('/production/reports/products_to_move') Productos por enviar
 
-
-      li: ul
-        li.subsection
-          spam class="#{inside?("/admin/production")}" = t.nav.backend.production
         li: ul
           li
             a class="#{inside?("/admin/production/labels")}" href=url('/production/labels') = t.nav.backend.labels
@@ -40,7 +34,10 @@ aside
 
       li: ul
         li.subsection
-          spam class="#{inside?("/admin/transport")}" = t.nav.backend.transport
+          spam class="#{inside?("/admin/transport")} #{inside?("/admin/production/reports/products_to_move")}" = t.nav.backend.transport
+        li: ul
+          li
+            a class="#{inside?("/admin/production/reports/products_to_move")}" href=url('/production/reports/products_to_move') = t.nav.backend.reports.products_to_transport
         li: ul
           li
             span class="#{inside?("/admin/transport/departures")}" Salidas
