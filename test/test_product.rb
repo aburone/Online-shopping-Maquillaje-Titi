@@ -576,12 +576,13 @@ class ProductTest < Test::Unit::TestCase
 
   def test_should_get_materials_cost
     product = Product[2]
-    cost =  BigDecimal.new(0, 3)
-    product.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
-    # 1 * 3.355 + 100 * 0.287 + 1 * 0.88 = 32.935
-    assert_equal cost.round(3).to_s("F"), product.materials_cost.to_s("F")
-    expected_cost = BigDecimal.new(32.935, 6)
-    assert_equal expected_cost, product.materials_cost, "#{expected_cost.to_s("F")} expected but was #{product.materials_cost.to_s("F")}"
+    expected_cost =  BigDecimal.new(0, 3)
+    product.materials.map do |material|
+      expected_cost +=  material[:m_qty] * material[:m_price]
+      # ap "#{material[:m_qty].to_s("F")} * #{material[:m_price].to_s("F")}"
+    end
+    # 1 * 3.355 + 1 * 0.88 + 100 * 0.304 = 34.635
+    assert_equal expected_cost.round(3).to_s("F"), product.materials_cost.to_s("F")
   end
 
   def test_should_ideal_stock_should_not_be_modified_by_stored_procedure

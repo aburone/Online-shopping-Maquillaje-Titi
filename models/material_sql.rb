@@ -13,7 +13,7 @@ class Material < Sequel::Model(:materials)
   COLUMNS = [ :materials__m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :materials__created_at, :materials__price_updated_at ]
 
 
-  def calculate_ideal_stock debug = false
+  def calculate_ideal_stock debug: false
     p "#{@values[:m_name]} (#{@values[:m_id]})" if debug
     total_needed = BigDecimal.new(0)
     products = self.products

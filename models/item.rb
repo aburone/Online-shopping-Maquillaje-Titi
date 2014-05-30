@@ -223,10 +223,12 @@ class Item < Sequel::Model
   end
 
   def is_non_saleable
-    product = Product[self.p_id]
-    if product.non_saleable
-      errors.add("Este item no es para la venta", "Este item es parte de un kit y no puede venderse por separado")
-      return true
+    unless self.p_id.nil?
+      product = Product[self.p_id]
+      if !product.nil? && product.non_saleable
+        errors.add("Este item no es para la venta", "Este item es parte de un kit y no puede venderse por separado")
+        return true
+      end
     end
     return false
   end
@@ -437,11 +439,10 @@ class Item < Sequel::Model
   def get_for_sale i_id, o_id
     i_id = i_id.to_s.strip
     item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
-    product = Product[item.p_id]
-    return item unless item.nil? || product.non_saleable
+    return self if is_non_saleable
+    return item unless item.nil?
     return self if missing(i_id)
     update_from Item[i_id]
-
     return self if has_been_void
     return self if is_from_production
     return self if is_from_another_location
@@ -455,8 +456,8 @@ class Item < Sequel::Model
   def get_for_transport i_id, o_id
     i_id = i_id.to_s.strip
     item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
-    product = Product[item.p_id]
-    return item unless item.nil? || product.non_saleable
+    return self if is_non_saleable
+    return item unless item.nil?
     return self if missing(i_id)
     update_from Item[i_id]
     return self if has_been_void
@@ -504,8 +505,8 @@ class Item < Sequel::Model
             .order(:orders__o_id)
             .last
 
-    product = Product[item.p_id]
-    return item unless item.nil? || product.non_saleable
+    return self if is_non_saleable
+    return item unless item.nil?
     return self if missing(i_id)
     item = Item
             .filter(i_id: i_id, type: Order::SALE)
