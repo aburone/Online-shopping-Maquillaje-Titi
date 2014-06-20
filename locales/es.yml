@@ -574,7 +574,7 @@ orders:
   title: Revision de ordenes
   empty: No hay ordenes para listar
   count: "%1 ordenes listadas"
-  select_type: Seleccione el tipo de ordenes a listar
+  select_type: Seleccione el tipo de ordenes a listar en el menu lateral
 
 order:
   type:

@@ -6,10 +6,10 @@ nav.main_nav role="navigation"
         span class="current" href="#" = ("#{current_user_name}@#{current_location[:translation]}" if current_user_name and current_location)
 
       dd.lnk
-        a class="#{inside?("/admin/production")}" href=url('/production') Produccion
+        a class="#{inside?("/admin/production")}" href=url('/production') = t.production.title
 
       dd.lnk
-        a class="#{inside?("/admin/administration")}" href=url('/administration') Administracion
+        a class="#{inside?("/admin/administration")}" href=url('/administration') = t.administration.title
 
 
       dd.lnk

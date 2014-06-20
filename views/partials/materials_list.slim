@@ -16,17 +16,14 @@
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
 
 - caption = caption.nil? ? "" : caption
-- persistent_headers = false if persistent_headers.nil? unless persistent_headers == true
-- persist_area = persistent_headers ? " persist_area" : ""
-- persist_header = persistent_headers ? " persist_header" : ""
 - price_updated_at_col ||= false
 
 - if @materials.nil? or @materials.empty?
   p = t.materials.empty
 - else
-  table id="#{ajax_id}" class="items tablesorter#{quicksearch}#{persist_area}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+  table id="#{ajax_id}" class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
     caption #{caption}
-    thead class="#{persist_header}"
+    thead
       tr
         th = t.material.fields.category
         th = t.material.fields.id

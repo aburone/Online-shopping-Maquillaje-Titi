@@ -63,24 +63,30 @@ document.addEventListener("DOMContentLoaded", function(event) {
       }, false);
   }
 
-  // click to edit
-  $('.ajax_click_to_edit_sku').editable('/admin/products/ajax_update', {
-      indicator:'Actualizando...', tooltip:'Click para editar...', width:230,
-      submitdata:{ 'function':"update_sku" }
-  });
 
+  el = document.querySelectorAll('.ajax_hide_parent_on_click');
+  for ( var i = 0; i < el.length; i++ ) {
+      el[i].addEventListener("click", function(e){
+        e.stopPropagation();
+        var parent = get_parent(this, this.dataset.tag);
+        parent.classList.add('hide');
+        setTimeout(function(){
+          parent.style.display = "none";
+        },700)
+      }, false);
+  }
 
-  if( $(".quicksearch tbody tr").length > 0 ) {
-    var qs = $(".quicksearch"), inputClass = qs.data('quicksearch')=="no_focus" ? "" : "autoselect", labelText = qs.data('label') ? qs.data('label') : "Set me with data-label";
-
-    $(".quicksearch tbody tr").quicksearch({
-      attached:".quicksearch",
-      position:"before",
-      labelText: labelText,
-      inputText:'',
-      inputClass: inputClass,
-      delay:300
-    });
+  // Find first ancestor of el with tagName
+  // or undefined if not found
+  function get_parent(el, tagName) {
+    tagName = tagName.toLowerCase();
+    do {
+      el = el.parentNode;
+      if (el.tagName.toLowerCase() == tagName) {
+        return el;
+      }
+    } while (el.parentNode)
+    return null;
   }
 
   $('.ajax_confirm').click(function(){
@@ -280,27 +286,5 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
   });
 
-  function UpdateTableHeaders() {
-    $(".persist_area").each(function() {
-      var el             = $(this),
-      offset         = el.offset(),
-      scrollTop      = $(window).scrollTop();
-      if ((scrollTop > offset.top) && (scrollTop < offset.top + el.height())) {
-        $(".persist_header:not([class*='floating_header'])", el).addClass("floating_header");
-      } else {
-        $(".persist_header", el).removeClass("floating_header");
-      };
-    });
-  }
-  // DOM Ready
-  $(function() {
-     $(".persist_area").each(function() {
-         floating_header = $(".persist_header", this);
-         floating_header.css("width", $(this).width() );
-     });
-    $(window)
-    .scroll(UpdateTableHeaders)
-    .trigger("scroll");
-  });
 
 });

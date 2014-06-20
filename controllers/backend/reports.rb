@@ -3,7 +3,8 @@ class Backend < AppController
   get '/administration/reports/price_list' do
     @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
     slim :products_list, layout: :layout_backend, locals: {title: "Lista de precios", sec_nav: :nav_administration,
-      status_col: true
+      status_col: true,
+      can_filter: false
     }
   end
 
@@ -18,7 +19,6 @@ class Backend < AppController
       price_col: true,
       price_pro_col: false,
       stock_col: false,
-      persistent_headers: true,
       price_updated_at_col: true,
       flags_cols: true
     }
@@ -29,13 +29,12 @@ class Backend < AppController
     @products.sort_by! { |product| product[:markup_deviation_percentile] }
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
-      full_row: true,
+      can_hide: true,
       price_pro_col: false,
       stock_col: false,
       real_markup_col: true,
       ideal_markup_col: true,
       markup_deviation_percentile_col: true,
-      persistent_headers: true,
       price_updated_at_col: true
     }
   end
@@ -82,8 +81,6 @@ class Backend < AppController
       multi_stock_col: true,
       use_virtual_stocks: true,
       stock_deviation_col: true,
-      persistent_headers: true,
-      click_to_filter: true,
       caption: t.click_in_category_or_brand_and_space_to_filter
     }
   end
