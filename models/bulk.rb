@@ -21,7 +21,7 @@ class Bulk < Sequel::Model
   COLUMNS = [:bulks__b_id, :bulks__m_id, :b_qty, :b_price, :b_status, :b_printed, :b_loc, :bulks__created_at]
 
   def save (opts=OPTS)
-    opts = opts.merge({columns: Bulks::ATTRIBUTES})
+    opts = opts.merge({columns: Bulk::ATTRIBUTES})
     begin
       super opts
     rescue => message
