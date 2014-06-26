@@ -12,6 +12,10 @@ class Material < Sequel::Model(:materials)
   # same as ATTRIBUTES but with the needed table references for get_ functions
   COLUMNS = [ :materials__m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :materials__created_at, :materials__price_updated_at ]
 
+  def d_name
+    return "" if self[:distributors].empty?
+    self[:distributors].first[:d_name]
+  end
 
   def calculate_ideal_stock debug: false
     p "#{@values[:m_name]} (#{@values[:m_id]})" if debug

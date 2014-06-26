@@ -23,7 +23,12 @@ class Backend < AppController
   end
 
   get '/materials' do
-    @materials = Material.new.get_list(current_location[:name]).all
+    @materials = Material.new
+                  .get_list(current_location[:name])
+                  .all
+    @materials.map do |material|
+      material[:distributors] = material.distributors.all
+    end
     slim :materials, layout: :layout_backend, locals: {title: t.materials.title}
   end
   post '/materials/new' do

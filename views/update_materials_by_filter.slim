@@ -21,9 +21,9 @@ form.grid-form action=url("/administration/adjustments/materials/by_filter") met
 
       div data-field-span="2"
         label Seleccionar proveedor
-        select name="d_id" disabled=""
+        select name="d_id"
           option value=""
-          - Distributor.all.each do |distributor|
+          - Distributor.order(:d_name).all.each do |distributor|
             option selected=("selected" if params['d_id'].to_i == distributor.d_id) value="#{distributor.d_id}" = distributor.d_name
 
       div data-field-span="2"

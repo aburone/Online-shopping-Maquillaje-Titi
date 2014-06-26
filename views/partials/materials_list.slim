@@ -6,8 +6,8 @@
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
 - stock_col = multi_stock_col ? false : stock_col
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
-
 - price_updated_at_col ||= false
+- distributor_col ||= false
 
 - if @materials.nil? or @materials.empty?
   p = t.materials.empty
@@ -25,6 +25,8 @@
         th.sm_cell.small_content = t.material.fields.id
         - if sku_col
           th = t.material.fields.SKU
+        - if distributor_col
+          th.filter-select.filter-onlyAvail = t.material.fields.distributor
         th = t.material.fields.name
 
         - if stock_col or multi_stock_col
@@ -62,6 +64,9 @@
           td.sm_cell.number #{material[:m_id]}
           - if sku_col
             td #{material[:SKU]}
+          - if distributor_col
+            td #{material.d_name}
+
           td.m_name #{ I18n.transliterate( material[:m_name] )}
 
           - if stock_col or multi_stock_col

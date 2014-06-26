@@ -204,8 +204,7 @@ class Backend < AppController
       def get_materials_by_filter
         threshold = Sequel.date_sub(Time.now.getlocal("-00:03").to_date.iso8601, {days: @price_updated_at_threshold})
         materials = Material.new.get_list([Location::W1, Location::W2]).where{Sequel.expr(:materials__price_updated_at) < threshold}
-
-        # materials = materials.join(:materials_to_distributors, [:m_id]).join(:distributors, [:d_id]).where(d_id: @d_id) if @d_id
+        materials = materials.join(:materials_to_distributors, materials_to_distributors__m_id: :materials__m_id).join(:distributors, [:d_id]).where(d_id: @d_id) if @d_id
         materials = materials.where("m_name LIKE :m_name", m_name: "%#{@m_name}%") if @m_name
         materials.all
       end
