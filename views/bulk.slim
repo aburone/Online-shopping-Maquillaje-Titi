@@ -7,27 +7,28 @@
 - if @bulk.nil?
     h2 = t.bulk.not_found
 - else
-    td colspan="6"
+    td.no_margin.no_padding colspan="5"
       form action=url("/bulks/#{@bulk[:b_id]}") method="post"
-        table
+        table.items.no_margin
           tr
-            td.no_padding
+            td.md_cell
               == Rack::Csrf.tag(env)
               input type="hidden" name="_method" value="put"
               input type="hidden" name="m_id" value="#{@bulk[:m_id]}"
-              input.md_cell disabled="" type="text" name="b_id" value="#{@bulk.b_id}"
-            td
-              input.sm_cell autofocus="" type="text" name="b_qty" size=5 maxlength=10 required="required" value="#{Utils::number_format @bulk.b_qty, 2, ""}"
-            td
-              select.md_cell name="b_status"
+              input disabled="" type="text" name="b_id" value="#{@bulk.b_id}"
+            td.md_cell
+              input autofocus="" type="text" name="b_qty" size=5 maxlength=10 required="required" value="#{Utils::number_format @bulk.b_qty, 2, ""}"
+            td.md_cell
+              select name="b_status"
                 - Bulk::SELECTABLE_STATUS.each do |status|
                   - if @bulk[:b_status] == status
                     option selected="selected" value="#{status}" = status
                   - else
                     option = status
-            td
-              input.bg_cell disabled="" type="text" name="created_at" value="#{Utils::local_datetime_format(@bulk[:created_at])}"
-            td
-              input.md_cell type="submit" value="#{t.actions.apply}"
+            td.bg_cell
+              input disabled="" type="text" name="created_at" value="#{Utils::local_datetime_format(@bulk[:created_at])}"
+            td.md_cell
+              input type="submit" value="#{t.actions.apply}" &nbsp;&nbsp;&nbsp;&nbsp;
+
               a href="/admin/materials/#{@material[:m_id]}" = t.actions.cancel
 

@@ -67,17 +67,17 @@
           input type="text" readonly="" tabindex="-1" name="m_ideal_stock" size=50 value="#{Utils::number_format @material[:m_ideal_stock], 2}"
       div data-row-span="2"
         div.readonly data-field-span="1"
-          label for="price_updated_at" = t.material.fields.price_updated_at
-          input type="text"  name="price_updated_at" id="price_updated_at" readonly="readonly" tabindex="-1" value="#{l @material[:price_updated_at]}"
-        div.readonly data-field-span="1"
           label for="created_at" = t.material.fields.created_at
           input type="text"  name="created_at" id="created_at" readonly="readonly" tabindex="-1" value="#{l @material[:created_at]}"
+        div.readonly data-field-span="1"
+          label for="price_updated_at" = t.material.fields.price_updated_at
+          input type="text"  name="price_updated_at" id="price_updated_at" readonly="readonly" tabindex="-1" value="#{l @material[:price_updated_at]}"
 
   - if @bulks.empty?
     h2 = t.material.bulks_not_found
   - else
     h2 = t.material.bulks_list
-    == slim :bulks_list, locals: {focus: false}
+    == slim :bulks_list, locals: {can_filter: false}
 
   form action=url("/bulks/new") method="post"
     == Rack::Csrf.tag(env)
@@ -91,4 +91,4 @@ div#ajax_panel
 - else
   h2 = t.material.products_list
   - @focus = "no_focus"
-  == slim :products_list, locals: {can_edit:true, edit_link: "edit_product"}
+  == slim :products_list, locals: {can_filter: false, can_edit:true, edit_link: "edit_product"}

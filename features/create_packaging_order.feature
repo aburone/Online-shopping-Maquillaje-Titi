@@ -13,10 +13,10 @@ When I fill with a printed label
 When I fill with a printed label
 When I fill with a printed label
 
-When I click "Terminar carga"
+When I click "Terminar"
 Then I should see "La orden esta lista para ser verificada" within ".flash"
 
-When I select a packaging order for verification
+When I select the last item and click on the last link
 Then I should see "Verificacion de orden de envasado"
 And I should see 4 item
 
@@ -27,17 +27,13 @@ Then I should see "Todavia quedan items pendientes"
 And I should see 3 item
 
 When I verify all items
-
-When I click "Terminar verificacion"
+And I click "Terminar verificacion"
 Then I should see "Ordenes de envasado a imputar"
 
 
 # When I go to allocation_list
-
-When I select a packaging order for allocation
+When I select the last item and click on the last link
 Then I should see the correct title for the allocation of a packaging order
-
 Then If there are missing materials, I should add them
-
 Then The allocation must take place
 

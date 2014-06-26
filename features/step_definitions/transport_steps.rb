@@ -4,12 +4,6 @@ When(/^I go to warehouse_arrivals$/) do
   page.should have_content( t.transport.arrivals.title )
 end
 
-When(/^I go to packaging_list$/) do
-  visit "/admin/production/packaging/select"
-  page.status_code.should == 200
-  page.should have_content( t.production.packaging_select.title )
-end
-
 When(/^I go to departure_pos_to_wh$/) do
   visit "/sales/transport/departures/pos_to_wh/select"
   page.status_code.should == 200
@@ -66,7 +60,7 @@ When /^I fill with some items from s1$/ do
   i_id = add_ready_item Location::S1
   all('.item').count.should == count + 1
 
-  puts "Order: #{get_o_id}"
+  puts "Order: #{get_o_id_from_current_path}"
 end
 
 
@@ -247,8 +241,3 @@ def add_invalid
   all('.item').count.should == @count
 end
 
-
-def get_o_id
-  @o_id = current_path.scan(/\d+/).last.to_i
-  @o_id
-end

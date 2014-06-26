@@ -1,7 +1,7 @@
 class Backend < AppController
 
   get '/distributors' do
-    slim :distributors, layout: :layout_backend, locals: {sec_nav: :nav_administration, distributors: Distributor.order(:d_name).all}
+    slim :distributors, layout: :layout_backend, locals: {sec_nav: :nav_administration, distributors: Distributor.order(:d_name).all, title: t.distributors.title}
   end
 
   route :get, :post, '/distributors/new' do

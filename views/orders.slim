@@ -1,8 +1,7 @@
 -# coding: UTF-8
-- @title = t.orders.title
 
 - if @orders.nil? and @order.nil?
-  p = t.orders.select_type
+  == slim :nav_orders
 
 - if @orders
   - p params[:type]
@@ -11,4 +10,14 @@
 
 - if @order
   h2 = @order.o_code ? t.order.title_with_code(ConstantsTranslator.new(@order.type).t, @order.o_id, @order.o_code_with_dash) : t.order.title(ConstantsTranslator.new(@order.type).t, @order.o_id)
-  == slim :items_list, locals: {can_edit: false, focus: false}
+
+  h3 = t.items.title
+  == slim :items_list, locals: {can_edit: false, can_filter: false}
+  - unless @cart_total.nil?
+    table.items
+      tr
+        td.number Total #{Utils::money_format(@cart_total, 2)}
+
+  - unless @bulks.empty?
+    h3 = t.bulks.title
+    == slim :bulks_list, locals: {can_edit: false, can_filter: false, m_name_col: true}

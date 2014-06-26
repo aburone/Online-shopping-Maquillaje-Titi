@@ -14,10 +14,12 @@ html lang="es"
     section.messages
       == styled_flash
     - if @sec_nav
-      == slim @sec_nav
+      aside
+        == slim sec_nav, locals: {show_title: true}
     - sec_nav ||= nil
     - if sec_nav
-      == slim sec_nav
+      aside
+        == slim sec_nav, locals: {show_title: true}
 
     article
       h1=title
@@ -27,7 +29,6 @@ html lang="es"
         script src="/jquery-2.0.3.min.js"
         script src="/jquery.plugins-min.js"
         - if self.class.development?
-          script src="/backend-min.js?#{date}"
-          / script src="/jss/backend.js"
+          script src="/jss/backend.js"
         - else
           script src="/backend-min.js?#{date}"

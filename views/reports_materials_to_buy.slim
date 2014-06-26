@@ -11,4 +11,4 @@ form.grid-form action=url("/administration/reports/materials_to_buy") method="po
         label for="submit" &nbsp;
         input type="submit" value="Recalcular"
 
-== slim :materials_list, locals: {can_edit: false, persistent_headers: true, click_to_filter: true, caption: t.click_in_category_and_space_to_filter, sku_col: true, multi_stock_col: true, stock_deviation_col: true }
+== slim :materials_list, locals: {can_edit: false, sku_col: true, multi_stock_col: true, stock_deviation_col: true }

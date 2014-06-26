@@ -24,6 +24,7 @@ body {
   line-height: 1.6em;
   color: #333;
   background: #FFF;
+  padding-right: 1em;
 }
 ol, ul {
   list-style: none;
@@ -49,7 +50,7 @@ blockquote, q {
 strong {font-weight:bold}
 h1{font-size:18px; font-weight:bold; padding:1.5em 0 0.8em 0; color: SaddleBrown}
 h2{font-size:16px; font-weight:bold; padding:1.3em 0 0.5em 0; color: SaddleBrown}
-h3{font-size:16px; font-weight:bold; margin: 0; padding: 0; color: #ddae20}
+h3{font-size:16px; font-weight:bold; margin: 0; padding: 0; color: SaddleBrown}
 
 .unauthorized {margin:150px 0 0; padding-bottom:50px;}
 .not_found {width:100%;height:100%;background:#000}

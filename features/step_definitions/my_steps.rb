@@ -1,3 +1,21 @@
+def get_o_id_from_current_path
+  o_id = current_path.scan(/\d+/).last.to_i
+  raise "Trying to find a numeric ID in #{current_path} but found none" if o_id.to_i == 0
+  o_id
+end
+
+When /^I select the last item and click on the last link$/ do
+  items = all('.item')
+  if items.empty?
+    puts "There are no items to click!"
+    "There are no items to click!".should == false
+  else
+    node =  items.last.first(:link)
+    puts "Loading #{node.text} > #{node[:href]}"
+    node.click
+  end
+end
+
 
 When /^I verify all items$/ do
   i_ids = []
@@ -5,8 +23,7 @@ When /^I verify all items$/ do
   i_ids.each do |i_id|
     fill_in 'i_id', with: "#{i_id}"
     click_button("Aceptar")
-    with_scope('.flash') { page.should have_content("Verificado") }
-    # page.should have_content( "Verificando ingreso de mercaderia" )
+    with_scope('.flash') { page.should have_content("Etiqueta #{i_id} verificada con ") }
   end
 end
 

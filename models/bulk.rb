@@ -4,8 +4,6 @@ require_relative '../helpers/sequel_binary'
 
 class Bulk < Sequel::Model
   many_to_one :material, key: :m_id
-  # plugin :validation_helpers
-  # plugin :auto_validations
 
   UNDEFINED="UNDEFINED"
   MUST_VERIFY="MUST_VERIFY"
@@ -18,21 +16,35 @@ class Bulk < Sequel::Model
   STATUS = [UNDEFINED, NEW, IN_USE, VOID]
   SELECTABLE_STATUS = [NEW, IN_USE]
 
+  ATTRIBUTES = [:b_id, :m_id, :b_qty, :b_price, :b_status, :b_printed, :b_loc, :created_at]
+  # same as ATTRIBUTES but with the neccesary table references for get_ functions
+  COLUMNS = [:bulks__b_id, :bulks__m_id, :b_qty, :b_price, :b_status, :b_printed, :b_loc, :bulks__created_at]
+
+  def save (opts=OPTS)
+    opts = opts.merge({columns: Bulks::ATTRIBUTES})
+    begin
+      super opts
+    rescue => message
+      errors.add "General", message
+    end
+    self
+  end
+
   def empty?
     return @values[:b_id].nil? ? true : false
   end
 
   def missing b_id
     if Bulk[b_id].nil?
-      errors.add("Bulk invalido", "No tengo ningun granel con el id #{b_id}") 
+      errors.add("Bulk invalido", "No tengo ningun granel con el id #{b_id}")
       return true
     end
     return false
   end
 
-  def has_been_void 
+  def has_been_void
     if @values[:b_status] == Bulk::VOID
-      errors.add("Bulk invalido", "Este bulk fue Invalidado. No podes operar sobre el.") 
+      errors.add("Bulk invalido", "Este bulk fue Invalidado. No podes operar sobre el.")
       return true
     end
     return false
@@ -40,7 +52,7 @@ class Bulk < Sequel::Model
 
   def has_been_verified
     if @values[:b_status] == Bulk::VERIFIED
-      errors.add("Error de usuario", "Este granel ya fue verificado anteriormente.") 
+      errors.add("Error de usuario", "Este granel ya fue verificado anteriormente.")
       return true
     end
     return false
@@ -48,7 +60,7 @@ class Bulk < Sequel::Model
 
   def is_from_another_location
     if @values[:b_loc] != User.new.current_location[:name]
-      errors.add("Bulk fuera de lugar", "Este granel pertenece a \"#{ConstantsTranslator.new(@values[:b_loc]).t}\". Ni siquiera deberia estar aqui.") 
+      errors.add("Bulk fuera de lugar", "Este granel pertenece a \"#{ConstantsTranslator.new(@values[:b_loc]).t}\". Ni siquiera deberia estar aqui.")
       return true
     end
     return false
@@ -56,7 +68,7 @@ class Bulk < Sequel::Model
 
   def is_from_current_location
     if @values[:b_loc] == User.new.current_location[:name]
-      errors.add("Bulk fuera de lugar", "Estas intentando mover un granel desntro del mismo deposito") 
+      errors.add("Bulk fuera de lugar", "Estas intentando mover un granel desntro del mismo deposito")
       return true
     end
     return false
@@ -95,10 +107,10 @@ class Bulk < Sequel::Model
     return bulk unless bulk.nil?
     return self if missing(b_id)
     update_from Bulk[b_id]
-    return self if has_been_void 
+    return self if has_been_void
     return self if is_from_another_location
     return self if is_on_some_order o_id
-    errors.add("Error inesperado", "Que hacemos?") 
+    errors.add("Error inesperado", "Que hacemos?")
     return self
   end
 
@@ -108,10 +120,10 @@ class Bulk < Sequel::Model
     return bulk unless bulk.nil?
     return self if missing(b_id)
     update_from Bulk[b_id]
-    return self if has_been_void 
+    return self if has_been_void
     return self if has_been_verified
     return self if is_from_current_location
-    errors.add("Error inesperado", "Que hacemos?") 
+    errors.add("Error inesperado", "Que hacemos?")
     return self
   end
 
@@ -121,10 +133,10 @@ class Bulk < Sequel::Model
     return bulk unless bulk.nil?
     return self if missing(b_id)
     update_from Bulk[b_id]
-    return self if has_been_void 
+    return self if has_been_void
     return self if is_from_another_location
     return self if is_on_some_order o_id
-    errors.add("Error inesperado", "Que hacemos?") 
+    errors.add("Error inesperado", "Que hacemos?")
     return self
   end
 
@@ -218,7 +230,7 @@ class Bulk < Sequel::Model
     o_id = o_id.to_i
     u = User.new
     current_user_id = u.current_user_id
-    current_location = u.current_location[:name]    
+    current_location = u.current_location[:name]
     raise_if_changing_void current_user_id, current_location
 
     @values[:b_status] = status
@@ -233,7 +245,7 @@ class Bulk < Sequel::Model
   def set_as_printed
     u = User.new
     current_user_id = u.current_user_id
-    current_location = u.current_location[:name]    
+    current_location = u.current_location[:name]
     raise_if_changing_void current_user_id, current_location
 
     @values[:b_printed] = 1

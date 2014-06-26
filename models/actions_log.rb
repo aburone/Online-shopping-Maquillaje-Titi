@@ -48,7 +48,7 @@ class ActionsLog < Sequel::Model(:actions_log)
 
   def get_today
     yesterday = Sequel.date_sub(Time.now.getlocal("-03:00").to_date.iso8601, {days:1})
-    ActionsLog
+    logs = ActionsLog
       .select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
       .join(:users, user_id: :u_id)
       .where{Sequel.expr(:at) > yesterday}
@@ -56,6 +56,7 @@ class ActionsLog < Sequel::Model(:actions_log)
       .reverse
       .limit(5000)
       .all
+    logs ||= []
   end
 
   def get_with_hash params
@@ -63,13 +64,14 @@ class ActionsLog < Sequel::Model(:actions_log)
     params.each do |key, value|
       logs = logs.where( key.to_sym => value) if ["at", "msg", "lvl", "b_id", "m_id", "i_id", "p_id", "o_id", "u_id", "l_id"].include? key unless value.nil? or value.to_s.strip.empty?
     end
-    logs
+    l = logs
       .select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username)
       .join(:users, user_id: :u_id)
       .order(:at)
       .reverse
       .limit(5000)
       .all
+    l ||= []
   end
 
   def get_logins username

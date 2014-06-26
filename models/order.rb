@@ -5,6 +5,7 @@ class Order < Sequel::Model
   many_to_many :bulks, class: :Bulk, join_table: :line_bulks, left_key: :o_id, right_key: :b_id
 
   PACKAGING="PACKAGING"
+  ASSEMBLY="ASSEMBLY"
   INVENTORY="INVENTORY"
   WH_TO_POS="WH_TO_POS"
   POS_TO_WH="POS_TO_WH"
@@ -14,7 +15,7 @@ class Order < Sequel::Model
   CREDIT_NOTE="CREDIT_NOTE"
   INVALIDATION="INVALIDATION"
   TRANSMUTATION="TRANSMUTATION"
-  TYPES = [PACKAGING, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION, TRANSMUTATION, RETURN, CREDIT_NOTE]
+  TYPES = [PACKAGING, ASSEMBLY, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION, TRANSMUTATION, RETURN, CREDIT_NOTE]
 
   OPEN="OPEN"
   MUST_VERIFY="MUST_VERIFY"
@@ -23,7 +24,6 @@ class Order < Sequel::Model
   EN_ROUTE="EN_ROUTE"
   VOID="VOID"
 
-  ATTRIBUTES = [:o_id, :type, :o_status, :o_loc, :u_id, :created_at]
   require_relative 'order_sql.rb'
 
   def empty?
@@ -40,32 +40,6 @@ class Order < Sequel::Model
 
   def valid_type? type
     TYPES.include? type
-  end
-
-  def items
-    super
-  end
-
-  def bulks
-    super
-  end
-
-  def materials
-    materials = Material
-    .select(:materials__m_id, :m_name, :c_id)
-    .select_append(:c_name)
-    .join(:products_materials, [:m_id])
-    .join(:products, products__p_id: :products_materials__product_id)
-    .join(:items, [:p_id])
-    .join(:line_items, line_items__i_id: :items__i_id, o_id: self.o_id)
-    .join(:materials_categories, materials_categories__c_id: :materials__c_id)
-    .select_group(:m_id, :m_name, :c_name, :materials__c_id)
-    .select_append{sum(:m_qty).as(m_qty)}
-    .all
-    materials.each do |mat|
-      mat[:m_qty] = BigDecimal.new(mat[:m_qty], 3)
-    end
-    materials
   end
 
   def parts
@@ -199,6 +173,15 @@ class Order < Sequel::Model
     change_status Order::MUST_VERIFY
   end
 
+  def finish_verification
+    pending_items = Item.join(:line_items, [:i_id]).filter(o_id: self.o_id).filter(i_status: Item::MUST_VERIFY).all
+    if pending_items.count > 0
+      errors.add "Error en verificacion", R18n::t.production.verification.still_pending_items
+    else
+      change_status Order::VERIFIED
+    end
+  end
+
   def change_status status
     @values[:o_status] = status
     save columns: [:o_status]
@@ -302,10 +285,6 @@ class Order < Sequel::Model
     message = R18n.t.order.created(order.type)
     ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     order
-  end
-
-  def create_packaging #TODO: eliminar de los test y borrar
-    create_new Order::PACKAGING
   end
 
   def create_or_load_sale

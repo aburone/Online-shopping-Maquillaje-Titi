@@ -1,5 +1,4 @@
 -# coding: UTF-8
-- @title = "Verificaciones y problemas pendientes"
 
 - if @pending_items.empty? and @void_items.empty? and @pending_bulks.empty? and @void_bulks.empty?
   p No hay pendientes
@@ -7,12 +6,12 @@
 
 - unless @pending_items.empty?
   - @items = @pending_items
-  == slim :items_list, locals: {can_edit: false}
+  == slim :items_list, locals: {can_edit: false, can_filter: false, price_pro_col: false}
 
 - unless @void_items.empty?
   h1 Items con problemas
   - @items = @void_items
-  == slim :items_list, locals: {can_edit: false}
+  == slim :items_list, locals: {can_edit: false, can_filter: false, price_pro_col: false}
 
 - unless @pending_bulks.empty?
   h1 Graneles pendientes de verificacion

@@ -1,45 +1,42 @@
-- focus = false if focus.nil?
-- focus_text = focus ? "focus" : "no_focus"
-- full_row = false if full_row.nil?
+- m_name_col = false if m_name_col.nil?
 - can_edit = true if can_edit.nil?
-- can_filter = true if can_filter.nil?
-- quicksearch = " quicksearch" if can_filter
+
 - if @bulks.empty?
   p = t.bulks.empty
 - else
-  table#ajax_bulks_list class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+  - can_filter = true if can_filter.nil?
+  - focus = true if focus.nil?
+  == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
+  - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
+  - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
+  table#ajax_bulks_list class="items #{tablesorter_class}"
+    caption #{caption}
     thead
       tr
         th.md_cell = t.bulk.fields.id
-        - if full_row
+        - if m_name_col
           th.bg_cell = t.bulk.fields.m_name
-        th.sm_cell = t.bulk.fields.qty
+        th.md_cell.small_content
+          | #{t.bulk.fields.qty}
+          br
+          | #{t.bulk.fields.units}
         th.md_cell = t.bulk.fields.status
         th.bg_cell = t.bulk.fields.created_at
         - if can_edit
-          th.sm_cell = t.bulk.fields.actions
-      tr
-        td
-        - if full_row
-          td
-        td.small_content colspan="2" = t.bulk.fields.units
-        td
-        - if can_edit
-          td
+          th.sm_cell.sorter-false = t.bulk.fields.actions
     tfoot
       tr
-        - colspan = full_row ? 7 : 6
+        - colspan = m_name_col ? 7 : 6
         td colspan="#{colspan}" = t.bulks.count(@bulks.count)
     tbody
       - @bulks.each do |bulk|
         tr.item
           td.md_cell = bulk.b_id
-          - if full_row
-            td.bg_cell = bulk[:m_name]
+          - if m_name_col
+            td.bg_cell = I18n.transliterate( bulk[:m_name] )
           td.sm_cell.number = Utils::number_format bulk.b_qty, 2
           td.md_cell = ConstantsTranslator.new(bulk.b_status).t
           td.bg_cell = Utils::local_datetime_format bulk.created_at
           - if can_edit
-            td
-              a.edit.edit_bulk href="/admin/bulks/#{bulk.b_id}" data-ajax="edit_bulk" data-b_id="#{bulk.b_id}"
-
+            td.sm_cell
+              a.text_icon.edit_bulk href="/admin/bulks/#{bulk.b_id}" data-ajax="edit_bulk" data-b_id="#{bulk.b_id}" ✎

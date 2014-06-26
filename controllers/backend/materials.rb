@@ -24,7 +24,7 @@ class Backend < AppController
 
   get '/materials' do
     @materials = Material.new.get_list(current_location[:name]).all
-    slim :materials, layout: :layout_backend
+    slim :materials, layout: :layout_backend, locals: {title: t.materials.title}
   end
   post '/materials/new' do
     begin
@@ -65,7 +65,7 @@ class Backend < AppController
     @bulks = Bulk.new.get_bulks_at_location(current_location[:name]).order(:m_name).all
     @count = 0
     @bulks.map { |bulk| @count += 1 unless bulk.b_printed }
-    slim :bulks, layout: :layout_backend
+    slim :bulks, layout: :layout_backend, locals: {title: t.bulks.title}
   end
   post '/bulks/labels/csv' do
     require 'tempfile'

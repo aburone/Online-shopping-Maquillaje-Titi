@@ -143,7 +143,7 @@ class Backend < AppController
 
   get '/products/items/?' do
     @items = Item.new.get_items_at_location current_location[:name]
-    slim :items, layout: :layout_backend, locals: {can_edit: true}
+    slim :items, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.items.title}
   end
 
   get '/products_relationships/?' do
@@ -156,9 +156,9 @@ class Backend < AppController
     slim :products_relations, layout: :layout_backend
   end
 
-  get '/products/?' do
+  get '/products' do
     @products = Product.new.get_saleable_at_location(current_location[:name]).order(:c_name, :p_name).all
-    slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product}
+    slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product, title: t.products.title}
   end
 
   post '/products/new/?' do

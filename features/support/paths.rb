@@ -14,22 +14,25 @@ module NavigationHelpers
       '/'
     when /backend/
       '/admin'
-    when /materials/
-      '/admin/materials'
     when /production/
       '/admin/production'
-    when /packaging_list/
-      '/admin/production/packaging/select'
-    when /verification_list/
-      '/admin/production/verification/select'
-    when /allocation_list/
-      '/admin/production/allocation/select'
+
+    # when /materials/
+    #   '/admin/materials'
+    # when /packaging_list/
+    #   '/admin/production/packaging/select'
+
+    # when /verification_list/
+    #   '/admin/production/verification/select'
+
+    # when /allocation_list/
+    #   '/admin/production/allocation/select'
 
     when /sales/
       '/ventas'
 
-    when /returns/
-      '/sales/returns'
+    # when /returns/
+    #   '/sales/returns'
 
 
 

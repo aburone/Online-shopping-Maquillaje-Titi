@@ -1,24 +1,21 @@
-- ajax_id = ajax_id.nil? ? "" : ajax_id
-- focus = true
-- focus_text = focus ? "focus" : "no_focus"
-- caption ||= ""
-- can_edit = true unless can_edit === false
-- can_filter = true unless can_filter === false
-- quicksearch = " quicksearch" if can_filter
-
 - if distributors.nil? or distributors.empty?
   p = t.distributors.empty
 - else
-  table id="#{ajax_id}" class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+  - can_filter = true if can_filter.nil?
+  - focus = true if focus.nil?
+  == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
+  - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
+  - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
+  table class="items #{tablesorter_class}"
     caption #{caption}
     thead
       tr
         th = t.distributor.fields.d_id
         th = t.distributor.fields.d_name
-        th = t.distributor.fields.d_has_pricelist
+        th.filter-select.filter-onlyAvail = t.distributor.fields.d_has_pricelist
         th = t.distributor.fields.d_notes
         - if can_edit
-          th = t.actions.edit
+          th.filter-false.sorter-false.sm_cell = t.actions.actions
     tfoot
       tr
         td colspan="3" = t.distributors.count(distributors.count)
@@ -28,11 +25,10 @@
         tr.item class="#{ajax_item}"
           td #{distributor.d_id}
           td #{ I18n.transliterate( distributor.d_name )}
-          td.small_content #{distributor.d_has_pricelist ? "Si" : ""}
+          td.small_content #{distributor.d_has_pricelist ? "Si" : "No"}
           td #{distributor.d_notes}
 
           - if can_edit
-            td.sd_cell
-              a.edit href="/admin/distributors/#{distributor.d_id}"
-                img src="/media/Icon-Edit.png" width="32" height="32" data-id="#{distributor.d_id}"
+            td.sm_cell
+              a.text_icon href="/admin/distributors/#{distributor.d_id}" ✎
 

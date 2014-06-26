@@ -19,6 +19,8 @@ class Item < Sequel::Model
   ERROR       ="ERROR"
   VOID        ="VOID"
   ATTRIBUTES = [:i_id, :p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc, :created_at]
+  # same as ATTRIBUTES but with the neccesary table references for get_ functions
+  COLUMNS = [:items__i_id, :p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc, :items__created_at]
 
   @sale_id = 666
 
@@ -38,6 +40,11 @@ class Item < Sequel::Model
     reason.strip!
     raise ArgumentError, "Es necesario especificar la razon para invalidar el item" if reason.length < 5
     reason
+  end
+
+  def get_by_id i_id
+    return Item.new if i_id.to_i == 0
+    Item[i_id.to_i]
   end
 
   def save (opts=OPTS)

@@ -11,7 +11,6 @@
 - can_edit = false if can_edit.nil?
 - edit_link ||= "void"
 - item_class = "" if item_class.nil?
-- caption = caption.nil? ? "" : caption
 - status_col ||= false
 - buy_cost_col ||= false
 - full_row ||= true unless full_row === false
@@ -19,20 +18,18 @@
 - price_pro_col ||= true unless price_pro_col === false
 - price_updated_at_col ||= false
 - flags_cols ||= false
-
-- focus = true if focus.nil?
-- focus_text = focus ? "focus" : "no_focus"
-- can_filter = true if can_filter.nil? and focus
-- tablesorter = can_filter ? "tablesorter" : "tablesorter_nofilter"
-
 - can_hide ||= false
+
 
 - if @products.empty?
   p = t.products.empty
 - else
-  - if can_filter
-    input.search type="search" data-column="all" autofocus="" placeholder="Filtrar todo..."
-  table class="items #{tablesorter}"
+  - can_filter = true if can_filter.nil?
+  - focus = true if focus.nil?
+  == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
+  - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
+  - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
+  table class="items #{tablesorter_class}"
     caption #{caption}
     thead
       tr
@@ -65,13 +62,13 @@
           - if use_virtual_stocks
             th = t.locations.short.VIRTUAL_STORE_1
         - if stock_col or multi_stock_col
-          th Ideal
+          th.filter-false Ideal
         - if stock_deviation_col
-          th Desvio
-          th.small_content %
+          th.filter-false Desvio
+          th.filter-false.small_content %
 
         - if to_move_col
-          th Enviar
+          th.filter-false Enviar
         - if status_col
           th Estado
         - if price_updated_at_col
@@ -81,7 +78,7 @@
           th #{t.product.fields.sale_mode.mode}
           th #{t.product.fields.tercerized}
         - if can_edit || can_hide
-          th.filter-false = t.actions.actions
+          th.filter-false.sorter-false = t.actions.actions
     tfoot
       tr
         - colspan = 4
@@ -163,11 +160,11 @@
                 - if edit_link == "admin_inventory_review"
                   a.text_icon href="/admin/inventory/inventory_review/#{order.o_id}/#{product[:p_id]}" ✎
                 - if edit_link == "packaging_add"
-                  a.text_icon href="/admin/production/packaging/#{order.o_id}/#{product[:p_id]}"
+                  a.text_icon href="/admin/production/packaging/#{order.o_id}/#{product[:p_id]}" ✎
                 - if edit_link == "assembly_add"
                   a.text_icon href="/admin/production/assembly/#{order.o_id}/#{product[:p_id]}" ✎
                 - if edit_link == "transmutation_select_product"
                   a.text_icon href="/admin/inventory/transmute_items/#{@item.i_id}/#{product[:p_id]}" ✎
               - if can_hide
-                a.text_icon.ajax_hide_parent_on_click data-tag="tr" href="#hide" ✓
+                a.text_icon.ajax_hide_parent_on_click data-tag="tr" href="#" ✓
 

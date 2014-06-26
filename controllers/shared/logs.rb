@@ -18,8 +18,7 @@ module Logs
   end
 
   def render_logs log_data
-    slim :logs, layout: Thread.current.thread_variable_get(:layout), locals: {logs: log_data}
-
+    slim :logs, layout: Thread.current.thread_variable_get(:layout), locals: {logs: log_data, title: t.logs.title}
   end
 end
 

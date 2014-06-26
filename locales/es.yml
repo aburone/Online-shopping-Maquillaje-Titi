@@ -121,6 +121,7 @@ nav:
     sec: Sub Secciónes
     production: Producción
     packaging: Envasado y etiquetado
+    assembly: Armado de kits
     verify_packaging: Verificacion de ordenes
     packaging_orders_allocation: Imputacion al inventario
     inventory_balance: Balance de inventario
@@ -134,6 +135,8 @@ nav:
     update_products_by_filter: "Actualizacion por Filtro"
     update_materials_by_sku: "Actualizacion por SKU"
     update_materials_by_filter: "Actualizacion por Filtro"
+    reports:
+      products_to_transport: Informe de productos por enviar
 
     accounts: Plan de cuentas
     arrivals: Ingresos de mercaderia
@@ -175,7 +178,7 @@ administration:
 
 materials:
   title: Materiales
-  empty: "No hay materiales cargados en la base"
+  empty: "No hay materiales para mostrar"
   count: "%1 materiales listados"
   sure_to_update_ideal_stocks: Esta accion ejecuta un proceso muy intensivo y LENTO sobre la base de datos. Estas seguro de continuar?
   updating_in_background: "Actualizando materiales en background. La tarea tarda aproximadamente 2 minutos"
@@ -449,6 +452,18 @@ production:
     scan_product: Escanee el producto
     assigned: "Etiqueta %1 asignada a %1"
     missing_materials_cant_allocate: Materiales faltantes. No puedo imputar la orden haste que haya suficientes graneles en estado "En Uso"
+
+  assembly_select:
+    title: "Ordenes de armado de kits"
+    empty: No hay ordenes de armado de kits abiertas
+  assembly:
+    title: "Orden de armado de kits nº %1 (%2 items)"
+    count: "%1 ordenes disponibles"
+    # scan_label: Escanee el ID
+    # scan_product: Escanee el producto
+    # assigned: "Etiqueta %1 asignada a %1"
+    # missing_materials_cant_allocate: Materiales faltantes. No puedo imputar la orden haste que haya suficientes graneles en estado "En Uso"
+
   verification_select:
     title: Ordenes de envasado a verificar
     empty: No hay ordenes pendientes por verificar
@@ -459,7 +474,7 @@ production:
     pending_items: Items pendientes
     still_pending_items: Todavia quedan items pendientes
     verified_items: Items Verificados
-    scan_next: Escanee el proximo item a verificar
+    scan_next: Proximo item a verificar
   allocation_select:
     title: Ordenes de envasado a imputar
     empty: No hay ordenes pendientes por imputar
@@ -505,6 +520,7 @@ constant:
   MUST_VERIFY: Necesita Verificacion
   PRINTED: Impreso
   PACKAGING: Envasado
+  ASSEMBLY: Armado de kits
   INVENTORY: Carga inicial de inventario
   INVALIDATION: Invalidacion de items
   TRANSMUTATION: Transmutacion de items
@@ -607,6 +623,7 @@ order:
   user_is_editing: "%1 esta editando la orden de tipo %2 Nº %3"
   user_is_editing_nil: "%1 esta tratando de abrir la orden de tipo %2 Nº %3 que no existe"
   ready_for_verification: "La orden esta lista para ser verificada"
+  ready_for_allocation: "La orden esta lista para ser imputada"
   user_is_verifying: "%1 esta verificando la orden de tipo %2 Nº %3"
   user_is_verfying_order_in_invalid_status: "%1 esta intentando verificar una orden de tipo %2 Nº %3 que esta es un estado inválido %4"
   user_is_verfying_order_of_wrong_type: "%1 esta intentando verificar la orden Nº %2 con estado %3 que es de un tipo inválido %4"
@@ -614,7 +631,7 @@ order:
   sure_to_cancel_sale_order: "Esto borrara la orden. Todos los items volveran a estar disponibles para la venta"
   sure_to_cancel_return_order: "Esto borrara la orden. Todos los items volveran al estado Vendido"
   sure_to_finish_return_order: "Esto finalizara la devolución. Se generara una nota de crédito y los items volveran a estar disponibles para la venta"
-  cancelled: "La orden Nº %1 fue cancelada. Todas las etiquetas y productos fueron dissociados."
+  cancelled: "La orden Nº %1 fue cancelada. Todas las etiquetas y productos (si los hubo) fueron dissociados."
   not_a_packaging: Esta no es una orden de carga
   missing: Orden %1 inexistente o inaccesible desde este modulo
   scan_label: Escanee el ID de item
@@ -647,7 +664,12 @@ transport:
     title: Ingresos de mercaderia
     verification:
       title: "Verificando ingreso de mercaderia nº %1 (%2 / %3 items)"
-    ok: "%1 items ingresados correctamente a %2"
+    ok: !!pl
+      0: "No se ingreso ningun item a %2"
+      1: "%1 item ingresado correctamente a %2"
+      n: "%1 items ingresados correctamente a %2"
+    pending_items_and_errors:
+      title: "Verificaciones y problemas pendientes"
   departures:
     pos_to_wh:
       title: Transporte de mercaderia desde local hacia deposito
@@ -655,6 +677,9 @@ transport:
       title: "Transporte de mercaderia entre deposito y punto de venta"
     wh_to_wh:
       title: "Transporte de mercaderia entre depositos"
+
+verification:
+  ok: "Etiqueta %1 verificada con “%2”"
 
 accounts:
   plan:
@@ -690,8 +715,6 @@ reports_products_to_move: !!pl
   0: "Reporte de productos por mover desde %2 hacia Local 1 en el dia del juicio final"
   1: "Reporte de productos por mover desde %2 hacia Local 1 para un mes"
   n: "Reporte de productos por mover desde %2 hacia Local 1 para %1 meses"
-click_in_category_and_space_to_filter: "Click en la categoria y despues tocar espacio para filtrar"
-click_in_category_or_brand_and_space_to_filter: "Click en la categoria o marca y despues tocar espacio para filtrar"
 
 returns:
   title: Devolución de items
@@ -715,3 +738,26 @@ distributor:
     d_name: Nombre
     d_has_pricelist: ¿Da lista de precios?
     d_notes: Notas
+
+book_records:
+  title: "Movimientos de caja"
+  empty: No tengo movimientos registrados
+  count: "%1 movimientos listados"
+
+book_record:
+  new: Creando un nuevo movimiento de caja
+  updated: "Cambios guardados con exito"
+  fields:
+    r_id: ID
+    o_id: Orden
+    created_at: Fecha
+    r_type: Tipo
+    r_description: Descripcion
+    r_ammount: Monto
+
+tablesorter:
+  legend: Filtro dinamido
+  default_caption: "Click en las flechas para ordenar. Shift+Click para ordenar por multiples columnas. Ctrl+Click para resetear orden"
+  operators_explanation: 'Escribi en este cuadro para filtrar toda la tabla. Utiliza operadores lógicos "o", "y" (ej: "base y fluo"). Utiliza ~ para busqueda difusa (ej: ~mtlzd cbre). Solo un operador por vez.'
+  online_help_url: "http://mottie.github.io/tablesorter/docs/example-widget-filter.html#notes"
+

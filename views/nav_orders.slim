@@ -1,13 +1,15 @@
-aside
-  nav role="navigation"
-    ul
-      li
-        spam class="#{current?("/admin/orders")}" = t.nav.backend.orders
-      li: ul
-          - @locations_n_types.each do |location|
-            li = location[:translation]
-            li
-              ul
-                - location[:types].each do |type|
-                  li 
-                    a class="#{inside?("/admin/orders/#{location[:name]}/#{type}")}" href=url("/orders/#{location[:name]}/#{type}") = ConstantsTranslator.new(type).t
+nav role="navigation"
+  - show_title ||= nil
+  - if show_title
+    h1.small_content = t.orders.title
+  ul
+    li
+      spam class="#{current?("/admin/orders")}" = t.nav.backend.orders
+    li: ul
+        - @locations_n_types.each do |location|
+          li = location[:translation]
+          li
+            ul
+              - location[:types].each do |type|
+                li
+                  a class="#{inside?("/admin/orders/#{location[:name]}/#{type}")}" href=url("/orders/#{location[:name]}/#{type}") = ConstantsTranslator.new(type).t

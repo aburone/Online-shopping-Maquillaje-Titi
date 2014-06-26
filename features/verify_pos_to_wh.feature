@@ -7,7 +7,7 @@ Given I am logged-in into backend with location WAREHOUSE_2
 When I go to warehouse_arrivals
 Then I should see "Ingresos"
 
-When I select a packaging order for verification
+When I select the last item and click on the last link
 Then I should see "Verificando ingreso de mercaderia "
 # And I should see 2 item
 

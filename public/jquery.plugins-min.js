@@ -62,6 +62,11 @@ $(function() {
 // tablesorter init
 $(function(){
 
+  $.extend($.tablesorter.language, {
+    or  : 'o',
+    and : 'y'
+  });
+
   var options = {
     widthFixed : false,
     showProcessing: true,
@@ -104,7 +109,7 @@ $(function(){
       filter_external : '.search',
       filter_placeholder: { search : 'Filtrar...' },
       filter_columnFilters: true,
-      filter_saveFilters: true,
+      filter_saveFilters: false,
       removeRows: true,
       resizable: true,
     }
@@ -114,9 +119,6 @@ $(function(){
     $(".row_count").html( $('.tablesorter tbody tr:visible').length + " items visibles" );
 
     $(".tablesorter").trigger("applyWidgets");
-
-    console.log("hola");
-
   });
   options.widgets = ['zebra', 'stickyHeaders']
   $(".tablesorter_nofilter").tablesorter(options);

@@ -1,8 +1,13 @@
-- focus = "focus" if focus.nil?
 - if logs.empty?
   p = t.logs.empty
 - else
-  table.logs.quicksearch.tablesorter.items data-label="#{t.actions.filter}" data-quicksearch="#{focus}"
+  - can_filter = true if can_filter.nil?
+  - focus = true if focus.nil?
+  == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
+  - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
+  - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
+  table class="items #{tablesorter_class}"
+    caption #{caption}
     thead
       tr
         th = t.event.fields.at
@@ -15,6 +20,9 @@
         th = t.event.fields.i_id_l_id
         th = t.event.fields.o_id
         th = t.event.fields.p_id
+    tfoot
+      tr
+        td colspan="8" = t.logs.count(logs.count)
     tbody
       - logs.each do |event|
         tr.event.item
@@ -31,7 +39,3 @@
           td.ajax_filter_by_me.number #{o_id}
           - p_id = event[:p_id] ? "*#{event[:p_id]}*" : ""
           td.ajax_filter_by_me.number #{p_id}
-    tfoot
-      tr
-        td colspan="8" = t.logs.count(logs.count)
-

@@ -1,3 +1,10 @@
+When(/^I go to packaging_list$/) do
+  visit "/admin/production/packaging/select"
+  page.status_code.should == 200
+  page.should have_content( t.production.packaging_select.title )
+end
+
+
 When /^I fill with a printed label$/ do
   label = Label.new.get_printed.first
   page.should have_content( "Seleccionar el producto" ) #t.production.select_product
@@ -12,18 +19,9 @@ When /^I fill with a printed label$/ do
   click_link( "Seleccionar un producto distinto" ) #t.order_select_other_product:
 end
 
-When /^I select a packaging order for verification$/ do
-  items = all('.item')
-  if items.empty?
-    puts "There are no items to click!"
-    "There are no items to click!".should == false
-  else
-    items.last.first(:link).click
-  end
-end
 
 When /^I remove one item I should see one less$/ do
-  @o_id = get_o_id
+  @o_id = get_o_id_from_current_path
   @count = all('.item').count
   if @count > 0
     id = all('.item').first.first('td').text
@@ -36,13 +34,15 @@ When /^I remove one item I should see one less$/ do
   end
 end
 
-When /^I select a packaging order for allocation$/ do
-  @o_id = get_o_id
-  all('.item').last.first(:link).click
+
+When(/^I go to allocation_list$/) do
+  visit "/admin/production/allocation/select"
+  page.status_code.should == 200
+  page.should have_content( t.production.allocation_select.title )
 end
 
 Then /^I should see the correct title for the allocation of a packaging order$/ do
-  page.should have_content( t.production.allocation.title get_o_id )
+  page.should have_content( t.production.allocation.title get_o_id_from_current_path )
 end
 
 Then /^If there are missing materials, I should add them$/ do
@@ -53,8 +53,8 @@ Then /^If there are missing materials, I should add them$/ do
 
     start = current_path
     items.each do |item|
-      puts "Adding 999 units"
-      first("table#missing_materials a.edit[href]").click
+      first("table#missing_materials a").click
+      puts "Adding 999 units of #{first('input[name="m_name"]').value}"
       click_button( "Crear nuevo" )
       el = find('#ajax_bulks_list').first('a')
       visit(el['href'])
@@ -69,12 +69,9 @@ Then /^If there are missing materials, I should add them$/ do
 end
 
 Then /^The allocation must take place$/ do
+  o_id = get_o_id_from_current_path
   click_button( t.production.allocation.allocate "Deposito 2")
-  page.should have_content( t.production.allocation.ok @o_id )
+  page.should have_content( t.production.allocation.ok o_id )
 end
 
 
-def get_o_id
-  @o_id = current_path.scan(/\d+/).last.to_i
-  @o_id
-end

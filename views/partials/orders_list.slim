@@ -1,47 +1,50 @@
-- focus = false if focus.nil?
-- focus_text = focus ? "focus" : "no_focus"
 - full_row = false if full_row.nil?
 - can_edit = true if can_edit.nil?
 - edit_link ||= "void"
-- can_filter = true if can_filter.nil?
-- quicksearch = " quicksearch" if can_filter
 - list_mode ||= "normal"
 
-- if @orders.empty?
+- orders = orders || @orders
+- if orders.empty?
   p = t.orders.empty
 - else
-  table class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+  - can_filter = true if can_filter.nil?
+  - focus = true if focus.nil?
+  == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
+  - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
+  - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
+  table class="items #{tablesorter_class}"
+    caption #{caption}
     thead
       tr
-        th = t.order.fields.id
+        th.sm_cell = t.order.fields.id
         - if full_row
           th = t.order.fields.code
-          th = t.order.fields.type
-          th = t.order.fields.status
-        th = t.order.fields.created_at
-        th = t.order.fields.user
+          th.filter-select.filter-onlyAvail = t.order.fields.type
+          th.filter-select.filter-onlyAvail = t.order.fields.status
+        th.md_cell.date = t.order.fields.created_at
+        th.filter-select.filter-onlyAvail = t.order.fields.user
         - if full_row
           - if list_mode == "normal"
-            th = t.order.fields.location
+            th.filter-select.filter-onlyAvail = t.order.fields.location
           - if list_mode == "transport"
-            th = t.order.fields.origin
-            th = t.order.fields.destination
+            th.filter-select.filter-onlyAvail = t.order.fields.origin
+            th.filter-select.filter-onlyAvail = t.order.fields.destination
         - if can_edit
-          th = t.actions.actions
+          th.filter-false.sorter-false.sm_cell = t.actions.actions
     tfoot
       tr
-        - colspan = can_edit ? 5 : 4
-        td colspan="#{colspan}" = t.orders.count(@orders.count)
+        - colspan = 2
+        td colspan="#{colspan}" = t.orders.count(orders.count)
     tbody
-      - @orders.each do |order|
+      - orders.each do |order|
         - ajax_edit = can_edit ? " ajax_item" : ""
         tr class="item#{ajax_edit}"
           td = order.o_id
-          td = order.o_code_with_dash
           - if full_row
+            td = order.o_code_with_dash
             td = ConstantsTranslator.new(order.type).t
             td = ConstantsTranslator.new(order.o_status).t
-          td = Utils::local_datetime_format order.created_at
+          td.date = Utils::local_datetime_format order.created_at
           td = order[:username]
           - if full_row
             - if list_mode == "normal"
@@ -52,46 +55,49 @@
           - if can_edit
             td
               - if edit_link == "void"
-                a href="#" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="#" ✎
 
               - if edit_link == "/admin/transport/departures/wh_to_pos/order.o_id/add"
-                a href="/admin/transport/departures/wh_to_pos/#{order.o_id}/add" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/admin/transport/departures/wh_to_pos/#{order.o_id}/add" ✎
               - if edit_link == "/admin/transport/departures/wh_to_wh/order.o_id/add"
-                a href="/admin/transport/departures/wh_to_wh/#{order.o_id}/add" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/admin/transport/departures/wh_to_wh/#{order.o_id}/add" ✎
               - if edit_link == "/sales/transport/departures/pos_to_wh/order.o_id/add"
-                a href="/sales/transport/departures/pos_to_wh/#{order.o_id}/add" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/sales/transport/departures/pos_to_wh/#{order.o_id}/add" ✎
 
               - if edit_link == "/sales/admin/inventory_review/o_id"
-                a href="/sales/admin/inventory_review/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/sales/admin/inventory_review/#{order.o_id}" ✎
 
               - if edit_link == "/admin/inventory/inventory_review/o_id"
-                a href="/admin/inventory/inventory_review/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/admin/inventory/inventory_review/#{order.o_id}" ✎
 
               - if edit_link == "/sales/admin/inventory_verification/o_id"
-                a href="/sales/admin/inventory_verification/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/sales/admin/inventory_verification/#{order.o_id}" ✎
 
               - if edit_link == "/sales/transport/arrivals/o_id"
-                a href="/sales/transport/arrivals/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/sales/transport/arrivals/#{order.o_id}" ✎
               - if edit_link == "/admin/transport/arrivals/o_id"
-                a href="/admin/transport/arrivals/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/admin/transport/arrivals/#{order.o_id}" ✎
 
 
               - if edit_link == "/admin/inventory/inventory_verification/o_id"
-                a href="/admin/inventory/inventory_verification/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/admin/inventory/inventory_verification/#{order.o_id}" ✎
 
               - if edit_link == "/sales/admin/inventory_imputation/o_id"
-                a href="/sales/admin/inventory_imputation/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/sales/admin/inventory_imputation/#{order.o_id}" ✎
 
               - if edit_link == "/admin/inventory/inventory_imputation/o_id"
-                a href="/admin/inventory/inventory_imputation/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/admin/inventory/inventory_imputation/#{order.o_id}" ✎
 
               - if edit_link == "/admin/production/packaging/o_id"
-                a href="/admin/production/packaging/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/admin/production/packaging/#{order.o_id}" ✎
+              - if edit_link == "/admin/production/assembly/o_id"
+                a.text_icon href="/admin/production/assembly/#{order.o_id}" ✎
+
               - if edit_link == "/admin/production/verification/o_id"
-                a href="/admin/production/verification/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/admin/production/verification/#{order.o_id}" ✎
               - if edit_link == "/admin/production/allocation/o_id"
-                a href="/admin/production/allocation/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="/admin/production/allocation/#{order.o_id}" ✎
 
               - if edit_link.start_with?("/admin/orders/") or  edit_link.start_with?("/sales/orders/")
-                a href="#{edit_link}/#{order.o_id}" : img src="/media/Icon-Edit.png" width="32" height="32"
+                a.text_icon href="#{edit_link}/#{order.o_id}" ✎
 

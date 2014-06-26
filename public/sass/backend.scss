@@ -22,14 +22,14 @@ $odd_rows: rgba(200,200,200,0.3);
 .readonly, [readonly="readonly"] {background-color: #eee!important; color: #555!important}
 
 
-.number, .money {text-align: right; white-space: nowrap;}
+.number, .money, .date {text-align: right; white-space: nowrap;}
 .money:before {content: '$ '}
 
-// .sm_cell {width:  4em}
+.sm_cell {width:  4em}
 th.sm_cell {white-space: nowrap;}
-// .smm_cell {width:  6em}
-// .md_cell {width:  8em}
-// .bg_cell {width:  16em}
+.smm_cell {width:  6em}
+.md_cell {width:  8em}
+.bg_cell {width:  16em}
 .small_content {text-align: center;}
 .categories td {padding: 0.5em; vertical-align: top}
 .cat_cell {width:300px; height: 120px; }
@@ -46,7 +46,7 @@ article, section {margin-left: 1em;}
 .aligned_2 {display:inline-block; margin-left: 10em}
 a.edit {display:block; width:32px; height:32px; background: url(/media/Icon-Edit.png); margin: 4px auto;}
 
-.text_icon {display: inline-block; font-size: 2em; padding: 0.2em; margin: 0 0.2em; color: black; text-decoration: none}
+.text_icon {display: inline-block; font-size: 2em; padding: 0.2em; margin-right: 0.2em; color: black; text-decoration: none}
 .text_icon:hover { box-shadow: 3px 3px 10px rgba(0,0,0,0.5) }
 
 body {margin-left:auto; margin-right:auto}
@@ -64,9 +64,16 @@ body:after {
     opacity : 0.1;
 }
 
+.product_details {
+    border: 1px solid silver;
+    max-width: 40em;
+    padding: 1em 0;
+    margin: 1em 0;
+    box-shadow: 0 0 3em silver;
+}
 .product_features {max-width: 25em}
 
-.items {margin-top: 1em; border: 1px solid $odd_rows; @include rounded;}
+.items {margin-top: 1em; border: 1px solid $odd_rows; @include rounded; width: 100%}
 .items th, .items thead td {font-weight: bold}
 .items thead {background-color: white; border: 1px solid $odd_rows}
 .items td {padding:0.3em 1em 0.1em 0; vertical-align: middle}
@@ -74,6 +81,7 @@ body:after {
 .items tr td:first-child.no_padding {padding-left: 0}
 .item td {vertical-align:top}
 .ajax_item:hover {cursor: pointer}
+.actions {white-space: nowrap}
 .actions:hover {cursor: default}
 
 .tall {border-top: 1px solid silver}
@@ -120,7 +128,8 @@ a:hover, a:focus, .items th:hover, .item:hover, .item_hover, .ajax_item:hover {b
 
 .confirm_action {border: 1px solid black; margin:1em; padding:0 1em 2em 1em}
 
-.no_padding {padding: 0;}
+.no_padding {padding: 0!important;}
+.no_margin {margin: 0!important;}
 
 .v_island_1 {margin-top: 2em; margin-bottom: 2em}
 

@@ -6,7 +6,7 @@ h2 Items en esta orden
 
 h2 Materiales necesarios
 - @materials = @needed_materials
-== slim :materials_list, locals: {can_filter: false, can_edit: false}
+== slim :materials_list, locals: {can_filter: false, can_edit: false, id: :needed_materials}
 
 h2 Graneles a utilizar
 p = "(Las cantidades ya tienen restado el uso)"
@@ -17,7 +17,7 @@ p = "(Las cantidades ya tienen restado el uso)"
 - if !@missing_materials.empty?
   h2 = t.production.packaging.missing_materials_cant_allocate
   - @materials = @missing_materials
-  == slim :materials_list, locals: {can_filter: false, ajax_id: "missing_materials", stock_col: true}
+  == slim :materials_list, locals: {can_filter: false, stock_col: true, id: :missing_materials, can_edit: true}
 - else
   h2 La casa esta en orden
   p Tengo todos los graneles necesarios para completar la orden
@@ -28,7 +28,7 @@ p = "(Las cantidades ya tienen restado el uso)"
     input#impute type="submit" value="#{ t.production.allocation.allocate current_location[:translation] }"
 
 
-form.v_island_1#finish_packaging action=url("/production/#{@order.o_id}/cancel") method="post"
+form.v_island_1#finish_packaging action=url("/production/#{@order.type.downcase}/#{@order.o_id}/cancel") method="post"
   == Rack::Csrf.tag(env)
   input type="hidden" name="o_id" value="#{@order.o_id}"
   input.ajax_confirm data-confirm_message="#{t.order.sure_to_cancel_load_order}" type="submit" value="#{t.actions.cancel_order}"

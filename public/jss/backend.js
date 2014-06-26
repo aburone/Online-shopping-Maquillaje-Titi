@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function(event) {
 
+
   // vanilla js ajax
   var distributor_selector=document.querySelector("#ajax_add_distributor");
   if(distributor_selector) {
@@ -106,14 +107,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   });
 
 
-  $(".ajax_filter_by_me").click(function() {
-    var search_term = $(this).html().trim(), field = $(".quicksearch input");
-    field.val(search_term);
-    field.focus();
-  });
-
   $(".autoselect").focus().select();
-  $(".tablesorter").tablesorter();
   $('input[name=i_id]').attr('autocomplete','off');
 
 

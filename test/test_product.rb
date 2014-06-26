@@ -88,30 +88,6 @@ class ProductTest < Test::Unit::TestCase
     assert_equal product.sale_cost, product.materials_cost + product.parts_cost
   end
 
-  # def test_mod_price_is_correct
-  #   product = Product[565]
-  #   puts "Buy cost: #{product.buy_cost.to_s "F"}"
-  #   puts "Parts cost: #{product.parts_cost.to_s "F"}"
-  #   puts "Materials cost: #{product.materials_cost.to_s "F"}"
-  #   puts "sale_cost: #{product.sale_cost.to_s "F"}"
-
-  #   puts "ideal markup: #{product.ideal_markup.to_s "F"}"
-  #   puts "real_markup: #{product.real_markup.to_s "F"}"
-  #   puts "exact_price: #{product.exact_price.to_s "F"}"
-  #   puts "Price: #{product.price.to_s "F"}"
-  #   product.price_mod 1.1
-  #   p "-"
-  #   puts "Buy cost: #{product.buy_cost.to_s "F"}"
-  #   puts "Parts cost: #{product.parts_cost.to_s "F"}"
-  #   puts "Materials cost: #{product.materials_cost.to_s "F"}"
-  #   puts "sale_cost: #{product.sale_cost.to_s "F"}"
-
-  #   puts "ideal markup: #{product.ideal_markup.to_s "F"}"
-  #   puts "real_markup: #{product.real_markup.to_s "F"}"
-  #   puts "exact_price: #{product.exact_price.to_s "F"}"
-  #   puts "Price: #{product.price.to_s "F"}"
-  # end
-
   def test_check_cost
     Product.all.each do |product|
       if product.exact_price < product.sale_cost
@@ -640,6 +616,13 @@ class ProductTest < Test::Unit::TestCase
     # 138 de pastilla blanca
   end
 
+  def test_should_get_kits_list
+    kits = Product.new.get_all.filter(Sequel.lit('parts_cost > 0')).filter(archived: 0).all
+    p ""
+    kits.each do |kit|
+      ap kit.name
+    end
+  end
 
 end
 

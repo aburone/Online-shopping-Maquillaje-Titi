@@ -1,32 +1,28 @@
-- ajax_id = ajax_id.nil? ? "" : ajax_id
-- focus = true if focus.nil?
-- focus_text = focus ? "focus" : "no_focus"
-
-- can_edit = true if can_edit.nil?
-- can_filter = true if can_filter.nil?
-- quicksearch = " quicksearch" if can_filter
-- click_to_filter = false if click_to_filter.nil? unless click_to_filter == true
-
+- id ||= ""
+- can_edit ||= false
 - sku_col = false if sku_col.nil? unless sku_col == true
-
 - stock_col = true if stock_col.nil?
 - ideal_stock_col ||= false
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
 - stock_col = multi_stock_col ? false : stock_col
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
 
-- caption = caption.nil? ? "" : caption
 - price_updated_at_col ||= false
 
 - if @materials.nil? or @materials.empty?
   p = t.materials.empty
 - else
-  table id="#{ajax_id}" class="items tablesorter#{quicksearch}" data-label="#{t.actions.filter}" data-quicksearch="#{focus_text}"
+  - can_filter = true if can_filter.nil?
+  - focus = true if focus.nil?
+  == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
+  - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
+  - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
+  table class="items #{tablesorter_class}" id="#{id}"
     caption #{caption}
     thead
       tr
         th = t.material.fields.category
-        th = t.material.fields.id
+        th.sm_cell.small_content = t.material.fields.id
         - if sku_col
           th = t.material.fields.SKU
         th = t.material.fields.name
@@ -36,7 +32,12 @@
         - if price_updated_at_col
           th = t.material.fields.price_updated_at
         - if stock_col
-          th.sm_cell = t.material.fields.qty
+          th.md_cell.small_content
+            | #{t.material.fields.qty}
+            br
+            | #{t.material.fields.units}
+
+
         - if ideal_stock_col
           th.sm_cell = t.material.fields.ideal_stock
         - if multi_stock_col
@@ -49,23 +50,16 @@
           th.sm_cell = t.material.fields.stock_deviation
           th.sm_cell.small_content = t.material.fields.stock_deviation_percentile
         - if can_edit
-          th = t.material.fields.actions
+          th.sm_cell.sorter-false = t.bulk.fields.actions
+    tfoot
       tr
-        td
-        td
-        td
-        - if stock_col or multi_stock_col
-          - colspan = multi_stock_col ? 4 : 2
-          td.sm_cell.small_content colspan="#{colspan}" = t.bulk.fields.units
-        - if can_edit
-          td
+        td colspan="5" = t.materials.count(@materials.count)
     tbody
       - ajax_item = can_edit ? " ajax_item" : ""
-      - ajax_click_to_filter = click_to_filter ? "ajax_filter_by_me" : ""
       - @materials.each do |material|
         tr.item class="#{ajax_item}"
-          td class="#{ajax_click_to_filter}" #{I18n.transliterate( material[:c_name] )}
-          td #{material[:m_id]}
+          td #{I18n.transliterate( material[:c_name] )}
+          td.sm_cell.number #{material[:m_id]}
           - if sku_col
             td #{material[:SKU]}
           td.m_name #{ I18n.transliterate( material[:m_name] )}
@@ -73,9 +67,9 @@
           - if stock_col or multi_stock_col
             td.number == Utils::money_format material[:m_price], 2
           - if price_updated_at_col
-            td = material.price_updated_at.strftime "%Y-%m-%d" unless material.price_updated_at.nil?
+            td.date = material.price_updated_at.strftime "%m/%d/%Y" unless material.price_updated_at.nil?
           - if stock_col
-            td.sm_cell.number = Utils::number_format material[:m_qty], 0
+            td.md_cell.number = Utils::number_format material[:m_qty], 0
           - if ideal_stock_col
             td.sm_cell.number = Utils::number_format material[:m_ideal_stock]*settings.desired_months_worth_of_bulk_in_warehouse, 0
           - if multi_stock_col
@@ -92,13 +86,7 @@
             - col_class = (material.stock_deviation_percentile > 0) ? "number overstocked" : (material.stock_deviation_percentile < 0) ? "number understocked" : "number"
             - stock_deviation_percentile = material.stock_deviation_percentile == 0 ? "-" : "#{Utils::number_format material.stock_deviation_percentile, 1} %"
             td.sm_cell class="#{col_class}" #{stock_deviation_percentile}
-
-
           - if can_edit
             td.sm_cell
-              a.edit href="/admin/materials/#{material[:m_id]}"
-                img src="/media/Icon-Edit.png" width="32" height="32" data-id="#{material[:m_id]}"
+              a.text_icon href="/admin/materials/#{material[:m_id]}" data-id="#{material[:m_id]}" ✎
 
-    tfoot
-      tr
-        td colspan="5" = t.materials.count(@materials.count)
