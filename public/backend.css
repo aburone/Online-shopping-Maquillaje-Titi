@@ -1059,6 +1059,48 @@ nav li {
 .subsection {
   font-weight: bold; }
 
+.autohide ul li.subsection + * {
+  display: none; }
+
+.autohide:hover ul li.subsection + * {
+  -webkit-animation: 1.5s bounceInLeft alternate ease-in-out;
+  -ms-animation: 1.5s bounceInLeft alternate ease-in-out;
+  animation: 1.5s bounceInLeft alternate ease-in-out;
+  display: inline-block; }
+
+.bounceInLeft {
+  -webkit-animation: 1.5s bounceInLeft alternate ease-in-out;
+  -ms-animation: 1.5s bounceInLeft alternate ease-in-out;
+  animation: 1.5s bounceInLeft alternate ease-in-out; }
+
+@-webkit-keyframes bounceInLeft {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateX(200px); }
+
+  60% {
+    opacity: 1;
+    -webkit-transform: translateX(-30px); }
+
+  80% {
+    -webkit-transform: translateX(10px); }
+
+  100% {
+    -webkit-transform: translateX(0); } }
+@keyframes bounceInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(200px); }
+
+  60% {
+    opacity: 1;
+    transform: translateX(-30px); }
+
+  80% {
+    transform: translateX(10px); }
+
+  100% {
+    transform: translateX(0); } }
 aside {
   z-index: 100;
   position: absolute;

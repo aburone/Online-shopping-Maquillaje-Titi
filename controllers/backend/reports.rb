@@ -98,6 +98,7 @@ class Backend < AppController
       product[:ideal_stock] = product.inventory(months).global.ideal
       product[:stock_deviation] = product.inventory(months).global.v_deviation
       product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
+      product[:distributors] = product.distributors.all
     end
     @products.sort_by! { |product| [ product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
     @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
@@ -115,6 +116,7 @@ class Backend < AppController
     @materials.map do |material|
       material.update_stocks
       material.recalculate_ideals months
+      material[:distributors] = material.distributors.all
     end
     @materials.sort_by! { |material| [ material[:stock_deviation_percentile], material[:stock_deviation] ] }
     @materials.delete_if { |material| material[:stock_deviation_percentile] >= settings.reports_percentage_threshold}

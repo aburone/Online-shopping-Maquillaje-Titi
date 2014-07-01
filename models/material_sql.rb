@@ -13,6 +13,7 @@ class Material < Sequel::Model(:materials)
   COLUMNS = [ :materials__m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :materials__created_at, :materials__price_updated_at ]
 
   def d_name
+    return "no data" if self[:distributors].nil?
     return "" if self[:distributors].empty?
     self[:distributors].first[:d_name]
   end

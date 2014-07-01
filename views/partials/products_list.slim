@@ -19,6 +19,7 @@
 - price_updated_at_col ||= false
 - flags_cols ||= false
 - can_hide ||= false
+- distributor_col ||= false
 
 
 - if @products.empty?
@@ -37,6 +38,8 @@
         th.filter-select.filter-onlyAvail = t.product.fields.category
         th = t.product.fields.name
         th.filter-select.filter-onlyAvail = t.product.fields.brand
+        - if distributor_col
+          th.filter-select.filter-onlyAvail = t.product.fields.distributor
         - if sku_col
           th = t.actions.click_to_edit
         - if buy_cost_col
@@ -94,6 +97,8 @@
           td #{I18n.transliterate( product[:c_name] )}
           td #{I18n.transliterate( product[:p_name] )}
           td #{product[:br_name]}
+          - if distributor_col
+            td #{product.d_name}
           - if sku_col
             td
               span.ajax_click_to_edit.ajax_click_to_edit_sku title="Click para editar..." id="#{product.p_id}" #{product[:sku]}

@@ -12,6 +12,12 @@ class Product < Sequel::Model
   EXCLUDED_ATTRIBUTES_IN_DUPLICATION = [:p_id, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation, :created_at, :price_updated_at]
 
 
+  def d_name
+    return "no data" if self[:distributors].nil?
+    return "" if self[:distributors].empty?
+    self[:distributors].first[:d_name]
+  end
+
   def update_ideal_stock
     self.indirect_ideal_stock = BigDecimal.new(0)
     self.assemblies.each do |assembly|
