@@ -1,14 +1,14 @@
-ruby:
-  @focus = focus
-  def autofocuss
-    @focus ? {autofocus: true} : {autofocus: false}
-  end
+/ ruby:
+/   @focus = focus
+/   def autofocuss
+/     @focus ? {autofocus: true} : {autofocus: false}
+/   end
 
-form.grid-form
-  fieldset
-    legend = t.tablesorter.legend
-    div data-row-span="1"
-      div data-field-span="1"
-        label for="match_any" = t.tablesorter.operators_explanation
-        input.filter-match.search type="search" id="match_any" data-column="all" placeholder="Filtrar todo..." *autofocuss
-        a href="#{t.tablesorter.online_help_url}" ?
+/ form.grid-form
+/   fieldset
+/     legend = t.tablesorter.legend
+/     div data-row-span="1"
+/       div data-field-span="1"
+/         label for="match_any" = t.tablesorter.operators_explanation
+/         input.filter-match.search type="search" id="match_any" data-column="all" placeholder="Filtrar todo..." *autofocuss
+/         a href="#{t.tablesorter.online_help_url}" ?
