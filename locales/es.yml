@@ -756,7 +756,7 @@ book_record:
     r_ammount: Monto
 
 tablesorter:
-  legend: Filtro dinamido
+  legend: Filtro dinámico
   default_caption: "Click en las flechas para ordenar. Shift+Click para ordenar por multiples columnas. Ctrl+Click para resetear orden"
   operators_explanation: 'Escribi en este cuadro para filtrar toda la tabla. Utiliza operadores lógicos "o", "y" (ej: "base y fluo"). Utiliza ~ para busqueda difusa (ej: ~mtlzd cbre). Solo un operador por vez.'
   online_help_url: "http://mottie.github.io/tablesorter/docs/example-widget-filter.html#notes"
