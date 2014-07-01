@@ -13,7 +13,7 @@
 - unless @product.empty?
   - unless @item.empty?
     div.ajax_response
-      fieldset.confirm_action
+      fieldset.action_container
         h2.no_padding #{flash[:notice]}
         form action=url("#{base_route}/#{@order.o_id}") method="post"
           == Rack::Csrf.tag(env)

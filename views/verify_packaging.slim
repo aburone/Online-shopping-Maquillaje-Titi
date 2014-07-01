@@ -2,8 +2,8 @@
 - if @pending_items.empty?
   h2 = t.production.verification.empty
 - else
-  fieldset.confirm_action
-    h2 = t.production.verification.scan_next
+  fieldset.action_container
+    h2.action = t.production.verification.scan_next
     form action=url("/production/verification/#{@order.o_id}") method="post"
       == Rack::Csrf.tag(env)
       input type="text" class="visually_hidden" name="item" id="ajax_selected_label" value="#{params[:item]}"
@@ -16,15 +16,20 @@
 
 
 - unless @current_product.p_id.nil?
-  fieldset.confirm_action
+  fieldset.action_container
     div.ajax_response
-      h2 La etiqueta  #{@current_item.i_id} fue verificada con el producto
-      == slim :product_details, locals: {product: @current_product }
-      form action=url("/production/verification/#{@order.o_id}/#{@current_item.i_id}/void") method="post"
-        == Rack::Csrf.tag(env)
-        input type="hidden" name="i_id" value="#{@current_item.i_id}"
-        p Si es correcto, escanee el siguiente producto a verificar, sino haga click en "Destruir"
-        input.ajax_void_item data-confirm_message="Esto va a anular la etiqueta y eliminar el item de la orden" type="submit" value="Destruir"
+      h2.action La etiqueta  #{@current_item.i_id} fue verificada con el producto
+
+      section.flex_container
+        section.flex_item.flex_6
+          == slim :product_details, locals: {product: @current_product }
+
+        section.flex_item.flex_2
+          form action=url("/production/verification/#{@order.o_id}/#{@current_item.i_id}/void") method="post"
+            == Rack::Csrf.tag(env)
+            input type="hidden" name="i_id" value="#{@current_item.i_id}"
+            p Si es correcto, escanee el siguiente producto a verificar, sino haga click en "Destruir"
+            input.ajax_void_item data-confirm_message="Esto va a anular la etiqueta y eliminar el item de la orden" type="submit" value="Destruir"
 
 
 - items = @pending_items

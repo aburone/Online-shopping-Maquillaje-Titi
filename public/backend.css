@@ -655,7 +655,31 @@ caption {
     /* 2012. Order: <integer> (default=0, accepts -1) */
     /* http://www.w3.org/TR/css3-flexbox/#order-property */
     -webkit-order: 1;
-    order: 1; } }
+    order: 1; }
+
+  .flex_1 {
+    -webkit-flex: 1;
+    flex: 1; }
+
+  .flex_2 {
+    -webkit-flex: 2;
+    flex: 2; }
+
+  .flex_3 {
+    -webkit-flex: 3;
+    flex: 3; }
+
+  .flex_4 {
+    -webkit-flex: 4;
+    flex: 4; }
+
+  .flex_5 {
+    -webkit-flex: 5;
+    flex: 5; }
+
+  .flex_6 {
+    -webkit-flex: 6;
+    flex: 6; } }
 .flash, .static_flash {
   padding: 1em;
   font-weight: bold;
@@ -885,7 +909,7 @@ body:after {
   box-shadow: 0 0 3em silver; }
 
 .product_features {
-  max-width: 25em; }
+  max-width: 27em; }
 
 .items {
   margin-top: 1em;
@@ -994,10 +1018,14 @@ a:hover, a:focus, .items th:hover, .item:hover, .item_hover, .ajax_item:hover {
   border: 1px solid crimson;
   box-shadow: 3px 3px 10px crimson; }
 
-.confirm_action {
+.action_container {
   border: 1px solid black;
   margin: 1em;
-  padding: 0 1em 2em 1em; }
+  padding: 0 1em 1em 1em; }
+
+h2.action {
+  margin: 0;
+  padding: 1em 0 0 0; }
 
 .no_padding {
   padding: 0 !important; }

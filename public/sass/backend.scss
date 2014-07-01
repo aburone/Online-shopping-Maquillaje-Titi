@@ -71,7 +71,7 @@ body:after {
     margin: 1em 0;
     box-shadow: 0 0 3em silver;
 }
-.product_features {max-width: 25em}
+.product_features {max-width: 27em}
 
 .items {margin-top: 1em; border: 1px solid $odd_rows; @include rounded; width: 100%}
 .items th, .items thead td {font-weight: bold}
@@ -126,7 +126,8 @@ a:hover, a:focus, .items th:hover, .item:hover, .item_hover, .ajax_item:hover {b
     box-shadow: 3px 3px 10px crimson;
 }
 
-.confirm_action {border: 1px solid black; margin:1em; padding:0 1em 2em 1em}
+.action_container {border: 1px solid black; margin:1em; padding:0 1em 1em 1em}
+h2.action { margin:0; padding: 1em 0 0 0 }
 
 .no_padding {padding: 0!important;}
 .no_margin {margin: 0!important;}

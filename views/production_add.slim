@@ -1,8 +1,8 @@
 - unless product.empty?
   / read new label or change
   - if item.empty? && order.type == Order::PACKAGING
-    fieldset.confirm_action
-      h2 Proximo item a agregar
+    fieldset.action_container
+      h2.action Proximo item a agregar
       == slim :product_details, locals: {product: product}
 
       / Read new label
@@ -34,9 +34,9 @@
 
   - unless item.empty?
     / Adding confirmation or removal
-    fieldset.confirm_action
+    fieldset.action_container
 
-      h2 Item agregado a la orden
+      h2.action Item agregado a la orden
       == slim :product_details, locals: {product: product}
       / Confirm addition
       form action=url("/production/#{order.type.downcase}/#{order.o_id}/#{product.p_id}") method="post"
