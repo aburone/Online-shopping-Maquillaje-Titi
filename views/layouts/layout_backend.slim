@@ -15,11 +15,12 @@ html lang="es"
       == styled_flash
     - if @sec_nav
       aside
-        == slim sec_nav, locals: {show_title: true}
+        == slim sec_nav
+
     - sec_nav ||= nil
     - if sec_nav
       aside
-        == slim sec_nav, locals: {show_title: true}
+        == slim sec_nav
 
     article
       h1=title

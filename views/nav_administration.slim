@@ -1,7 +1,4 @@
 nav role="navigation"
-  - show_title ||= nil
-  - if show_title
-    h1.small_content = t.administration.title
   ul
     li: ul
       li.subsection
@@ -20,7 +17,7 @@ nav role="navigation"
         li
           a class="#{inside?("/admin/administration/reports/products_flags")}" href=url('/administration/reports/products_flags') Flags de productos
 
-    li: ul
+    li.autohide: ul
       li.subsection
         span class="#{inside?("/admin/inventory")} " Ajustes
       li: ul
@@ -54,9 +51,9 @@ nav role="navigation"
               == Rack::Csrf.tag(env)
               input.ajax_confirm data-confirm_message="#{t.materials.sure_to_update_ideal_stocks}" type="submit" value="#{t.nav.backend.update_ideal_stocks_for_materials}"
 
-    li: ul
+    li.autohide: ul
       li.subsection
-        span class="#{inside?("/admin/products")}" Edición
+        span Edición
       li: ul
         li
           span class="#{inside?("/admin/products")}" Productos
@@ -73,8 +70,6 @@ nav role="navigation"
             a class="#{inside?("/admin/products/categories")}" href=url('/products/categories') = t.nav.backend.categories
           li
             a class="#{inside?("/admin/products/sku")}" href=url('/products/sku') = t.nav.backend.sku
-
-      li: ul
         li
           span class="#{inside?("/admin/materials")}" Materiales
         li: ul
@@ -84,8 +79,6 @@ nav role="navigation"
             form action=url("/materials/new") method="post"
               == Rack::Csrf.tag(env)
               input type="submit" value="#{t.nav.backend.new_material}"
-
-      li: ul
         li
           span class="#{inside?("/admin/distributors")}" = t.nav.backend.distributors
         li: ul

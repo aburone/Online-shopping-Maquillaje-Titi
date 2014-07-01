@@ -1,13 +1,7 @@
 - if @records.empty?
   p = t.book_records.empty
 - else
-  - can_filter = true if can_filter.nil?
-  - focus = true if focus.nil?
-  == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
-  - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
-  - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
-  table class="items #{tablesorter_class}"
-    caption #{caption}
+  table.items.tablesorter_nofilter
     thead
       tr
         th.sm_cell.small_content = t.book_record.fields.r_id

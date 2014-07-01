@@ -1,10 +1,7 @@
 nav role="navigation"
-  - show_title ||= nil
-  - if show_title
-    h1.small_content = t.book_records.title
   ul
     li
-      a class="#{inside?("/books")}" href=url('/books') Caja
+      a class="#{inside?("/books")}" href=url('/books') Caja de hoy
     li
       a class="#{inside?("/books/add")}" href=url('/books/add') Agregar movimientos
 

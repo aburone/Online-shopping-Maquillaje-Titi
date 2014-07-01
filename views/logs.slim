@@ -9,6 +9,6 @@ form.grid-form method="GET" action="#{request.env['REQUEST_PATH']}"
         div data-field-span="1"
           label for="#{field}" =  "#{label}: "
           input type="text" name="#{field}" size=10 value="#{params[field.to_sym]}"
-  input type="submit" value="Buscar"
+    input type="submit" value="Buscar"
 
 == slim :logs_list, locals: {logs: logs}

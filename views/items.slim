@@ -1,2 +1,5 @@
 -# coding: UTF-8
-== slim :items_list
+- can_filter = true if can_filter.nil?
+- focus = true if focus.nil?
+
+== slim :items_list, locals: {can_filter: can_filter, focus: focus}

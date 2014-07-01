@@ -1,7 +1,7 @@
 - if @cart.nil? or @cart.empty?
   p = t.items.empty
 - else
-    table.items.tablesorter class=(@quicksearch.nil? or @quicksearch==true ? "quicksearch" : "") data-label="#{t.actions.filter}" data-quicksearch=(@focus.nil? or @focus==true ? "focus" : "no_focus")
+    table.items.tablesorter_nofilter
       thead
         tr
           th = t.product.fields.id

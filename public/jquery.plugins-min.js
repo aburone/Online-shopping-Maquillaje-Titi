@@ -64,7 +64,7 @@ $(function(){
 
   $.extend($.tablesorter.language, {
     or  : 'o',
-    and : 'y'
+    and : 'y|'
   });
 
   var options = {

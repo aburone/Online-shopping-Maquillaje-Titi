@@ -17,4 +17,4 @@ h2 Lista de items en esta venta
     i Lee los codigos de los items para agregarlos a la venta actual
 
 - unless @cart.nil? or @cart.empty?
-  == slim :items_cart, locals: {can_edit: true, focus: false}
+  == slim :items_cart, locals: {can_edit: true, can_filter: false}

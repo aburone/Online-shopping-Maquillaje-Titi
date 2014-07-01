@@ -31,12 +31,12 @@ class Sales < AppController
 
   get '/products' do
     @products = Product.new.get_saleable_at_location(current_location[:name]).order(:c_name, :p_name).all
-    slim :products, layout: :layout_sales, locals: {full_row: true, stock_col: true, can_edit: false, sec_nav: :nav_products, title: t.products.title}
+    slim :products, layout: :layout_sales, locals: {full_row: true, stock_col: true, can_edit: false, can_filter: false, sec_nav: :nav_products, title: t.products.title}
   end
 
   get '/products/items/?' do
     @items = Item.new.get_items_at_location_with_status current_location[:name], Item::READY
-    slim :items, layout: :layout_sales, locals: {can_edit: false, sec_nav: :nav_products}
+    slim :items, layout: :layout_sales, locals: {can_edit: false, can_filter: false, sec_nav: :nav_products, title: "Items disponibles"}
   end
 
 
