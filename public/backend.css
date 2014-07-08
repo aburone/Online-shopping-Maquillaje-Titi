@@ -1073,47 +1073,29 @@ nav li {
   padding-left: 2em; }
 
 .subsection {
-  font-weight: bold; }
+  font-weight: bold;
+  padding-bottom: 0.5em; }
 
 .autohide ul li.subsection + * {
   display: none; }
 
 .autohide:hover ul li.subsection + * {
-  -webkit-animation: 1.5s bounceInLeft alternate ease-in-out;
-  -ms-animation: 1.5s bounceInLeft alternate ease-in-out;
-  animation: 1.5s bounceInLeft alternate ease-in-out;
+  -webkit-animation: 0.5s slideInLeft alternate ease-in-out;
+  -ms-animation: 0.5s slideInLeft alternate ease-in-out;
+  animation: 0.5s slideInLeft alternate ease-in-out;
   display: inline-block; }
 
-.bounceInLeft {
-  -webkit-animation: 1.5s bounceInLeft alternate ease-in-out;
-  -ms-animation: 1.5s bounceInLeft alternate ease-in-out;
-  animation: 1.5s bounceInLeft alternate ease-in-out; }
-
-@-webkit-keyframes bounceInLeft {
+@-webkit-keyframes slideInLeft {
   0% {
     opacity: 0;
     -webkit-transform: translateX(200px); }
 
-  60% {
-    opacity: 1;
-    -webkit-transform: translateX(-30px); }
-
-  80% {
-    -webkit-transform: translateX(10px); }
-
   100% {
     -webkit-transform: translateX(0); } }
-@keyframes bounceInLeft {
+@keyframes slideInLeft {
   0% {
     opacity: 0;
     transform: translateX(200px); }
-
-  60% {
-    opacity: 1;
-    transform: translateX(-30px); }
-
-  80% {
-    transform: translateX(10px); }
 
   100% {
     transform: translateX(0); } }
@@ -1141,9 +1123,10 @@ aside:before {
 aside:hover {
   position: absolute;
   opacity: 1;
-  padding: 1em 5em 1em 0;
+  padding: 2em 0 40em 0;
   border: 2px solid rgba(0, 0, 0, 0.9);
   background: rgba(250, 250, 250, 0.95);
+  min-width: 25em;
   max-width: 100%;
   max-height: 1000%; }
 
