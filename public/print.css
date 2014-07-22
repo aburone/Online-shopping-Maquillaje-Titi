@@ -6,7 +6,17 @@ ul li{
   text-indent: -1.2em;
 }
 /*ul li:last-child {padding-bottom: 0}*/
-li {max-width: 55%}
+li {max-width: 45%}
 li:before { content: "⚫ " }
 
 body:after {display:none}
+
+
+#x {
+    width: 5em;
+    height:5em;
+    position: absolute;
+    top: 0.2em;
+    left: 49%;
+    font-size: 5em !important;
+}
