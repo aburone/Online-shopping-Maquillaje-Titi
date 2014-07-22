@@ -64,6 +64,7 @@ class Product < Sequel::Model
     dest.save
     self.parts.map { |part| dest.add_part part }
     self.materials.map { |material| dest.add_material material }
+    self.distributors.map { |distributor| dest.add_distributor distributor }
     dest
   end
   def update_from product
