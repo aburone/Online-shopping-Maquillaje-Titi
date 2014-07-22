@@ -296,6 +296,6 @@ class Backend < AppController
   end
 
   def clean_tabbed_data raw
-    raw.to_s.split("\n").collect { |row| row.split("\t").collect{ |col| col.gsub(/\n|\r|\t/, '').squeeze(" ").strip} }
+    raw.to_s.split("\n").collect { |row| row.split("\t").collect{ |col| col.gsub(/\n|\r|\t/, '').squeeze(" ").strip} }.uniq { |s| s.first }
   end
 end
