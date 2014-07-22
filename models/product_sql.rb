@@ -87,7 +87,7 @@ class Product < Sequel::Model
         WHERE p_id = #{self.p_id} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
       end
     rescue Sequel::UniqueConstraintViolation => e
-      errors.add "Error de duplicacion", e.message
+      errors.add "Error, valor duplicado", e.message
     end
     self
   end

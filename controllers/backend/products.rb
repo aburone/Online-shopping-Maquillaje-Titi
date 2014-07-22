@@ -183,7 +183,11 @@ class Backend < AppController
     product.validate
     if product.errors.count == 0  and product.valid?
       product.update_stocks.save
-      flash[:notice] = R18n.t.product.updated
+      if product.errors.count == 0  and product.valid?
+        flash[:notice] = R18n.t.product.updated
+      else
+        flash[:error] = product.errors
+      end
     else
       flash[:error] = product.errors
     end
