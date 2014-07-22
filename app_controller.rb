@@ -32,8 +32,8 @@ class AppController < Sinatra::Base
 
   PDFKit.configure do |config|
     config.default_options = { page_size: 'A4',
-      margin_top: 5, margin_left: 5, margin_right: 5,
-      footer_center: "#{Utils::local_datetime_format Time.now}", footer_right: '[page] de [toPage]',
+      margin_top: 5, margin_left: 5, margin_right: 5, margin_bottom: 5,
+      footer_left: "#{Utils::local_datetime_format Time.now}", footer_right: '[page] de [toPage]',
       encoding: 'UTF-8', print_media_type: true }
   end
 

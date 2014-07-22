@@ -20,3 +20,17 @@ body:after {display:none}
     left: 49%;
     font-size: 5em !important;
 }
+
+footer {
+  position: absolute;
+  top: 0;
+  left: 28%;
+  width: 25em;
+  height: 280mm;
+}
+
+footer section {
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+}
