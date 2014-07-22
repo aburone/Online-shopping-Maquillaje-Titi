@@ -94,7 +94,7 @@ class Sales < AppController
     tmp.binmode
     tmp << pdf_file
     tmp.close
-    send_file tmp.path, filename: "#{filename}", type: 'application/pdf', disposition: 'inline'
+    send_file tmp.path, filename: "#{filename}.jpg", type: 'application/pdf', disposition: 'inline'
     tmp.unlink
   end
 
