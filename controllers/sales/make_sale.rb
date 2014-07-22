@@ -89,12 +89,12 @@ class Sales < AppController
     kit.stylesheets << "public/backend.css"
     kit.stylesheets << "public/print.css"
     pdf_file = kit.to_pdf
-
-    tmp = Tempfile.new(["venta-#{@order.o_code}", "pdf"])
+    filename = ('a'..'z').to_a.shuffle[0,8].join
+    tmp = Tempfile.new([filename, ""])
     tmp.binmode
     tmp << pdf_file
     tmp.close
-    send_file tmp.path, filename: "venta-#{@order.o_code}.pdf", type: 'application/pdf', disposition: 'inline'
+    send_file tmp.path, filename: "#{filename}", type: 'application/pdf', disposition: 'inline'
     tmp.unlink
   end
 
