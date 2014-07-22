@@ -22,6 +22,8 @@
     h3 = t.bulks.title
     == slim :bulks_list, locals: {can_edit: false, can_filter: false, m_name_col: true}
 
+
+// reprint sale order
   - if @order.type == Order::SALE
     form.grid-form action=url("/reprint_sale/#{@order.o_id}") method="post"
       == Rack::Csrf.tag(env)
