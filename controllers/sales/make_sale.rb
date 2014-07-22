@@ -98,4 +98,23 @@ class Sales < AppController
     tmp.unlink
   end
 
+  post '/reprint_sale/:o_id' do
+    @order = Order[params[:o_id]]
+    @cart_total = @order.cart_total
+    @payments_total = @order.payments_total
+    @cart = @order.items_as_cart.all
+    html = slim :sales_bill, layout: :layout_print
+
+    kit = PDFKit.new(html, page_size: 'a4', print_media_type: true)
+    kit.stylesheets << "public/backend.css"
+    kit.stylesheets << "public/print.css"
+    pdf_file = kit.to_pdf
+    filename = ('a'..'z').to_a.shuffle[0,8].join
+    tmp = Tempfile.new([filename, ""])
+    tmp.binmode
+    tmp << pdf_file
+    tmp.close
+    send_file tmp.path, filename: "#{filename}", type: 'application/pdf', disposition: 'inline'
+    tmp.unlink
+  end
 end

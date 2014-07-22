@@ -1,12 +1,12 @@
 -# coding: UTF-8
 
-/- if @orders.nil? and @order.nil?
-  / == slim :nav_orders
-
+// orders list
 - if @orders
   - p params[:type]
   - list_mode = ((params[:type] == "WH_TO_POS") or (params[:type] == "INVALIDATION")) ? "transport" : "normal"
   == slim :orders_list, locals: {full_row: true, list_mode: list_mode, edit_link: "#{base_url}"}
+
+// single order
 
 - if @order
   h2 = @order.o_code ? t.order.title_with_code(ConstantsTranslator.new(@order.type).t, @order.o_id, @order.o_code_with_dash) : t.order.title(ConstantsTranslator.new(@order.type).t, @order.o_id)
@@ -21,3 +21,14 @@
   - unless @bulks.empty?
     h3 = t.bulks.title
     == slim :bulks_list, locals: {can_edit: false, can_filter: false, m_name_col: true}
+
+  - if @order.type == Order::SALE
+    form.grid-form action=url("/reprint_sale/#{@order.o_id}") method="post"
+      == Rack::Csrf.tag(env)
+      fieldset
+        legend Acciones
+        div data-row-span="1"
+          div data-field-span="1"
+            label for="reprint" Imprimir
+            input.ajax_hide_on_click name="reprint" type="submit" value="Reimprimir"
+
