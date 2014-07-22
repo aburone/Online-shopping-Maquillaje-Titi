@@ -25,7 +25,7 @@ class Backend < AppController
   end
 
   get '/administration/reports/markups' do
-    @products = Product.new.get_all_but_archived.order(:categories__c_name, :products__p_name).all
+    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
     @products.sort_by! { |product| product[:markup_deviation_percentile] }
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
