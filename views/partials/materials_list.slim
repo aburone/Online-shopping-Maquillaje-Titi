@@ -23,11 +23,11 @@
       tr
         th = t.material.fields.category
         th.sm_cell.small_content = t.material.fields.id
+        th = t.material.fields.name
         - if sku_col
           th = t.material.fields.SKU
         - if distributor_col
           th.filter-select.filter-onlyAvail = t.material.fields.distributor
-        th = t.material.fields.name
 
         - if stock_col or multi_stock_col
           th = t.material.fields.price
@@ -62,12 +62,12 @@
         tr.item class="#{ajax_item}"
           td #{I18n.transliterate( material[:c_name] )}
           td.sm_cell.number #{material[:m_id]}
+          td.m_name #{ I18n.transliterate( material[:m_name] )}
           - if sku_col
             td #{material[:SKU]}
           - if distributor_col
             td #{material.d_name}
 
-          td.m_name #{ I18n.transliterate( material[:m_name] )}
 
           - if stock_col or multi_stock_col
             td.number == Utils::money_format material[:m_price], 2
