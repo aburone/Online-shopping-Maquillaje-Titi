@@ -95,7 +95,7 @@
       - ajax_item = sku_col ? "" : ajax_item
       - @products.each do |product|
         tr class="item#{ajax_item} #{item_class}"
-          td #{product[:p_id]}
+          td #{product.p_id}
           td #{I18n.transliterate( product[:c_name] )}
           td #{I18n.transliterate( product[:p_name] )}
           td #{product[:br_name]}
@@ -143,7 +143,8 @@
             - col_class = (product[:stock_deviation_percentile] > 0) ? "number overstocked" : (product[:stock_deviation_percentile] < 0) ? "number understocked" : "number"
             - stock_deviation_percentile = product[:stock_deviation_percentile] == 0 ? "-" : "#{Utils::number_format product[:stock_deviation_percentile], 1} %"
             td class="#{col_class}" #{stock_deviation_percentile}
-            td #{Utils::number_format product[:distributor][:ponderated_deviation], 1} %
+            - ponderated_deviation = product[:distributor] && product[:distributor][:ponderated_deviation] ? product[:distributor][:ponderated_deviation] : 0
+            td #{Utils::number_format ponderated_deviation, 1} %
 
 
           - if to_move_col
@@ -162,17 +163,17 @@
                 - if edit_link == "void"
                   a.text_icon href="#" ✎
                 - if edit_link.to_sym == :edit_product
-                  a.text_icon href="/admin/products/#{product[:p_id]}" ✎
+                  a.text_icon href="/admin/products/#{product.p_id}" ✎
                 - if edit_link == "sales_inventory_review"
-                  a.text_icon href="/sales/admin/inventory_review/#{order.o_id}/#{product[:p_id]}" ✎
+                  a.text_icon href="/sales/admin/inventory_review/#{order.o_id}/#{product.p_id}" ✎
                 - if edit_link == "admin_inventory_review"
-                  a.text_icon href="/admin/inventory/inventory_review/#{order.o_id}/#{product[:p_id]}" ✎
+                  a.text_icon href="/admin/inventory/inventory_review/#{order.o_id}/#{product.p_id}" ✎
                 - if edit_link == "packaging_add"
-                  a.text_icon href="/admin/production/packaging/#{order.o_id}/#{product[:p_id]}" ✎
+                  a.text_icon href="/admin/production/packaging/#{order.o_id}/#{product.p_id}" ✎
                 - if edit_link == "assembly_add"
-                  a.text_icon href="/admin/production/assembly/#{order.o_id}/#{product[:p_id]}" ✎
+                  a.text_icon href="/admin/production/assembly/#{order.o_id}/#{product.p_id}" ✎
                 - if edit_link == "transmutation_select_product"
-                  a.text_icon href="/admin/inventory/transmute_items/#{@item.i_id}/#{product[:p_id]}" ✎
+                  a.text_icon href="/admin/inventory/transmute_items/#{@item.i_id}/#{product.p_id}" ✎
               - if can_hide
                 a.text_icon.ajax_hide_parent_on_click data-tag="tr" href="#" ✓
 
