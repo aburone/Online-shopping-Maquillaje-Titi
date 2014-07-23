@@ -143,7 +143,7 @@
             - col_class = (product[:stock_deviation_percentile] > 0) ? "number overstocked" : (product[:stock_deviation_percentile] < 0) ? "number understocked" : "number"
             - stock_deviation_percentile = product[:stock_deviation_percentile] == 0 ? "-" : "#{Utils::number_format product[:stock_deviation_percentile], 1} %"
             td class="#{col_class}" #{stock_deviation_percentile}
-            td #{Utils::number_format product[:distributor][:ponderated_deviation], 1}
+            td #{Utils::number_format product[:distributor][:ponderated_deviation], 1} %
 
 
           - if to_move_col
