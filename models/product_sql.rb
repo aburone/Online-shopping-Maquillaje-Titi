@@ -13,9 +13,9 @@ class Product < Sequel::Model
 
 
   def d_name
-    return "no data" if self[:distributors].nil?
-    return "" if self[:distributors].empty?
-    self[:distributors].first[:d_name]
+    return self[:distributors].first[:d_name] if self[:distributors]
+    return self[:distributor][:d_name] if self[:distributor]
+    return "no data"
   end
 
   def update_ideal_stock
@@ -34,6 +34,7 @@ class Product < Sequel::Model
                     .select_group(*Distributor::COLUMNS, *ProductDistributor::COLUMNS)
                     .join(:products_to_distributors, distributors__d_id: :products_to_distributors__d_id, products_to_distributors__p_id: self.p_id)
                     .order(:products_to_distributors__ptd_id)
+    return [] if distributors.nil?
     distributors
   end
 

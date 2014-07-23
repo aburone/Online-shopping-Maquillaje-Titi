@@ -93,15 +93,36 @@ class Backend < AppController
   def reports_products_to_buy months
     list = Product.new.get_all_but_archived.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).all
     @products = Product.new.get_saleable_at_all_locations list
+    @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
+
+    distributors = Distributor.all
+    distributors.map do |distributor|
+      distributor[:stock_deviation] = 0
+      distributor[:ideal_stock] = 0
+      distributor[:ponderated_deviation] = 0
+    end
+
+
     @products.map do |product|
       product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
       product[:ideal_stock] = product.inventory(months).global.ideal
       product[:stock_deviation] = product.inventory(months).global.v_deviation
       product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
-      product[:distributors] = product.distributors.all
+
+      product[:distributor] = product.distributors.first
+      distributors.map do |distributor|
+        if distributor.d_id == product[:distributor].d_id
+          distributor[:ideal_stock] += product.inventory(months).global.ideal
+          distributor[:stock_deviation] += product.inventory(months).global.deviation
+          distributor[:ponderated_deviation] = (distributor[:stock_deviation] / distributor[:ideal_stock]) * 100
+        end
+      end
     end
-    @products.sort_by! { |product| [ product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-    @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
+    @products.map do |product|
+      product[:distributor] = distributors.find { |distributor| distributor.d_id == product[:distributor].d_id}
+    end
+
+    @products.sort_by! { |product| [ product[:distributor][:ponderated_deviation], product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
     slim :reports_products_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration, months: months}
   end
 

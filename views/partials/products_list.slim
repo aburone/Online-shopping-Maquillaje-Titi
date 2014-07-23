@@ -4,6 +4,7 @@
 - stock_col = multi_stock_col ? false : stock_col
 - use_virtual_stocks = false if use_virtual_stocks.nil? unless use_virtual_stocks == true
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
+- ponderated_deviation_col = false if ponderated_deviation_col.nil? unless ponderated_deviation_col == true
 - real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
 - ideal_markup_col = false if ideal_markup_col.nil? unless ideal_markup_col == true
 - markup_deviation_percentile_col = false if markup_deviation_percentile_col.nil?
@@ -69,6 +70,7 @@
         - if stock_deviation_col
           th.filter-false Desvio
           th.filter-false.small_content %
+          th.small_content %p
 
         - if to_move_col
           th.filter-false Enviar
@@ -141,6 +143,7 @@
             - col_class = (product[:stock_deviation_percentile] > 0) ? "number overstocked" : (product[:stock_deviation_percentile] < 0) ? "number understocked" : "number"
             - stock_deviation_percentile = product[:stock_deviation_percentile] == 0 ? "-" : "#{Utils::number_format product[:stock_deviation_percentile], 1} %"
             td class="#{col_class}" #{stock_deviation_percentile}
+            td #{Utils::number_format product[:distributor][:ponderated_deviation], 1}
 
 
           - if to_move_col
