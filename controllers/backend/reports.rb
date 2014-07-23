@@ -121,7 +121,12 @@ class Backend < AppController
       end
     end
     @products.map do |product|
-      product[:distributor] = distributors.find { |distributor| distributor.d_id == product[:distributor].d_id}
+      if product[:distributor]
+        product[:distributor] = distributors.find { |distributor| distributor.d_id == product[:distributor].d_id}
+      else
+        product[:distributor] = Distributor.new
+        product[:distributor][:ponderated_deviation] = -101
+      end
     end
 
     @products.sort_by! { |product| [ product[:distributor][:ponderated_deviation], product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
