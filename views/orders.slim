@@ -12,7 +12,7 @@
   h2 = @order.o_code ? t.order.title_with_code(ConstantsTranslator.new(@order.type).t, @order.o_id, @order.o_code_with_dash) : t.order.title(ConstantsTranslator.new(@order.type).t, @order.o_id)
 
   h3 = t.items.title
-  == slim :items_list, locals: {can_edit: false, can_filter: false}
+  == slim :items_list, locals: {can_edit: false, can_filter: true}
   - unless @cart_total.nil?
     table.items
       tr
@@ -20,7 +20,7 @@
 
   - unless @bulks.empty?
     h3 = t.bulks.title
-    == slim :bulks_list, locals: {can_edit: false, can_filter: false, m_name_col: true}
+    == slim :bulks_list, locals: {can_edit: false, can_filter: true, m_name_col: true}
 
 
   // reprint sale order
