@@ -2,7 +2,6 @@
 
 // orders list
 - if @orders
-  - p params[:type]
   - list_mode = ((params[:type] == "WH_TO_POS") or (params[:type] == "INVALIDATION")) ? "transport" : "normal"
   == slim :orders_list, locals: {full_row: true, list_mode: list_mode, edit_link: "#{base_url}"}
 
@@ -13,10 +12,10 @@
 
   h3 = t.items.title
   == slim :items_list, locals: {can_edit: false, can_filter: true}
-  - unless @cart_total.nil?
+  - unless payments_total.nil?
     table.items
       tr
-        td.number Total #{Utils::money_format(@cart_total, 2)}
+        td.number Venta #{payment_type} #{Utils::money_format(payments_total, 2)}
 
   - unless @bulks.empty?
     h3 = t.bulks.title
@@ -24,6 +23,7 @@
 
 
   // reprint sale order
+
   - if @order.type == Order::SALE
     form.grid-form action=url("/reprint_sale/#{@order.o_id}") method="post"
       == Rack::Csrf.tag(env)
