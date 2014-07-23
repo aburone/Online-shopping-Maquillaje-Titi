@@ -110,14 +110,16 @@ class Backend < AppController
       product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
 
       product[:distributor] = product.distributors.first
-      distributors.map do |distributor|
-        if distributor.d_id == product[:distributor].d_id
-          distributor[:ideal_stock] += product.inventory(months).global.ideal
-          distributor[:stock_deviation] += product.inventory(months).global.deviation
-          distributor[:ponderated_deviation] = (distributor[:stock_deviation] / distributor[:ideal_stock]) * 100
+      ap product[:distributor]
+      # if product[:distributor]
+        distributors.map do |distributor|
+          if distributor.d_id == product[:distributor].d_id
+            distributor[:ideal_stock] += product.inventory(months).global.ideal
+            distributor[:stock_deviation] += product.inventory(months).global.deviation
+            distributor[:ponderated_deviation] = (distributor[:stock_deviation] / distributor[:ideal_stock]) * 100
+          end
         end
-      end
-    end
+      # end
     @products.map do |product|
       product[:distributor] = distributors.find { |distributor| distributor.d_id == product[:distributor].d_id}
     end
