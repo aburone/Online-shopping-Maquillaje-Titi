@@ -33,6 +33,7 @@ class Order < Sequel::Model
     .join(:materials_categories, materials_categories__c_id: :materials__c_id)
     .select_group(:m_id, :m_name, :c_name, :materials__c_id)
     .select_append{sum(:m_qty).as(m_qty)}
+    .order(:m_name)
     .all
     materials.each do |mat|
       mat[:m_qty] = BigDecimal.new(mat[:m_qty], 3)

@@ -103,8 +103,8 @@ class Backend < AppController
     @current_item ||= Item.new
     @current_product = @current_item.empty? ? Product.new : Product[@current_item.p_id]
 
-    @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).all
-    @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).all
+    @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).order(:p_name).all
+    @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).order(:p_name).all
     slim :verify_packaging, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.production.verification.title(@order.o_id, @verified_items.count, @pending_items.count+@verified_items.count )}
   end
 
