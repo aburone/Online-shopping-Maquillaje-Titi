@@ -1,13 +1,17 @@
 -# coding: UTF-8
 - @title =  t.products.update_by_filter.title
-p = t.products.update_by_filter.intro settings.price_updated_at_threshold
+p = t.products.update_by_filter.intro days
 - mod = mod.to_f > 0 ? mod.to_f : ""
 
 form.grid-form action=url("/administration/adjustments/products/by_filter") method="post"
   == Rack::Csrf.tag(env)
   fieldset
     legend Configurar
-    div data-row-span="9"
+    div data-row-span="10"
+
+      div data-field-span="1"
+        label for="days" Días
+        input.positive.number type="tel" name="days" size=3 maxlength=3 required="required" value="#{days}"
 
       div data-field-span="1"
         label for="mod" = t.products.update_by_filter.mod_label

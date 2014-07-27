@@ -10,7 +10,7 @@ class Backend < AppController
       upf.update_products_by_filter
       flash.now[upf.flash_level] = upf.flash if upf.flash
     end
-    slim :update_products_by_filter, layout: :layout_backend, locals: {sec_nav: :nav_administration, mod: upf.mod, products: upf.products}
+    slim :update_products_by_filter, layout: :layout_backend, locals: {sec_nav: :nav_administration, mod: upf.mod, days: upf.days, products: upf.products}
   end
 
   class Update_products_by_filter
@@ -31,11 +31,15 @@ class Backend < AppController
       @d_id = params['d_id'].to_i > 0 ? params['d_id'].to_i : false
       @p_name = params['p_name'].to_s.empty? ? false : params['p_name'].to_s
       @attribute = params['attribute'].to_sym if params['attribute']
-      @price_updated_at_threshold = price_updated_at_threshold
+      @price_updated_at_threshold = params['days'] ? params['days'].to_i : price_updated_at_threshold
       @save = params[:confirm] == R18n.t.products.update_by_filter.submit_text
       @mod = set_mod_from_params params
       @products = get_products_by_filter if @mod
       self
+    end
+
+    def days
+      return @price_updated_at_threshold.to_i
     end
 
     def update_products_by_filter
@@ -98,7 +102,7 @@ class Backend < AppController
 
     private
       def get_products_by_filter
-        threshold = Sequel.date_sub(Time.now.getlocal("-00:03").to_date.iso8601, {days: @price_updated_at_threshold})
+        threshold = Sequel.date_sub(Time.now.getlocal("-00:03").to_date.iso8601, {days: days-1})
         products = Product.new.get_all.where{Sequel.expr(:products__price_updated_at) < threshold}.where(archived: 0)
         products = products.join(:products_to_distributors, [:p_id]).join(:distributors, [:d_id]).where(d_id: @d_id) if @d_id
         products = products.where(br_id: @br_id) if @br_id
