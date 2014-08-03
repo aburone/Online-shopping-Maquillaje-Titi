@@ -1,8 +1,9 @@
+# coding: utf-8
 class UserTest < Test::Unit::TestCase
 
   def setup
     @username = "aburone"
-    @password = "qwe123"
+    @password = "1234"
   end
 
   def how_to
@@ -34,4 +35,7 @@ class UserTest < Test::Unit::TestCase
     assert_false User.new.valid?( @username, "INVALID" )
   end
 
+  def create_passwords
+    ap BCrypt::Password.create("1234")
+  end
 end
