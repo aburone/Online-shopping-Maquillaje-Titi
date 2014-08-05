@@ -1,23 +1,27 @@
+- price_col ||= true unless price_col === false
 - price_pro_col ||= true unless price_pro_col === false
-- items = items || @items
-- if items.nil? or items.empty?
+- @items ||= []
+- items = @items if items.nil?
+- if items.empty?
   p = t.items.empty
 - else
   - can_filter = true if can_filter.nil?
   - focus = true if focus.nil?
   == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
   - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
+  - tablesorter_class = ""
   - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
   table class="items #{tablesorter_class}"
     caption #{caption}
     thead
       tr
-        th = t.item.fields.id
-        th = t.item.fields.status
+        th.smm_cell = t.item.fields.id
+        th.mdd_cell = t.item.fields.status
         th = t.item.fields.location
         th.sm_cell ID p
         th = t.product.fields.name
-        th = t.item.fields.price
+        - if price_col
+          th = t.item.fields.price
         - if price_pro_col
           th = t.item.fields.price_pro
     tfoot
@@ -26,11 +30,12 @@
     tbody
       - items.each do |item|
         tr.item
-          td #{item[:i_id]}
-          td = ConstantsTranslator.new(item[:i_status]).t
+          td.smm_cell #{item[:i_id]}
+          td.mdd_cell = ConstantsTranslator.new(item[:i_status]).t
           td = ConstantsTranslator.new(item[:i_loc]).t
           td #{item[:p_id]}
           td #{ I18n.transliterate( item[:p_name] )}
-          td.number #{Utils::money_format item[:i_price], 2}
+          - if price_col
+            td.number #{Utils::money_format item[:i_price], 2}
           - if price_pro_col
              td.number #{Utils::money_format item[:i_price_pro], 2}

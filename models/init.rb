@@ -1,7 +1,6 @@
 require_relative 'sequel.rb'
 require_relative 'actions_log.rb'
 require_relative 'bulk.rb'
-require_relative 'category.rb'
 require_relative 'item.rb'
 require_relative 'label.rb'
 require_relative 'material.rb'

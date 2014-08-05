@@ -1,5 +1,22 @@
 # coding: utf-8
 require_relative 'bulk'
+
+class MaterialCategory < Sequel::Model(:materials_categories)
+  one_to_many :materials
+
+  def empty?
+    return !!!@values[:c_id]
+  end
+
+  def get_by_id c_id
+     c_id = c_id.to_i
+     category = MaterialCategory[c_id]
+     category = MaterialCategory.new if category.nil?
+     category
+  end
+end
+
+
 class Material < Sequel::Model(:materials)
   one_to_many :bulks, key: :m_id
   Material.nested_attributes :bulks
@@ -11,6 +28,10 @@ class Material < Sequel::Model(:materials)
   ATTRIBUTES = [ :m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :created_at, :price_updated_at ]
   # same as ATTRIBUTES but with the needed table references for get_ functions
   COLUMNS = [ :materials__m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :materials__created_at, :materials__price_updated_at ]
+
+  def category
+    self.MaterialCategory
+  end
 
   def d_name
     return "no data" if self[:distributors].nil?

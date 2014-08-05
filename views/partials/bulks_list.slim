@@ -1,5 +1,7 @@
 - m_name_col = false if m_name_col.nil?
 - can_edit = true if can_edit.nil?
+- bulks ||= []
+- @bulks = bulks if @bulks.nil?
 
 - if @bulks.empty?
   p = t.bulks.empty
@@ -13,14 +15,14 @@
     caption #{caption}
     thead
       tr
-        th.md_cell = t.bulk.fields.id
+        th.smm_cell = t.bulk.fields.id
+        th.md_cell = t.bulk.fields.status
         - if m_name_col
           th.bg_cell = t.bulk.fields.m_name
         th.md_cell.small_content
           | #{t.bulk.fields.qty}
           br
           | #{t.bulk.fields.units}
-        th.md_cell = t.bulk.fields.status
         th.bg_cell = t.bulk.fields.created_at
         - if can_edit
           th.sm_cell.sorter-false = t.bulk.fields.actions
@@ -31,11 +33,11 @@
     tbody
       - @bulks.each do |bulk|
         tr.item
-          td.md_cell = bulk.b_id
+          td.smm_cell = bulk.b_id
+          td.md_cell = ConstantsTranslator.new(bulk.b_status).t
           - if m_name_col
             td.bg_cell = I18n.transliterate( bulk[:m_name] )
           td.sm_cell.number = Utils::number_format bulk.b_qty, 2
-          td.md_cell = ConstantsTranslator.new(bulk.b_status).t
           td.bg_cell = Utils::local_datetime_format bulk.created_at
           - if can_edit
             td.sm_cell

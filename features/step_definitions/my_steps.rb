@@ -28,22 +28,6 @@ When /^I verify all items$/ do
 end
 
 
-When /^I logout from backend$/ do
-  logout(:aburone)
-  visit path_to("backend_logout")
-end
-
-Given /^I am logged-in into (.+) with location (.+)$/ do |page_name, location|
-  visit path_to(page_name)
-  # puts body
-  within("#login_form") do
-    fill_in 'admin_username', with: 'aburone'
-    fill_in 'admin_password', with: 'qwe123'
-    choose (location)
-	page.should have_selector(:link_or_button, 'Ingresar')
-    click_button "submit"
-  end
-end
 
 Then /^Show me the page$/ do
   puts body

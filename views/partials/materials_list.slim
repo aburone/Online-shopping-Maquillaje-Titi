@@ -8,6 +8,7 @@
 - stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
 - price_updated_at_col ||= false
 - distributor_col ||= false
+- price_col ||= true unless price_col === false
 
 - if @materials.nil? or @materials.empty?
   p = t.materials.empty
@@ -21,16 +22,16 @@
     caption #{caption}
     thead
       tr
-        th = t.material.fields.category
         th.sm_cell.small_content = t.material.fields.id
+        th.md_cell.filter-select.filter-onlyAvail = t.material.fields.category
         th = t.material.fields.name
         - if sku_col
           th = t.material.fields.SKU
         - if distributor_col
           th.filter-select.filter-onlyAvail = t.material.fields.distributor
 
-        - if stock_col or multi_stock_col
-          th = t.material.fields.price
+        - if (stock_col or multi_stock_col) and price_col
+          th.md_cell.small_content = t.material.fields.price
         - if price_updated_at_col
           th = t.material.fields.price_updated_at
         - if stock_col
@@ -60,16 +61,16 @@
       - ajax_item = can_edit ? " ajax_item" : ""
       - @materials.each do |material|
         tr.item class="#{ajax_item}"
-          td #{I18n.transliterate( material[:c_name] )}
-          td.sm_cell.number #{material[:m_id]}
-          td.m_name #{ I18n.transliterate( material[:m_name] )}
+          td.number #{material.m_id}
+          td #{I18n.transliterate( material[:c_name] ) if material[:c_name] }
+          td.m_name #{ I18n.transliterate( material.m_name )}
           - if sku_col
             td #{material[:SKU]}
           - if distributor_col
             td #{material.d_name}
 
 
-          - if stock_col or multi_stock_col
+          - if (stock_col or multi_stock_col) and price_col
             td.number == Utils::money_format material[:m_price], 2
           - if price_updated_at_col
             td.date = material.price_updated_at.strftime "%m/%d/%Y" unless material.price_updated_at.nil?

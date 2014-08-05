@@ -167,8 +167,10 @@ module Transport
     @item ||= Item.new
     @product = @item.empty? ? Product.new : Product[@item.p_id]
     @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).all
+    # ap @pending_items
     @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).all
     @void_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::ERROR).all
+    # ap @verified_items
 
     @bulk ||= Bulk.new
     @pending_bulks = Bulk.join(:line_bulks, [:b_id]).filter(o_id: @order.o_id).filter(b_status: Bulk::MUST_VERIFY).all
@@ -475,7 +477,6 @@ class Backend < AppController
 
 
   route :post,  ["/transport/departures/wh_to_wh/:o_id/move/?", "/transport/departures/wh_to_pos/:o_id/move/?"] do
-    o_type = o_type_from_route
 
     order = get_orders_at_location_with_type_status_and_id_or_redirect current_location[:name], o_type_from_route, Order::OPEN, params[:o_id].to_i, "/transport/departures/#{o_type_from_route}/select"
     begin

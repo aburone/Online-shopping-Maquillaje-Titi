@@ -1,3 +1,30 @@
+class Category < Sequel::Model
+  one_to_many :products
+
+  def update_from_hash hash_values
+    raise ArgumentError, t.errors.nil_params if hash_values.nil?
+
+    alpha_keys = [ :c_name, :description ]
+    hash_values.select { |key, value| self[key.to_sym]=value.to_s if alpha_keys.include? key.to_sym unless value.nil?}
+
+    checkbox_keys = [ :c_published ]
+    checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }
+
+    self
+  end
+
+  def empty?
+    return !!!@values[:c_id]
+  end
+
+  def get_by_id c_id
+     c_id = c_id.to_i
+     category = Category[c_id]
+     category = Category.new if category.nil?
+     category
+  end
+end
+
 class Product < Sequel::Model
   many_to_one :category, key: :c_id
   one_to_many :items, key: :p_id
@@ -162,7 +189,11 @@ class Product < Sequel::Model
     # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
     return [] unless self[:p_id].to_i > 0
     condition = "product_id = #{self[:p_id]}"
-    Product.join( ProductsPart.where{condition}, part_id: :products__p_id).all
+    Product
+      .join( ProductsPart.where{condition}, part_id: :products__p_id)
+    .join( Category, [:c_id])
+      .order(:p_name)
+      .all
   end
 
   def add_part part
@@ -197,7 +228,12 @@ class Product < Sequel::Model
 
   def materials
     condition = "product_id = #{self.p_id}"
-    Material.join( ProductsMaterial.where{condition}, [:m_id]).order(:m_name).all
+    # c_condition = "categories__c_id = #{self.c_id}"
+    Material
+    .join( ProductsMaterial.where{condition}, [:m_id])
+    .join( MaterialCategory, [:c_id])
+    .order(:m_name)
+    .all
   end
 
   def add_material material

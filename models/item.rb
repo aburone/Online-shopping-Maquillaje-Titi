@@ -12,6 +12,7 @@ class Item < Sequel::Model
   MUST_VERIFY ="MUST_VERIFY"
   VERIFIED    ="VERIFIED"
   READY       ="READY"
+  IN_ASSEMBLY ="IN_ASSEMBLY"
   SALE        ="SALE"
   ON_CART     ="ON_CART"
   SOLD        ="SOLD"
@@ -184,6 +185,13 @@ class Item < Sequel::Model
     return false
   end
 
+  def is_a_different_product p_id
+    ap self
+    return false if self.p_id == p_id
+    errors.add("Item no corresponde", "Este item no es del producto que necesito.")
+    return true
+  end
+
   def current_sale_order
     Order
       .select(:orders__o_id, :type, :o_status, :o_loc, :u_id, :orders__created_at)
@@ -213,8 +221,10 @@ class Item < Sequel::Model
       .last
   end
 
-  def is_on_some_order o_id
-    return false if @values[:i_status] == Item::READY
+  def is_in_some_order o_id
+    ap self
+    ap self.i_status
+    return false if self.i_status == Item::READY
     last = last_order
     errors.add("Error de carga", "Este item ya fue agregado a la orden actual con anterioridad.") if last.o_id == o_id
     errors.add("Error de carga", "Este item pertenece a la orden. #{last.o_id}") if last.o_id != o_id
@@ -443,6 +453,31 @@ class Item < Sequel::Model
     end
   end
 
+  def get_for_assembly i_id, o_id, p_id
+    p "1"
+    i_id = i_id.to_s.strip
+    p "2"
+    item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
+    p "3"
+    return item unless item.nil?
+    p "4"
+    return self if missing(i_id)
+    p "5"
+    update_from Item[i_id]
+    p "6"
+    return self if has_been_void
+    p "7"
+    return self if is_from_another_location
+    p "8"
+    return self if is_in_some_order o_id
+    p "9"
+    return self if is_a_different_product p_id
+    p "10"
+    errors.add("Error inesperado", "Que hacemos?")
+    p "11"
+    return self
+  end
+
   def get_for_sale i_id, o_id
     i_id = i_id.to_s.strip
     item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
@@ -470,7 +505,7 @@ class Item < Sequel::Model
     return self if has_been_void
     return self if is_from_another_location
     return self if has_been_sold # TODO: anulacion de venta
-    return self if is_on_some_order o_id
+    return self if is_in_some_order o_id
     errors.add("Error inesperado", "Que hacemos?")
     return self
   end
@@ -484,7 +519,7 @@ class Item < Sequel::Model
     return self if has_been_void
     return self if is_from_another_location
     return self if has_been_sold # TODO: anulacion de venta
-    return self if is_on_some_order o_id
+    return self if is_in_some_order o_id
     errors.add("Error inesperado", "Que hacemos?")
     return self
   end

@@ -35,8 +35,8 @@
     caption #{caption}
     thead
       tr
-        th = t.product.fields.id
-        th.filter-select.filter-onlyAvail = t.product.fields.category
+        th.sm_cell.small_content = t.product.fields.id
+        th.md_cell.filter-select.filter-onlyAvail = t.product.fields.category
         th = t.product.fields.name
         th.filter-select.filter-onlyAvail = t.product.fields.brand
         - if distributor_col
@@ -44,11 +44,11 @@
         - if sku_col
           th = t.actions.click_to_edit
         - if buy_cost_col
-          th #{t.product.fields.buy_cost}
+          th.sm_cell.small_content #{t.product.fields.buy_cost}
         - if full_row and price_col
-          th = t.product.fields.price
+          th.smm_cell.small_content = t.product.fields.price
         - if full_row and price_pro_col
-          th = t.product.fields.price_pro
+          th.smm_cell.small_content = t.product.fields.price_pro
         - if ideal_markup_col
           th = t.product.fields.ideal_markup
         - if real_markup_col
@@ -57,7 +57,7 @@
           th.small_content.filter-select.filter-onlyAvail = t.product.fields.markup_deviation_percentile
 
         - if stock_col
-          th = t.product.fields.qty
+          th.smm_cell = t.product.fields.qty
         - if multi_stock_col
           th = t.locations.short.WAREHOUSE_1
           th = t.locations.short.WAREHOUSE_2
@@ -66,7 +66,7 @@
           - if use_virtual_stocks
             th = t.locations.short.VIRTUAL_STORE_1
         - if stock_col or multi_stock_col
-          th.filter-false Ideal
+          th.smm_cell.filter-false Ideal
         - if stock_deviation_col
           th.filter-false Desvio
           th.filter-false.small_content %
@@ -83,7 +83,7 @@
           th #{t.product.fields.sale_mode.mode}
           th #{t.product.fields.tercerized}
         - if can_edit || can_hide
-          th.filter-false.sorter-false = t.actions.actions
+          th.smm_cell.filter-false.sorter-false = t.actions.actions
     tfoot
       tr
         - colspan = 4
@@ -96,8 +96,8 @@
       - @products.each do |product|
         tr class="item#{ajax_item} #{item_class}"
           td #{product.p_id}
-          td #{I18n.transliterate( product[:c_name] )}
-          td #{I18n.transliterate( product[:p_name] )}
+          td #{I18n.transliterate( product[:c_name] ) if product[:c_name]}
+          td #{I18n.transliterate( product.p_name )}
           td #{product[:br_name]}
           - if distributor_col
             td #{product.d_name}

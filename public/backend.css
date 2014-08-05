@@ -781,6 +781,9 @@ th.sm_cell {
 .md_cell {
   width: 8em; }
 
+.mdd_cell {
+  width: 12em; }
+
 .bg_cell {
   width: 16em; }
 

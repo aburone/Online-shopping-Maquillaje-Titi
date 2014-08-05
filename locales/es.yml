@@ -178,7 +178,7 @@ administration:
 
 materials:
   title: Materiales
-  empty: "No hay materiales para mostrar"
+  empty: "No hay materiales para listar"
   count: "%1 materiales listados"
   sure_to_update_ideal_stocks: Esta accion ejecuta un proceso muy intensivo y LENTO sobre la base de datos. Estas seguro de continuar?
   updating_in_background: "Actualizando materiales en background. La tarea tarda aproximadamente 2 minutos"
@@ -242,7 +242,7 @@ relationships:
 
 bulks:
   title: Lista de graneles
-  empty: No hay graneles para mostrar
+  empty: No hay graneles para listar
   count: "%1 graneles listados"
 
 bulk:
@@ -284,7 +284,7 @@ label:
 
 items:
   title: Lista de items
-  empty: No hay items disponibles
+  empty: No hay items para listar
   count: "%1 items listados"
 
 item:
@@ -322,8 +322,8 @@ cart:
 
 products:
   title: Productos
-  empty: No hay productos disponibles
-  count: "%1 productos disponibles"
+  empty: No hay productos para listar
+  count: "%1 productos listados"
   list: Productos disponibles
   sku_editor:
     title: "Edicion rapida de SKUs"
@@ -544,6 +544,7 @@ constant:
   ERROR: Erroneo
   SALE: Venta
   ON_CART: En carrito
+  IN_ASSEMBLY: En kit
   SOLD: Vendido
   RETURNING: En devolución
 
@@ -566,7 +567,7 @@ sales:
   title: Punto de venta
   inventory_review_select:
     title: Ordenes de carga de inventario
-    empty: No hay ordenes disponibles
+    empty: No hay ordenes para listas
     count: "%1 ordenes disponibles"
   inventory_review:
     title: "Orden de carga de inventario nº %1 (%2 items)"
@@ -687,7 +688,7 @@ accounts:
 
 categories:
   title: "Edición de categorías"
-  empty: No hay categorías disponibles
+  empty: No hay categorías para listar
   count: "%1 categorías listadas"
   list: Categorías disponibles
 
@@ -723,7 +724,7 @@ returns:
 
 distributors:
   title: "Edición de proveedores"
-  empty: No hay proveedores disponibles
+  empty: No hay proveedores para listar
   count: "%1 proveedores listados"
   list: proveedores disponibles
 
