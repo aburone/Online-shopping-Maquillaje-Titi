@@ -16,7 +16,7 @@ class UserAuth < Sequel::Model(:users)
 
   def valid? username, password
     user = get_user username
-    if user && (valid_pass? user, password )
+    if user && user.is_active && (valid_pass? user, password )
       return user
     else
       return false
