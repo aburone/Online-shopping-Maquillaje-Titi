@@ -7,7 +7,7 @@ class UserAuth < Sequel::Model(:users)
   end
 
   def get_user username
-    User.where(Sequel.like(:username, username)).first
+    User.where(Sequel.like(:username, username)).first # this is in order to be unicode aware
   end
 
   def password=(new_password)

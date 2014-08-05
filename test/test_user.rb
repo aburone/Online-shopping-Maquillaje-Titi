@@ -2,8 +2,11 @@
 class UserTest < Test::Unit::TestCase
 
   def setup
-    @username = "aburone"
-    @password = "1234"
+    @active_username = "aburone"
+    @active_password = "1234"
+
+    @inactive_username = "veronica"
+    @inactive_password = "qwe123"
   end
 
   def how_to
@@ -28,11 +31,15 @@ class UserTest < Test::Unit::TestCase
   end
 
   def test_should_validate_good_password
-    assert_equal User.new.valid?( @username, @password ), User.new.get_user( @username )
+    assert_equal User.new.valid?( @active_username, @active_password ), User.new.get_user( @active_username )
+  end
+
+  def test_should_reject_inactive_user
+    assert_false User.new.valid? @inactive_username, @inactive_password
   end
 
   def test_should_reject_password
-    assert_false User.new.valid?( @username, "INVALID" )
+    assert_false User.new.valid?( @active_username, "INVALID" )
   end
 
   def create_passwords
