@@ -5,6 +5,7 @@ class Order < Sequel::Model
   many_to_many :bulks, class: :Bulk, join_table: :line_bulks, left_key: :o_id, right_key: :b_id
 
   PACKAGING="PACKAGING"
+  ALLOCATION="ALLOCATION" # virtual type
   ASSEMBLY="ASSEMBLY"
   INVENTORY="INVENTORY"
   WH_TO_POS="WH_TO_POS"

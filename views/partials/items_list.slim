@@ -9,7 +9,6 @@
   - focus = true if focus.nil?
   == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
   - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
-  - tablesorter_class = ""
   - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
   table class="items #{tablesorter_class}"
     caption #{caption}
