@@ -1,7 +1,0 @@
-class Backend < AppController
-
-
-
-
-
-end
