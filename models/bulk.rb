@@ -103,7 +103,7 @@ class Bulk < Sequel::Model
 
   def get_for_transport b_id, o_id
     b_id = b_id.to_s.strip
-    bulk = Bulk.filter(b_status: Bulk::SELECTABLE_STATUS, b_loc: User.new.current_location[:name], b_id: b_id).first
+    bulk = Bulk.left_join(:materials, [:m_id]).filter(b_status: Bulk::SELECTABLE_STATUS, b_loc: User.new.current_location[:name], b_id: b_id).first
     return bulk unless bulk.nil?
     return self if missing(b_id)
     update_from Bulk[b_id]
@@ -116,7 +116,7 @@ class Bulk < Sequel::Model
 
   def get_for_verification b_id, o_id
     b_id = b_id.to_s.strip
-    bulk = Bulk.filter(b_status: Bulk::MUST_VERIFY, b_id: b_id).first
+    bulk = Bulk.left_join(:materials, [:m_id]).filter(b_status: Bulk::MUST_VERIFY, b_id: b_id).first
     return bulk unless bulk.nil?
     return self if missing(b_id)
     update_from Bulk[b_id]
@@ -129,7 +129,7 @@ class Bulk < Sequel::Model
 
   def get_for_removal b_id, o_id
     b_id = b_id.to_s.strip
-    bulk = Bulk.filter(b_loc: User.new.current_location[:name], b_id: b_id).join(:line_bulks, [:b_id]).filter(o_id: o_id).first
+    bulk = Bulk.left_join(:materials, [:m_id]).filter(b_loc: User.new.current_location[:name], b_id: b_id).join(:line_bulks, [:b_id]).filter(o_id: o_id).first
     return bulk unless bulk.nil?
     return self if missing(b_id)
     update_from Bulk[b_id]

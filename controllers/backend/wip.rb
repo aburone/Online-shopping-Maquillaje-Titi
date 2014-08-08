@@ -255,7 +255,7 @@ class Backend < AppController
     if order.type ==  Order::ASSEMBLY
       routes = [:assembly, :verification, :allocation]
       order.finish_assembly
-      ok_message = t.order.ready_for_verification
+      ok_message = t.order.ready_for_allocation
       route = 1
     else
       routes = [:packaging, :verification, :allocation]
@@ -302,11 +302,6 @@ class Backend < AppController
 
 
 
-  route :get, :post, ['/production/assembly/:o_id', '/production/assembly/:o_id/:p_id'] do
-    ap "clusterfuck route assembly"
-    # pass if params[:o_id].to_i == 0
-    clusterfuck params, Order::ASSEMBLY
-  end
   route :get, :post, ['/production/packaging/:o_id', '/production/packaging/:o_id/:p_id'] do
     ap "clusterfuck route packaging"
     clusterfuck params, Order::PACKAGING
@@ -449,7 +444,7 @@ class Backend < AppController
       slim :production_kits_add, layout: :layout_backend,
             locals: {
               sec_nav: :nav_production,
-              title: eval("R18n.t.production.#{order_type}.title(order.o_id, items.count)"),
+              title: eval("R18n.t.production.#{action}.title(order.o_id, items.count)"),
               order: order,
               product: product,
               item: item,
@@ -471,6 +466,144 @@ class Backend < AppController
    return false
   end
 
+
+
+
+
+
+
+
+
+  route :get, :post, ['/production/assembly/:o_id', '/production/assembly/:o_id/:p_id'] do
+    ap "clusterfuck route assembly"
+    # pass if params[:o_id].to_i == 0
+    clusterfuck_assembly params, Order::ASSEMBLY
+  end
+
+
+  def get_next_part product, items
+    p "sdf"
+    parts = product.parts
+    parts.reject! { |part| included? part, items }
+    ap parts
+    parts.empty? ? Product.new : parts.first
+  end
+
+  def clusterfuck_assembly params, action
+    action = action.downcase.to_sym
+    o_id = params[:o_id].to_i
+    case action
+      when :assembly
+        route = "assembly"
+        order_type = Order::ASSEMBLY
+        order_status = Order::OPEN
+      else
+        raise "Tipo de acción inválida \"#{action}\""
+    end
+
+    order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], order_type, order_status, o_id)
+    redirect_if_nil_order order, o_id, "/production/#{route}/select"
+
+    # ap params
+    ap order
+    ap order.items
+    ap order.materials
+
+
+    product = Product.new
+    products = []
+    parts = []
+    next_part = Product.new
+    materials = []
+    item ||= Item.new
+    items = order.items
+    # ap items
+
+    if params[:p_id]
+      product = Product.new.get params[:p_id].to_i
+      ap "Armando: #{product.p_name} (#{product.p_id})"
+
+      next_part = get_next_part product, items
+      ap "esperando: #{next_part.p_name} (#{next_part.p_id})" unless next_part.empty?
+
+      if params[:i_id]
+        i_id = params[:i_id].to_s.strip
+        item =  Item.new.get_for_assembly i_id, order.o_id, next_part.p_id
+        ap "Ingresado #{item.p_name} (#{item.p_id})"
+        if item.errors.count > 0
+          message = item.errors.to_a.flatten.join(": ")
+          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
+          flash[:error_add_item] = item.errors
+          redirect to("/production/#{route}/#{order.o_id}/#{product.p_id}")
+        end
+        if order.errors.count > 0
+          flash[:error_add_item_to_order] = order.errors
+          redirect to("/production/#{route}/#{order.o_id}/#{product.p_id}")
+        end
+
+        added_msg = order.add_item item
+        status_msg = item.change_status(Item::IN_ASSEMBLY, order.o_id)
+        flash.now[:notice] = [added_msg, status_msg]
+
+        items = order.items
+        next_part = get_next_part product, items
+        ap "Ahora esperando: #{next_part.p_name} (#{next_part.p_id})"
+      end
+
+      materials = product.materials
+      bulks = order.bulks
+
+      materials = materials - bulks
+
+      unless materials.empty?
+        p ""
+        p "Materiales faltantes"
+        materials.each do |material|
+          ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]"
+        end
+      end
+      unless parts.empty?
+        p ""
+        p "Partes faltantes"
+        parts.each do |part|
+          ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part.class}]"
+        end
+      end
+
+      ""
+      ap next_part
+      slim :production_kits_add, layout: :layout_backend,
+            locals: {
+              sec_nav: :nav_production,
+              title: eval("R18n.t.production.#{action}.title(order.o_id, items.count)"),
+              order: order,
+              product: product,
+              item: item,
+              items: items,
+              bulks: bulks,
+              parts: parts,
+              next_part: next_part,
+              materials: materials
+            }
+
+    else
+      products = Product.new.get_all_but_archived.filter(Sequel.lit('parts_cost > 0')).order(:p_name).all
+      slim :production_add, layout: :layout_backend,
+            locals: {
+              sec_nav: :nav_production,
+              title: eval("R18n.t.production.#{action}.title(order.o_id, items.count)"),
+              order: order,
+              product: product,
+              products: products,
+              item: item,
+              items: items,
+              parts: parts,
+              materials: materials
+            }
+    end
+
+
+  end
 
 
 end

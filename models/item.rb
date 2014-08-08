@@ -186,9 +186,8 @@ class Item < Sequel::Model
   end
 
   def is_a_different_product p_id
-    ap self
     return false if self.p_id == p_id
-    errors.add("Item no corresponde", "Este item no es del producto que necesito.")
+    errors.add("Item no corresponde", "Este item \"#{self.p_name}\" no es del producto que necesito.")
     return true
   end
 
@@ -212,12 +211,16 @@ class Item < Sequel::Model
     end
   end
 
-  def last_order
+  def in_orders
     Order
       .select(:orders__o_id, :type, :o_status, :o_loc, :u_id, :orders__created_at)
       .join(:line_items, line_items__o_id: :orders__o_id)
-      .join(:items, line_items__i_id: :items__o_id, line_items__i_id: @values[:i_id])
+      .join(:items, line_items__i_id: :items__o_id, line_items__i_id: self.i_id)
       .order(:o_id)
+  end
+
+  def last_order
+    in_orders
       .last
   end
 
@@ -225,9 +228,14 @@ class Item < Sequel::Model
     ap self
     ap self.i_status
     return false if self.i_status == Item::READY
-    last = last_order
-    errors.add("Error de carga", "Este item ya fue agregado a la orden actual con anterioridad.") if last.o_id == o_id
-    errors.add("Error de carga", "Este item pertenece a la orden. #{last.o_id}") if last.o_id != o_id
+    orders = in_orders
+    orders.each do |order|
+      if order.o_id == o_id
+        errors.add("Error de carga", "Este item ya fue agregado a la orden actual con anterioridad.")
+        return true
+      end
+    end
+    errors.add("Error de carga", "Este item pertenece a la orden. #{last.o_id}") if orders.last.o_id != o_id
     return true
   end
 
@@ -457,7 +465,7 @@ class Item < Sequel::Model
     p "1"
     i_id = i_id.to_s.strip
     p "2"
-    item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).first
+    item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id, p_id: p_id).first
     p "3"
     return item unless item.nil?
     p "4"

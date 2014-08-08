@@ -43,4 +43,5 @@
           td.bg_cell = Utils::local_datetime_format bulk.created_at
           - if can_edit
             td.sm_cell
-              a.text_icon.edit_bulk href="/admin/bulks/#{bulk.b_id}" data-ajax="edit_bulk" data-b_id="#{bulk.b_id}" ✎
+              - if [Bulk::NEW, Bulk::IN_USE, Bulk::EMPTY].include?(bulk.b_status)
+                a.text_icon.edit_bulk href="/admin/bulks/#{bulk.b_id}" data-ajax="edit_bulk" data-b_id="#{bulk.b_id}" ✎

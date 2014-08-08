@@ -192,6 +192,10 @@ class Order < Sequel::Model
     change_status Order::MUST_VERIFY
   end
 
+  def finish_assembly
+    change_status Order::VERIFIED
+  end
+
   def finish_verification
     pending_items = Item.join(:line_items, [:i_id]).filter(o_id: self.o_id).filter(i_status: Item::MUST_VERIFY).all
     if pending_items.count > 0

@@ -166,16 +166,14 @@ module Transport
     @order = order
     @item ||= Item.new
     @product = @item.empty? ? Product.new : Product[@item.p_id]
-    @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).all
-    # ap @pending_items
-    @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).all
-    @void_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::ERROR).all
-    # ap @verified_items
+    @pending_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::MUST_VERIFY).order(:p_name).all
+    @verified_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::VERIFIED).order(:p_name).all
+    @void_items = Item.join(:line_items, [:i_id]).filter(o_id: @order.o_id).filter(i_status: Item::ERROR).order(:p_name).all
 
     @bulk ||= Bulk.new
-    @pending_bulks = Bulk.join(:line_bulks, [:b_id]).filter(o_id: @order.o_id).filter(b_status: Bulk::MUST_VERIFY).all
-    @verified_bulks = Bulk.join(:line_bulks, [:b_id]).filter(o_id: @order.o_id).filter(b_status: Bulk::VERIFIED).all
-    @void_bulks = Bulk.join(:line_bulks, [:b_id]).filter(o_id: @order.o_id).filter(b_status: Bulk::ERROR).all
+    @pending_bulks = Bulk.left_join(:materials, [:m_id]).join(:line_bulks, [:b_id]).filter(o_id: @order.o_id).filter(b_status: Bulk::MUST_VERIFY).order(:m_name).all
+    @verified_bulks = Bulk.left_join(:materials, [:m_id]).join(:line_bulks, [:b_id]).filter(o_id: @order.o_id).filter(b_status: Bulk::VERIFIED).order(:m_name).all
+    @void_bulks = Bulk.left_join(:materials, [:m_id]).join(:line_bulks, [:b_id]).filter(o_id: @order.o_id).filter(b_status: Bulk::ERROR).order(:m_name).all
     case order.type
       when Order::WH_TO_POS
         @module ="sales"

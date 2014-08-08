@@ -1,14 +1,13 @@
 h2 Armando de #{product.p_name}
 
-
-- if item.empty?
+- unless next_part.empty?
   fieldset.action_container
-    h2.action Proximo item a agregar
-    == slim :product_details, locals: {product: parts.first}
+    h2.action Proxima parte a agregar
+    == slim :product_details, locals: {product: next_part}
     / Read new label
     p
       |Lee la etiqueta del proximo item&nbsp;
-      b #{parts.first.p_name}
+      b #{next_part.p_name}
 
     form action=url("/production/#{order.type.downcase}/#{order.o_id}/#{product.p_id}") method="post"
       == Rack::Csrf.tag(env)
@@ -26,7 +25,7 @@ h2 Partes y materiales componentes
 
 
 / Current items in order and removal option
-h2 Items agregados a esta orden
+h2 Partes agregadas a esta orden
 == slim :items_list, locals: {items: items, can_filter: false, price_col: false, price_pro_col: false}
 / Remove single item
 - unless items.empty?

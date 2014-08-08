@@ -187,7 +187,7 @@ class Product < Sequel::Model
 
   def parts
     # https://github.com/jeremyevans/sequel/blob/master/doc/querying.rdoc#join-conditions
-    return [] unless self[:p_id].to_i > 0
+    return [] if self.empty?
     condition = "product_id = #{self[:p_id]}"
     Product
       .join( ProductsPart.where{condition}, part_id: :products__p_id)
@@ -227,8 +227,8 @@ class Product < Sequel::Model
 
 
   def materials
+    return [] if self.empty?
     condition = "product_id = #{self.p_id}"
-    # c_condition = "categories__c_id = #{self.c_id}"
     Material
     .join( ProductsMaterial.where{condition}, [:m_id])
     .join( MaterialCategory, [:c_id])
