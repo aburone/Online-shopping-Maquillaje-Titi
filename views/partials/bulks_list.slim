@@ -1,9 +1,11 @@
 - m_name_col = false if m_name_col.nil?
 - can_edit = true if can_edit.nil?
-- bulks ||= []
-- @bulks = bulks if @bulks.nil?
 
-- if @bulks.empty?
+
+- bulks ||= []
+- bulks = @bulks unless @bulks.nil?
+
+- if bulks.empty?
   p = t.bulks.empty
 - else
   - can_filter = true if can_filter.nil?
@@ -29,9 +31,9 @@
     tfoot
       tr
         - colspan = m_name_col ? 7 : 6
-        td colspan="#{colspan}" = t.bulks.count(@bulks.count)
+        td colspan="#{colspan}" = t.bulks.count(bulks.count)
     tbody
-      - @bulks.each do |bulk|
+      - bulks.each do |bulk|
         tr.item
           td.smm_cell = bulk.b_id
           td.md_cell = ConstantsTranslator.new(bulk.b_status).t

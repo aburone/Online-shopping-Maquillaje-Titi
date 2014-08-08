@@ -23,7 +23,10 @@
 - distributor_col ||= false
 
 
-- if @products.empty?
+- products ||= []
+- products = @products unless @products.nil?
+
+- if products.empty?
   p = t.products.empty
 - else
   - can_filter = true if can_filter.nil?
@@ -89,11 +92,11 @@
         - colspan = 4
         - colspan += 1 if can_edit
         - colspan += 2 if full_row
-        td.row_count colspan="#{colspan}" = t.products.count(@products.count)
+        td.row_count colspan="#{colspan}" = t.products.count(products.count)
     tbody
       - ajax_item = can_edit ? " ajax_item" : ""
       - ajax_item = sku_col ? "" : ajax_item
-      - @products.each do |product|
+      - products.each do |product|
         tr class="item#{ajax_item} #{item_class}"
           td #{product.p_id}
           td #{I18n.transliterate( product[:c_name] ) if product[:c_name]}

@@ -15,6 +15,10 @@ class User < UserAuth
     out += "\t level:  #{@values[:level]}\n"
   end
 
+  def curret_user
+    Thread.current.thread_variable_get(:user)
+  end
+
   def current_user_id
     current_user_id = Thread.current.thread_variable_get(:user_id)
     current_user_id ||= 1 # system

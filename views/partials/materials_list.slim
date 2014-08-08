@@ -10,7 +10,11 @@
 - distributor_col ||= false
 - price_col ||= true unless price_col === false
 
-- if @materials.nil? or @materials.empty?
+- materials ||= []
+- materials = @materials unless @materials.nil?
+
+
+- if materials.empty?
   p = t.materials.empty
 - else
   - can_filter = true if can_filter.nil?
@@ -56,10 +60,10 @@
           th.sm_cell.sorter-false = t.bulk.fields.actions
     tfoot
       tr
-        td colspan="5" = t.materials.count(@materials.count)
+        td colspan="5" = t.materials.count(materials.count)
     tbody
       - ajax_item = can_edit ? " ajax_item" : ""
-      - @materials.each do |material|
+      - materials.each do |material|
         tr.item class="#{ajax_item}"
           td.number #{material.m_id}
           td #{I18n.transliterate( material[:c_name] ) if material[:c_name] }

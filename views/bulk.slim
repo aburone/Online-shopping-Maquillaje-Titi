@@ -17,14 +17,14 @@
               input type="hidden" name="m_id" value="#{@bulk[:m_id]}"
               input disabled="" type="text" name="b_id" value="#{@bulk.b_id}"
             td.md_cell
-              input autofocus="" type="text" name="b_qty" size=5 maxlength=10 required="required" value="#{Utils::number_format @bulk.b_qty, 2, ""}"
-            td.md_cell
               select name="b_status"
                 - Bulk::SELECTABLE_STATUS.each do |status|
                   - if @bulk[:b_status] == status
                     option selected="selected" value="#{status}" = status
                   - else
                     option = status
+            td.md_cell
+              input autofocus="" type="text" name="b_qty" size=5 maxlength=10 required="required" value="#{Utils::number_format @bulk.b_qty, 2, ""}"
             td.bg_cell
               input disabled="" type="text" name="created_at" value="#{Utils::local_datetime_format(@bulk[:created_at])}"
             td.md_cell

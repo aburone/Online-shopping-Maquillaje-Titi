@@ -1,7 +1,9 @@
 - price_col ||= true unless price_col === false
 - price_pro_col ||= true unless price_pro_col === false
-- @items ||= []
-- items = @items if items.nil?
+
+- items ||= []
+- items = @items unless @items.nil?
+
 - if items.empty?
   p = t.items.empty
 - else

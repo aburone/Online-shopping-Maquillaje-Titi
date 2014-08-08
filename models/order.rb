@@ -4,8 +4,8 @@ class Order < Sequel::Model
   many_to_many :items, class: :Item, join_table: :line_items, left_key: :o_id, right_key: :i_id
   many_to_many :bulks, class: :Bulk, join_table: :line_bulks, left_key: :o_id, right_key: :b_id
 
+  #type
   PACKAGING="PACKAGING"
-  ALLOCATION="ALLOCATION" # virtual type
   ASSEMBLY="ASSEMBLY"
   INVENTORY="INVENTORY"
   WH_TO_POS="WH_TO_POS"
@@ -17,7 +17,9 @@ class Order < Sequel::Model
   INVALIDATION="INVALIDATION"
   TRANSMUTATION="TRANSMUTATION"
   TYPES = [PACKAGING, ASSEMBLY, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION, TRANSMUTATION, RETURN, CREDIT_NOTE]
+  PRODUCTION_TYPES = [PACKAGING, ASSEMBLY, WH_TO_POS, WH_TO_WH]
 
+  # status
   OPEN="OPEN"
   MUST_VERIFY="MUST_VERIFY"
   VERIFIED="VERIFIED"
@@ -25,10 +27,26 @@ class Order < Sequel::Model
   EN_ROUTE="EN_ROUTE"
   VOID="VOID"
 
+  # actions
+  ALLOCATION="ALLOCATION"
+  VERIFICATION = "VERIFICATION"
+  PRODUCTION_ACTIONS = [PACKAGING, ASSEMBLY, VERIFICATION, ALLOCATION, ]
+
   require_relative 'order_sql.rb'
 
   def empty?
     return @values[:o_id].nil? ? true : false
+  end
+
+  def current_action
+    case self.o_status
+      when Order::OPEN
+        return self.type.downcase
+      when Order::MUST_VERIFY
+        return "verification"
+      when Order::VERIFIED
+        return "allocation"
+    end
   end
 
   def remove_dash_from_code code

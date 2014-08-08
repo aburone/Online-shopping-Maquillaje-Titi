@@ -9,6 +9,7 @@ module Sinatra
   module Auth
     module Helpers
       def authorized?
+        Thread.current.thread_variable_set(:user, User.new.get_by_id(session[:user_id])) if Thread.current.thread_variable_get(:user).nil?
         Thread.current.thread_variable_set(:username, session[:username])
         Thread.current.thread_variable_set(:user_real_name, session[:user_real_name])
         Thread.current.thread_variable_set(:user_id, session[:user_id])
@@ -23,6 +24,7 @@ module Sinatra
         end
       end
       def set_user user, location
+        Thread.current.thread_variable_set(:user, user)
         Thread.current.thread_variable_set(:username, user[:username])
         session[:username]  = user[:username]
         Thread.current.thread_variable_set(:user_real_name, session[:user_real_name])
@@ -34,6 +36,8 @@ module Sinatra
         session[:current_location] = location
       end
       def unset_user
+        Thread.current.thread_variable_set(:user, nil)
+        session[:user] = nil
         Thread.current.thread_variable_set(:username, nil)
         session[:username] = nil
         Thread.current.thread_variable_set(:user_real_name, nil)
