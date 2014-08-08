@@ -8,8 +8,9 @@ nav.main_nav role="navigation"
       dd.lnk
         a class="#{inside?("/admin/production")}" href=url('/production') = t.production.title
 
-      dd.lnk
-        a class="#{inside?("/admin/administration")}" href=url('/administration') = t.administration.title
+      - if User.new.curret_user.level > 2
+        dd.lnk
+          a class="#{inside?("/admin/administration")}" href=url('/administration') = t.administration.title
 
 
       dd.lnk

@@ -25,7 +25,7 @@ module ApplicationHelper
 
   def redirect_if_nil_order order, o_id, route
     if order.nil?
-      flash[:error] = t.order.missing o_id
+      flash[:error] = t.order.missing o_id.to_i
       redirect to(route)
     end
   end

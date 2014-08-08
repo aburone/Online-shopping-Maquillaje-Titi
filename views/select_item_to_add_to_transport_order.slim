@@ -13,7 +13,7 @@
     input type="hidden" name="p_id" value="#{@product[:p_id]}"
     input type="hidden" name="o_id" value="#{@order[:o_id]}"
     br
-    label for="remove_item" Si es incorrecto, puede
+    label for="remove_item" Si es incorrecto, puede&nbsp;
     input name="remove_item" type="submit" value="#{t.actions.undo}"
 
 
@@ -28,7 +28,7 @@
     input type="hidden" name="id" value="#{@bulk[:b_id]}"
     input type="hidden" name="o_id" value="#{@order[:o_id]}"
     br
-    label for="remove_bulk" Si es incorrecto, puede
+    label for="remove_bulk" Si es incorrecto, puede&nbsp;
     input name="remove_bulk" type="submit" value="#{t.actions.undo}"
 
 
@@ -55,7 +55,7 @@ h2 Items en esta orden
 
 - if @order.type == Order::WH_TO_WH
   h2 Graneles en esta orden
-  == slim :bulks_list, locals: {can_edit: false, can_filter: false, stock_col: true}
+  == slim :bulks_list, locals: {can_edit: false, can_filter: false, stock_col: true, m_name_col: true}
   / Remove single bulk
   - unless @bulks.empty?
     a href="#{@module}#{@route}/#{@order.o_id}/bulk/remove" Remover un granel de la orden

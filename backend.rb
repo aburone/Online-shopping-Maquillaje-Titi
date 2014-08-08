@@ -27,13 +27,15 @@ class Backend < AppController
     Thread.current.thread_variable_set(:layout, :layout_backend)
   end
 
-  get '/?' do
+  route :get, ['/', '/administration'] do
     protected! # needed by cucumber
-    slim :admin, layout: Thread.current.thread_variable_get(:layout), locals: {sec_nav: :nav_administration, title: t.administration.title}
-  end
-
-  get '/administration' do
-    slim :admin, layout: Thread.current.thread_variable_get(:layout), locals: {sec_nav: :nav_administration, title: t.administration.title}
+    if User.new.curret_user.level > 2
+      nav = :nav_administration
+      title = t.administration.title
+    else
+      redirect to ("/production")
+    end
+    slim :admin, layout: Thread.current.thread_variable_get(:layout), locals: {sec_nav: nav, title: title}
   end
 
   get '/log' do

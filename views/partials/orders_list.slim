@@ -3,7 +3,9 @@
 - edit_link ||= "void"
 - list_mode ||= "normal"
 
-- orders = orders || @orders
+- orders ||= []
+- orders = @orders unless @orders.nil?
+
 - if orders.empty?
   p = t.orders.empty
 - else

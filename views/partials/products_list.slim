@@ -1,0 +1,181 @@
+- sku_col = false if sku_col.nil? unless sku_col == true
+- stock_col = false if stock_col.nil? unless stock_col == true
+- multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
+- stock_col = multi_stock_col ? false : stock_col
+- use_virtual_stocks = false if use_virtual_stocks.nil? unless use_virtual_stocks == true
+- stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
+- ponderated_deviation_col = false if ponderated_deviation_col.nil? unless ponderated_deviation_col == true
+- real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
+- ideal_markup_col = false if ideal_markup_col.nil? unless ideal_markup_col == true
+- markup_deviation_percentile_col = false if markup_deviation_percentile_col.nil?
+- to_move_col = false if to_move_col.nil? unless to_move_col == true
+- can_edit = false if can_edit.nil?
+- edit_link ||= "void"
+- item_class = "" if item_class.nil?
+- status_col ||= false
+- buy_cost_col ||= false
+- full_row ||= true unless full_row === false
+- price_col ||= true unless price_col === false
+- price_pro_col ||= true unless price_pro_col === false
+- price_updated_at_col ||= false
+- flags_cols ||= false
+- can_hide ||= false
+- distributor_col ||= false
+
+
+- products ||= []
+- products = @products unless @products.nil?
+
+- if products.empty?
+  p = t.products.empty
+- else
+  - can_filter = true if can_filter.nil?
+  - focus = true if focus.nil?
+  == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
+  - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
+  - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
+  table class="items #{tablesorter_class}"
+    caption #{caption}
+    thead
+      tr
+        th.sm_cell.small_content = t.product.fields.id
+        th.md_cell.filter-select.filter-onlyAvail = t.product.fields.category
+        th = t.product.fields.name
+        th.filter-select.filter-onlyAvail = t.product.fields.brand
+        - if distributor_col
+          th.filter-select.filter-onlyAvail = t.product.fields.distributor
+        - if sku_col
+          th = t.actions.click_to_edit
+        - if buy_cost_col
+          th.sm_cell.small_content #{t.product.fields.buy_cost}
+        - if full_row and price_col
+          th.smm_cell.small_content = t.product.fields.price
+        - if full_row and price_pro_col
+          th.smm_cell.small_content = t.product.fields.price_pro
+        - if ideal_markup_col
+          th = t.product.fields.ideal_markup
+        - if real_markup_col
+          th = t.product.fields.real_markup
+        - if markup_deviation_percentile_col
+          th.small_content.filter-select.filter-onlyAvail = t.product.fields.markup_deviation_percentile
+
+        - if stock_col
+          th.smm_cell = t.product.fields.qty
+        - if multi_stock_col
+          th = t.locations.short.WAREHOUSE_1
+          th = t.locations.short.WAREHOUSE_2
+          - if !use_virtual_stocks
+            th = t.locations.short.STORE_1
+          - if use_virtual_stocks
+            th = t.locations.short.VIRTUAL_STORE_1
+        - if stock_col or multi_stock_col
+          th.smm_cell.filter-false Ideal
+        - if stock_deviation_col
+          th.filter-false Desvio
+          th.filter-false.small_content %
+          th.small_content %p
+
+        - if to_move_col
+          th.filter-false Enviar
+        - if status_col
+          th Estado
+        - if price_updated_at_col
+          th #{t.product.fields.price_updated_at}
+        - if flags_cols
+          th #{t.product.fields.life_cycle.life_phase}
+          th #{t.product.fields.sale_mode.mode}
+          th #{t.product.fields.tercerized}
+        - if can_edit || can_hide
+          th.smm_cell.filter-false.sorter-false = t.actions.actions
+    tfoot
+      tr
+        - colspan = 4
+        - colspan += 1 if can_edit
+        - colspan += 2 if full_row
+        td.row_count colspan="#{colspan}" = t.products.count(products.count)
+    tbody
+      - ajax_item = can_edit ? " ajax_item" : ""
+      - ajax_item = sku_col ? "" : ajax_item
+      - products.each do |product|
+        tr class="item#{ajax_item} #{item_class}"
+          td #{product.p_id}
+          td #{I18n.transliterate( product[:c_name] ) if product[:c_name]}
+          td #{I18n.transliterate( product.p_name )}
+          td #{product[:br_name]}
+          - if distributor_col
+            td #{product.d_name}
+          - if sku_col
+            td
+              span.ajax_click_to_edit.ajax_click_to_edit_sku title="Click para editar..." id="#{product.p_id}" #{product[:sku]}
+          - if buy_cost_col
+            td.number #{Utils::money_format product[:buy_cost], 2}
+          - if full_row & price_col
+            td.number #{Utils::money_format product.price, 2}
+          - if full_row & price_pro_col
+            td.number #{Utils::money_format product[:price_pro], 2}
+          - if ideal_markup_col
+            td.number #{Utils::number_format product[:ideal_markup], 2}
+          - if real_markup_col
+            td.number #{Utils::number_format product[:real_markup], 2}
+          - if markup_deviation_percentile_col
+            - unless product[:markup_deviation_percentile].nil?
+              - col_class = (product[:markup_deviation_percentile] > 1.1) ? "number overpriced" : (product[:markup_deviation_percentile] < 0.9) ? "number underpriced" : "number"
+              - markup_deviation_percentile = product[:markup_deviation_percentile] == 0 ? "-" : "#{"+" if product[:markup_deviation_percentile] > 0}#{Utils::number_format(product[:markup_deviation_percentile], 0)} %"
+            - else
+              - col_class = "number underpriced"
+              - markup_deviation_percentile = "Invalido"
+            td class="#{col_class}" #{markup_deviation_percentile}
+
+          - if stock_col
+            td.number #{Utils::number_format product[:qty], 0}
+          - if multi_stock_col
+            td.number #{Utils::number_format product[:stock_warehouse_1], 0}
+            td.number #{Utils::number_format product[:stock_warehouse_2], 0}
+            - if !use_virtual_stocks
+              td.number #{Utils::number_format product[:stock_store_1], 0}
+            - if use_virtual_stocks
+                td.number #{Utils::number_format product[:virtual_stock_store_1], 0}
+          - if stock_col or multi_stock_col
+            td.number #{Utils::number_format product.inventory(1).store_1.ideal, 2, 0}
+          - if stock_deviation_col
+            - col_class = (product[:stock_deviation] > 0) ? "number overstocked" : (product[:stock_deviation] < 0) ? "number understocked" : "number"
+            - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
+            - product[:stock_deviation] = -1 if product[:stock_deviation] < 0 and product[:stock_deviation] > -1
+            - stock_deviation_for_humans = Utils::number_format(product[:stock_deviation].round, 0, "-")
+            td class="#{col_class}" #{stock_deviation_for_humans}
+            - col_class = (product[:stock_deviation_percentile] > 0) ? "number overstocked" : (product[:stock_deviation_percentile] < 0) ? "number understocked" : "number"
+            - stock_deviation_percentile = product[:stock_deviation_percentile] == 0 ? "-" : "#{Utils::number_format product[:stock_deviation_percentile], 1} %"
+            td class="#{col_class}" #{stock_deviation_percentile}
+            - ponderated_deviation = product[:distributor] && product[:distributor][:ponderated_deviation] ? product[:distributor][:ponderated_deviation] : 0
+            td #{Utils::number_format ponderated_deviation, 1} %
+
+
+          - if to_move_col
+            td.number #{Utils::number_format product[:to_move], 0}
+          - if status_col
+            td #{product.status}
+          - if price_updated_at_col
+            td #{product.price_updated_at.strftime "%d/%m/%Y" unless product.price_updated_at.nil?}
+          - if flags_cols
+            td #{eval("t.product.fields.life_cycle.#{product.life_phase}")}
+            td #{eval("t.product.fields.sale_mode.#{product.sale_mode}")}
+            td #{product.tercerized ? t.product.fields.is_tercerized : t.product.fields.non_tercerized}
+          - if can_edit || can_hide
+            td.actions
+              - if can_edit
+                - if edit_link == "void"
+                  a.text_icon href="#" ✎
+                - if edit_link.to_sym == :edit_product
+                  a.text_icon href="/admin/products/#{product.p_id}" ✎
+                - if edit_link == "sales_inventory_review"
+                  a.text_icon href="/sales/admin/inventory_review/#{order.o_id}/#{product.p_id}" ✎
+                - if edit_link == "admin_inventory_review"
+                  a.text_icon href="/admin/inventory/inventory_review/#{order.o_id}/#{product.p_id}" ✎
+                - if edit_link == "packaging_add"
+                  a.text_icon href="/admin/production/packaging/#{order.o_id}/#{product.p_id}" ✎
+                - if edit_link == "assembly_add"
+                  a.text_icon href="/admin/production/assembly/#{order.o_id}/#{product.p_id}" ✎
+                - if edit_link == "transmutation_select_product"
+                  a.text_icon href="/admin/inventory/transmute_items/#{@item.i_id}/#{product.p_id}" ✎
+              - if can_hide
+                a.text_icon.ajax_hide_parent_on_click data-tag="tr" href="#" ✓

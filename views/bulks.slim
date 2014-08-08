@@ -9,4 +9,4 @@
       input class="ajax_hide_items" type="submit" value="#{t.labels.download(@count)}"
   - if @count == 0
     p No hay etiquetas de graneles pendientes de ser impresas
-  == slim :bulks_list, locals: {full_row: true}
+  == slim :bulks_list, locals: {full_row: true, m_name_col: true}

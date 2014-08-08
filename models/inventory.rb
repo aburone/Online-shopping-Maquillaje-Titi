@@ -26,7 +26,7 @@ class Inventory
       process_packaging_order_materials(order, must_save)
       process_packaging_order_parts(order, must_save)
 
-      if must_save 
+      if must_save
         order.items.each do |item|
           message = "Materias primas restadas del inventario. Producto terminado"
           ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, i_id: item.i_id, o_id: o_id).save
@@ -67,13 +67,12 @@ class Inventory
     def process_packaging_order_materials order, must_save
       o_id = order.o_id
       fill_needed_materials_and_give_me_a_copy(order).each do |material|
-        starting_m_qty = material[:m_qty].dup
-        get_needed_bulks(material).each do |bulk| 
+        get_needed_bulks(material).each do |bulk|
           @used_bulks << bulk
           starting_b_qty = bulk[:b_qty].dup
           if bulk[:b_qty] >= material[:m_qty]
-            bulk[:b_qty] -= material[:m_qty]
             material[:m_qty] = 0
+            bulk[:b_qty] -= material[:m_qty]
           else
             material[:m_qty] -= bulk[:b_qty]
             bulk[:b_qty] = 0
@@ -81,12 +80,13 @@ class Inventory
           if must_save
             qty = sprintf("%0.3f", (starting_b_qty - bulk[:b_qty]).round(3))
             message = "Utilizando #{qty} #{bulk[:m_name]}"
-            ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, b_id: bulk.b_id, m_id: bulk.m_id, o_id: o_id).save      
+            ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, b_id: bulk.b_id, m_id: bulk.m_id, o_id: o_id).save
             bulk.change_status(Bulk::EMPTY, o_id) if bulk[:b_qty] == 0
-            bulk.save validate: false, columns: [:b_qty] 
+            bulk.save validate: false, columns: [:b_qty]
           end
         end
         raise R18n::t.production.packaging_order.missing_materials_cant_allocate if must_save and (material[:m_qty] > 0)
+
         @missing_materials << material if material[:m_qty] > 0
       end
     end
@@ -95,7 +95,7 @@ class Inventory
       unless order.parts.empty?
         message = "Esta orden tiene kits cargados. No deberias cargarlos por aca. Si imputas la orden vas a generar un error de stock. (las partes de los kits no se van a restar, pero si los materiales)"
         @errors << message
-        ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::ERROR, o_id: order.o_id).save      
+        ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::ERROR, o_id: order.o_id).save
       end
     end
 end
