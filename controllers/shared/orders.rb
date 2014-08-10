@@ -53,6 +53,12 @@ end
 class Backend < AppController
   include Orders
   get '/orders', "/orders/:location/:type", "/orders/:location/:type/:o_id" do get_orders end
+  get "/orders/:o_id" do
+    @order = Order.new.get params[:o_id]
+    @items = @order.items
+    @bulks = @order.bulks
+    slim :order, layout: Thread.current.thread_variable_get(:layout), locals: {can_filter: false}
+  end
 end
 
 class Sales < AppController

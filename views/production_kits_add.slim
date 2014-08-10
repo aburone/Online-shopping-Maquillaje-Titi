@@ -1,13 +1,13 @@
+-# coding: UTF-8
 h2 Armando de #{product.p_name}
 
-- unless next_part.empty?
+- if missing_parts.empty?
+  p Todos los items necesarios ya fueron cargados
+- else
   fieldset.action_container
     h2.action Proxima parte a agregar
-    == slim :product_details, locals: {product: next_part}
     / Read new label
-    p
-      |Lee la etiqueta del proximo item&nbsp;
-      b #{next_part.p_name}
+    p Lee la etiqueta del proximo item&nbsp;
 
     form action=url("/production/#{order.type.downcase}/#{order.o_id}/#{product.p_id}") method="post"
       == Rack::Csrf.tag(env)
@@ -15,31 +15,29 @@ h2 Armando de #{product.p_name}
       input.aligned autofocus="autofocus" required="required" type="text" name="i_id" id="i_id" size=15 maxlength=15 value="" placeholder="#{t.label.read_placeholder}"
       input type="submit" value="Aceptar"
 
-
-h2 Partes y materiales componentes
-- @products = parts
-== slim :products_list, locals: {price_col: false, price_pro_col: false, full_rows: false, can_edit: false, order: order, can_filter: false}
-- @materials = materials
-== slim :materials_list, locals: {stock_col: false, full_rows: false, can_edit: false, order: order, can_filter: false}
+  h2 Partes por agregar
+  == slim :products_list, locals: {price_col: false, price_pro_col: false, full_rows: false, can_edit: false, order: order, products: missing_parts, can_filter: false}
+  / - @materials = materials
+  / == slim :materials_list, locals: {stock_col: false, full_rows: false, can_edit: false, order: order, can_filter: false}
 
 
 
 / Current items in order and removal option
 h2 Partes agregadas a esta orden
-== slim :items_list, locals: {items: items, can_filter: false, price_col: false, price_pro_col: false}
+== slim :items_list, locals: {items: added_parts, can_filter: false, price_col: false, price_pro_col: false}
 / Remove single item
-- unless items.empty?
+- unless added_parts.empty?
   a href="/admin/production/#{order.type.downcase}/#{order.o_id}/item/remove" Remover una parte de la orden
 
-/ Current bulks in order and removal option
-h2 Materiales agregados a esta orden
-== slim :bulks_list, locals: {bulks: bulks, can_filter: false}
-/ Remove single bulk
-- unless bulks.empty?
-  a href="/admin/production/#{order.type.downcase}/#{order.o_id}/bulk/remove" Remover un material de la orden
+/ / Current bulks in order and removal option
+/ h2 Materiales agregados a esta orden
+/ == slim :bulks_list, locals: {bulks: needed_materials, can_filter: false}
+/ / Remove single bulk
+/ - unless bulks.empty?
+/   a href="/admin/production/#{order.type.downcase}/#{order.o_id}/bulk/remove" Remover un material de la orden
 
 
-- unless items.empty?
+- unless added_parts.empty?
   form.v_island_1#finish_packaging action=url("/production/#{order.type.downcase}/#{order.o_id}/finish") method="post"
     == Rack::Csrf.tag(env)
     input type="hidden" name="o_id" value="#{order.o_id}"

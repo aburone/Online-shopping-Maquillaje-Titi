@@ -1,3 +1,4 @@
+# coding: UTF-8
 require 'sequel'
 require 'json'
 require_relative 'item'
@@ -15,6 +16,13 @@ class Product < Sequel::Model
   @inventory = nil
 
   require_relative 'product_sql.rb'
+
+  def hash
+    p_id.hash
+  end
+  def eql? product
+    self.p_id == product.p_id
+  end
 
 
   def perform

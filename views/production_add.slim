@@ -10,11 +10,6 @@
         |Lee la etiqueta del proximo item&nbsp;
         b #{product.p_name}
 
-      - if item.empty? && order.type == Order::ASSEMBLY
-        p
-          |Lee la etiqueta que va a identificar al kit&nbsp;
-          b #{product.p_name}
-
       - if item.empty?
         form action=url("/production/#{order.type.downcase}/#{order.o_id}/#{product.p_id}") method="post"
           == Rack::Csrf.tag(env)

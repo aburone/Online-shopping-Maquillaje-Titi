@@ -3,7 +3,7 @@ class Order < Sequel::Model
 
   ATTRIBUTES = [:o_id, :type, :o_status, :o_loc, :u_id, :created_at]
   # same as ATTRIBUTES but with the neccesary table references for get_ functions
-  COLUMNS = [:o_id, :type, :o_status, :o_loc, :u_id, :created_at]
+  COLUMNS = [:orders__o_id, :type, :o_status, :o_loc, :u_id, :orders__created_at]
 
   def items
     Item
@@ -97,6 +97,13 @@ class Order < Sequel::Model
     message = R18n.t.order.created(order.type)
     ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     order
+  end
+
+  def get o_id
+    order = get_orders
+              .where(o_id: o_id.to_i)
+              .first
+    return order.nil? ? Order.new : order
   end
 
   def get_orders

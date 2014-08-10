@@ -5,21 +5,8 @@
   - list_mode = ((params[:type] == "WH_TO_POS") or (params[:type] == "INVALIDATION")) ? "transport" : "normal"
   == slim :orders_list, locals: {full_row: true, list_mode: list_mode, edit_link: "#{base_url}"}
 
-
-// single order
 - if @order
-  h2 = @order.o_code ? t.order.title_with_code(ConstantsTranslator.new(@order.type).t, @order.o_id, @order.o_code_with_dash) : t.order.title(ConstantsTranslator.new(@order.type).t, @order.o_id)
-
-  h3 = t.items.title
-  == slim :items_list, locals: {can_edit: false, can_filter: true}
-  - unless payments_total.nil?
-    table.items
-      tr
-        td.number Venta #{payment_type} #{Utils::money_format(payments_total, 2)}
-
-  - unless @bulks.empty?
-    h3 = t.bulks.title
-    == slim :bulks_list, locals: {can_edit: false, can_filter: true, m_name_col: true}
+  == slim :order, locals: {can_filter: true}
 
 
   // reprint sale order

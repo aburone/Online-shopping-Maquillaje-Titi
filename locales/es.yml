@@ -179,7 +179,11 @@ administration:
 materials:
   title: Materiales
   empty: "No hay materiales para listar"
-  count: "%1 materiales listados"
+  count: !!pl
+    0: "Mo hay materiales para listar"
+    1: "1 material listado"
+    n: "%1 materiales listados"
+
   sure_to_update_ideal_stocks: Esta accion ejecuta un proceso muy intensivo y LENTO sobre la base de datos. Estas seguro de continuar?
   updating_in_background: "Actualizando materiales en background. La tarea tarda aproximadamente 2 minutos"
   update_by_sku:

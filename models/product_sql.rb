@@ -1,15 +1,17 @@
-class Category < Sequel::Model
+# coding: UTF-8
+class Category < Sequel::Model(:categories)
   one_to_many :products
+
+  ATTRIBUTES = [:c_id, :c_name, :description, :c_published, :img]
+  # same as ATTRIBUTES but with the neccesary table references for get_ functions
+  COLUMNS = [:categories__c_id, :categories__c_name, :categories__description, :c_published, :categories__img]
 
   def update_from_hash hash_values
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
-
     alpha_keys = [ :c_name, :description ]
     hash_values.select { |key, value| self[key.to_sym]=value.to_s if alpha_keys.include? key.to_sym unless value.nil?}
-
     checkbox_keys = [ :c_published ]
     checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }
-
     self
   end
 
@@ -26,7 +28,7 @@ class Category < Sequel::Model
 end
 
 class Product < Sequel::Model
-  many_to_one :category, key: :c_id
+  many_to_one :Category, key: :c_id
   one_to_many :items, key: :p_id
   Product.nested_attributes :items
   many_to_many :materials , left_key: :product_id, right_key: :m_id, join_table: :products_materials
@@ -35,9 +37,13 @@ class Product < Sequel::Model
 
   ATTRIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :on_request, :non_saleable, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :description, :notes, :img, :img_extra, :created_at, :price_updated_at]
   # same as ATTRIBUTES but with the neccesary table references for get_ functions
-  COLUMNS = [:p_id, :c_id, :p_name, :p_short_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :notes, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :tercerized, :published, :on_request, :non_saleable, :archived, :end_of_life, :products__img, :img_extra, :products__created_at, :products__price_updated_at, :products__description, :brands__br_name]
+  COLUMNS = [:products__p_id, :c_id, :p_name, :p_short_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :notes, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :tercerized, :published, :on_request, :non_saleable, :archived, :end_of_life, :products__img, :img_extra, :products__created_at, :products__price_updated_at, :products__description, :brands__br_name]
   EXCLUDED_ATTRIBUTES_IN_DUPLICATION = [:p_id, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation, :created_at, :price_updated_at]
 
+
+  def category
+    self.Category
+  end
 
   def d_name
     return self[:distributors].first[:d_name] if self[:distributors]

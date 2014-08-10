@@ -47,14 +47,8 @@
       div data-row-span="1"
         div data-field-span="1"
           label for="m_notes" = t.material.fields.m_notes
-          textarea name="m_notes" rows="3" cols="50" = @material[:m_notes]
+          textarea name="m_notes" rows="1" cols="50" = @material[:m_notes]
 
-
-    fieldset
-      legend Acciones
-      div data-row-span="1"
-        div data-field-span="1"
-          input.aligned type="submit" value="#{t.actions.save}"
 
     fieldset
       legend Datos derivados
@@ -72,6 +66,14 @@
         div.readonly data-field-span="1"
           label for="price_updated_at" = t.material.fields.price_updated_at
           input type="text"  name="price_updated_at" id="price_updated_at" readonly="readonly" tabindex="-1" value="#{l @material[:price_updated_at]}"
+
+
+    fieldset
+      legend Acciones
+      div data-row-span="1"
+        div data-field-span="1"
+          input.aligned type="submit" value="#{t.actions.save}"
+
 
   - if @bulks.empty?
     h2 = t.material.bulks_not_found

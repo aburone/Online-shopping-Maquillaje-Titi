@@ -16,6 +16,14 @@ class MaterialCategory < Sequel::Model(:materials_categories)
   end
 end
 
+# #################################################################################
+
+class MaterialsCategory < Sequel::Model
+  one_to_many :materials, key: :c_id
+end
+
+# #################################################################################
+
 
 class Material < Sequel::Model(:materials)
   one_to_many :bulks, key: :m_id
@@ -217,12 +225,4 @@ class Material < Sequel::Model(:materials)
     end
 
 end
-
-# #################################################################################
-
-class MaterialsCategory < Sequel::Model
-  one_to_many :materials, key: :c_id
-end
-
-# #################################################################################
 

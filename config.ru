@@ -1,3 +1,4 @@
+# coding: UTF-8
 ENV["TZ"] = "GMT"
 require 'sinatra'
 require 'sinatra/config_file'
@@ -23,12 +24,17 @@ class ExceptionHandling
     begin
       @app.call env
     rescue Rack::Csrf::InvalidCsrfToken => e
-      env['rack.errors'].puts e
-      env['rack.errors'].puts e.backtrace.join("\n")
-      env['rack.errors'].flush
+     ap env['rack.errors']
+p env['rack.errors'].methods
+
+     env['rack.errors'].reopen.3each { |ee| ap ee }
+
+#      ap e.backtrace.join("\n")
+      # env['rack.errors'].flush
       message = "Protección Csrf inválida. Estas logueado? Proba recargar."
-      p message
-      [403, {'Content-Type' => 'text/html', 'Content-Length' => message.length}, [message]]
+      ap message
+      ap e.to_s
+      [403, {'Content-Type' => 'text/html;charset=utf-8', 'Content-Length' => message.length}, [message]]
     end
   end
 end

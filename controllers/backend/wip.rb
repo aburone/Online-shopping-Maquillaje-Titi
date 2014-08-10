@@ -152,7 +152,7 @@ class Backend < AppController
 
     if params[:id].nil?
       @order = order
-      slim :remove_item, layout: :layout_backend, locals: {sec_nav: :nav_production, action_url: "/production/packaging/#{order.o_id}/item/remove", title: t.production.remotion.title(order.o_id)}
+      slim :remove_item, layout: :layout_backend, locals: {sec_nav: :nav_production, action_url: "/production/#{order.current_action}/#{order.o_id}/item/remove", title: t.production.remotion.title(order.o_id)}
     else
       item = Item[params[:id].to_s.strip]
       if item.nil?
@@ -174,6 +174,41 @@ class Backend < AppController
         flash[:error] = [order.errors, product.errors]
       else
         flash[:warning] = "Etiqueta dissociada del producto y la orden. Podes asignarla a otro producto."
+      end
+      redirect to("/production/#{order.current_action}/#{order.o_id}")
+    end
+  end
+
+  # similar but not the same
+  route :get, :post, '/production/assembly/:o_id/item/remove' do
+    flash.now[:notice] = "Lee La etiqueta recien agregada" if env["REQUEST_METHOD"] == "POST" && params[:id].nil?
+
+    order = Order.new.get_orders_at_location_with_type_and_id(current_location[:name], Order::ASSEMBLY, params[:o_id].to_i)
+    redirect_if_nil_order order, params[:o_id].to_i, "/production/assembly/select"
+
+    if params[:id].nil?
+      @order = order
+      slim :remove_item, layout: :layout_backend, locals: {sec_nav: :nav_production, action_url: "/production/#{order.current_action}/#{order.o_id}/item/remove", title: t.production.remotion.title(order.o_id)}
+    else
+      item = Item[params[:id].to_s.strip]
+      if item.nil?
+        flash[:error] = "No tengo ningun item con ese ID"
+        redirect to("/production/#{order.current_action}/#{order.o_id}")
+      end
+      if item.p_id.nil?
+        flash[:error] = "Ese item no esta asignado a ningun producto"
+        redirect to("/production/#{order.current_action}/#{order.o_id}")
+      end
+      unless order.items.include? item
+        flash[:error] = "Ese item no pertenece a esta orden"
+        redirect to("/production/#{order.current_action}/#{order.o_id}")
+      end
+      order.remove_item item
+      item.change_status Item::READY, order.o_id
+      if order.errors.count > 0
+        flash[:error] = order.errors
+      else
+        flash[:warning] = "Item dissociado de la orden. Podes asignarlo a otra orden."
       end
       redirect to("/production/#{order.current_action}/#{order.o_id}")
     end
@@ -480,15 +515,6 @@ class Backend < AppController
     clusterfuck_assembly params, Order::ASSEMBLY
   end
 
-
-  def get_next_part product, items
-    p "sdf"
-    parts = product.parts
-    parts.reject! { |part| included? part, items }
-    ap parts
-    parts.empty? ? Product.new : parts.first
-  end
-
   def clusterfuck_assembly params, action
     action = action.downcase.to_sym
     o_id = params[:o_id].to_i
@@ -504,31 +530,35 @@ class Backend < AppController
     order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], order_type, order_status, o_id)
     redirect_if_nil_order order, o_id, "/production/#{route}/select"
 
-    # ap params
-    ap order
-    ap order.items
-    ap order.materials
-
-
     product = Product.new
-    products = []
-    parts = []
-    next_part = Product.new
     materials = []
     item ||= Item.new
-    items = order.items
-    # ap items
+    items = []
+    missing_parts = []
+    added_parts = []
 
     if params[:p_id]
       product = Product.new.get params[:p_id].to_i
-      ap "Armando: #{product.p_name} (#{product.p_id})"
 
-      next_part = get_next_part product, items
-      ap "esperando: #{next_part.p_name} (#{next_part.p_id})" unless next_part.empty?
+      p "Armando"
+      ap "#{product.p_name} (#{product.p_id})"
+
+      p "Partes necesarias"
+      needed_parts = product.parts
+      needed_parts.each { |part| ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part.class}]" }
+
+      p "Partes agregadas"
+      added_parts = order.items
+      added_parts.each { |part| ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part.class}]" }
+
+      p "Partes por agregar"
+      missing_parts = needed_parts - added_parts
+      missing_parts.each { |part| ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part[:c_name]}]" }
 
       if params[:i_id]
         i_id = params[:i_id].to_s.strip
-        item =  Item.new.get_for_assembly i_id, order.o_id, next_part.p_id
+        item =  Item.new.get_for_assembly i_id, order.o_id, missing_parts
+
         ap "Ingresado #{item.p_name} (#{item.p_id})"
         if item.errors.count > 0
           message = item.errors.to_a.flatten.join(": ")
@@ -545,45 +575,37 @@ class Backend < AppController
         status_msg = item.change_status(Item::IN_ASSEMBLY, order.o_id)
         flash.now[:notice] = [added_msg, status_msg]
 
-        items = order.items
-        next_part = get_next_part product, items
-        ap "Ahora esperando: #{next_part.p_name} (#{next_part.p_id})"
+        #reload
+        added_parts = order.items
+        missing_parts = needed_parts - added_parts
       end
 
-      materials = product.materials
-      bulks = order.bulks
 
-      materials = materials - bulks
 
-      unless materials.empty?
-        p ""
-        p "Materiales faltantes"
-        materials.each do |material|
-          ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]"
-        end
-      end
-      unless parts.empty?
-        p ""
-        p "Partes faltantes"
-        parts.each do |part|
-          ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part.class}]"
-        end
-      end
 
-      ""
-      ap next_part
+      p "Materiales necesarios"
+      needed_materials = product.materials
+      needed_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
+
+      p "Materiales agregados"
+      added_materials = order.bulks
+      added_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
+
+      p "Materiales por agregar"
+      missing_materials = needed_materials - added_materials #will not work
+      missing_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
+
+
       slim :production_kits_add, layout: :layout_backend,
             locals: {
               sec_nav: :nav_production,
-              title: eval("R18n.t.production.#{action}.title(order.o_id, items.count)"),
+              title: eval("R18n.t.production.#{action}.title(order.o_id, added_parts.count)"),
               order: order,
               product: product,
               item: item,
-              items: items,
-              bulks: bulks,
-              parts: parts,
-              next_part: next_part,
-              materials: materials
+              missing_parts: missing_parts,
+              added_parts: added_parts,
+              missing_materials: missing_materials
             }
 
     else
@@ -597,8 +619,6 @@ class Backend < AppController
               products: products,
               item: item,
               items: items,
-              parts: parts,
-              materials: materials
             }
     end
 

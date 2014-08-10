@@ -141,8 +141,13 @@ class Backend < AppController
 
 
 
-  get '/products/items/?' do
+  get '/products/items' do
     @items = Item.new.get_items_at_location current_location[:name]
+    slim :items, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.items.title}
+  end
+  get '/products/items/:p_name' do
+    p_name = params[:p_name].to_s
+    @items = Item.new.get_items_at_location(current_location[:name]).where(Sequel.like(:items__p_name, "%#{p_name}%")  )
     slim :items, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.items.title}
   end
 

@@ -3,12 +3,12 @@
 h2 Items en esta orden
 == slim :items_list, locals: {items: items, can_filter: false}
 
-h2 Materiales necesarios
-== slim :materials_list, locals: {can_filter: false, can_edit: false, id: :needed_materials, materials: needed_materials}
+/ h2 Materiales necesarios
+/ == slim :materials_list, locals: {can_filter: false, can_edit: false, id: :needed_materials, materials: needed_materials}
 
-h2 Graneles a utilizar
-p = "(Las cantidades ya tienen restado el uso)"
-== slim :bulks_list, locals: {full_row: true, can_edit: false, can_filter: false, bulks: used_bulks, m_name_col: true}
+/ h2 Graneles a utilizar
+/ p = "(Las cantidades ya tienen restado el uso)"
+/ == slim :bulks_list, locals: {full_row: true, can_edit: false, can_filter: false, bulks: used_bulks, m_name_col: true}
 
 
 

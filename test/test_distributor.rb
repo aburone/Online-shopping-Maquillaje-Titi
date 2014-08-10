@@ -26,7 +26,17 @@ class DistributorTest < Test::Unit::TestCase
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       distributor = Distributor.new.get_rand
       old_count = distributor.products.count
-      distributor.add_product @valid_product
+
+      product = Product
+                    .select_group(*Product::COLUMNS)
+                    .join(:products_to_distributors, products__p_id: :products_to_distributors__p_id)
+                    .join(:distributors, products_to_distributors__d_id: :distributors__d_id)
+                    .left_join(:categories, [:c_id])
+                    .left_join(:brands, [:br_id])
+                    .where(Sequel.~(distributors__d_id: distributor.d_id))
+                    .last
+
+      distributor.add_product product
       new_count = distributor.products.count
       assert_equal old_count+1 , new_count
     end

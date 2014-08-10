@@ -238,4 +238,76 @@ class ItemTest < Test::Unit::TestCase
     # end
   end
 
+  def test_should_compare_items_and_products_arrays
+    item_1, item_2, item_3 = Item.new, Item.new, Item.new
+    item_1.p_id, item_2.p_id, item_3.p_id = 1, 2, 3
+    product_1, product_2, product_3 = Product.new, Product.new, Product.new
+    product_1.p_id, product_2.p_id, product_3.p_id = 1, 2, 3
+    items = [item_1, item_2, item_3]
+    products = [product_1, product_2, product_3]
+
+    assert items == products
+  end
+
+  def test_should_compare_eql_item_and_product
+    item_1, item_2, item_3 = Item.new, Item.new, Item.new
+    item_1.p_id, item_2.p_id, item_3.p_id = 1, 2, 3
+    product_1, product_2, product_3 = Product.new, Product.new, Product.new
+    product_1.p_id, product_2.p_id, product_3.p_id = 1, 2, 3
+
+    assert item_1 == product_1
+  end
+
+  def test_should_compare_neql_item_and_product
+    item_1, item_2, item_3 = Item.new, Item.new, Item.new
+    item_1.p_id, item_2.p_id, item_3.p_id = 1, 2, 3
+    product_1, product_2, product_3 = Product.new, Product.new, Product.new
+    product_1.p_id, product_2.p_id, product_3.p_id = 1, 2, 3
+
+    assert item_1 != product_2
+  end
+
+
+  def test_should_substract_items_and_products_arrays
+    item_1, item_2, item_3 = Item.new, Item.new, Item.new
+    item_1.p_id, item_2.p_id, item_3.p_id = 1, 2, 3
+    product_1, product_2, product_3 = Product.new, Product.new, Product.new
+    product_1.p_id, product_2.p_id, product_3.p_id = 1, 2, 3
+    items = [item_1, item_2, item_3]
+    products = [product_1, product_2, product_3]
+
+    assert_equal [], items - products
+  end
+
+  def test_should_substract_items_array_and_product
+    item_1, item_2, item_3 = Item.new, Item.new, Item.new
+    item_1.p_id, item_2.p_id, item_3.p_id = 1, 2, 3
+    product_1, product_2, product_3 = Product.new, Product.new, Product.new
+    product_1.p_id, product_2.p_id, product_3.p_id = 1, 2, 3
+    items = [item_1, item_2, item_3]
+    products = [product_1, product_2, product_3]
+
+    assert_equal [item_1, item_3], items - [product_2]
+  end
+
+  def test_is_a_different_product
+    item_1, item_2, item_3 = Item.new, Item.new, Item.new
+    item_1.p_id, item_2.p_id, item_3.p_id = 1, 2, 3
+    product_1, product_2, product_3 = Product.new, Product.new, Product.new
+    product_1.p_id, product_2.p_id, product_3.p_id = 1, 2, 3
+    products = [product_1, product_2]
+
+    assert_true item_1.is_a_different_product(products)
+  end
+
+  def test_is_same_product
+    item_1, item_2, item_3 = Item.new, Item.new, Item.new
+    item_1.p_id, item_2.p_id, item_3.p_id = 1, 2, 3
+    product_1, product_2, product_3 = Product.new, Product.new, Product.new
+    product_1.p_id, product_2.p_id, product_3.p_id = 1, 2, 3
+    products = [product_1, product_2, product_2]
+
+    assert_false item_1.is_a_different_product(products)
+  end
+
 end
