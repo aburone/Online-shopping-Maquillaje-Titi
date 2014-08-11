@@ -1,5 +1,6 @@
 Sequel.migration do
   up do
+    run 'DROP TABLE IF EXISTS assembly_orders_to_products'
     run '
 
       CREATE TABLE `assembly_order_to_product` (
