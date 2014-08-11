@@ -23,13 +23,12 @@ nav role="navigation"
           a class="#{inside?("/admin/production/labels")}" href=url('/production/labels') = t.nav.backend.labels
         li
           a class="#{inside?("/admin/production/packaging")}" href=url('/production/packaging/select') = t.nav.backend.packaging
-        li
-          a class="#{inside?("/admin/production/assembly")}" href=url('/production/assembly/select') = t.nav.backend.assembly
+        / li
+        /   a class="#{inside?("/admin/production/assembly")}" href=url('/production/assembly/select') = t.nav.backend.assembly
         li
           a class="#{inside?("/admin/production/verification")}" href=url('/production/verification/select') = t.nav.backend.verify_packaging
         li
           a class="#{inside?("/admin/production/allocation")}" href=url('/production/allocation/select') = t.nav.backend.packaging_orders_allocation
-
 
     li: ul
       li.subsection
@@ -62,6 +61,8 @@ nav role="navigation"
           a class="#{current?("/admin/products")}" href=url('/products') = t.nav.backend.products
         li
           a class="#{inside?("/admin/products/items")}" href=url('/products/items') = t.nav.backend.items
+        li
+          a class="#{current?("/admin/products/relationships")}" href=url('/products/relationships') = t.nav.backend.products_relationships
 
     li: ul
       li.subsection

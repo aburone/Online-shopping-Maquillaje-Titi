@@ -21,6 +21,8 @@
 - flags_cols ||= false
 - can_hide ||= false
 - distributor_col ||= false
+- category_col ||= true unless category_col === false
+- brand_col ||= true unless brand_col === false
 
 
 - products ||= []
@@ -39,9 +41,11 @@
     thead
       tr
         th.sm_cell.small_content = t.product.fields.id
-        th.md_cell.filter-select.filter-onlyAvail = t.product.fields.category
+        - if category_col
+          th.filter-select.filter-onlyAvail = t.product.fields.category
         th = t.product.fields.name
-        th.filter-select.filter-onlyAvail = t.product.fields.brand
+        - if brand_col
+          th.filter-select.filter-onlyAvail = t.product.fields.brand
         - if distributor_col
           th.filter-select.filter-onlyAvail = t.product.fields.distributor
         - if sku_col
@@ -99,9 +103,11 @@
       - products.each do |product|
         tr class="item#{ajax_item} #{item_class}"
           td #{product.p_id}
-          td #{I18n.transliterate( product[:c_name] ) if product[:c_name]}
+          - if category_col
+            td #{I18n.transliterate( product[:c_name] ) if product[:c_name]}
           td #{I18n.transliterate( product.p_name )}
-          td #{product[:br_name]}
+          - if brand_col
+            td #{product[:br_name]}
           - if distributor_col
             td #{product.d_name}
           - if sku_col

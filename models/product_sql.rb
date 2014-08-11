@@ -27,6 +27,8 @@ class Category < Sequel::Model(:categories)
   end
 end
 
+
+
 class Product < Sequel::Model
   many_to_one :Category, key: :c_id
   one_to_many :items, key: :p_id
@@ -376,6 +378,14 @@ class Product < Sequel::Model
     get_all_but_archived
       .where(end_of_life: 0)
       .where(non_saleable: 0)
+  end
+
+  def get_assembly p_id
+    assy = get_all
+      .where(Sequel.lit('parts_cost > 0'))
+      .where(p_id: p_id)
+      .first
+    return assy.nil? ? Product.new : assy
   end
 
   def get_saleable_at_location location

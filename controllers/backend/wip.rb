@@ -215,8 +215,9 @@ class Backend < AppController
   end
 
 
-
   post '/production/:action/:o_id/finish' do
+    ap params
+
     unless Order::PRODUCTION_ACTIONS.include? params[:action].upcase
       flash[:error] = "Tipo de acción inválida"
       redirect to("/production")
@@ -239,54 +240,10 @@ class Backend < AppController
     end
     order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], order_type, order_status, params[:o_id].to_i)
     redirect_if_nil_order order, params[:o_id].to_i, "/production/#{action}/select"
-    cancel_and_redirect order if order.items.empty?
-    finish_and_redirect order
-  end
-
-  post '/production/:action/:o_id/cancel' do
-    unless Order::PRODUCTION_ACTIONS.include? params[:action].upcase
-      flash[:error] = "Tipo de acción inválida"
-      redirect to("/production")
-    end
-
-    action = params[:action].to_sym
-    case action
-      when :assembly
-        order_type = Order::ASSEMBLY
-      when :packaging
-        order_type = Order::PACKAGING
-      when :allocation
-        order_type = Order::PACKAGING
-    end
-    order = Order.new.get_orders_at_location_with_type_and_id(current_location[:name], order_type, params[:o_id].to_i)
-    redirect_if_nil_order order, params[:o_id].to_i, "/production/#{action}/select"
-    cancel_and_redirect order
-  end
+    # destroy if empty
+    destructive_cancel_and_redirect order if order.items.empty?
 
 
-
-
-
-
-  def poor_redirect_if_nil_order order, step
-    if order.nil?
-      flash[:error] = t.order.missing
-      redirect to("/production/#{step}/select")
-    end
-  end
-
-
-
-
-
-
-
-
-
-
-
-
-  def finish_and_redirect order
     if order.type ==  Order::ASSEMBLY
       routes = [:assembly, :verification, :allocation]
       order.finish_assembly
@@ -314,16 +271,66 @@ class Backend < AppController
       redirect to("/production/#{routes[route-1]}/#{order.o_id}")
     else
       flash[:notice] = ok_message
-      redirect to("/production/#{routes[route]}/select")
+      # redirect to("/production/#{routes[route]}/select")
+    end
+
+  end
+
+  post '/production/:action/:o_id/cancel' do
+    unless Order::PRODUCTION_ACTIONS.include? params[:action].upcase
+      flash[:error] = "Tipo de acción inválida"
+      redirect to("/production")
+    end
+
+    action = params[:action].to_sym
+    case action
+      when :assembly
+        order_type = Order::ASSEMBLY
+      when :packaging
+        order_type = Order::PACKAGING
+      when :allocation
+        order_type = Order::PACKAGING
+    end
+    order = Order.new.get_orders_at_location_with_type_and_id(current_location[:name], order_type, params[:o_id].to_i)
+    redirect_if_nil_order order, params[:o_id].to_i, "/production/#{action}/select"
+    order_type == Order::ASSEMBLY ? non_destructive_cancel_and_redirect(order) :  destructive_cancel_and_redirect(order)
+  end
+
+
+
+
+
+
+  def poor_redirect_if_nil_order order, step
+    if order.nil?
+      flash[:error] = t.order.missing
+      redirect to("/production/#{step}/select")
     end
   end
 
-  def cancel_and_redirect order
+
+
+
+
+
+
+
+
+
+
+
+
+  def destructive_cancel_and_redirect order
     order.cancel
     flash[:warning] = t.order.cancelled( order.o_id )
     redirect to("/production/#{order.type.downcase}/select")
   end
 
+  def non_destructive_cancel_and_redirect order
+    order.non_destructive_cancel
+    flash[:warning] = t.order.non_destructive_cancelled( order.o_id )
+    redirect to("/production/#{order.type.downcase}/select")
+  end
 
 
 
@@ -350,10 +357,6 @@ class Backend < AppController
     action = action.downcase.to_sym
     o_id = params[:o_id].to_i
     case action
-      when :assembly
-        route = "assembly"
-        order_type = Order::ASSEMBLY
-        order_status = Order::OPEN
       when :packaging
         route = "packaging"
         order_type = Order::PACKAGING
@@ -383,7 +386,7 @@ class Backend < AppController
       product = Product.new.get params[:p_id].to_i
       # ap product
 
-      if params[:i_id]  && order_type != Order::ASSEMBLY
+      if params[:i_id]
         i_id = params[:i_id].to_s.strip
         item =  Label.new.get_printed_by_id i_id, order.o_id
         if item.errors.count > 0
@@ -407,29 +410,6 @@ class Backend < AppController
           item.change_status(Item::MUST_VERIFY, order.o_id)
         end
         flash[:notice] = [assigned_msg, added_msg]
-
-
-      elsif order_type == Order::ASSEMBLY
-        parts = product.parts
-        parts.reject! { |part| included? part, items }
-        if params[:i_id]
-          i_id = params[:i_id].to_s.strip
-          item =  Item.new.get_for_assembly i_id, order.o_id, parts.first.p_id
-          # ap item
-
-          if item.errors.count > 0
-            message = item.errors.to_a.flatten.join(": ")
-            ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
-            flash[:error_add_item] = item.errors
-            redirect to("/production/#{route}/#{order.o_id}/#{product.p_id}")
-          end
-          added_msg = order.add_item item
-          if order.errors.count > 0
-            flash[:error_add_item_to_order] = order.errors
-            redirect to("/production/#{route}/#{order.o_id}/#{product.p_id}")
-          end
-          item.change_status(Item::IN_ASSEMBLY, order.o_id)
-        end
       end
     else
       case order_type
@@ -507,9 +487,23 @@ class Backend < AppController
 
 
 
+  route :get, ['/production/assembly/:o_id/:p_id'] do
+    o_id = params[:o_id].to_i
+    p_id = params[:p_id].to_i
+    order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::ASSEMBLY, Order::OPEN, o_id)
+    redirect_if_nil_order order, o_id, "/production/assembly/select"
+    product = Product.new.get_assembly p_id
+    redirect_if_empty_or_nil product, "/production/assembly/select"
+    begin
+      Assembly_order_to_product.new.create order.o_id, product.p_id
+    rescue Sequel::UniqueConstraintViolation
+      flash[:error] = "La orden ya estaba asignada a un kit"
+      redirect to "/production/assembly/#{order.o_id}"
+    end
+    redirect to "/production/assembly/#{order.o_id}"
+  end
 
-
-  route :get, :post, ['/production/assembly/:o_id', '/production/assembly/:o_id/:p_id'] do
+  route :get, :post, ['/production/assembly/:o_id'] do
     ap "clusterfuck route assembly"
     # pass if params[:o_id].to_i == 0
     clusterfuck_assembly params, Order::ASSEMBLY
@@ -530,16 +524,12 @@ class Backend < AppController
     order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], order_type, order_status, o_id)
     redirect_if_nil_order order, o_id, "/production/#{route}/select"
 
-    product = Product.new
-    materials = []
     item ||= Item.new
     items = []
     missing_parts = []
     added_parts = []
-
-    if params[:p_id]
-      product = Product.new.get params[:p_id].to_i
-
+    product = order.get_assembly
+    unless product.empty?
       p "Armando"
       ap "#{product.p_name} (#{product.p_id})"
 
@@ -564,11 +554,11 @@ class Backend < AppController
           message = item.errors.to_a.flatten.join(": ")
           ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
           flash[:error_add_item] = item.errors
-          redirect to("/production/#{route}/#{order.o_id}/#{product.p_id}")
+          redirect to("/production/#{route}/#{order.o_id}")
         end
         if order.errors.count > 0
           flash[:error_add_item_to_order] = order.errors
-          redirect to("/production/#{route}/#{order.o_id}/#{product.p_id}")
+          redirect to("/production/#{route}/#{order.o_id}")
         end
 
         added_msg = order.add_item item
@@ -595,6 +585,31 @@ class Backend < AppController
       missing_materials = needed_materials - added_materials #will not work
       missing_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
 
+      packaging = Material.new
+      label_1 = Material.new
+      label_2 = Material.new
+      if missing_parts.empty?
+        missing_materials.each do |material|
+          if material[:c_name] == "Packaging"
+            packaging = material.dup
+            missing_materials -= [material]
+            break
+          end
+        end
+
+        missing_materials.each do |material|
+          if material[:c_name] == "Etiquetas preimpresas"
+            label_1 = material.dup
+            missing_materials -= [material]
+            break
+          end
+        end
+
+        p "Materiales por agregar despues de etiqueta"
+        ap missing_materials
+
+        label_2 = Material[108]
+      end
 
       slim :production_kits_add, layout: :layout_backend,
             locals: {
@@ -605,7 +620,10 @@ class Backend < AppController
               item: item,
               missing_parts: missing_parts,
               added_parts: added_parts,
-              missing_materials: missing_materials
+              missing_materials: missing_materials,
+              packaging: packaging,
+              label_1: label_1,
+              label_2: label_2
             }
 
     else
@@ -618,7 +636,7 @@ class Backend < AppController
               product: product,
               products: products,
               item: item,
-              items: items,
+              items: items
             }
     end
 

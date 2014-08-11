@@ -151,8 +151,8 @@ class Backend < AppController
     slim :items, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.items.title}
   end
 
-  get '/products_relationships/?' do
-    products = Product.new.get_all_but_archived.order(:c_name, :p_name).all
+  get '/products/relationships' do
+    products = Product.new.get_all_but_archived.order(:c_name, :p_name).filter(Sequel.lit('parts_cost > 0 OR materials_cost > 0')).all
     @relationships = []
     products.each do |p|
       relationship = {product: p, materials: p.materials, parts: p.parts}

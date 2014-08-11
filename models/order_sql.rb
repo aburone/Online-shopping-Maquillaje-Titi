@@ -1,9 +1,59 @@
 require 'sequel'
+
+class Assembly_order_to_product < Sequel::Model(:assembly_orders_to_products)
+
+  def create o_id, p_id
+    order_to_product = Assembly_order_to_product.create(o_id: o_id, p_id: p_id)
+    message = R18n.t.order.assembly_relation_created(o_id, p_id)
+    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::NOTICE, o_id: o_id, p_id: p_id).save
+    order_to_product
+  end
+end
+
 class Order < Sequel::Model
+  many_to_many :items, class: :Item, join_table: :line_items, left_key: :o_id, right_key: :i_id
+  many_to_many :bulks, class: :Bulk, join_table: :line_bulks, left_key: :o_id, right_key: :b_id
+
+  #type
+  PACKAGING="PACKAGING"
+  ASSEMBLY="ASSEMBLY"
+  INVENTORY="INVENTORY"
+  WH_TO_POS="WH_TO_POS"
+  POS_TO_WH="POS_TO_WH"
+  WH_TO_WH="WH_TO_WH"
+  SALE="SALE"
+  RETURN="RETURN"
+  CREDIT_NOTE="CREDIT_NOTE"
+  INVALIDATION="INVALIDATION"
+  TRANSMUTATION="TRANSMUTATION"
+  TYPES = [PACKAGING, ASSEMBLY, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION, TRANSMUTATION, RETURN, CREDIT_NOTE]
+  PRODUCTION_TYPES = [PACKAGING, ASSEMBLY, WH_TO_POS, WH_TO_WH]
+
+  # status
+  OPEN="OPEN"
+  MUST_VERIFY="MUST_VERIFY"
+  VERIFIED="VERIFIED"
+  FINISHED="FINISHED"
+  EN_ROUTE="EN_ROUTE"
+  VOID="VOID"
+
+  # actions
+  ALLOCATION="ALLOCATION"
+  VERIFICATION = "VERIFICATION"
+  PRODUCTION_ACTIONS = [PACKAGING, ASSEMBLY, VERIFICATION, ALLOCATION, ]
 
   ATTRIBUTES = [:o_id, :type, :o_status, :o_loc, :u_id, :created_at]
   # same as ATTRIBUTES but with the neccesary table references for get_ functions
   COLUMNS = [:orders__o_id, :type, :o_status, :o_loc, :u_id, :orders__created_at]
+
+  def get_assembly_meta
+    Assembly_order_to_product.where(o_id: self.o_id).first
+  end
+  def get_assembly
+    assy = get_assembly_meta
+    return assy.nil? ? Product.new : Product.new.get(assy.p_id)
+  end
+
 
   def items
     Item

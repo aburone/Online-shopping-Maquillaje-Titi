@@ -66,7 +66,7 @@
                 == Rack::Csrf.tag(env)
                 input type="submit" value="#{t.nav.backend.new_product}"
             li
-              a class="#{current?("/admin/products_relationships")}" href=url('/products_relationships') = t.nav.backend.products_relationships
+              a class="#{current?("/admin/products/relationships")}" href=url('/products/relationships') = t.nav.backend.products_relationships
             li
               a class="#{inside?("/admin/products/categories")}" href=url('/products/categories') = t.nav.backend.categories
             li

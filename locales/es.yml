@@ -637,6 +637,7 @@ order:
   sure_to_cancel_return_order: "Esto borrara la orden. Todos los items volveran al estado Vendido"
   sure_to_finish_return_order: "Esto finalizara la devolución. Se generara una nota de crédito y los items volveran a estar disponibles para la venta"
   cancelled: "La orden Nº %1 fue cancelada. Todas las etiquetas y productos (si los hubo) fueron dissociados."
+  non_destructive_cancelled: "La orden Nº %1 fue cancelada. Todos los productos (si los hubo) estan disponibles."
   not_a_packaging: Esta no es una orden de carga
   missing: Orden %1 inexistente o inaccesible desde este modulo
   scan_label: Escanee el ID de item
@@ -644,7 +645,7 @@ order:
   scan_product: Escanee el producto
   code_placeholder: "ej: ZYX-123"
   select_other_product: Seleccionar un producto distinto
-
+  assembly_relation_created: Relación entre orden %1 y kit %2 creada
 return:
   title: Devolución de items
   verify_order_code_legend: Las devoluciones solo se pueden hacer con el código de la venta original

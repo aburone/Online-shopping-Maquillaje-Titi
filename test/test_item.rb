@@ -285,7 +285,6 @@ class ItemTest < Test::Unit::TestCase
     product_1, product_2, product_3 = Product.new, Product.new, Product.new
     product_1.p_id, product_2.p_id, product_3.p_id = 1, 2, 3
     items = [item_1, item_2, item_3]
-    products = [product_1, product_2, product_3]
 
     assert_equal [item_1, item_3], items - [product_2]
   end
@@ -295,7 +294,7 @@ class ItemTest < Test::Unit::TestCase
     item_1.p_id, item_2.p_id, item_3.p_id = 1, 2, 3
     product_1, product_2, product_3 = Product.new, Product.new, Product.new
     product_1.p_id, product_2.p_id, product_3.p_id = 1, 2, 3
-    products = [product_1, product_2]
+    products = [product_2, product_3]
 
     assert_true item_1.is_a_different_product(products)
   end

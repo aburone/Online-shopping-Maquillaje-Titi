@@ -39,7 +39,7 @@ class Sales < AppController
 
   post "/make_sale/cancel" do
     order = Order.new.create_or_load(Order::SALE)
-    order.cancel_sale
+    order.non_destructive_cancel
     flash[:notice] = "Orden cancelada"
     redirect to('/')
   end

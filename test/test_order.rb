@@ -173,4 +173,13 @@ class OrderTest < Test::Unit::TestCase
     assert_equal [t.errors.inexistent_order.to_s, t.errors.invalid_order_id.to_s].flatten.join(": "), order.errors.to_a.flatten.join(": ")
   end
 
+  def test_shoud_create_assembly_relation
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      order = Order.new.get_rand
+      product = Product.new.get_rand
+      assy = Assembly_order_to_product.new.create order.o_id, product.p_id
+      assert assy.o_id == order.o_id
+      assert assy.p_id == product.p_id
+    end
+  end
 end

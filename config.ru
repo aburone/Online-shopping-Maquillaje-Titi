@@ -24,7 +24,7 @@ class ExceptionHandling
     begin
       @app.call env
     rescue Rack::Csrf::InvalidCsrfToken
-      ap env
+      # ap env
       # p env['rack.errors'].methods
       # env['rack.errors'].each { |ee| ap ee }
       # ap e.backtrace.join("\n")

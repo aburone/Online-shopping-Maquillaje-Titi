@@ -17,10 +17,10 @@ class Backend < AppController
   helpers ApplicationHelper
 
   before do
-    p "session"
-    ap session
-    p "params"
-    ap params
+    # p "session"
+    # ap session
+    # p "params"
+    # ap params
 
     session.each { |key, value| session.delete(key.to_sym)} if Location.new.stores.include? current_location
     set_locale

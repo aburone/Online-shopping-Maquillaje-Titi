@@ -1,36 +1,6 @@
 require 'sequel'
 
 class Order < Sequel::Model
-  many_to_many :items, class: :Item, join_table: :line_items, left_key: :o_id, right_key: :i_id
-  many_to_many :bulks, class: :Bulk, join_table: :line_bulks, left_key: :o_id, right_key: :b_id
-
-  #type
-  PACKAGING="PACKAGING"
-  ASSEMBLY="ASSEMBLY"
-  INVENTORY="INVENTORY"
-  WH_TO_POS="WH_TO_POS"
-  POS_TO_WH="POS_TO_WH"
-  WH_TO_WH="WH_TO_WH"
-  SALE="SALE"
-  RETURN="RETURN"
-  CREDIT_NOTE="CREDIT_NOTE"
-  INVALIDATION="INVALIDATION"
-  TRANSMUTATION="TRANSMUTATION"
-  TYPES = [PACKAGING, ASSEMBLY, INVENTORY, WH_TO_POS, POS_TO_WH, WH_TO_WH, SALE, INVALIDATION, TRANSMUTATION, RETURN, CREDIT_NOTE]
-  PRODUCTION_TYPES = [PACKAGING, ASSEMBLY, WH_TO_POS, WH_TO_WH]
-
-  # status
-  OPEN="OPEN"
-  MUST_VERIFY="MUST_VERIFY"
-  VERIFIED="VERIFIED"
-  FINISHED="FINISHED"
-  EN_ROUTE="EN_ROUTE"
-  VOID="VOID"
-
-  # actions
-  ALLOCATION="ALLOCATION"
-  VERIFICATION = "VERIFICATION"
-  PRODUCTION_ACTIONS = [PACKAGING, ASSEMBLY, VERIFICATION, ALLOCATION, ]
 
   require_relative 'order_sql.rb'
 
@@ -188,23 +158,6 @@ class Order < Sequel::Model
     ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
   end
 
-  def finish_load
-    change_status Order::MUST_VERIFY
-  end
-
-  def finish_assembly
-    change_status Order::VERIFIED
-  end
-
-  def finish_verification
-    pending_items = Item.join(:line_items, [:i_id]).filter(o_id: self.o_id).filter(i_status: Item::MUST_VERIFY).all
-    if pending_items.count > 0
-      errors.add "Error en verificacion", R18n::t.production.verification.still_pending_items
-    else
-      change_status Order::VERIFIED
-    end
-  end
-
   def change_status status
     @values[:o_status] = status
     save columns: [:o_status]
@@ -226,6 +179,46 @@ class Order < Sequel::Model
     puts out
   end
 
+
+  def finish_load
+    change_status Order::MUST_VERIFY
+  end
+
+  def finish_assembly
+
+    ap "shoud change status"
+    ap self.items
+
+    product = self.get_assembly
+
+    ap product.materials
+    # change_status Order::FINISHED
+  end
+
+  def finish_verification
+    pending_items = Item.join(:line_items, [:i_id]).filter(o_id: self.o_id).filter(i_status: Item::MUST_VERIFY).all
+    if pending_items.count > 0
+      errors.add "Error en verificacion", R18n::t.production.verification.still_pending_items
+    else
+      change_status Order::VERIFIED
+    end
+  end
+
+  def finish_return
+    DB.transaction do
+      items = self.items
+      if items.count > 0
+        items.each { |item| item.change_status(Item::READY, self.o_id).save if item.i_status == Item::RETURNING }
+        self.change_status Order::FINISHED
+        save columns: Order::ATTRIBUTES
+        message = R18n.t.return.finished
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: self.o_id).save
+        return true
+      end
+    end
+    return false
+  end
+
   def cancel
     DB.transaction do
       items = self.items
@@ -240,7 +233,7 @@ class Order < Sequel::Model
     return false
   end
 
-  def cancel_sale
+  def non_destructive_cancel
     DB.transaction do
       items = self.items
       items.each do |item|
@@ -312,21 +305,6 @@ class Order < Sequel::Model
 
   def create_or_load_sale
     create_new Order::SALE
-  end
-
-  def finish_return
-    DB.transaction do
-      items = self.items
-      if items.count > 0
-        items.each { |item| item.change_status(Item::READY, self.o_id).save if item.i_status == Item::RETURNING }
-        self.change_status Order::FINISHED
-        save columns: Order::ATTRIBUTES
-        message = R18n.t.return.finished
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: self.o_id).save
-        return true
-      end
-    end
-    return false
   end
 
   def recalculate_as( type )
