@@ -17,16 +17,16 @@ class Backend < AppController
   helpers ApplicationHelper
 
   before do
+    p "session"
+    ap session
+
     session.each { |key, value| session.delete(key.to_sym)} if Location.new.stores.include? current_location
     set_locale
     Thread.current.thread_variable_set(:login_path, "/admin/login")
     Thread.current.thread_variable_set(:root_path, "../admin")
     unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"]
-
     protected! unless (request.env["REQUEST_PATH"].nil? or unprotected_routes.include? request.env["REQUEST_PATH"])
     Thread.current.thread_variable_set(:layout, :layout_backend)
-    p "session"
-    ap session
   end
 
   route :get, ['/', '/administration'] do
