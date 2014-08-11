@@ -30,7 +30,12 @@ class ExceptionHandling
       # ap e.backtrace.join("\n")
       # env['rack.errors'].flush
 
+      p "session"
+      ap env['rack.session']
+      p "rack.request.form_hash"
       ap env['rack.request.form_hash']
+
+
       ap e.to_s
       message = "Protección Csrf inválida. Estas logueado? Proba recargar."
       ap message
