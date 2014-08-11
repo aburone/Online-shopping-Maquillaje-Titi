@@ -25,6 +25,8 @@ class Backend < AppController
 
     protected! unless (request.env["REQUEST_PATH"].nil? or unprotected_routes.include? request.env["REQUEST_PATH"])
     Thread.current.thread_variable_set(:layout, :layout_backend)
+    p "session"
+    ap session
   end
 
   route :get, ['/', '/administration'] do

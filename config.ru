@@ -23,7 +23,7 @@ class ExceptionHandling
   def call(env)
     begin
       @app.call env
-    rescue Rack::Csrf::InvalidCsrfToken => e
+    rescue Rack::Csrf::InvalidCsrfToken
       ap env
       # p env['rack.errors'].methods
       # env['rack.errors'].each { |ee| ap ee }
@@ -36,7 +36,6 @@ class ExceptionHandling
       ap env['rack.request.form_hash']
 
 
-      ap e.to_s
       message = "Protección Csrf inválida. Estas logueado? Proba recargar."
       ap message
       [403, {'Content-Type' => 'text/html;charset=utf-8', 'Content-Length' => message.length}, [message]]
