@@ -247,7 +247,7 @@ class Sales < AppController
     slim :orders_list, layout: :layout_sales, locals: {title: t.transport.arrivals.title, sec_nav: :nav_sales_transport, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/sales/transport/arrivals/o_id", can_filter: false}
   end
 
-  route :get, :post, '/transport/arrivals/:o_id/?' do
+  route :get, :post, '/transport/arrivals/:o_id' do
     order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE, params[:o_id])
     verify order, Order::WH_TO_POS, params[:i_id]
   end
@@ -399,22 +399,22 @@ class Backend < AppController
     finish_verification Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE, params[:o_id])
   end
 
-  get '/transport/departures/wh_to_wh/select/?' do
+  get '/transport/departures/wh_to_wh/select' do
     orders = Order.new.get_orders_at_location_with_type_and_status(current_location[:name], Order::WH_TO_WH, Order::OPEN).all
     slim :wh_to_wh_select, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.transport.departures.wh_to_wh.title, orders: orders}
   end
 
-  post '/transport/departures/wh_to_wh/new/?' do
+  post '/transport/departures/wh_to_wh/new' do
     order = Order.new.create_or_load Order::WH_TO_WH
     redirect to("/transport/departures/wh_to_wh/#{order.o_id}/add")
   end
 
-  get '/transport/departures/wh_to_pos/select/?' do
+  get '/transport/departures/wh_to_pos/select' do
     @orders = Order.new.get_wh_to_pos__open(current_location[:name])
     slim :wh_to_pos_select, layout: :layout_backend, locals: {sec_nav: :nav_production}
   end
 
-  post '/transport/departures/wh_to_pos/new/?' do
+  post '/transport/departures/wh_to_pos/new' do
     order = Order.new.create_or_load Order::WH_TO_POS
     redirect to("/transport/departures/wh_to_pos/#{order.o_id}/add")
   end

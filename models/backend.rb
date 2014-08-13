@@ -11,7 +11,7 @@ class Backend < AppController
 
   before do
     set_locale
-    unprotected_routes = ["/admin/login", "/admin/logout", "sales/login", "sales/logout"] 
+    unprotected_routes = ["/admin/login", "/admin/logout", "sales/login", "sales/logout"]
     protected! unless (unprotected_routes.include? request.env["REQUEST_PATH"]) or request.env["REQUEST_PATH"].nil?
   end
 
@@ -24,7 +24,7 @@ class Backend < AppController
   Dir["controllers/backend/*.rb"].each { |file| require_relative file }
 
 
-  get '/logs/?' do
+  get '/logs' do
     @logs = ActionsLog.select(:at, :msg, :lvl, :b_id, :m_id, :i_id, :p_id, :o_id, :u_id, :l_id, :username).join(:users, user_id: :u_id).order(:id).reverse.all
     slim :logs, layout: :layout_backend
   end

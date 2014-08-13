@@ -14,28 +14,16 @@ class Inventory
   end
 
   def can_complete_order? order
-    return process_packaging_order(order, false)
+    return process_order(order, false)
   end
 
-  def process_packaging_order order, must_save=true
-    raise TypeError, 'Inexistent order' if order.nil?
-    o_id = order.o_id
-    DB.transaction do
-      @missing_materials = []
-      @used_bulks = []
-      process_packaging_order_materials(order, must_save)
-      process_packaging_order_parts(order, must_save)
-
-      if must_save
-        order.items.each do |item|
-          message = "Materias primas restadas del inventario. Producto terminado"
-          ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, i_id: item.i_id, o_id: o_id).save
-          add_item(item, o_id)
-        end
-        order.change_status Order::FINISHED
-      end
+  def process_order order, must_save=true
+    case order.type
+      when Order::PACKAGING
+        return process_packaging_order(order, must_save)
+      when Order::ASSEMBLY
+        return process_assembly_order(order, must_save)
     end
-    return @missing_materials.empty? ? true : false
   end
 
   def add_item item, o_id
@@ -91,11 +79,51 @@ class Inventory
       end
     end
 
-    def process_packaging_order_parts order, must_save
-      unless order.parts.empty?
-        message = "Esta orden tiene kits cargados. No deberias cargarlos por aca. Si imputas la orden vas a generar un error de stock. (las partes de los kits no se van a restar, pero si los materiales)"
-        @errors << message
-        ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::ERROR, o_id: order.o_id).save
+    def process_assembly_order order, must_save=true
+      raise TypeError, 'Inexistent order' if order.nil?
+      DB.transaction do
+        @missing_materials = []
+        @used_bulks = []
+
+        if must_save
+          order.items.each do |item|
+            message = "Materias primas restadas del inventario. Producto terminado"
+            ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, i_id: item.i_id, o_id: order.o_id).save
+            add_item(item, order.o_id)
+          end
+          order.change_status Order::FINISHED
+        end
       end
+      return @missing_materials.empty? ? true : false
     end
+
+
+    def process_packaging_order order, must_save=true
+      raise TypeError, 'Inexistent order' if order.nil?
+      o_id = order.o_id
+      DB.transaction do
+        @missing_materials = []
+        @used_bulks = []
+        process_packaging_order_materials(order, must_save)
+        process_packaging_order_parts(order, must_save)
+
+        if must_save
+          order.items.each do |item|
+            message = "Materias primas restadas del inventario. Producto terminado"
+            ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, i_id: item.i_id, o_id: o_id).save
+            add_item(item, o_id)
+          end
+          order.change_status Order::FINISHED
+        end
+      end
+      return @missing_materials.empty? ? true : false
+    end
+
+    def process_packaging_order_parts order, must_save
+        unless order.parts.empty?
+          message = "Esta orden tiene kits cargados. No deberias cargarlos por aca. Si imputas la orden vas a generar un error de stock. (las partes de los kits no se van a restar, pero si los materiales)"
+          @errors << message
+          ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::ERROR, o_id: order.o_id).save
+        end
+      end
 end

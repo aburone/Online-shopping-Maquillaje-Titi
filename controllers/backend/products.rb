@@ -166,7 +166,7 @@ class Backend < AppController
     slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product, title: t.products.title}
   end
 
-  post '/products/new/?' do
+  post '/products/new' do
     begin
       p_id = Product.new.create_default
       flash[:warning] = R18n.t.product.created
@@ -179,11 +179,11 @@ class Backend < AppController
     end
   end
 
-  get '/products/:id/?' do
+  get '/products/:id' do
     edit_product params[:id]
   end
 
-  put '/products/:id/?' do
+  put '/products/:id' do
     product = Product[params[:id].to_i].update_from_hash(params)
     product.validate
     if product.errors.count == 0  and product.valid?

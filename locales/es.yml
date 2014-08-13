@@ -1,4 +1,5 @@
 actions:
+  continue: Continuar
   finish: Terminar
   finish_load: Terminar carga
   finish_verification: Terminar verificacion

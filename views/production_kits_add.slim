@@ -44,16 +44,16 @@ h2 Partes agregadas a esta orden
     | Pegale una
     b  #{label_1[:m_name]}
 
-  form.v_island_1#finish_packaging action=url("/production/#{order.type.downcase}/#{order.o_id}/finish") method="post"
+  form.v_island_1#finish_packaging action=url("/production/assembly/#{order.o_id}/allocate") method="post"
     p
       |Finalmente pegale una
       b  #{label_2[:m_name]}
-      |. Leela con el scanner para finalizar la orden
+      |. Leela con el scanner para continual
 
     == Rack::Csrf.tag(env)
     input type="hidden" name="o_id" value="#{order.o_id}"
     input type="text" name="label_id" value="" autofocus="autofocus" placeholder="Lee la etiqueda ID"
-    input type="submit" value="#{t.actions.finish}"
+    input type="submit" value="#{t.actions.continue}"
 
 form.v_island_1#finish_packaging action=url("/production/#{order.type.downcase}/#{order.o_id}/cancel") method="post"
   == Rack::Csrf.tag(env)
