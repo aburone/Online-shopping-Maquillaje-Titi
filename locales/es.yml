@@ -23,7 +23,9 @@ actions:
   filter: Filtrar
   click_to_toggle: Click para ver/ocultar detalles
   click_to_edit: Click para editar
-  changed_status: Estado cambiado a %1
+  changed_order_status: Estado de orden cambiado a %1
+  changed_item_status: Estado de item cambiado a %1
+  changed_item_status: Estado de granel cambiado a %1
   scan_label: Escanee el ID
   select_product: Seleccionar el producto
   print: Imprimir
@@ -767,3 +769,9 @@ tablesorter:
   default_caption: 'Click en las flechas para ordenar. Shift+Click para ordenar por multiples columnas. Para filtrar la tabla separa las palabras con doble espacio (ej: "base [espacio] [espacio] fluo").'
   operators_explanation: 'Escribi en los cuadros para filtrar la tabla. Utiliza operadores lógicos "o", "y" (ej: "base y fluo"). Solo un operador por vez.'
   online_help_url: "http://mottie.github.io/tablesorter/docs/example-widget-filter.html#notes"
+
+inventory:
+  missing_x_units_of_material: !!pl
+    0: "%2 no tiene faltantes"
+    1: "Falta %1 unidad de %2"
+    n: "Faltan %1 unidades de %2"

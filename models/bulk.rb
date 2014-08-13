@@ -236,7 +236,7 @@ class Bulk < Sequel::Model
     @values[:b_status] = status
     @values[:b_loc] = Location::UNDEFINED if status == Bulk::VOID
     save validate: false, columns: [:b_loc, :b_status]
-    log = ActionsLog.new.set(msg: R18n.t.actions.changed_status(ConstantsTranslator.new(status).t), u_id: current_user_id, l_id: current_location, lvl: ActionsLog::INFO, m_id: @values[:m_id], b_id: @values[:b_id])
+    log = ActionsLog.new.set(msg: R18n.t.actions.changed_bulk_status(ConstantsTranslator.new(status).t), u_id: current_user_id, l_id: current_location, lvl: ActionsLog::INFO, m_id: @values[:m_id], b_id: @values[:b_id])
     log.set(o_id: o_id) unless o_id == 0
     log.save
     self
@@ -259,9 +259,7 @@ class Bulk < Sequel::Model
   def get_as_csv location
     labels = get_unprinted(location).all
     DB.transaction do
-      labels.each do |label|
-        labels.each { |label| label.set_as_printed }
-      end
+      labels.each { |label| label.set_as_printed }
     end
     out = ""
     labels.each do |label|

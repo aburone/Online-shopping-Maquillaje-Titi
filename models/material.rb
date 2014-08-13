@@ -1,4 +1,5 @@
 class Material < Sequel::Model(:materials)
+
   require_relative 'material_sql.rb'
 
   def perform

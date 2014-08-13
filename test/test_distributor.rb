@@ -47,6 +47,10 @@ class DistributorTest < Test::Unit::TestCase
       distributor1 = Distributor.new.get_rand
       distributor2 = Distributor.new.get_rand
 
+      # sanity check
+      distributor1.remove_product @valid_product
+      distributor2.remove_product @valid_product
+
       distributor1.add_product @valid_product
       distributor2.add_product @valid_product
       assert_equal  distributor2.d_id, @valid_product.distributors.all.last.d_id

@@ -26,6 +26,9 @@ end
 
 
 class Material < Sequel::Model(:materials)
+  attr_reader :location
+  @location = nil
+
   one_to_many :bulks, key: :m_id
   Material.nested_attributes :bulks
 

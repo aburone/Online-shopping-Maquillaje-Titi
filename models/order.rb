@@ -119,7 +119,7 @@ class Order < Sequel::Model
 
     begin
       if super
-        added_msg = R18n::t.order.bulk_added(bulk.m_id, @values[:o_id])
+        added_msg = R18n::t.order.bulk_added(bulk[:m_name], @values[:o_id])
         ActionsLog.new.set(msg: added_msg, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::NOTICE, b_id: bulk.b_id, m_id: bulk.m_id, o_id: @values[:o_id]).save
         return added_msg
       else
@@ -161,7 +161,7 @@ class Order < Sequel::Model
   def change_status status
     @values[:o_status] = status
     save columns: [:o_status]
-    ActionsLog.new.set(msg: R18n.t.actions.changed_status(ConstantsTranslator.new(status).t), u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+    ActionsLog.new.set(msg: R18n.t.actions.changed_order_status(ConstantsTranslator.new(status).t), u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
     self
   end
 

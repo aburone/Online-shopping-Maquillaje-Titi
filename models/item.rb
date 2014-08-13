@@ -108,7 +108,7 @@ class Item < Sequel::Model
     change_status_security_check status, o_id
     @values[:i_status] = status
     save columns: [:p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc]
-    message = R18n.t.actions.changed_status(ConstantsTranslator.new(status).t)
+    message = R18n.t.actions.changed_item_status(ConstantsTranslator.new(status).t)
     log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, i_id: @values[:i_id])
     log.set(o_id: o_id) unless o_id == 0
     log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?

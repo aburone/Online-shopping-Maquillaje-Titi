@@ -99,7 +99,7 @@ class Item < Sequel::Model
     order.add_item self
     save validate: false
 
-    message = "#{R18n.t.actions.changed_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}"
+    message = "#{R18n.t.actions.changed_item_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}"
     log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl: ActionsLog::WARN, i_id: @values[:i_id], o_id: order.o_id)
     log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
     log.save

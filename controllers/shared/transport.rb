@@ -455,7 +455,7 @@ class Backend < AppController
             @order.add_bulk @bulk
             @bulk.change_status Bulk::MUST_VERIFY, params[:o_id].to_i
             @material = Material[@bulk.m_id]
-            flash.now[:notice] = t.order.bulk_added
+            flash.now[:notice] = t.order.bulk_added @bulk[:m_name], @order.o_id
           rescue => detail
             flash.now[:error] = detail.message
             @bulk = Bulk.new
