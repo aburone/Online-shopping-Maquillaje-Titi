@@ -79,38 +79,6 @@ class Item < Sequel::Model
     end
   end
 
-  def void! reason
-    reason = check_reason reason
-    begin
-      DB.transaction do
-        self.orders.dup.each do |order|
-          order.remove_item self unless order.o_status == Order::VOID or order.o_status == Order::FINISHED
-        end
-      end
-      order = Order.new.create_invalidation @values[:i_loc]
-      change_status_security_check Item::VOID, order.o_id
-    rescue SecurityError => e
-      order.change_status Order::FINISHED
-      raise SecurityError, e.message
-    end
-    origin = @values[:i_loc].dup
-    @values[:i_loc] = Location::VOID
-    @values[:i_status] = Item::VOID
-    order.add_item self
-    save validate: false
-
-    message = "#{R18n.t.actions.changed_item_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}"
-    log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl: ActionsLog::WARN, i_id: @values[:i_id], o_id: order.o_id)
-    log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
-    log.save
-
-    product = Product[self.p_id]
-    product.update_stocks.save unless product.nil?
-
-    order.change_status Order::FINISHED
-    message
-  end
-
   def transmute! reason, p_id
     raise SecurityError if @values[:i_status] != Item::READY
     reason = check_reason reason
@@ -322,29 +290,18 @@ class Item < Sequel::Model
   end
 
   def get_for_assembly i_id, o_id, missing_parts
-    p "1"
     i_id = i_id.to_s.strip
-    p "2"
     missing_p_ids = []
     missing_parts.each {|missing| missing_p_ids << missing.p_id }
     item = Item.filter(i_status: Item::READY, i_loc: User.new.current_location[:name], i_id: i_id).where(p_id: missing_p_ids).first
-    p "3"
     return item unless item.nil?
-    p "4"
     return self if missing(i_id)
-    p "5"
     update_from Item[i_id]
-    p "6"
     return self if has_been_void
-    p "7"
     return self if is_from_another_location
-    p "8"
     return self if is_in_some_order o_id
-    p "9"
     return self if is_a_different_product missing_parts
-    p "10"
     errors.add("Error inesperado", "Que hacemos?")
-    p "11"
     return self
   end
 

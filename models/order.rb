@@ -161,7 +161,7 @@ class Order < Sequel::Model
   def change_status status
     @values[:o_status] = status
     save columns: [:o_status]
-    ActionsLog.new.set(msg: R18n.t.actions.changed_order_status(ConstantsTranslator.new(status).t), u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+    ActionsLog.new.set(msg: R18n.t.actions.changed_order_status(ConstantsTranslator.new(status).t), u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, o_id: @values[:o_id]).save
     self
   end
 

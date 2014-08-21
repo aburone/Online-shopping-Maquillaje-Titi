@@ -23,8 +23,8 @@ nav role="navigation"
           a class="#{inside?("/admin/production/labels")}" href=url('/production/labels') = t.nav.backend.labels
         li
           a class="#{inside?("/admin/production/packaging")}" href=url('/production/packaging/select') = t.nav.backend.packaging
-        / li
-        /   a class="#{inside?("/admin/production/assembly")}" href=url('/production/assembly/select') = t.nav.backend.assembly
+        li
+          a class="#{inside?("/admin/production/assembly")}" href=url('/production/assembly/select') = t.nav.backend.assembly
         li
           a class="#{inside?("/admin/production/verification")}" href=url('/production/verification/select') = t.nav.backend.verify_packaging
         li

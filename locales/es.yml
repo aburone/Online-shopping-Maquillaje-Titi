@@ -25,7 +25,7 @@ actions:
   click_to_edit: Click para editar
   changed_order_status: Estado de orden cambiado a %1
   changed_item_status: Estado de item cambiado a %1
-  changed_item_status: Estado de granel cambiado a %1
+  changed_bulk_status: Estado de granel cambiado a %1
   scan_label: Escanee el ID
   select_product: Seleccionar el producto
   print: Imprimir

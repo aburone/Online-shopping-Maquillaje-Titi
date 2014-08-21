@@ -54,7 +54,7 @@ class Inventory
       DB.transaction do
         @missing_materials = []
         @used_bulks = []
-        process_materials(order, must_save)
+        process_parts(order, must_save)
         process_materials(order, must_save)
 
         if must_save
@@ -76,8 +76,8 @@ class Inventory
       DB.transaction do
         @missing_materials = []
         @used_bulks = []
-        process_materials(order, must_save)
         process_parts(order, must_save)
+        process_materials(order, must_save)
 
         if must_save
           order.items.each do |item|
@@ -146,6 +146,19 @@ class Inventory
             ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::ERROR, o_id: order.o_id).save
           end
       when Order::ASSEMBLY
+        product = order.get_assembly
+        if must_save
+          reason = "Este item ahora forma parte del kit \"#{product.p_name}\""
+          items = order.items
+          ap "count: #{items.count}"
+          messages = []
+          items.each do |part|
+            if part.i_status == Item::IN_ASSEMBLY
+              part.i_loc = Location::VOID
+              part.save
+            end
+          end
+        end
       end
     end
 

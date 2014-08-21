@@ -37,65 +37,45 @@ class Backend < AppController
   post '/production/assembly/:o_id/allocate' do
     order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::ASSEMBLY, Order::OPEN, params[:o_id].to_i)
     redirect_if_nil_order order, params[:o_id].to_i, "/production/allocation/select"
-    product = order.get_assembly
 
+
+    inventory = Inventory.new(current_location[:name])
+    unless inventory.can_complete_order? order
+      flash[:error] = inventory.errors
+      message = "Intento de finalizar la orden de armado de kits sin tener todos los prerequisitos." + inventory.errors.to_s
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id).save
+      redirect to("/production/assembly/#{params[:o_id]}")
+    end
+
+
+    product = order.get_assembly
     if params[:i_id] && params[:i_id].to_s.strip != ""
       i_id = params[:i_id].to_s.strip
       label =  Label.new.get_printed_by_id i_id, order.o_id
       if label.errors.count > 0
         message = label.errors.to_a.flatten.join(": ")
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::WARN, o_id: order.o_id, p_id: product.p_id).save
         flash[:error_add_item] = label.errors
         redirect to("/production/assembly/#{params[:o_id]}")
       end
     else
       flash[:error_add_item] = t.item.invalid
+      message = "Intento de pasar un i_id vacio en la imputacion de orden de armado de kit"
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
       redirect to("/production/assembly/#{params[:o_id]}")
     end
     item = label
 
-
-    inventory = Inventory.new(current_location[:name])
-      ap inventory.can_complete_order? order
-
-ap inventory.location
-p "needed_materials"
-ap inventory.needed_materials
-p "missing_materials"
-ap inventory.missing_materials
-p "used_bulks"
-ap inventory.used_bulks
-p "errors"
-ap inventory.errors
-
-halt
-
-    begin
-      flash[:notice] = t.production.allocation.ok(order.o_id)
-      redirect to("/production/assembly/select")
-    rescue => detail
-      flash[:error] = detail.message
-      redirect to("/production/assembly/#{order.o_id}")
-    end
-
-
-
-
     assigned_msg = product.add_item item, order.o_id
     if product.errors.count > 0
       flash[:error_add_item] = product.errors
+      message = product.errors.errors.to_a.flatten.join(": ")
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
       redirect to("/production/assembly/#{params[:o_id]}")
-    else
-      item = Item[i_id]
-      added_msg = order.add_item item
-      if order.errors.count > 0
-        flash[:error_add_item_to_order] = order.errors
-      redirect to("/production/assembly/#{params[:o_id]}")
-      end
-      item.change_status(Item::MUST_VERIFY, order.o_id)
     end
-    flash[:notice] = [assigned_msg, added_msg]
+    flash[:notice] = assigned_msg
 
+    item.change_status(Item::READY, order.o_id)
     if item.errors.count > 0
       message = item.errors.to_a.flatten.join(": ")
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
@@ -103,6 +83,16 @@ halt
       redirect to("/production/assembly/#{params[:o_id]}")
     end
 
+
+    begin
+      inventory.process_order order
+      flash[:notice] = t.production.allocation.ok(order.o_id)
+      redirect to("/production/assembly/select")
+    rescue => message
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
+      flash[:error] = message
+      redirect to("/production/assembly/#{order.o_id}")
+    end
 
 
   end
@@ -120,11 +110,9 @@ halt
 
 
   route :get, :post, ['/production/packaging/:o_id', '/production/packaging/:o_id/:p_id'] do
-    ap "clusterfuck route packaging"
     clusterfuck params, Order::PACKAGING
   end
   route :get, :post, ['/production/allocation/:o_id', '/production/allocation/:o_id/:p_id'] do
-    ap "clusterfuck route allocation"
     clusterfuck params, Order::ALLOCATION
   end
 
@@ -154,7 +142,6 @@ halt
 
     if params[:p_id]
       product = Product.new.get params[:p_id].to_i
-      # ap product
 
       if params[:i_id]
         i_id = params[:i_id].to_s.strip
@@ -226,7 +213,6 @@ halt
   end
 
   route :get, :post, ['/production/assembly/:o_id'] do
-    ap "clusterfuck route assembly"
     # pass if params[:o_id].to_i == 0
     clusterfuck_assembly params, Order::ASSEMBLY
   end
@@ -271,7 +257,7 @@ halt
         i_id = params[:i_id].to_s.strip
         item =  Item.new.get_for_assembly i_id, order.o_id, missing_parts
 
-        ap "Ingresado #{item.p_name} (#{item.p_id})"
+        # ap "Ingresado #{item.p_name} (#{item.p_id})"
         if item.errors.count > 0
           message = item.errors.to_a.flatten.join(": ")
           ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
@@ -295,16 +281,12 @@ halt
 
 
 
-      # p "Materiales necesarios"
+      p "Materiales necesarios"
       needed_materials = product.materials
-      # needed_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
-
-      # p "Materiales agregados"
-      added_materials = order.bulks
-      # added_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
+      needed_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
 
       # p "Materiales por agregar"
-      missing_materials = needed_materials - added_materials #will not work
+      missing_materials = needed_materials
       # missing_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
 
       packaging = Material.new
@@ -327,18 +309,14 @@ halt
           end
         end
 
-        # p "Materiales por agregar despues de etiqueta"
-        # ap missing_materials
 
         label_2 = Material[108] # etiqueta ID chica
       end
 
       inventory = Inventory.new(current_location[:name])
-      ap inventory.can_complete_order? order
-      ap inventory.errors
+      inventory.can_complete_order? order
 
       if missing_parts.empty? && env["REQUEST_METHOD"] == "POST"
-        ap flash.now
         flash.now.keys.each { |k| flash[k.to_sym] = flash.now[k.to_sym]}
         redirect to "/production/assembly/#{order.o_id}"
       end

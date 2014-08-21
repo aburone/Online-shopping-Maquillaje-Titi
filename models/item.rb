@@ -86,8 +86,41 @@ class Item < Sequel::Model
   end
 
 
+  def void! reason
+    reason = check_reason reason
+    begin
+      DB.transaction do
+        self.orders.dup.each do |order|
+          order.remove_item self unless order.o_status == Order::VOID or order.o_status == Order::FINISHED
+        end
+      end
+      order = Order.new.create_invalidation @values[:i_loc]
+      change_status_security_check Item::VOID, order.o_id
+    rescue SecurityError => e
+      order.change_status Order::FINISHED
+      raise SecurityError, e.message
+    end
+    origin = @values[:i_loc].dup
+    @values[:i_loc] = Location::VOID
+    @values[:i_status] = Item::VOID
+    order.add_item self
+    save validate: false
+
+    message = "#{R18n.t.actions.changed_item_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}"
+    log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl: ActionsLog::NOTICE, i_id: @values[:i_id], o_id: order.o_id)
+    log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
+    log.save
+
+    product = Product[self.p_id]
+    product.update_stocks.save unless product.nil?
+
+    order.change_status Order::FINISHED
+    message
+  end
+
+
   def change_status_security_check status, o_id
-    if @values[:i_status] == Item::VOID
+    if self.i_status == Item::VOID
       message = R18n.t.errors.modifying_status_of_void_item(@values[:i_id])
       log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, i_id: @values[:i_id])
       log.set(o_id: o_id) unless o_id == 0
