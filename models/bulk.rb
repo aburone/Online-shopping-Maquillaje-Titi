@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'sequel'
 require_relative 'material'
 require_relative '../helpers/sequel_binary'
@@ -19,6 +20,10 @@ class Bulk < Sequel::Model
   ATTRIBUTES = [:b_id, :m_id, :b_qty, :b_price, :b_status, :b_printed, :b_loc, :created_at]
   # same as ATTRIBUTES but with the neccesary table references for get_ functions
   COLUMNS = [:bulks__b_id, :bulks__m_id, :b_qty, :b_price, :b_status, :b_printed, :b_loc, :bulks__created_at]
+
+  def location
+    b_loc
+  end
 
   def save (opts=OPTS)
     opts = opts.merge({columns: Bulk::ATTRIBUTES})
@@ -307,7 +312,7 @@ class Bulk < Sequel::Model
     end
   end
 
-  def to_s
+  def print
     out = "\n"
     out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
     out += "\tb_id:    #{@values[:b_id]}\n"

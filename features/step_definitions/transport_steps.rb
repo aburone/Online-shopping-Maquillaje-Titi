@@ -35,10 +35,13 @@ When /^I fill with some items from s1$/ do
   count = all('.item').count
   i_id = add_and_remove_item Location::S1
   all('.item').count.should == count
+  count = all('.item').count
+  p "Adding new item #{count + 1}"
   add i_id
 
   all('.item').count.should == count + 1
   count = all('.item').count
+  p "Removing item #{count - 1}"
   remove_item i_id
   all('.item').count.should == count -1
 
@@ -69,6 +72,7 @@ When /^I fill with some items from w1$/ do
   init_r18
 
   count = all('.item').count
+  p "Initial count: #{count}"
   i_id = add_and_remove_item Location::W1
   all('.item').count.should == count
   add i_id
@@ -95,6 +99,8 @@ When /^I fill with some items from w1$/ do
   p "Adding new item #{count + 1}"
   i_id = add_ready_item Location::W1
   all('.item').count.should == count + 1
+  count = all('.item').count
+  p "Final count: #{count}"
 end
 
 
@@ -102,6 +108,7 @@ When /^I fill with some items from w2$/ do
   init_r18
 
   count = all('.item').count
+  p "Initial count: #{count}"
   i_id = add_and_remove_item Location::W2
   all('.item').count.should == count
   add i_id
@@ -128,6 +135,8 @@ When /^I fill with some items from w2$/ do
   p "Adding new item #{count + 1}"
   i_id = add_ready_item Location::W2
   all('.item').count.should == count + 1
+  count = all('.item').count
+  p "Final count: #{count}"
 end
 
 

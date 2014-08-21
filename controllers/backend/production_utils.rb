@@ -197,7 +197,6 @@ class Backend < AppController
 
 
   post '/production/:action/:o_id/finish' do
-    ap params
 
     unless Order::PRODUCTION_ACTIONS.include? params[:action].upcase
       flash[:error] = "Tipo de acción inválida"

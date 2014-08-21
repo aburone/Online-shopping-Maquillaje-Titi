@@ -3,7 +3,7 @@ require 'rubytree'
 
 class AccountTransaction < Sequel::Model(:accounts_transactions)
   one_to_many :AccountRecords, key: :t_id
-  def to_s
+  def print
     out = "\n"
     out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
     out += "\tt_id:               #{@values[:t_id]}\n"
@@ -38,7 +38,7 @@ class AccountPlan
   def load
     begin
       @accounts = YAML::load( File.read( @accounts_file ))
-    rescue 
+    rescue
       @accounts = Tree::TreeNode.new("Cuentas", "Plan de cuentas")
     end
   end
@@ -89,7 +89,7 @@ class Transaction
     @transaction.t_id
   end
 
-  def to_s
+  def print
     out = "\n"
     out += "#{@description} (#{@transaction.t_id})"
     out += " $ #{l @total}" if @total != 0
@@ -124,7 +124,7 @@ class Transaction
         record = AccountRecord.new( r_orig: o.orig, r_dest: o.dest, r_amount: o.amount)
         record.r_loc = o.loc if o.loc
         record.o_id = o.order if o.order
-        @transaction.add_AccountRecord( record ) 
+        @transaction.add_AccountRecord( record )
       end
     end
   end

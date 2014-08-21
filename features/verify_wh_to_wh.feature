@@ -1,5 +1,5 @@
 @transport
-Feature: New wh_to_wh
+Feature: Verify wh_to_wh
 
 Scenario: Verify wh_to_wh order
 Given I am logged-in into backend with location WAREHOUSE_1

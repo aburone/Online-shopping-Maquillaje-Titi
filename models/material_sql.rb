@@ -26,8 +26,6 @@ end
 
 
 class Material < Sequel::Model(:materials)
-  attr_reader :location
-  @location = nil
 
   one_to_many :bulks, key: :m_id
   Material.nested_attributes :bulks
@@ -39,6 +37,40 @@ class Material < Sequel::Model(:materials)
   ATTRIBUTES = [ :m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :created_at, :price_updated_at ]
   # same as ATTRIBUTES but with the needed table references for get_ functions
   COLUMNS = [ :materials__m_id, :c_id, :SKU, :m_name, :m_notes, :m_ideal_stock, :m_price, :materials__created_at, :materials__price_updated_at ]
+
+  attr_reader :location
+  def location= new_location
+    @location= new_location
+    self
+  end
+
+  def bulk
+    begin
+      Bulk.filter(m_id: @values[:m_id], b_loc: location).order(:b_status, :created_at).all
+    rescue Exception => @e
+      p @e
+      return []
+    end
+  end
+
+
+  def bulks warehouse_name
+    begin
+      Bulk.filter(m_id: @values[:m_id], b_loc: warehouse_name).order(:b_status, :created_at).all
+    rescue Exception => @e
+      p @e
+      return []
+    end
+  end
+
+  def bulks_global
+    begin
+      Bulk.filter(m_id: @values[:m_id]).order(:b_status, :created_at).all
+    rescue Exception => @e
+      p @e
+      return []
+    end
+  end
 
   def category
     self.MaterialCategory
@@ -179,23 +211,6 @@ class Material < Sequel::Model(:materials)
     errors.add(:m_id, R18n.t.errors.positive_feedback(m_id) ) unless m_id.class == Fixnum && m_id > 0
   end
 
-  def bulks warehouse_name
-    begin
-      Bulk.filter(m_id: @values[:m_id], b_loc: warehouse_name).order(:b_status, :created_at).all
-    rescue Exception => @e
-      p @e
-      return []
-    end
-  end
-
-  def bulks_global
-    begin
-      Bulk.filter(m_id: @values[:m_id]).order(:b_status, :created_at).all
-    rescue Exception => @e
-      p @e
-      return []
-    end
-  end
 
   def get_list warehouse_name
     begin
@@ -209,9 +224,11 @@ class Material < Sequel::Model(:materials)
 
   def get_by_id id, warehouse_name
     begin
-      base_query(warehouse_name)
+      material = base_query(warehouse_name)
         .where(materials__m_id: id.to_i)
         .first
+      material.location= @location unless material.nil?
+      material
     rescue Exception => @e
       p @e
       return []

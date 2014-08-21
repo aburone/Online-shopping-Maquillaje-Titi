@@ -36,29 +36,61 @@ class Backend < AppController
 
   post '/production/assembly/:o_id/allocate' do
     order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::ASSEMBLY, Order::OPEN, params[:o_id].to_i)
-    ap params
-    ap order
+    redirect_if_nil_order order, params[:o_id].to_i, "/production/allocation/select"
     product = order.get_assembly
-    ap product.p_name
-    order.items.each { |p| ap p.p_name }
 
-    product.materials.each { |m| ap m.m_name }
+    if params[:i_id] && params[:i_id].to_s.strip != ""
+      i_id = params[:i_id].to_s.strip
+      label =  Label.new.get_printed_by_id i_id, order.o_id
+      if label.errors.count > 0
+        message = label.errors.to_a.flatten.join(": ")
+        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
+        flash[:error_add_item] = label.errors
+        redirect to("/production/assembly/#{params[:o_id]}")
+      end
+    else
+      flash[:error_add_item] = t.item.invalid
+      redirect to("/production/assembly/#{params[:o_id]}")
+    end
+    item = label
 
-    id_label =  Label.new.get_printed_by_id params[:label_id], order.o_id
-    ap id_label
+
+    inventory = Inventory.new(current_location[:name])
+      ap inventory.can_complete_order? order
+
+ap inventory.location
+p "needed_materials"
+ap inventory.needed_materials
+p "missing_materials"
+ap inventory.missing_materials
+p "used_bulks"
+ap inventory.used_bulks
+p "errors"
+ap inventory.errors
+
+halt
+
+    begin
+      flash[:notice] = t.production.allocation.ok(order.o_id)
+      redirect to("/production/assembly/select")
+    rescue => detail
+      flash[:error] = detail.message
+      redirect to("/production/assembly/#{order.o_id}")
+    end
 
 
-    halt
+
+
     assigned_msg = product.add_item item, order.o_id
     if product.errors.count > 0
       flash[:error_add_item] = product.errors
-      redirect to("/production/#{route}/#{order.o_id}/#{product.p_id}")
+      redirect to("/production/assembly/#{params[:o_id]}")
     else
       item = Item[i_id]
       added_msg = order.add_item item
       if order.errors.count > 0
         flash[:error_add_item_to_order] = order.errors
-        redirect to("/production/#{route}/#{order.o_id}/#{product.p_id}")
+      redirect to("/production/assembly/#{params[:o_id]}")
       end
       item.change_status(Item::MUST_VERIFY, order.o_id)
     end
@@ -68,21 +100,11 @@ class Backend < AppController
       message = item.errors.to_a.flatten.join(": ")
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
       flash[:error_add_item] = item.errors
-      redirect to("/production/#{route}/#{order.o_id}/#{product.p_id}")
+      redirect to("/production/assembly/#{params[:o_id]}")
     end
 
 
-     redirect_if_nil_order order, params[:o_id].to_i, "/production/allocation/select"
 
-    inventory = Inventory.new(current_location[:name])
-    begin
-      inventory.process_assembly_order order
-      flash[:notice] = t.production.allocation.ok(order.o_id)
-      redirect to("/production/assembly/select")
-    rescue => detail
-      flash[:error] = detail.message
-      redirect to("/production/assembly/#{order.o_id}")
-    end
   end
 
 
@@ -230,20 +252,20 @@ class Backend < AppController
     added_parts = []
     product = order.get_assembly
     unless product.empty?
-      p "Armando"
-      ap "#{product.p_name} (#{product.p_id})"
+      # p "Armando"
+      # ap "#{product.p_name} (#{product.p_id})"
 
-      p "Partes necesarias"
+      # p "Partes necesarias"
       needed_parts = product.parts
-      needed_parts.each { |part| ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part.class}]" }
+      # needed_parts.each { |part| ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part.class}]" }
 
-      p "Partes agregadas"
+      # p "Partes agregadas"
       added_parts = order.items
-      added_parts.each { |part| ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part.class}]" }
+      # added_parts.each { |part| ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part.class}]" }
 
-      p "Partes por agregar"
+      # p "Partes por agregar"
       missing_parts = needed_parts - added_parts
-      missing_parts.each { |part| ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part[:c_name]}]" }
+      # missing_parts.each { |part| ap "#{part.p_name} - #{part.category.c_name} (#{part.category.c_id}) [#{part[:c_name]}]" }
 
       if params[:i_id]
         i_id = params[:i_id].to_s.strip
@@ -273,17 +295,17 @@ class Backend < AppController
 
 
 
-      p "Materiales necesarios"
+      # p "Materiales necesarios"
       needed_materials = product.materials
-      needed_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
+      # needed_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
 
-      p "Materiales agregados"
+      # p "Materiales agregados"
       added_materials = order.bulks
-      added_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
+      # added_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
 
-      p "Materiales por agregar"
+      # p "Materiales por agregar"
       missing_materials = needed_materials - added_materials #will not work
-      missing_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
+      # missing_materials.each { |material| ap "#{material.m_name} - #{material.category.c_name} (#{material.category.c_id}) [#{material[:c_name]}]" }
 
       packaging = Material.new
       label_1 = Material.new
@@ -305,12 +327,21 @@ class Backend < AppController
           end
         end
 
-        p "Materiales por agregar despues de etiqueta"
-        ap missing_materials
+        # p "Materiales por agregar despues de etiqueta"
+        # ap missing_materials
 
-        label_2 = Material[108]
+        label_2 = Material[108] # etiqueta ID chica
       end
 
+      inventory = Inventory.new(current_location[:name])
+      ap inventory.can_complete_order? order
+      ap inventory.errors
+
+      if missing_parts.empty? && env["REQUEST_METHOD"] == "POST"
+        ap flash.now
+        flash.now.keys.each { |k| flash[k.to_sym] = flash.now[k.to_sym]}
+        redirect to "/production/assembly/#{order.o_id}"
+      end
       slim :production_kits_add, layout: :layout_backend,
             locals: {
               sec_nav: :nav_production,
@@ -320,7 +351,8 @@ class Backend < AppController
               item: item,
               missing_parts: missing_parts,
               added_parts: added_parts,
-              missing_materials: missing_materials,
+              missing_materials: inventory.missing_materials,
+              extra_missing_materials: missing_materials,
               packaging: packaging,
               label_1: label_1,
               label_2: label_2

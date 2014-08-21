@@ -12,3 +12,4 @@ Then I fill with some items from w1
 When I click "Cerrar la orden y transportar a Local 1"
 Then I should see "Transporte de mercaderia entre deposito y punto de venta "
 
+

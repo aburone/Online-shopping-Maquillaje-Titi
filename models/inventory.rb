@@ -1,5 +1,7 @@
+require_relative 'material.rb'
+
 class Inventory
-  attr_reader :location, :needed_materials, :missing_materials, :used_bulks, :errors
+  attr_reader :location, :needed_materials, :missing_materials, :used_bulks, :errors, :material
   def initialize location
     @location = location
     @user_id = User.new.current_user_id
@@ -9,16 +11,16 @@ class Inventory
     @errors = []
   end
 
-  def material m_id
-    Material.new.get_by_id m_id, location
-  end
-  def materials
-    Material.new.get_list location
-  end
-
-
-  def bulks status = :all
-    Bulk.new.get_bulks_at_location(@location)
+  def material m_id = nil
+    @material = Material.new(location: location).get_by_id(m_id, location) unless m_id.nil?
+    @material = Material.new(location: location).get_list(location) if m_id.nil?
+    if @material.respond_to? :map
+      @material = @material.all
+      @material.map do |material|
+        material.location= @location
+      end
+    end
+    @material
   end
 
   def can_complete_order? order
@@ -41,23 +43,19 @@ class Inventory
     item.change_status Item::READY, o_id
   end
 
+
+
   private
 
-    def fill_needed_materials_and_give_me_a_copy order
-      @needed_materials = []
-      @needed_materials = order.materials
-      aux = []
-      @needed_materials.each { |n| aux << Utils::deep_copy(n) }
-      aux
-    end
+
 
     def process_assembly_order order, must_save=true
       raise TypeError, 'Inexistent order' if order.nil?
       DB.transaction do
         @missing_materials = []
         @used_bulks = []
-        process_packaging_order_materials(order, must_save)
-        process_packaging_order_parts(order, must_save)
+        process_materials(order, must_save)
+        process_materials(order, must_save)
 
         if must_save
           order.items.each do |item|
@@ -78,8 +76,8 @@ class Inventory
       DB.transaction do
         @missing_materials = []
         @used_bulks = []
-        process_packaging_order_materials(order, must_save)
-        process_packaging_order_parts(order, must_save)
+        process_materials(order, must_save)
+        process_parts(order, must_save)
 
         if must_save
           order.items.each do |item|
@@ -93,7 +91,7 @@ class Inventory
       return @missing_materials.empty? ? true : false
     end
 
-    def get_needed_bulks material
+    def needed_bulks material
       Bulk
         .select(:b_id, :m_id, :b_qty, :b_price, :b_status, :b_loc, :bulks__created_at)
         .select_append(:m_name)
@@ -103,41 +101,28 @@ class Inventory
         .all
     end
 
+    def get_needed_materials container
+      @needed_materials = []
+      @needed_materials = container.materials
+      aux = []
+      @needed_materials.each { |n| aux << Utils::deep_copy(n) }
+      aux
+    end
 
-    def process_packaging_order_materials order, must_save
-      o_id = order.o_id
-      fill_needed_materials_and_give_me_a_copy(order).each do |material|
-        get_needed_bulks(material).each do |bulk|
+
+    def fill_bulk o_id, must_save
+      @needed_materials.each do |material|
+        needed_bulks(material).each do |bulk|
           @used_bulks << bulk
           starting_b_qty = bulk[:b_qty].dup
-          ap "process"
-          ap material
-          ap material[:m_qty]
-
           if bulk.b_qty >= material[:m_qty]
-            ap "if"
-            ap bulk.b_qty
-            ap material[:m_qty]
-
             bulk.b_qty -= material[:m_qty]
             material[:m_qty] = 0
-
-            ap bulk.b_qty
-            ap material[:m_qty]
           else
-            ap "else"
-            ap material[:m_qty]
-            ap bulk.b_qty
-
             material[:m_qty] -= bulk.b_qty
             bulk.b_qty = 0
-
-            ap material[:m_qty]
-            ap bulk.b_qty
           end
           if must_save
-            ap "saving"
-            ap bulk
             qty = sprintf("%0.3f", (starting_b_qty - bulk.b_qty).round(3))
             message = "Utilizando #{qty} #{bulk[:m_name]}"
             ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, b_id: bulk.b_id, m_id: bulk.m_id, o_id: o_id).save
@@ -152,11 +137,28 @@ class Inventory
       end
     end
 
-    def process_packaging_order_parts order, must_save
-      unless order.parts.empty?
-        message = "Esta orden tiene kits cargados. No deberias cargarlos por aca. Si imputas la orden vas a generar un error de stock. (las partes de los kits no se van a restar, pero si los materiales)"
-        @errors << message
-        ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::ERROR, o_id: order.o_id).save
+    def process_parts order, must_save
+      case order.type
+        when Order::PACKAGING
+          unless order.parts.empty?
+            message = "Esta orden tiene kits cargados. No deberias cargarlos por aca. Si imputas la orden vas a generar un error de stock. (las partes de los kits no se van a restar, pero si los materiales)"
+            @errors << message
+            ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::ERROR, o_id: order.o_id).save
+          end
+      when Order::ASSEMBLY
       end
     end
+
+
+    def process_materials order, must_save
+      case order.type
+        when Order::PACKAGING
+          @needed_materials = get_needed_materials order
+        when Order::ASSEMBLY
+          @needed_materials = get_needed_materials order.get_assembly
+      end
+      fill_bulk order.o_id, must_save
+    end
+
+
 end

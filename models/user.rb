@@ -1,7 +1,7 @@
 require_relative 'userAuth'
 class User < UserAuth
 
-  def to_s
+  def print
     out = "\n"
     out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
     out += "\t user_id:  #{@values[:user_id]}\n"
