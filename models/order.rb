@@ -314,7 +314,7 @@ class Order < Sequel::Model
       DB.transaction do
         items = self.items
         items.each do |item|
-          item.i_price = item.i_price_pro if item.i_price_pro > 0
+          item.i_price = Product[item.p_id].price_pro
           item.save
         end
       end
@@ -323,7 +323,7 @@ class Order < Sequel::Model
       DB.transaction do
         items = self.items
         items.each do |item|
-          item.i_price = Product[item.p_id].price if item.i_price_pro > 0
+          item.i_price = Product[item.p_id].price
           item.save
         end
       end

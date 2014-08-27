@@ -34,6 +34,7 @@ class Order < Sequel::Model
   MUST_VERIFY="MUST_VERIFY"
   VERIFIED="VERIFIED"
   FINISHED="FINISHED"
+  USED="USED"
   EN_ROUTE="EN_ROUTE"
   VOID="VOID"
 
@@ -352,20 +353,18 @@ class Order < Sequel::Model
 
   def items_as_cart
     Item
-      .select(:p_id, :p_name, :i_price, :i_price_pro)
+      .select_group(:p_id, :p_name, :i_price, :i_price_pro)
       .select_append{sum(1).as(qty)}
       .join(:line_items, line_items__i_id: :items__i_id)
       .join(:orders, line_items__o_id: :orders__o_id, orders__o_id: @values[:o_id])
-      .group(:p_id, :p_name, :i_price, :i_price_pro)
   end
 
   def detailed_items_as_cart
     Item
-      .select(:items__i_id, :p_name, :i_price, :i_price_pro)
+      .select_group(:items__i_id, :p_id, :p_name, :i_price, :i_price_pro)
       .select_append( Sequel.as(Sequel.lit("1"), :qty) )
       .join(:line_items, line_items__i_id: :items__i_id)
       .join(:orders, line_items__o_id: :orders__o_id, orders__o_id: @values[:o_id])
-      .group(:items__i_id, :p_name, :i_price, :i_price_pro)
   end
 
   def cart_total
@@ -405,7 +404,16 @@ class Order < Sequel::Model
       .select{abs(sum(:payment_ammount)).as(total)}
       .filter(o_id: self.o_id)
       .first[:total]
+    if payments_total.nil?
+      payments_total = 0
+      BookRecord.where(o_id: self.o_id).all.each { |payment| payments_total += payment.amount }
+    end
     return payments_total.nil? ? 0 : payments_total
   end
 
+  def payment_type
+    pro_sum = 0
+    self.items.each { |item| pro_sum =+ item.i_price_pro }
+    return payments_total == pro_sum ? "profesional" : "normal"
+  end
 end

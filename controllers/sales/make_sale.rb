@@ -31,7 +31,7 @@ class Sales < AppController
     credit_order = Order.new.get_orders_with_type_status_and_code(Order::CREDIT_NOTE, Order::OPEN, o_code)
     DB.transaction do
       Line_payment.new.set_all(o_id: sale_order.o_id, payment_type: Line_payment::CREDIT_NOTE, payment_code: credit_order.o_code, payment_ammount: credit_order.credit_total).save
-      credit_order.change_status Order::FINISHED
+      credit_order.change_status Order::USED
       credit_order.credits.each { |credit| credit.change_status Cr_status::USED, credit_order.o_id}
     end
     redirect to("/make_sale/checkout")
@@ -39,9 +39,14 @@ class Sales < AppController
 
   post "/make_sale/cancel" do
     order = Order.new.create_or_load(Order::SALE)
-    order.non_destructive_cancel
-    flash[:notice] = "Orden cancelada"
-    redirect to('/')
+    if order.payments_total == 0
+      order.non_destructive_cancel
+      flash[:notice] = "Orden cancelada"
+      redirect to('/')
+    else
+      flash[:error] = "No podes cancelar una orden que tiene pagos hechos"
+      redirect to('/make_sale')
+    end
   end
 
   post "/make_sale/pro" do

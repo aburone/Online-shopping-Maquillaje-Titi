@@ -1,5 +1,4 @@
 # coding: UTF-8
-require_relative 'labels'
 require_relative 'production_utils'
 
 class Backend < AppController

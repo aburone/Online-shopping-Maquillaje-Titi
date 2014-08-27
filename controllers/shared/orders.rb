@@ -25,15 +25,8 @@ module Orders
         @items = @order.items
         @bulks = @order.bulks
         if @order.type == Order::SALE
-          payments_total = 0 # use Order.payments_total
-          BookRecord.where(o_id: @order.o_id).all.each { |payment| payments_total += payment.amount }
-          reg_sum = 0
-          pro_sum = 0
-          @items.each do |item|
-            reg_sum =+ item.i_price
-            pro_sum =+ item.i_price_pro
-          end
-          payment_type = payments_total == reg_sum ? "normal" : "profesional"
+          payments_total = @order.payments_total
+          payment_type = @order.payment_type
         end
       end
     end

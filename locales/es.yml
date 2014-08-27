@@ -297,6 +297,7 @@ items:
 item:
   fields:
     id: ID
+    i_id: ID
     p_id: Producto
     price: Precio
     price_pro: Precio pro

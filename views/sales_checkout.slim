@@ -15,34 +15,30 @@ div.grid-form
         = "#{Utils::money_format balance, 2}"
 
 
-/ form.grid-form action=url("/make_sale/add_credit_note") method="post"
-/   == Rack::Csrf.tag(env)
-/   fieldset
-/     legend Créditos
-/     div data-row-span="4"
-/       div data-field-span="1"
-/         label for="o_code" Ingresar código de descuento
-/         input name="o_code" type="text"
-/       div data-field-span="1"
-/         label for="add_credit" = t.actions.confirm
-/         input.ajax_hide_on_click name="add_credit" type="submit" value="#{t.actions.confirm}"
-
-/       - debit_note_ammount = balance < 0 ? balance*-1 : 0
-/       div data-field-span="1"
-/         label for="o_code" Generar nota de crédito
-/         input name="o_code" type="text" value="#{Utils::number_format(debit_note_ammount, 2)}"
-/       div data-field-span="1"
-/         label for="add_credit" = t.actions.confirm
-/         input.ajax_hide_on_click name="add_credit" type="submit" value="#{t.actions.confirm}"
-
+form.grid-form action=url("/make_sale/add_credit_note") method="post"
+  == Rack::Csrf.tag(env)
+  fieldset
+    legend Créditos
+    div data-row-span="2"
+      div data-field-span="1"
+        label for="o_code" Ingresar código de descuento
+        input name="o_code" type="text"
+      div data-field-span="1"
+        label for="add_credit" = t.actions.confirm
+        input.ajax_hide_on_click name="add_credit" type="submit" value="#{t.actions.confirm}"
 
 form.grid-form action=url("/make_sale/finish") method="post"
   == Rack::Csrf.tag(env)
   fieldset
     legend Acciones
     div data-row-span="8"
-      div data-field-span="6"
-        label for="finish" Cobrar venta
-        input.ajax_hide_on_click name="finish" type="submit" value="Cobrar #{Utils::money_format @cart_total - @payments_total, 2}"
+      - if balance < 0
+        div data-field-span="6"
+            label for="o_code" Crédito a favor. Agregar mas items a la venta
+            input readonly="readonly" name="o_code" type="text" value="#{Utils::number_format(balance*-1, 2, "")}"
+      - if balance > 0
+        div data-field-span="6"
+          label for="finish" Cobrar venta
+          input.ajax_hide_on_click name="finish" type="submit" value="Cobrar #{Utils::money_format @cart_total - @payments_total, 2}"
       div data-field-span="2"
         a href="/sales/make_sale" Volver a la venta
