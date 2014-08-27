@@ -616,13 +616,5 @@ class ProductTest < Test::Unit::TestCase
     # 138 de pastilla blanca
   end
 
-  def test_should_get_kits_list
-    kits = Product.new.get_all.filter(Sequel.lit('parts_cost > 0')).filter(archived: 0).all
-    p ""
-    kits.each do |kit|
-      ap kit.name
-    end
-  end
-
 end
 
