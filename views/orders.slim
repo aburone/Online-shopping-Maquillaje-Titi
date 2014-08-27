@@ -6,7 +6,9 @@
   == slim :orders_list, locals: {full_row: true, list_mode: list_mode, edit_link: "#{base_url}"}
 
 - if @order
-  == slim :order, locals: {can_filter: true}
+  - payments_total ||= nil
+  - payment_type ||= nil
+  == slim :order, locals: {can_filter: true, payments_total: payments_total, payment_type: payment_type}
 
 
   // reprint sale order

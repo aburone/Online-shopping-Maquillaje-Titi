@@ -4,9 +4,12 @@
 h2 = @order.o_code ? t.order.title_with_code(ConstantsTranslator.new(@order.type).t, @order.o_id, @order.o_code_with_dash) : t.order.title(ConstantsTranslator.new(@order.type).t, @order.o_id)
 
 h3 = t.items.title
-== slim :items_list, locals: {can_edit: false, can_filter: can_filter}
-
 - payments_total ||= nil
+- payment_type ||= nil
+- price_col = payment_type == "profesional" ? false : true
+- price_pro_col = payment_type == "normal" ? false : true
+== slim :items_list, locals: {can_edit: false, can_filter: can_filter, price_col: price_col, price_pro_col: price_pro_col}
+
 - unless payments_total.nil?
   table.items
     tr

@@ -27,7 +27,6 @@ module Orders
         if @order.type == Order::SALE
           payments_total = 0 # use Order.payments_total
           BookRecord.where(o_id: @order.o_id).all.each { |payment| payments_total += payment.amount }
-
           reg_sum = 0
           pro_sum = 0
           @items.each do |item|
@@ -38,7 +37,6 @@ module Orders
         end
       end
     end
-
     if @order && @order.type == Order::CREDIT_NOTE
       credits = @order.credits
       slim :credit_note, layout: Thread.current.thread_variable_get(:layout), locals: {order: @order, credits: credits, sec_nav: :nav_orders, base_url: request.env['REQUEST_PATH']}
@@ -57,7 +55,7 @@ class Backend < AppController
     @order = Order.new.get params[:o_id]
     @items = @order.items
     @bulks = @order.bulks
-    slim :order, layout: Thread.current.thread_variable_get(:layout), locals: {can_filter: false}
+    slim :order, layout: Thread.current.thread_variable_get(:layout), locals: {can_filter: false, title: t.orders.title}
   end
 end
 
