@@ -71,6 +71,7 @@ class Item < Sequel::Model
     @values[:i_status] = item.i_status
     @values[:i_loc] = item.i_loc
     @values[:created_at] = item.created_at
+    @values[:updated_at] = item.updated_at
 
     @sale_id = item[:sale] if item[:sale]
     @sale_id ||= item.o_id if item.o_id
@@ -91,15 +92,14 @@ class Item < Sequel::Model
     begin
       DB.transaction do
         self.orders.dup.each do |order|
-          order.remove_item self unless order.o_status == Order::VOID or order.o_status == Order::FINISHED
+          order.remove_item self unless order.o_status == Order::VOID || order.o_status == Order::FINISHED || self.i_status == Item::IN_ASSEMBLY
         end
       end
-      order = Order.new.create_invalidation @values[:i_loc]
-      change_status_security_check Item::VOID, order.o_id
+      change_status_security_check Item::VOID, 0
     rescue SecurityError => e
-      order.change_status Order::FINISHED
       raise SecurityError, e.message
     end
+    order = Order.new.create_invalidation self.i_loc
     origin = @values[:i_loc].dup
     @values[:i_loc] = Location::VOID
     @values[:i_status] = Item::VOID
@@ -181,6 +181,7 @@ class Item < Sequel::Model
     validates_schema_types [:i_price_pro, :i_price_pro]
     validates_schema_types [:i_status, :i_status]
     validates_schema_types [:created_at, :created_at]
+    validates_schema_types [:updated_at, :updated_at]
 
     validates_exact_length 12, :i_id, message: "Id inválido #{@values[:i_id]}"
     validates_presence [:p_name, :i_status], message: "No esta asignado"

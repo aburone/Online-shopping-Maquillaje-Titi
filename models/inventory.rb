@@ -58,11 +58,6 @@ class Inventory
         process_materials(order, must_save)
 
         if must_save
-          order.items.each do |item|
-            message = "Materias primas restadas del inventario. Producto terminado"
-            ActionsLog.new.set(msg: message, u_id: @user_id, l_id: @location, lvl:  ActionsLog::NOTICE, i_id: item.i_id, o_id: order.o_id).save
-            add_item(item, order.o_id)
-          end
           order.change_status Order::FINISHED
         end
       end
@@ -148,13 +143,10 @@ class Inventory
       when Order::ASSEMBLY
         product = order.get_assembly
         if must_save
-          reason = "Este item ahora forma parte del kit \"#{product.p_name}\""
           items = order.items
-          ap "count: #{items.count}"
-          messages = []
           items.each do |part|
             if part.i_status == Item::IN_ASSEMBLY
-              part.i_loc = Location::VOID
+              part.void! "Este item ahora forma parte del kit \"#{product.p_name}\""
               part.save
             end
           end

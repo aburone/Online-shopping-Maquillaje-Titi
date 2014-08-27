@@ -3,9 +3,9 @@
 class Item < Sequel::Model
   many_to_one :product, key: :p_id
   many_to_many :orders, class: :Order, join_table: :line_items, left_key: :i_id, right_key: :o_id
-  ATTRIBUTES = [:i_id, :p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc, :created_at]
+  ATTRIBUTES = [:i_id, :p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc, :created_at, :updated_at]
   # same as ATTRIBUTES but with the neccesary table references for get_ functions
-  COLUMNS = [:items__i_id, :p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc, :items__created_at]
+  COLUMNS = [:items__i_id, :p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc, :items__created_at, :items__updated_at]
 
 
   def category
@@ -28,7 +28,7 @@ class Item < Sequel::Model
 
   def get_by_id i_id
     return Item.new if i_id.to_i == 0
-    Item[i_id.to_i]
+    Item[i_id.to_s]
   end
 
   def in_orders
@@ -49,7 +49,7 @@ class Item < Sequel::Model
   def save (opts=OPTS)
     opts = opts.merge({columns: Item::ATTRIBUTES})
     begin
-      super opts
+      ret = super opts
     rescue => message
       errors.add "General", message
     end

@@ -165,6 +165,19 @@ class ItemTest < Test::Unit::TestCase
     end
   end
 
+  # def test_should_allow_to_void_items_in_assembly_order
+  #   DB.transaction(rollback: :always, isolation: :uncommitted) do
+  #     order = Order.new.get 19352
+  #     product = order.get_assembly
+  #     item =  Label.new.get_printed_by_id "350-fff4b409", order.o_id
+  #     product.add_item item, order.o_id
+  #     inventory = Inventory.new(Location::W2)
+  #     inventory.process_order order
+  #     inventory.add_item item, order.o_id
+  #   end
+  # end
+
+
   def test_add_random_item_to_store_1
     label = get_printed_label
     product = Product.new.get_rand
