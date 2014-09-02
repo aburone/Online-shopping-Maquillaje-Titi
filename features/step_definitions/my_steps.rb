@@ -4,6 +4,20 @@ def get_o_id_from_current_path
   o_id
 end
 
+When(/^I type "(.*?)" in admin_username$/) do |arg1|
+  fill_in 'admin_username', with: 'aburone'
+end
+
+When(/^I type "(.*?)" in password$/) do |arg1|
+  fill_in 'admin_password', with: '1234'
+end
+
+When(/^I click "(.*?)"$/) do |arg1|
+  click_button arg1
+end
+
+
+
 When /^I select the last item and click on the last link$/ do
   items = all('.item')
   if items.empty?

@@ -1,28 +1,50 @@
-When /^I logout from backend$/ do
-  logout(:aburone)
-  visit path_to("backend_logout")
+class SimpleUser
+  attr_reader :username, :password
+  def initialize username, password
+    @username = username
+    @password = password
+  end
+end
+
+class LogInPage
+  include Capybara::DSL
+  def username_field
+    find("input[id='admin_username']")
+  end
+  def password_field
+    find("input[id='admin_password']")
+  end
+  def log_in_button
+    find("input[id='submit']")
+  end
+  def log_in_as(user, location)
+    username_field.set user.username
+    password_field.set user.password
+    choose(location)
+    log_in_button.click
+  end
 end
 
 Given /^I am logged-in into (.+) with location (.+)$/ do |page_name, location|
   visit path_to(page_name)
-  # puts body
-  within("#login_form") do
-    fill_in 'admin_username', with: 'aburone'
-    fill_in 'admin_password', with: '1234'
-    choose (location)
-  page.should have_selector(:link_or_button, 'Ingresar')
-    click_button "submit"
-  end
+  LogInPage.new.log_in_as( SimpleUser.new("aburone", "1234"), location)
+  page.should have_content R18n.t.auth.loggedin.to_s
 end
 
-When(/^I type "(.*?)" in admin_username$/) do |arg1|
-  fill_in 'admin_username', with: 'aburone'
+Given /^I try to login into (.+) with user (.+) and location (.+)$/ do |page_name, username, location|
+  visit path_to(page_name)
+  LogInPage.new.log_in_as( SimpleUser.new(username, "1234"), location)
 end
 
-When(/^I type "(.*?)" in password$/) do |arg1|
-  fill_in 'admin_password', with: '1234'
+Then /^I should be rejected$/ do
+   page.should have_content R18n.t.auth.invalid.to_s
 end
 
-When(/^I click "(.*?)"$/) do |arg1|
-  click_button arg1
+Then /^I should be logged-in$/ do
+  page.should have_content R18n.t.auth.loggedin.to_s
 end
+
+
+
+
+
