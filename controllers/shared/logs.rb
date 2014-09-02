@@ -14,7 +14,7 @@ module Logs
       flash.now[:error] = e.message
       log_data = []
     end
-    slim :logins, layout: Thread.current.thread_variable_get(:layout), locals: {logs: log_data, title: "logins"}
+    slim :logins, layout: Thread.current.thread_variable_get(:layout), locals: {logs: log_data, title: "Reporte de asistencias", sec_nav: :nav_administration}
 
 
   end
