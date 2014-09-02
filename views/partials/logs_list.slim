@@ -6,7 +6,15 @@
   == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
   - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
   - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
-  table class="items #{tablesorter_class}"
+
+- level_col ||= true unless level_col === false
+- bulk_col ||= true unless bulk_col === false
+- material_col ||= true unless material_col === false
+- item_col ||= true unless item_col === false
+- order_col ||= true unless order_col === false
+- product_col ||= true unless product_col === false
+
+table class="items #{tablesorter_class}"
     caption #{caption}
     thead
       tr
@@ -14,15 +22,21 @@
         th = t.event.fields.msg
         th = t.event.fields.u_id
         th = t.event.fields.l_id
-        th = t.event.fields.lvl
-        th = t.event.fields.b_id
-        th = t.event.fields.m_id
-        th = t.event.fields.i_id_l_id
-        th = t.event.fields.o_id
-        th = t.event.fields.p_id
+        - if level_col
+          th = t.event.fields.lvl
+        - if bulk_col
+          th = t.event.fields.b_id
+        - if material_col
+          th = t.event.fields.m_id
+        - if item_col
+          th = t.event.fields.i_id_l_id
+        - if order_col
+          th = t.event.fields.o_id
+        - if product_col
+          th = t.event.fields.p_id
     tfoot
       tr
-        td colspan="8" = t.logs.count(logs.count)
+        td colspan="5" = t.logs.count(logs.count)
     tbody
       - logs.each do |event|
         tr.event.item
@@ -30,12 +44,18 @@
           td.ajax_filter_by_me #{event[:msg]}
           td.ajax_filter_by_me #{event[:username]}
           td.ajax_filter_by_me #{ConstantsTranslator.new(event[:l_id]).t}
-          td.ajax_filter_by_me.small_content #{event[:lvl]}
-          td.ajax_filter_by_me #{event[:b_id]}
-          - m_id = event[:m_id] ? "\\#{event[:m_id]}\\" : ""
-          td.ajax_filter_by_me.number #{m_id}
-          td.ajax_filter_by_me #{event[:i_id]}
-          - o_id = event[:o_id] ? "##{event[:o_id]}#" : ""
-          td.ajax_filter_by_me.number #{o_id}
-          - p_id = event[:p_id] ? "*#{event[:p_id]}*" : ""
-          td.ajax_filter_by_me.number #{p_id}
+          - if level_col
+            td.ajax_filter_by_me.small_content #{event[:lvl]}
+          - if bulk_col
+            td.ajax_filter_by_me #{event[:b_id]}
+          - if material_col
+            - m_id = event[:m_id] ? "\\#{event[:m_id]}\\" : ""
+            td.ajax_filter_by_me.number #{m_id}
+          - if item_col
+            td.ajax_filter_by_me #{event[:i_id]}
+          - if order_col
+            - o_id = event[:o_id] ? "##{event[:o_id]}#" : ""
+            td.ajax_filter_by_me.number #{o_id}
+          - if product_col
+            - p_id = event[:p_id] ? "*#{event[:p_id]}*" : ""
+            td.ajax_filter_by_me.number #{p_id}
