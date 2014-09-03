@@ -10,9 +10,9 @@ module Utils
       ret
     end
 
-    def money_format number, dec
-      num = number_format(number, dec)
-      num = "$ #{num}" unless num == '-'
+    def money_format number, dec, empty_replacement="-"
+      num = number_format(number, dec, empty_replacement)
+      num = "$ #{num}" unless num == empty_replacement
       num
     end
 
