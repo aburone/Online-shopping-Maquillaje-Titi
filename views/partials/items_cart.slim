@@ -7,8 +7,8 @@
           th = t.product.fields.id
           th = t.product.fields.name
           th = t.cart.fields.qty
-          th = t.cart.fields.price_u
-          th = t.cart.fields.price
+          th.number = t.cart.fields.price_u
+          th.number = t.cart.fields.price
       tbody
         - count = 0
         - cart_total = 0
