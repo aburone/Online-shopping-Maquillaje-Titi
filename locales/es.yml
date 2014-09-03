@@ -533,7 +533,7 @@ constant:
   INVALIDATION: Invalidacion de items
   TRANSMUTATION: Transmutacion de items
   RETURN: Devolución de items
-  Used: Utilizada
+  USED: Utilizado
   CREDIT_NOTE: Nota de crédito
   IN_USE: En Uso
   EMPTY: Vacio
