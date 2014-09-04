@@ -5,7 +5,7 @@ class Sales < AppController
     cart = order.items_as_cart.order(:p_name).all
     ammount = cart.map{ |line_item| line_item.i_price*line_item[:qty]}.inject(0, :+)
     count = cart.map{ |line_item| line_item[:qty]}.inject(0, :+)
-    title = t.sales.make_sale.title(order.o_id, order.o_code_with_dash, count, Utils::money_format(ammount, 2)).to_s
+    title = t.sales.make_sale.title(order.o_id, order.o_code_with_dash, count, Utils::money_format(ammount, 2, "$ 0")).to_s
     slim :make_sale, layout: :layout_sales, locals: {sec_nav: :nav_sales_actions, title: title, order: order, cart: cart}
   end
 
