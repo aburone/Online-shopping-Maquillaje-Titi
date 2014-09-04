@@ -1,4 +1,7 @@
-- if @cart.nil? or @cart.empty?
+- cart ||= []
+- cart = @cart unless @cart.nil?
+
+- if cart.empty?
   p = t.items.empty
 - else
     table.items.tablesorter_nofilter
@@ -12,7 +15,7 @@
       tbody
         - count = 0
         - cart_total = 0
-        - @cart.each do |line_item|
+        - cart.each do |line_item|
           - count += line_item[:qty]
           - cart_total += line_item.i_price*line_item[:qty]
           tr.item
@@ -24,8 +27,8 @@
       tfoot
         tr
           td
-          td Totales
-          td.counter #{count} items
+          td = t.cart.totals
+          td.counter = t.cart.count count
           td
           td.number #{Utils::money_format cart_total, 2}
 

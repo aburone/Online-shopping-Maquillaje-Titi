@@ -1,20 +1,18 @@
-- items_count = 0
-- @cart.each { |line_item| items_count += line_item[:qty] }
-- @title = t.sales.make_sale.title(@order.o_id, @order.o_code_with_dash, items_count, Utils::money_format(@cart_total, 2))
 
-h2 Agregar item a la venta
+form.grid-form.narrow action=url("/make_sale/add_item") method="post"
+  fieldset
+    == Rack::Csrf.tag(env)
+    input type="hidden" name="o_id" value="#{order.o_id}"
+    legend = t.make_sale.add_item
+    div data-row-span="1"
+      div data-field-span="1"
+        label for="i_id" = t.make_sale.scan_item
+        input autofocus="autofocus" type="text" name="i_id" value=""
 
-form.v_island_1 action=url("/make_sale/add_item") method="post"
-  == Rack::Csrf.tag(env)
-  label for="i_id" Lee el codigo de producto
-  input.aligned_1 autofocus="autofocus" type="text" name="i_id" value=""
-  input type="hidden" name="o_id" value="#{@order[:o_id]}"
-
-h2 Lista de items en esta venta
-
-- if @cart.nil? or @cart.empty?
+h2 = t.make_sale.items_list
+- if cart.empty?
   p
-    i Lee los codigos de los items para agregarlos a la venta actual
-
-- unless @cart.nil? or @cart.empty?
-  == slim :items_cart, locals: {can_edit: true, can_filter: false}
+    i = t.make_sale.scan_codes_to_add
+- else
+  == slim :items_cart, locals: {can_edit: true, can_filter: false, cart: cart}
+  a href="/sales/make_sale/remove_item" = t.make_sale.remove_item

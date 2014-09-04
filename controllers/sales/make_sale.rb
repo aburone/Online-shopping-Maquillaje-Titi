@@ -1,12 +1,12 @@
 class Sales < AppController
 
   get '/make_sale' do
-    @order = Order.new.create_or_load(Order::SALE)
-    @items = @order.items
-    @cart = @order.items_as_cart.order(:p_name)
-    @cart_total = 0
-    @cart.each { |line_item| @cart_total += line_item[:i_price]*line_item[:qty] }
-    slim :make_sale, layout: :layout_sales, locals: {sec_nav: :nav_sales_actions}
+    order = Order.new.create_or_load(Order::SALE)
+    cart = order.items_as_cart.order(:p_name).all
+    ammount = cart.inject(0){|sum,line_item| sum + line_item[:i_price]*line_item[:qty] }
+    count = cart.inject(0){|sum,line_item| sum + line_item[:qty] }
+    title = t.sales.make_sale.title(order.o_id, order.o_code_with_dash, count, Utils::money_format(ammount, 2)).to_s
+    slim :make_sale, layout: :layout_sales, locals: {sec_nav: :nav_sales_actions, title: title, order: order, cart: cart}
   end
 
   post '/make_sale/add_item' do
@@ -25,14 +25,30 @@ class Sales < AppController
     redirect to('/make_sale')
   end
 
+  route :get, :post, '/make_sale/remove_item' do
+    order = Order.new.create_or_load(Order::SALE)
+    if params[:id].nil?
+      slim :remove_item, layout: :layout_sales, locals: {action_url: "/make_sale/remove_item", title: t.make_sale.remove_item}
+    else
+      item = get_item_for_removal params[:id], order
+      redirect_if_has_errors item, "/make_sale"
+      remove_item_from_order order, item
+      redirect to "/make_sale"
+    end
+  end
+
   post '/make_sale/add_credit_note' do
     sale_order = Order.new.create_or_load(Order::SALE)
     o_code = params[:o_code].to_s.strip
     credit_order = Order.new.get_orders_with_type_status_and_code(Order::CREDIT_NOTE, Order::OPEN, o_code)
-    DB.transaction do
-      Line_payment.new.set_all(o_id: sale_order.o_id, payment_type: Line_payment::CREDIT_NOTE, payment_code: credit_order.o_code, payment_ammount: credit_order.credit_total).save
-      credit_order.change_status Order::USED
-      credit_order.credits.each { |credit| credit.change_status Cr_status::USED, credit_order.o_id}
+    if credit_order.errors
+      flash[:error] = credit_order.errors.to_a.flatten.join(": ") if credit_order.errors.size > 0
+    else
+      DB.transaction do
+        Line_payment.new.set_all(o_id: sale_order.o_id, payment_type: Line_payment::CREDIT_NOTE, payment_code: credit_order.o_code, payment_ammount: credit_order.credit_total).save
+        credit_order.change_status Order::USED
+        credit_order.credits.each { |credit| credit.change_status Cr_status::USED, credit_order.o_id}
+      end
     end
     redirect to("/make_sale/checkout")
   end

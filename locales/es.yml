@@ -317,7 +317,7 @@ transmute_items:
   title: Transmutacion de items
   write_reason: Escriba la razon de transmutacion
   reason_example: "ej: Mal etiquetado"
-  sure?: Esto va a transmutar el item.
+  sure?: "Esto va a transmutar el item"
   title_transmuted: Item transmutado
 
 cart:
@@ -327,6 +327,11 @@ cart:
     price_u: Precio Unit
     price: Precio Final
     qty: Cant.
+  totals: Totales
+  count: !!pl
+    0: No hay ningun item
+    1: "%1 item"
+    n: "%1 items"
 
 products:
   title: Productos
@@ -777,3 +782,10 @@ inventory:
     0: "%2 no tiene faltantes"
     1: "Falta %1 unidad de %2"
     n: "Faltan %1 unidades de %2"
+
+make_sale:
+  items_list: Lista de items en esta venta
+  add_item: Agregar item a la venta
+  scan_item: Leer el código del item
+  remove_item: Remover un item de la venta
+  scan_codes_to_add: Leer los codigos de los items para agregarlos a la venta actual

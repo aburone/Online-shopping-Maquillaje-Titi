@@ -234,6 +234,9 @@ caption {
   -moz-box-sizing: border-box;
   box-sizing: border-box; }
 
+.grid-form.narrow {
+  max-width: 30em; }
+
 .grid-form {
   border-right: 1px solid silver; }
 
@@ -780,9 +783,6 @@ th.sm_cell {
 
 .md_cell {
   width: 8em; }
-
-.mdd_cell {
-  width: 12em; }
 
 .bg_cell {
   width: 16em; }
