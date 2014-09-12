@@ -38,6 +38,8 @@ class Sales < AppController
   end
 
   post '/make_sale/add_credit_note' do
+    ap '/make_sale/add_credit_note'
+    ap params
     sale_order = Order.new.create_or_load(Order::SALE)
     o_code = params[:o_code].to_s.strip
     credit_order = Order.new.get_orders_with_type_status_and_code(Order::CREDIT_NOTE, Order::OPEN, o_code)
@@ -45,7 +47,9 @@ class Sales < AppController
     if credit_order.errors
       flash[:error] = credit_order.errors.to_a.flatten.join(": ") if credit_order.errors.size > 0
     else
+      ap "transaction"
       begin
+        ap "transaction 2"
         DB.transaction do
           ap Line_payment.new.set_all(o_id: sale_order.o_id, payment_type: Line_payment::CREDIT_NOTE, payment_code: credit_order.o_code, payment_ammount: credit_order.credit_total).save
           ap credit_order.change_status Order::USED
