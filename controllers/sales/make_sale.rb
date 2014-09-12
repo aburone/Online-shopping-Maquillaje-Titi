@@ -44,7 +44,8 @@ class Sales < AppController
     o_code = params[:o_code].to_s.strip
     credit_order = Order.new.get_orders_with_type_status_and_code(Order::CREDIT_NOTE, Order::OPEN, o_code)
     ap credit_order
-    if credit_order.errors
+    if credit_order.errors.size > 0
+      ap "errors"
       flash[:error] = credit_order.errors.to_a.flatten.join(": ") if credit_order.errors.size > 0
     else
       ap "transaction"
