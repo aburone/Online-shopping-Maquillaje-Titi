@@ -45,12 +45,18 @@ class Sales < AppController
     if credit_order.errors
       flash[:error] = credit_order.errors.to_a.flatten.join(": ") if credit_order.errors.size > 0
     else
-      DB.transaction do
-        ap Line_payment.new.set_all(o_id: sale_order.o_id, payment_type: Line_payment::CREDIT_NOTE, payment_code: credit_order.o_code, payment_ammount: credit_order.credit_total).save
-        ap credit_order.change_status Order::USED
-        credit_order.credits.each { |credit| ap credit.change_status Cr_status::USED, credit_order.o_id}
-      end
+      begin
+        DB.transaction do
+          ap Line_payment.new.set_all(o_id: sale_order.o_id, payment_type: Line_payment::CREDIT_NOTE, payment_code: credit_order.o_code, payment_ammount: credit_order.credit_total).save
+          ap credit_order.change_status Order::USED
+          credit_order.credits.each { |credit| ap credit.change_status Cr_status::USED, credit_order.o_id}
+        end
+      rescue => e
+        ap e
+        ap e.isnpect
+        flash[:error] = e.to_a.flatten.join(": ")
     end
+    ap "redir"
     redirect to("/make_sale/checkout")
   end
 
