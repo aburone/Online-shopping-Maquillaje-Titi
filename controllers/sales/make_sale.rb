@@ -55,6 +55,7 @@ class Sales < AppController
         ap e
         ap e.isnpect
         flash[:error] = e.to_a.flatten.join(": ")
+      end
     end
     ap "redir"
     redirect to("/make_sale/checkout")
