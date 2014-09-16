@@ -69,6 +69,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   for ( var i = 0; i < el.length; i++ ) {
       el[i].addEventListener("click", function(e){
         e.stopPropagation();
+        e.preventDefault();
         var parent = get_parent(this, this.dataset.tag);
         parent.classList.add('hide');
         setTimeout(function(){
