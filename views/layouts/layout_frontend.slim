@@ -12,9 +12,9 @@ html lang="es"
   body id=@body_id
     div#contenido
 
-      == slim :nav
+      == slim :nav_frontend
 
-      div class=@page_id
+      div id=@page_id
         h1=@title
         == yield
       div#footer

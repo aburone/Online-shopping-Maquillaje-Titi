@@ -319,7 +319,7 @@ class Product < Sequel::Model
       @values[:exact_price] = @values[:exact_price] ? BigDecimal.new(@values[:exact_price], 0) : BigDecimal.new(0, 2)
       self.price = @values[:price] ? BigDecimal.new(@values[:price], 0) : BigDecimal.new(0, 2)
       @values[:direct_ideal_stock] = @values[:direct_ideal_stock] ? BigDecimal.new(@values[:direct_ideal_stock], 0) : BigDecimal.new(0, 2)
-      @values[:indirect_ideal_stock] = @values[:direct_ideal_stock] ? BigDecimal.new(@values[:indirect_ideal_stock], 0) : BigDecimal.new(0, 2)
+      @values[:indirect_ideal_stock] = @values[:indirect_ideal_stock] ? BigDecimal.new(@values[:indirect_ideal_stock], 0) : BigDecimal.new(0, 2)
       @values[:ideal_stock] = @values[:direct_ideal_stock] + @values[:indirect_ideal_stock]
       @values[:stock_deviation] = @values[:stock_deviation] ? BigDecimal.new(@values[:stock_deviation], 0) : BigDecimal.new(0, 2)
       @values[:stock_deviation_percentile] = @values[:stock_deviation_percentile] ? BigDecimal.new(@values[:stock_deviation_percentile], 0) : BigDecimal.new(0, 2)

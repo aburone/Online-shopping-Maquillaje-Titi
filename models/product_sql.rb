@@ -54,11 +54,21 @@ class Product < Sequel::Model
   end
 
   def update_ideal_stock
+
+    ap "update_ideal_stock"
+
     self.indirect_ideal_stock = BigDecimal.new(0)
+    ap "start"
+    ap self.indirect_ideal_stock
+
     self.assemblies.each do |assembly|
+      ap "adding #{assembly.p_name} #{assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived}"
       self.indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived
+      ap self.indirect_ideal_stock
     end
-    self.indirect_ideal_stock *= 2
+
+    p "final indirect"
+    ap self.indirect_ideal_stock
     self.ideal_stock = self.direct_ideal_stock * 2 + self.indirect_ideal_stock
     self
   end

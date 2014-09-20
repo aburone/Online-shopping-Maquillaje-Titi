@@ -583,18 +583,45 @@ class ProductTest < Test::Unit::TestCase
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       product = Product.new.get 135
       product.update_ideal_stock
+      ap product.p_name
+      p "ideal global "
+      ap product.inventory(1).global.ideal.to_s("F")
 
+
+      # ap "w1"
+      # ap product.inventory(1).warehouse_1
+      # ap "w2"
+      # ap product.inventory(1).warehouse_2
+      # ap "s1"
+      # ap product.inventory(1).store_1
+      # ap "gl"
+#       ap product.inventory(1).global
+
+
+
+#       ap product.inventory(1).global.indirect_ideal_stock
+
+# p "indirect"
+# ap product[:indirect_ideal_stock]
+
+ap "assemblies"
       calculated_indirect_ideal_stock = BigDecimal.new(0)
       product.assemblies.each do |assembly|
         assembly.update_ideal_stock
-        calculated_indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived
+
+        ap assembly.p_name
+        ap "global ideal"
+        ap assembly.inventory(1).global.ideal.to_s("F")
+
+
+        calculated_indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal / 2 unless assembly.archived #divido para considerar solo una locacion
       end
       calculated_indirect_ideal_stock *= 2
       assert_equal calculated_indirect_ideal_stock.round(2).to_s("F"), product.indirect_ideal_stock.round(2).to_s("F"), "Erroneous indirect ideal stock"
       assert_equal (calculated_indirect_ideal_stock + product.direct_ideal_stock * 2).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
 
-      assert_equal BigDecimal.new(101.32, 6).round(2).to_s("F"), calculated_indirect_ideal_stock.round(2).to_s("F"), "Erroneous calculated_indirect_ideal_stock"
-      assert_equal BigDecimal.new(197.32, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
+      assert_equal BigDecimal.new(50.66, 6).round(2).to_s("F"), calculated_indirect_ideal_stock.round(2).to_s("F"), "Erroneous calculated_indirect_ideal_stock"
+      assert_equal BigDecimal.new(146.66, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
       assert_equal 0, (product.ideal_stock - calculated_indirect_ideal_stock - product.direct_ideal_stock * 2).round, "Erroneous ideal stock relation"
 
     end
