@@ -71,21 +71,23 @@ strong {font-weight:bold}
 body[id=prod] #topmenu, body[id=fot] #topmenu {border-bottom:1px dotted #333}
 
 #prodCat {margin-top:150px; background: #edefef url(/media/prodCat.jpg) center 150px; background-attachment:fixed; background-repeat:no-repeat}
-.prodCat {height:118px; margin-bottom:20px;border:1px solid transparent; }
+.prodCat {height:118px; margin-bottom:20px;border:1px solid transparent; padding: 0.5em 0}
 .prodCat .col1 {width:300px}
 .prodCat .col2 {float:right; width:400px}
 .prodCat .prodDesc {overflow:hidden; height:120px}
-.prodCat .prodDesc a {color:#333; text-decoration:none}
-.prodCat .prodDesc:hover a {text-decoration:underline}
+a .prodCat {color:#333; text-decoration:none}
+a .prodCat:hover {color:#000; background-color: rgba(0,0,0,0.1) !important}
+a .prodCat:hover h1{color:black}
+
 .prodCat .prodDesc a:first-letter {padding-left:0.5em;}
 
 .prodCat .prodDesc h1 {padding-bottom:0; padding-top:0}
-.prodCat:hover { border:1px dotted #333}
-.prodCat:hover h1{color:black}
+
 .cat1 {margin-top:30px}
 /* fotos como links en categorias */
-.prodImg a {display:block; width:300px; height:120px;}
-.prodImg a span {display:none}
+
+.prodImg {display:block; width:300px; height:120px;}
+
 div.prodBigImg {float:right}
 .prodList .prodDesc {min-height:200px; clear:both; padding:20px}
 p.prodInfo:first-letter {padding:0;}
@@ -101,3 +103,7 @@ p.prodInfo:first-letter {padding:0;}
 .photoList td img {padding-right:15px}
 
 .extraImg {clear:both; text-align:right}
+
+/* new */
+.element .info {width:250px; float: right}
+.element .info p {font-family: serif; line-height: 1.5em
