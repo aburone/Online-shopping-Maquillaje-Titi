@@ -74,6 +74,15 @@ class Backend < AppController
       ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
       redirect to("/production/assembly/#{params[:o_id]}")
     end
+
+    assy = order.set_assembly_id item.i_id
+    if assy.errors.count > 0
+      flash[:error_add_item] = assi.errors
+      message = assy.errors.errors.to_a.flatten.join(": ")
+      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: assi.p_id, i_id: assi.i_id).save
+      redirect to("/production/assembly/#{params[:o_id]}")
+    end
+
     flash[:notice] = assigned_msg
 
 

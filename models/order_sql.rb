@@ -54,7 +54,11 @@ class Order < Sequel::Model
     assy = get_assembly_meta
     return assy.nil? ? Product.new : Product.new.get(assy.p_id)
   end
-
+  def set_assembly_id i_id
+    assy = get_assembly_meta
+    assy.i_id = i_id
+    assy.save
+  end
 
   def items
     Item

@@ -142,12 +142,13 @@ class Inventory
           end
       when Order::ASSEMBLY
         product = order.get_assembly
+        assembly_meta = order.get_assembly_meta
         if must_save
           items = order.items
           items.each do |part|
             if part.i_status == Item::IN_ASSEMBLY
               part.void! "Este item ahora forma parte del kit \"#{product.p_name}\""
-              part.save
+              PartsToAssemblies.insert(pta_o_id: assembly_meta.o_id, part_i_id: part.i_id, part_p_id: part.p_id, assembly_i_id: assembly_meta.i_id, assembly_p_id: assembly_meta.p_id)
             end
           end
         end
