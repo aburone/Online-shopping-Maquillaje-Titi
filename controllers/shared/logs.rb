@@ -3,6 +3,7 @@ module Logs
     if params.empty?
       render_logs ActionsLog.new.get_today
     else
+      # search
       render_logs ActionsLog.new.get_with_hash params
     end
   end

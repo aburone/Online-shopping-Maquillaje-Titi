@@ -49,13 +49,13 @@ table class="items #{tablesorter_class}"
           - if bulk_col
             td.ajax_filter_by_me #{event[:b_id]}
           - if material_col
-            - m_id = event[:m_id] ? "\\#{event[:m_id]}\\" : ""
+            - m_id = event[:m_id] ? "#{event[:m_id]}" : ""
             td.ajax_filter_by_me.number #{m_id}
           - if item_col
             td.ajax_filter_by_me #{event[:i_id]}
           - if order_col
-            - o_id = event[:o_id] ? "##{event[:o_id]}#" : ""
+            - o_id = event[:o_id] ? "#{event[:o_id]}" : ""
             td.ajax_filter_by_me.number #{o_id}
           - if product_col
-            - p_id = event[:p_id] ? "*#{event[:p_id]}*" : ""
+            - p_id = event[:p_id] ? "#{event[:p_id]}" : ""
             td.ajax_filter_by_me.number #{p_id}

@@ -509,7 +509,7 @@ logs:
 event:
   fields:
     at: Cuando
-    msg: Que
+    msg: Mensaje
     u_id: Quien
     l_id: Donde
     lvl: Nivel
