@@ -114,13 +114,13 @@ class Backend < AppController
 
 
   route :get, :post, ['/production/packaging/:o_id', '/production/packaging/:o_id/:p_id'] do
-    clusterfuck params, Order::PACKAGING
+    packaging_processor params, Order::PACKAGING
   end
   route :get, :post, ['/production/allocation/:o_id', '/production/allocation/:o_id/:p_id'] do
-    clusterfuck params, Order::ALLOCATION
+    packaging_processor params, Order::ALLOCATION
   end
 
-  def clusterfuck params, action
+  def packaging_processor params, action
     action = action.downcase.to_sym
     o_id = params[:o_id].to_i
     case action
@@ -225,10 +225,10 @@ class Backend < AppController
 
   route :get, :post, ['/production/assembly/:o_id'] do
     # pass if params[:o_id].to_i == 0
-    clusterfuck_assembly params, Order::ASSEMBLY
+    packaging_processor_assembly params, Order::ASSEMBLY
   end
 
-  def clusterfuck_assembly params, action
+  def packaging_processor_assembly params, action
     action = action.downcase.to_sym
     o_id = params[:o_id].to_i
     case action
