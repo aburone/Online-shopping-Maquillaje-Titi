@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 gem "rake"
 gem "tilt"
 gem "temple"
-gem "slim"
+gem "slim", '2.0.2' # bug in slim 2.0.3, thw word undo is threated as special word in yaml files
 gem "sinatra"
 gem "sinatra-contrib"
 gem "sinatra-flash"
