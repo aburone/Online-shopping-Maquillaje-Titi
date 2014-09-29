@@ -181,10 +181,17 @@ class Backend < AppController
       end
     end
 
+    title = eval("R18n.t.production.#{action}.title(order.o_id, items.count)")
+    ap title
+    ap order
+    ap product
+    ap products.count
+    ap item
+    ap items.count
     slim :production_add, layout: :layout_backend,
           locals: {
             sec_nav: :nav_production,
-            title: eval("R18n.t.production.#{action}.title(order.o_id, items.count)"),
+            title: title,
             order: order,
             product: product,
             products: products,
