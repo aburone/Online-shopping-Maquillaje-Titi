@@ -7,7 +7,6 @@ Given I am logged-in into backend with location WAREHOUSE_2
 When I go to packaging_list
 And I click "Crear nueva"
 Then I should see "Seleccionar el producto"
-
 When I fill with a printed label
 When I fill with a printed label
 When I fill with a printed label

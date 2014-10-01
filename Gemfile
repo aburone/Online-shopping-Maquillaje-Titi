@@ -26,7 +26,7 @@ gem "wkhtmltopdf-binary"
 
 group :development, :test do
   gem "rb-inotify"
-  gem "rspec"
+  gem "rspec", require: 'spec/expectations'
   gem "webrat"
   gem "capybara"
   gem "cucumber"

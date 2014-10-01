@@ -463,6 +463,8 @@ production:
     count: "%1 ordenes disponibles"
     scan_label: Escanee el ID
     scan_product: Escanee el producto
+    add_next_item: Proximo item a agregar
+    scan_next_item: Lee la etiqueta del próximo item
     assigned: "Etiqueta %1 asignada a %1"
     missing_materials_cant_allocate: Materiales faltantes. No puedo imputar la orden haste que haya suficientes graneles en estado "En Uso"
 

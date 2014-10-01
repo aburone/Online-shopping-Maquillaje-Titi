@@ -46,7 +46,7 @@ When(/^The order is finished$/) do
 end
 
 When(/^The order has items$/) do
-  count = all('.item').count
+  count = page.all('.item').count
   puts "#{count} items in order #{@order.o_id} (#{@order.o_code_with_dash})"
   count.should > 0
 end
@@ -55,7 +55,7 @@ Then(/^It should ask for the items to be returned$/) do
   page.should have_content( t.return.title )
   page.should have_content( t.return.scan_label )
   page.should have_content( t.return.sale_details @order.o_id, @order.o_code_with_dash )
-  items = all('.item')
+  items = page.all('.item')
   if items.empty?
     puts "There are no items  !"
     "There are no items !".should == false
@@ -63,7 +63,7 @@ Then(/^It should ask for the items to be returned$/) do
   @i_id = @order.items.first.i_id
   fill_in( "i_id", with: @i_id)
   click_button( t.actions.confirm )
-  all('.item').first.first('td').text.should == @i_id
+  page.all('.item').first.first('td').text.should == @i_id
 end
 
 And(/^I should be able to finish the order and download the pdf$/) do

@@ -9,13 +9,13 @@ end
 class LogInPage
   include Capybara::DSL
   def username_field
-    find("input[id='admin_username']")
+    page.find("input[id='admin_username']")
   end
   def password_field
-    find("input[id='admin_password']")
+    page.find("input[id='admin_password']")
   end
   def log_in_button
-    find("input[id='submit']")
+    page.find("input[id='submit']")
   end
   def log_in_as(user, location)
     username_field.set user.username
@@ -28,7 +28,7 @@ end
 Given /^I am logged-in into (.+) with location (.+)$/ do |page_name, location|
   visit path_to(page_name)
   LogInPage.new.log_in_as( SimpleUser.new("aburone", "1234"), location)
-  page.should have_content R18n.t.auth.loggedin.to_s
+  expect(page).to have_content( t.auth.loggedin )
 end
 
 Given /^I try to login into (.+) with user (.+) and location (.+)$/ do |page_name, username, location|
@@ -37,11 +37,11 @@ Given /^I try to login into (.+) with user (.+) and location (.+)$/ do |page_nam
 end
 
 Then /^I should be rejected$/ do
-   page.should have_content R18n.t.auth.invalid.to_s
+  expect(page).to have_content( t.auth.invalid )
 end
 
 Then /^I should be logged-in$/ do
-  page.should have_content R18n.t.auth.loggedin.to_s
+  expect(page).to have_content( t.auth.loggedin )
 end
 
 

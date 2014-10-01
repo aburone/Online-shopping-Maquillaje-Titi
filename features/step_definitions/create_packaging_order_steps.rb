@@ -7,29 +7,31 @@ end
 
 When /^I fill with a printed label$/ do
   label = Label.new.get_printed.first
-  page.should have_content( "Seleccionar el producto" ) #t.production.select_product
-  all('.item').sample.click
-  page.should have_content("Lee la etiqueta del proximo")
+  expect(page).to have_content(t.production.select_product)
+  expect(page).to have_selector('.item')
+  page.all('.item').sample.click
+  expect(page).to have_content(t.production.packaging.scan_next_item)
+
   fill_in 'i_id', with: "#{label.i_id}"
   click_button("Aceptar")
   page.should have_content("Si es correcto")
   click_button("Aceptar")
   with_scope('.flash') { page.should have_content("asignada al producto") }
-  page.should have_content( "Lee la etiqueta del proximo" )
-  click_link( "Seleccionar un producto distinto" ) #t.order_select_other_product:
+  expect(page).to have_content(t.production.packaging.scan_next_item)
+  click_link( t.order.select_other_product )
 end
 
 
 When /^I remove one item I should see one less$/ do
   @o_id = get_o_id_from_current_path
-  @count = all('.item').count
+  @count = page.all('.item').count
   if @count > 0
-    id = all('.item').first.first('td').text
+    id = page.all('.item').first.first('td').text
     click_link( "Remover un item de la orden" )
     fill_in 'id', with: id
     click_button("Aceptar")
     with_scope('.flash') { page.should have_content("Etiqueta dissociada del producto y la orden") }
-    all('.item').count.should == @count - 1
+    page.all('.item').count.should == @count - 1
     @count = @count - 1
   end
 end

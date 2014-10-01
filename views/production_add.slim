@@ -2,13 +2,14 @@
   / read new label or change
   - if item.empty? && order.type == Order::PACKAGING
     fieldset.action_container
-      h2.action Proximo item a agregar
+      h2.action= t.production.packaging.add_next_item
       == slim :product_details, locals: {product: product}
+
 
       / Read new label
       p
-        |Lee la etiqueta del proximo item&nbsp;
-        b #{product.p_name}
+        = t.production.packaging.scan_next_item
+        b &nbsp#{product.p_name}
 
       - if item.empty?
         form action=url("/production/#{order.type.downcase}/#{order.o_id}/#{product.p_id}") method="post"

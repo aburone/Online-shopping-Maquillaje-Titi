@@ -25,12 +25,20 @@ include R18n::Helpers
 R18n.set('es', './locales/es.yml')
 I18n.enforce_available_locales = false
 
-require 'rspec'
-require 'rspec/expectations'
+# require 'rspec'
+# require 'rspec/expectations'
 require 'capybara'
 require 'capybara/cucumber'
 require 'capybara/poltergeist'
 
+
+Before do
+  DeferredGarbageCollection.start
+end
+
+After do
+  DeferredGarbageCollection.reconsider
+end
 
 Capybara.app = eval("Rack::Builder.new {( " + File.read(File.dirname(__FILE__) + '/../../config.ru') + "\n )}")
 
@@ -60,8 +68,8 @@ end
 
 class BackendWorld
   include Capybara::DSL
-  include RSpec::Expectations
-  include RSpec::Matchers
+  # include RSpec::Expectations
+  # include RSpec::Matchers
 end
 
 

@@ -19,7 +19,8 @@ end
 
 
 When /^I select the last item and click on the last link$/ do
-  items = all('.item')
+  items = page.all('.item')
+
   if items.empty?
     puts "There are no items to click!"
     "There are no items to click!".should == false
@@ -33,8 +34,9 @@ end
 
 When /^I verify all items$/ do
   i_ids = []
-  all('.item').each { |item| i_ids <<  item.first('td').text }
+  page.all('.item').each { |item| i_ids <<  item.first('td').text }
   i_ids.each do |i_id|
+
     fill_in 'i_id', with: "#{i_id}"
     click_button("Aceptar")
     with_scope('.flash') { page.should have_content("Etiqueta #{i_id} verificada con ") }
