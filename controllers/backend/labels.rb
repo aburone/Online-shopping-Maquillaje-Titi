@@ -1,4 +1,0 @@
-class Backend < AppController
-
-
-end
