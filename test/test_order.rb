@@ -117,21 +117,12 @@ class OrderTest < Test::Unit::TestCase
     end
   end
 
-  def test_return_orders_raise_error_if_called_with_incorrect_sale_id_and_there_is_another_return_order_in_progress
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      User.new.current_location = Location::S1
-      User.new.current_user_id = 1
-      exception = assert_raise(ArgumentError) {Order.new.create_or_load_return 666}
-      assert_equal("#{t.errors.sale_id_missmatch}", exception.message)
-    end
-  end
-
   def test_return_orders_should_reject_items_from_non_associated_sale
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       User.new.current_location = Location::S1
-      return_id = 6943
-      sale_id = SalesToReturn.filter(return: return_id).first[:sale]
-      bad_item = Item.new.get_for_return "338-11a22f99", return_id
+      source = Order.where(type: Order::RETURN).first
+      sale_id = SalesToReturn.filter(:return=>source.o_id).first[:sale]
+      bad_item = Item.new.get_for_return "338-11a22f99", source.o_id
       assert_equal 1, bad_item.errors.count
       assert_equal "Error de ingreso: Este item pertenece a la orden #{bad_item.sale_id}, mientras que la orden de venta actual es la #{sale_id}.", bad_item.errors.to_a.flatten.join(": ")
     end
@@ -140,9 +131,11 @@ class OrderTest < Test::Unit::TestCase
   def test_return_orders_should_accept_items_from_associated_sale
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       User.new.current_location = Location::S1
-
-      return_id = 6943
-      good_item = Item.new.get_for_return "350-0e0bf7e3", return_id
+      # ap Order.where(type: Order::RETURN).first
+      return_id = 6608
+      # ap Order[SalesToReturn.filter(:return=>return_id).first[:sale]].items
+      i_id = "418-31c3f58e"
+      good_item = Item.new.get_for_return i_id, return_id
       assert_equal good_item.errors.count, 0
     end
   end
@@ -150,8 +143,12 @@ class OrderTest < Test::Unit::TestCase
   def test_return_orders_should_allow_items_from_sales_only
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       User.new.current_location = Location::S1
-      unsold_item = Item.new.get_for_return " 343-3dd0313b ", 6943
-      assert_equal "#{t.return.errors.invalid_status.to_s}: #{t.return.errors.this_item_is_not_in_sold_status.to_s}", unsold_item.errors.to_a.flatten.join(": ")
+      # ap Order.where(type: Order::RETURN).first
+      ret_o_id = 6608
+      # ap Item.where(i_status: Item::READY, i_loc: Location::S1).first
+      unsold_item_id = "338-103663ea"
+      erroneous_item = Item.new.get_for_return unsold_item_id, ret_o_id
+      assert_equal "#{t.return.errors.invalid_status.to_s}: #{t.return.errors.this_item_is_not_in_sold_status.to_s}", erroneous_item.errors.to_a.flatten.join(": ")
     end
   end
 
@@ -161,9 +158,10 @@ class OrderTest < Test::Unit::TestCase
   end
 
   def test_should_get_order_by_code
-    code = "BEE-B72"
-    order = Order.new.get_orders_at_location_with_type_status_and_code Location::S1, Order::SALE, Order::FINISHED, code
-    assert_equal(2657, order.o_id)
+    source = Order.where(o_code: nil).invert.first
+    order = Order.new.get_orders_at_location_with_type_status_and_code source.o_loc, source.type, source.o_status, source.o_code
+    Order::ATTRIBUTES.each { |attr| assert_equal(source[:attr], order[:attr])}
+
   end
 
   def test_should_get_empty_order_with_error_if_the_code_is_invalid

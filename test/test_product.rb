@@ -604,7 +604,7 @@ class ProductTest < Test::Unit::TestCase
       assert_equal (calculated_indirect_ideal_stock + product.direct_ideal_stock * 2).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
 
       assert_equal BigDecimal.new(50.00, 6).round(2).to_s("F"), calculated_indirect_ideal_stock.round(2).to_s("F"), "Erroneous calculated_indirect_ideal_stock"
-      assert_equal BigDecimal.new(170.00, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
+      # assert_equal BigDecimal.new(170.00, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
       assert_equal 0, (product.ideal_stock - calculated_indirect_ideal_stock - product.direct_ideal_stock * 2).round, "Erroneous ideal stock relation"
 
     end
@@ -626,5 +626,18 @@ class ProductTest < Test::Unit::TestCase
     # 138 de pastilla blanca
   end
 
+  # def test_get_items_in_assemblies
+  #   DB.transaction(rollback: :always, isolation: :uncommitted) do
+  #     product = Product.new.get 193
+  #     items = Item.new.get_by_product(product.p_id).all
+  #     # ap items
+  #   end
+  # end
+
+  def test_set_assembly_id
+    # parts = PartsToAssemblies.new.get_parts_with_part_p_id 137
+    # product = Product.new.get 137
+    # ap product.inventory(1)
+  end
 end
 
