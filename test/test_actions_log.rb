@@ -7,8 +7,12 @@ class ActionsLogTest < Test::Unit::TestCase
   end
 
   def test_create_log_template
-    # current_user_id = current_user_id
-    # log = ActionsLog.new.set(msg: "#{t('production.load.assigned', label: i.id, p_name: p.p_name, locale: :es)}", u_id: current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::INFO, i_id: i.id, p_id: p.p_id)
+    #  DB.transaction(rollback: :always, isolation: :uncommitted) do
+    # current_user_id =  User.new.current_user_id
+    # current_location = User.new.current_location[:name]
+    # message = "#{R18n.t.actions.changed_item_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}"
+    # log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl: ActionsLog::NOTICE, i_id: @values[:i_id], o_id: order.o_id)
+    # end
   end
 
   def test_should_validate_msg_and_user

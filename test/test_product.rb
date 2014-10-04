@@ -328,7 +328,7 @@ class ProductTest < Test::Unit::TestCase
   def test_save_when_updated_from_hash
     DB.transaction(rollback: :always, isolation: :uncommitted) do
 
-      hash = {direct_ideal_stock: "5", indirect_ideal_stock: "7", ideal_markup: "100.00", real_markup: "90.50", buy_cost: "1,0", sale_cost: "1,0", price: "100", brand: JSON.generate({br_id: "1", br_name: "test"}) }
+      hash = {direct_ideal_stock: "5", indirect_ideal_stock: "7", ideal_markup: "100.00", real_markup: "90.50", buy_cost: "1,0", sale_cost: "1,0", price: "100", exact_price: "99,95", brand: JSON.generate({br_id: "1", br_name: "test"}) }
       p_id = Product.new.create_default
       product = Product.new.get p_id
       product.update_from_hash hash
