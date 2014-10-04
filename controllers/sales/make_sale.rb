@@ -15,7 +15,7 @@ class Sales < AppController
     item = Item.new.get_for_sale i_id, order.o_id
     if item.errors.count > 0
       message = item.errors.to_a.flatten.join(": ")
-      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: item.p_id, i_id: item.i_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: item.p_id, i_id: item.i_id).save
       flash[:error] = item.errors
     else
       added_msg = order.add_item item

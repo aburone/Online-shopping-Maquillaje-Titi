@@ -3,7 +3,7 @@ module Transport
   def redir_if_erroneous_item order, item # TODO: kill
     if item.errors.count > 0
       message = item.errors.to_a.flatten.join(": ")
-      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: item.p_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: item.p_id).save
       flash[:error_add_item] = item.errors
       redirect to("/transport/arrivals/#{order.o_id}")
     end
@@ -12,7 +12,7 @@ module Transport
   def redir_if_erroneous_bulk order, bulk # TODO: kill
     if bulk.errors.count > 0
       message = bulk.errors.to_a.flatten.join(": ")
-      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, m_id: bulk.m_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, m_id: bulk.m_id).save
       flash[:error_add_bulk] = bulk.errors
       redirect to("/transport/arrivals/#{order.o_id}")
     end
