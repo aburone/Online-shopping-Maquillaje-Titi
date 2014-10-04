@@ -14,53 +14,25 @@ module Sinatra
         session[:user_level] = user.level
         session[:username]  = user.username
         session[:user_real_name]  = user.user_real_name
-        # session[:current_location] = location
-
-
-        # Thread.current.thread_variable_set(:user, User.new.get_by_id(session[:user_id])) if Thread.current.thread_variable_get(:user).nil?
-        # Thread.current.thread_variable_set(:username, session[:username])
-        # Thread.current.thread_variable_set(:user_real_name, session[:user_real_name])
-
         Thread.current.thread_variable_set(:user_id, session[:user_id])
         Thread.current.thread_variable_set(:current_location, session[:current_location])
-
-
         session[:user_id]
       end
 
       def protected!
         unless authorized?
           flash[:warning] = t.auth.must_login
-          # halt 401, slim(:admin_login, locals: {login_path: Thread.current.thread_variable_get(:login_path)})
           halt 401, slim(:admin_login, locals: {login_path: session[:login_path]})
         end
       end
       def set_user user, location
-        # Thread.current.thread_variable_set(:user, user)
-        # Thread.current.thread_variable_set(:username, user[:username])
         session[:user_id] = user.user_id
         session[:user_level] = user.level
         session[:username]  = user.username
         session[:user_real_name]  = user.user_real_name
         session[:current_location] = location
-
-
-        # Thread.current.thread_variable_set(:user_real_name, session[:user_real_name])
-        # Thread.current.thread_variable_set(:user_id, user[:user_id])
-        # Thread.current.thread_variable_set(:current_location, location)
       end
       def unset_user
-        Thread.current.thread_variable_set(:user, nil)
-        Thread.current.thread_variable_set(:username, nil)
-        Thread.current.thread_variable_set(:user_real_name, nil)
-        Thread.current.thread_variable_set(:user_id, nil)
-        Thread.current.thread_variable_set(:current_location, nil)
-        # session[:user] = nil
-        # session[:user_id] = nil
-        # session[:user_level] = nil
-        # session[:username] = nil
-        # session[:user_real_name] = nil
-        # session[:current_location] = nil
         session.keys.each { |key| session[key] = nil}
       end
     end

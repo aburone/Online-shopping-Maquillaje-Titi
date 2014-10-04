@@ -21,13 +21,11 @@ class User < UserAuth
 
   def current_user_id
     current_user_id = Thread.current.thread_variable_get(:user_id)
-    # current_user_id = session[:user_id]
     current_user_id ||= 1 # system
   end
 
   def current_user_name
     current_username = Thread.current.thread_variable_get(:username)
-    # current_username = session[:username]
     current_username ||= "system"
   end
 
@@ -37,10 +35,6 @@ class User < UserAuth
       current_location = {name: "SYSTEM", translation: ConstantsTranslator.new("SYSTEM").t}
     end
     current_location
-
-    # current_location = session[:current_location]
-
-    # session[:current_location] ? session[:current_location] : {name: "SYSTEM", translation: ConstantsTranslator.new("SYSTEM").t}
   end
 
 end
