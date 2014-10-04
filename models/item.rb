@@ -106,8 +106,10 @@ class Item < Sequel::Model
     order.add_item self
     save validate: false
 
+    current_user_id =  User.new.current_user_id
+    current_location = User.new.current_location[:name]
     message = "#{R18n.t.actions.changed_item_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}"
-    log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl: ActionsLog::NOTICE, i_id: @values[:i_id], o_id: order.o_id)
+    log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl: ActionsLog::NOTICE, i_id: @values[:i_id], o_id: order.o_id)
     log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
     log.save
 
@@ -121,15 +123,19 @@ class Item < Sequel::Model
 
   def change_status_security_check status, o_id
     if self.i_status == Item::VOID
+      current_user_id =  User.new.current_user_id
+      current_location = User.new.current_location[:name]
       message = R18n.t.errors.modifying_status_of_void_item(@values[:i_id])
-      log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, i_id: @values[:i_id])
+      log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::ERROR, i_id: @values[:i_id])
       log.set(o_id: o_id) unless o_id == 0
       log.save
       raise SecurityError, message
     end
     if @values[:p_id].nil? and not @values[:i_status] == Item::NEW and not status == Item::VOID
+      current_user_id =  User.new.current_user_id
+      current_location = User.new.current_location[:name]
       message = R18n.t.errors.modifying_status_of_nil_product_item(@values[:i_id])
-      log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, i_id: @values[:i_id])
+      log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::ERROR, i_id: @values[:i_id])
       log.set(o_id: o_id) unless o_id == 0
       log.save
       raise SecurityError, message
@@ -141,8 +147,10 @@ class Item < Sequel::Model
     change_status_security_check status, o_id
     @values[:i_status] = status
     save columns: [:p_id, :p_name, :i_price, :i_price_pro, :i_status, :i_loc]
+    current_user_id =  User.new.current_user_id
+    current_location = User.new.current_location[:name]
     message = R18n.t.actions.changed_item_status(ConstantsTranslator.new(status).t)
-    log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, i_id: @values[:i_id])
+    log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::INFO, i_id: @values[:i_id])
     log.set(o_id: o_id) unless o_id == 0
     log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
     log.save

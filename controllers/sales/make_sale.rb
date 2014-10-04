@@ -1,7 +1,7 @@
 class Sales < AppController
 
   get '/make_sale' do
-    order = Order.new.create_or_load(Order::SALE)
+    order = Order.new.create_or_load(Order::SALE, session)
     cart = order.items_as_cart.order(:p_name).all
     ammount = cart.map{ |line_item| line_item.i_price*line_item[:qty]}.inject(0, :+)
     count = cart.map{ |line_item| line_item[:qty]}.inject(0, :+)
@@ -11,11 +11,11 @@ class Sales < AppController
 
   post '/make_sale/add_item' do
     i_id = params[:i_id].to_s.strip
-    order = Order.new.create_or_load(Order::SALE)
+    order = Order.new.create_or_load(Order::SALE, session)
     item = Item.new.get_for_sale i_id, order.o_id
     if item.errors.count > 0
       message = item.errors.to_a.flatten.join(": ")
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: item.p_id, i_id: item.i_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: item.p_id, i_id: item.i_id).save
       flash[:error] = item.errors
     else
       added_msg = order.add_item item
@@ -26,7 +26,7 @@ class Sales < AppController
   end
 
   route :get, :post, '/make_sale/remove_item' do
-    order = Order.new.create_or_load(Order::SALE)
+    order = Order.new.create_or_load(Order::SALE, session)
     if params[:id].nil?
       slim :remove_item, layout: :layout_sales, locals: {action_url: "/make_sale/remove_item", title: t.make_sale.remove_item}
     else
@@ -38,7 +38,7 @@ class Sales < AppController
   end
 
   post '/make_sale/add_credit_note' do
-    sale_order = Order.new.create_or_load(Order::SALE)
+    sale_order = Order.new.create_or_load(Order::SALE, session)
     o_code = params[:o_code].to_s.strip
     credit_order = Order.new.get_orders_with_type_status_and_code(Order::CREDIT_NOTE, Order::OPEN, o_code)
     if credit_order.errors.size > 0
@@ -60,7 +60,7 @@ class Sales < AppController
   end
 
   post "/make_sale/cancel" do
-    order = Order.new.create_or_load(Order::SALE)
+    order = Order.new.create_or_load(Order::SALE, session)
     if order.payments_total == 0
       order.non_destructive_cancel
       flash[:notice] = "Orden cancelada"
@@ -72,13 +72,13 @@ class Sales < AppController
   end
 
   post "/make_sale/pro" do
-    message = Order.new.create_or_load(Order::SALE).recalculate_as(params[:type].to_sym)
+    message = Order.new.create_or_load(Order::SALE, session).recalculate_as(params[:type].to_sym)
     flash[:notice] = message
     redirect to('/make_sale')
   end
 
   route :get, :post, "/make_sale/checkout" do
-    @order = Order.new.create_or_load(Order::SALE)
+    @order = Order.new.create_or_load(Order::SALE, session)
     @cart = @order.items_as_cart.all
     @cart_total = @order.cart_total
     @payments = @order.payments
@@ -93,7 +93,7 @@ class Sales < AppController
   post "/make_sale/finish" do
     begin
       DB.transaction do
-        @order = Order.new.create_or_load(Order::SALE)
+        @order = Order.new.create_or_load(Order::SALE, session)
         @cart_total = @order.cart_total
         @payments_total = @order.payments_total
         items = @order.items

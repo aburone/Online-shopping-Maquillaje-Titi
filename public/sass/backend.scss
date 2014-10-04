@@ -185,14 +185,15 @@ nav li {padding-left:2em}
 
 
 .subsection {font-weight: bold; padding-bottom: 0.5em}
-.autohide ul li.subsection + * {
-  display: none; }
-
-.autohide:hover ul li.subsection + * {
-  -webkit-animation: 0.5s slideInLeft alternate ease-in-out;
-  -ms-animation: 0.5s slideInLeft alternate ease-in-out;
-  animation: 0.5s slideInLeft alternate ease-in-out;
-  display: inline-block;
+@media only screen and (max-height:1024px){
+  .autohide ul li.subsection + * {
+    display: none; }
+  .autohide:hover ul li.subsection + * {
+    -webkit-animation: 0.5s slideInLeft alternate ease-in-out;
+    -ms-animation: 0.5s slideInLeft alternate ease-in-out;
+    animation: 0.5s slideInLeft alternate ease-in-out;
+    display: inline-block;
+  }
 }
 
 @-webkit-keyframes slideInLeft {

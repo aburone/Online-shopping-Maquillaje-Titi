@@ -3,7 +3,7 @@ require_relative 'material.rb'
 class Inventory
   attr_reader :location, :needed_materials, :missing_materials, :used_bulks, :errors, :material
   def initialize location
-    @location = location
+    @location = User.new.current_location[:name]
     @user_id = User.new.current_user_id
     @needed_materials = []
     @missing_materials = []

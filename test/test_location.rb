@@ -23,7 +23,7 @@ class LocationTest < Test::Unit::TestCase
   def test_invalid
     assert_false Location.new.valid? "STORE_2"
     assert_false Location.new.valid? "STORE_11"
-    assert_false Location.new.valid? "yadda"
+    assert_false Location.new.valid? "invalid"
   end
 
 end

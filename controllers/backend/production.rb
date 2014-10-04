@@ -4,7 +4,7 @@ require_relative 'production_utils'
 class Backend < AppController
 
   get '/production' do
-    slim :admin, layout: Thread.current.thread_variable_get(:layout), locals: {sec_nav: :nav_production, title: t.production.title}
+    slim :admin, layout: session[:layout], locals: {sec_nav: :nav_production, title: t.production.title}
   end
 
 
@@ -44,7 +44,7 @@ class Backend < AppController
     if params[:i_id].to_s.strip == ""
       flash[:error_add_item] = t.item.invalid
       message = "Intento de pasar un i_id vacio en la imputacion de orden de armado de kit"
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
       redirect to("/production/assembly/#{params[:o_id]}")
     end
 
@@ -52,7 +52,7 @@ class Backend < AppController
     unless inventory.can_complete_order? order
       flash[:error] = inventory.errors
       message = "Intento de finalizar la orden de armado de kits sin tener todos los prerequisitos." + inventory.errors.to_s
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id).save
       redirect to("/production/assembly/#{params[:o_id]}")
     end
 
@@ -60,7 +60,7 @@ class Backend < AppController
     label =  Label.new.get_printed_by_id i_id, order.o_id
     if label.errors.count > 0
       message = label.errors.to_a.flatten.join(": ")
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::WARN, o_id: order.o_id, p_id: product.p_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::WARN, o_id: order.o_id, p_id: product.p_id).save
       flash[:error_add_item] = label.errors
       redirect to("/production/assembly/#{params[:o_id]}")
     end
@@ -71,7 +71,7 @@ class Backend < AppController
     if product.errors.count > 0
       flash[:error_add_item] = product.errors
       message = product.errors.errors.to_a.flatten.join(": ")
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
       redirect to("/production/assembly/#{params[:o_id]}")
     end
 
@@ -79,7 +79,7 @@ class Backend < AppController
     if assy.errors.count > 0
       flash[:error_add_item] = assi.errors
       message = assy.errors.errors.to_a.flatten.join(": ")
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: assi.p_id, i_id: assi.i_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: assi.p_id, i_id: assi.i_id).save
       redirect to("/production/assembly/#{params[:o_id]}")
     end
 
@@ -93,7 +93,7 @@ class Backend < AppController
         flash[:notice] = t.production.allocation.ok(order.o_id)
         redirect to("/production/assembly/select")
       rescue => message
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
         flash[:error] = message
         redirect to("/production/assembly/#{order.o_id}")
       end
@@ -152,7 +152,7 @@ class Backend < AppController
         item =  Label.new.get_printed_by_id i_id, order.o_id
         if item.errors.count > 0
           message = item.errors.to_a.flatten.join(": ")
-          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
+          ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
           flash[:error_add_item] = item.errors
           redirect to("/production/#{route}/#{order.o_id}/#{product.p_id}")
         end
@@ -265,7 +265,7 @@ class Backend < AppController
         # ap "Ingresado #{item.p_name} (#{item.p_id})"
         if item.errors.count > 0
           message = item.errors.to_a.flatten.join(": ")
-          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
+          ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR, o_id: order.o_id, p_id: product.p_id).save
           flash[:error_add_item] = item.errors
           redirect to("/production/#{route}/#{order.o_id}")
         end

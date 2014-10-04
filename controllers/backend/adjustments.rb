@@ -71,12 +71,12 @@ class Backend < AppController
       DB.transaction do
         brand_message = @br_id ? " con marca #{Brand[@br_id].br_name}"  : ""
         message = "Actualizancion masiva de #{eval("R18n.t.product.fields.#{@attribute.to_s}")} de productos#{brand_message}. multiplicador: #{@mod.to_f}"
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
 
         @products.map do |product|
           message = "Precio ajustado *#{@mod.to_s("F")} de $ #{product[:new_price].to_s("F")} a $ #{product.price.to_s("F")}: #{product.p_name}" if @attribute == :price
           message = "Costo de compra ajustado *#{@mod.to_s("F")} de $ #{product[:new_buy_cost].to_s("F")} a $ #{product.buy_cost.to_s("F")}: #{product.p_name}" if @attribute == :buy_cost
-          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::INFO, p_id: product.p_id).save
+          ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: "GLOBAL", lvl: ActionsLog::INFO, p_id: product.p_id).save
           product.save verify: false
         end
       end
@@ -176,11 +176,11 @@ class Backend < AppController
       DB.transaction do
         brand_message = @br_id ? " con marca #{Brand[@br_id].br_name}"  : ""
         message = "Actualizancion masiva de #{eval("R18n.t.material.fields.#{@attribute.to_s}")} de materialos#{brand_message}. multiplicador: #{@mod.to_f}"
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
 
         @materials.map do |material|
           message = "Costo de compra ajustado *#{@mod.to_s("F")} de $ #{material[:new_buy_cost].to_s("F")} a $ #{material.m_price.to_s("F")}: #{material.m_name}" if @attribute == :price
-          ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::INFO, m_id: material.m_id).save
+          ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: "GLOBAL", lvl: ActionsLog::INFO, m_id: material.m_id).save
           material.save verify: false
         end
       end

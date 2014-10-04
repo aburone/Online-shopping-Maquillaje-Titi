@@ -73,8 +73,10 @@ class Label < Item
       DB.transaction do
         Item.insert()
         last_i_id = DB.fetch( "SELECT @last_i_id" ).first[:@last_i_id]
+        current_user_id =  User.new.current_user_id
+        current_location = User.new.current_location[:name]
         message = R18n.t.label.created
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, i_id: last_i_id).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, i_id: last_i_id).save
       end
     end
   end

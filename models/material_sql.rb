@@ -141,8 +141,10 @@ class Material < Sequel::Model(:materials)
       update_products = self.changed_columns.include? :m_price
       super opts
       if update_products
+        current_user_id =  User.new.current_user_id
+        current_location = User.new.current_location[:name]
         message = "Actualizancion de costo de todos los productos que utilizan #{@values[:m_name]}"
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, m_id: @values[:m_id]).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, m_id: @values[:m_id]).save
         self.products.each do |product|
           product.assemblies.each do |assy|
             assy.parts_cost
@@ -197,8 +199,10 @@ class Material < Sequel::Model(:materials)
       material = Material.new
       material.save validate: false
       last_m_id = DB.fetch( "SELECT last_insert_id() AS m_id" ).first[:m_id]
+      current_user_id =  User.new.current_user_id
+      current_location = User.new.current_location[:name]
       message = R18n.t.material.created
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, m_id: last_m_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::INFO, m_id: last_m_id).save
     end
     last_m_id
   end

@@ -15,17 +15,19 @@ class User < UserAuth
     out += "\t level:  #{@values[:level]}\n"
   end
 
-  def curret_user
-    Thread.current.thread_variable_get(:user)
+  def empty?
+    return user_id.nil? ? true : false
   end
 
   def current_user_id
     current_user_id = Thread.current.thread_variable_get(:user_id)
+    # current_user_id = session[:user_id]
     current_user_id ||= 1 # system
   end
 
   def current_user_name
     current_username = Thread.current.thread_variable_get(:username)
+    # current_username = session[:username]
     current_username ||= "system"
   end
 
@@ -35,7 +37,10 @@ class User < UserAuth
       current_location = {name: "SYSTEM", translation: ConstantsTranslator.new("SYSTEM").t}
     end
     current_location
+
+    # current_location = session[:current_location]
+
+    # session[:current_location] ? session[:current_location] : {name: "SYSTEM", translation: ConstantsTranslator.new("SYSTEM").t}
   end
 
 end
-

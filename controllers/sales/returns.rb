@@ -18,7 +18,7 @@ class Sales < AppController
   route :get, :post, '/returns/:o_code' do
     @sale_order = get_sale_order_by_code_or_redirect params[:o_code], "/returns"
     @sale_cart = @sale_order.items_as_cart.all unless @sale_order.empty?
-    @return_order = Order.new.create_or_load_return @sale_order.o_id
+    @return_order = Order.new.create_or_load_return_for_sale @sale_order.o_id
     unless params[:i_id].nil?
       @item = Item.new.get_for_return params[:i_id], @return_order.o_id
       @return_order.add_item @item unless @item.empty?

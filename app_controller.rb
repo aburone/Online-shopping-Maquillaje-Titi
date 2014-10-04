@@ -60,6 +60,10 @@ class AppController < Sinatra::Base
     end
   end
 
+  def current_user
+    session[:user_id] ? User.new.get_by_id(session[:user_id]) : User.new
+  end
+
   def current_user_id
     session[:user_id]
   end
@@ -135,7 +139,7 @@ class AppController < Sinatra::Base
   def set_locale
     # session[:locale] = extract_locale_from_accept_language_header || 'es'
     session[:locale] = 'es'
-    Thread.current.thread_variable_set(:locale, "es")
+    # Thread.current.thread_variable_set(:locale, "es")
   end
 
   # def extract_locale_from_accept_language_header

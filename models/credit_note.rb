@@ -9,7 +9,7 @@ class Credit_note < Sequel::Model
     self.cr_status = status
     save columns: Credit_note::ATTRIBUTES
     message = R18n.t.actions.changed_order_status(ConstantsTranslator.new(status).t)
-    log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO)
+    log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO)
     log.set(o_id: o_id) unless o_id == 0
     log.save
     message

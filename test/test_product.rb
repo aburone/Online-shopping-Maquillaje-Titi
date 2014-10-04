@@ -82,10 +82,12 @@ class ProductTest < Test::Unit::TestCase
 
   def test_cost_should_be_the_sum_of_parts_plus_materials
     product = Product.new.get 193
-    assert_equal product.sale_cost, product.materials_cost + product.parts_cost
+    message = "product 193 sale_cost (#{product.sale_cost.to_s("F")}) should equal (product.materials_cost + product.parts_cost).round(2) (#{(product.materials_cost + product.parts_cost).round(2).to_s("F")})"
+    assert_equal product.sale_cost.round(2), (product.materials_cost + product.parts_cost).round(2), message
 
     product = Product.new.get 2
-    assert_equal product.sale_cost, product.materials_cost + product.parts_cost
+    message = "product 2 sale_cost (#{product.sale_cost.to_s("F")}) should equal (product.materials_cost + product.parts_cost).round(2) (#{(product.materials_cost + product.parts_cost).round(2).to_s("F")})"
+    assert_equal product.sale_cost.round(2), (product.materials_cost + product.parts_cost).round(2), message
   end
 
   def test_check_cost
@@ -314,51 +316,6 @@ class ProductTest < Test::Unit::TestCase
     end
   end
 
-  def test_should_reject_nil_numerical_values
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get_rand
-      product.direct_ideal_stock=10
-      product.indirect_ideal_stock=0
-      hash = {direct_ideal_stock: nil}
-      product.update_from_hash hash
-      assert_equal 10, product.ideal_stock
-    end
-  end
-
-  def test_should_ignore_non_present_values
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get_rand
-      product.direct_ideal_stock=10
-      product.indirect_ideal_stock=0
-      hash = {}
-      product.update_from_hash hash
-      assert_equal BigDecimal.new(10).to_s("F"), product.ideal_stock.to_s("F"), "non_present_values"
-    end
-  end
-
-  def test_should_reject_invalid_strings_in_numerical_values
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get_rand
-      product.direct_ideal_stock=10
-      product.indirect_ideal_stock=10
-      hash = {direct_ideal_stock: "a"}
-      product.update_from_hash hash
-      assert_equal 20, product.ideal_stock
-    end
-  end
-
-  def test_should_reject_badly_formatted_numbers
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get_rand
-      product.direct_ideal_stock=10
-      product.indirect_ideal_stock=10
-      hash = {direct_ideal_stock: "1..1"}
-      product.update_from_hash hash
-      assert_equal 20, product.ideal_stock, "formatted_numbers"
-    end
-  end
-
-
   def test_should_update_from_hash
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       hash = {direct_ideal_stock: "90,00", indirect_ideal_stock: "90,00", stock_warehouse_1: "100,00", buy_cost: "1,0", sale_cost: "1,0"}
@@ -370,38 +327,42 @@ class ProductTest < Test::Unit::TestCase
 
   def test_save_when_updated_from_hash
     DB.transaction(rollback: :always, isolation: :uncommitted) do
-      hash = {direct_ideal_stock: "5", indirect_ideal_stock: "7", ideal_markup: "100,00", buy_cost: "1,0", sale_cost: "1,0"}
-      product = Product.new.get_rand
+
+      hash = {direct_ideal_stock: "5", indirect_ideal_stock: "7", ideal_markup: "100.00", real_markup: "90.50", buy_cost: "1,0", sale_cost: "1,0", price: "100", brand: JSON.generate({br_id: "1", br_name: "test"}) }
+      p_id = Product.new.create_default
+      product = Product.new.get p_id
       product.update_from_hash hash
       product.save
       product = Product.new.get product.p_id
-      assert_equal BigDecimal.new(12), product.ideal_stock, "Erroneous ideal_stock 2"
+      assert_equal BigDecimal.new(10), product.ideal_stock, "Erroneous ideal_stock 2"
       assert_equal 100, product.ideal_markup, "Erroneous ideal_markup"
     end
   end
 
   def test_should_duplicate_products
     DB.transaction(rollback: :always, isolation: :uncommitted) do
-      orig = Product[193]
-      dest = orig.duplicate
+      src = Product[193]
+      src.save
+      dst = src.duplicate
       copied_columns = Product::ATTRIBUTES - Product::EXCLUDED_ATTRIBUTES_IN_DUPLICATION
       copied_columns.each do |col|
-        assert_equal orig[col], dest[col]
+        message = src[col].class == BigDecimal ? "(#{col}): src[#{col}]:  #{src[col].to_s("F")}, dst[#{col}]: #{dst[col].to_s("F")}" : "(#{col}): src[col]:  #{src[col]}, dst[col]: #{dst[col]}"
+        assert_equal src[col], dst[col], message
       end
-      dest_id =  dest[:p_id]
-      orig = Product[193].parts
-      dest = Product[dest_id].parts
-      assert_equal orig.size, dest.size
-      for i in 0...orig.size
-        assert_equal orig[i][:p_id], dest[i][:p_id]
-        assert_equal orig[i][:part_qty], dest[i][:part_qty]
+      dst_id =  dst[:p_id]
+      src = Product[193].parts
+      dst = Product[dst_id].parts
+      assert_equal src.size, dst.size
+      for i in 0...src.size
+        assert_equal src[i][:p_id], dst[i][:p_id]
+        assert_equal src[i][:part_qty], dst[i][:part_qty]
       end
-      orig = Product[193].materials
-      dest = Product[dest_id].materials
-      assert_equal orig.size, dest.size
-      for i in 0...orig.size
-        assert_equal orig[i][:m_id], dest[i][:m_id]
-        assert_equal orig[i][:m_qty], dest[i][:m_qty]
+      src = Product[193].materials
+      dst = Product[dst_id].materials
+      assert_equal src.size, dst.size
+      for i in 0...src.size
+        assert_equal src[i][:m_id], dst[i][:m_id]
+        assert_equal src[i][:m_qty], dst[i][:m_qty]
       end
     end
   end
@@ -561,17 +522,6 @@ class ProductTest < Test::Unit::TestCase
     assert_equal expected_cost.round(3).to_s("F"), product.materials_cost.to_s("F")
   end
 
-  def test_should_ideal_stock_should_not_be_modified_by_stored_procedure
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get 135
-      product.ideal_stock = 10
-      assert_equal 10, product.ideal_stock, "Erroneous ideal stock "
-      product.save
-      product = Product.new.get 135
-      assert_equal 10, product.ideal_stock, "Erroneous ideal stock "
-    end
-  end
-
   def test_should_round_price_to_1_decimal_if_under_100
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       @valid.price = 6.5555
@@ -579,65 +529,11 @@ class ProductTest < Test::Unit::TestCase
     end
   end
 
-  def test_should_calculate_ideal_stock
+  def test_should_get_empty_product_when_id_is_invalid
     DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get 135
-      product.update_ideal_stock
-      # ap product.p_name
-      # p "ideal global "
-      # ap product.inventory(1).global.ideal.to_s("F")
-
-      # ap "assemblies"
-      calculated_indirect_ideal_stock = BigDecimal.new(0)
-      product.assemblies.each do |assembly|
-        assembly.update_ideal_stock
-
-        # ap assembly.p_name
-        # ap "global ideal"
-        # ap assembly.inventory(1).global.ideal.to_s("F")
-
-
-        calculated_indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal / 2 unless assembly.archived #divido para considerar solo una locacion
-      end
-      calculated_indirect_ideal_stock *= 2
-      assert_equal calculated_indirect_ideal_stock.round(2).to_s("F"), product.indirect_ideal_stock.round(2).to_s("F"), "Erroneous indirect ideal stock"
-      assert_equal (calculated_indirect_ideal_stock + product.direct_ideal_stock * 2).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
-
-      assert_equal BigDecimal.new(50.00, 6).round(2).to_s("F"), calculated_indirect_ideal_stock.round(2).to_s("F"), "Erroneous calculated_indirect_ideal_stock"
-      # assert_equal BigDecimal.new(170.00, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
-      assert_equal 0, (product.ideal_stock - calculated_indirect_ideal_stock - product.direct_ideal_stock * 2).round, "Erroneous ideal stock relation"
-
+      product = Product.new.get("invalid")
+      assert product.empty?
     end
   end
 
-  def test_inventory_should_return_same_values_as_stored_object
-    product = Product.new.get 135
-    assert_equal product.ideal_stock.round(2).to_s("F"), product.inventory(1).global.ideal.round(2).to_s("F"), "Stored and calculated are different"
-  end
-
-  def ideal_para_kits
-    # ideal kits:  sumatoria( ideal_global_assembly )
-    # ideal global: ( ideal_store_1 * 2 ) + ideal kits * 2
-    # 48*2 + 59*2 = 96+118 = 214
-
-    # necesidad: ideal_global - stock_global - assembly.global_stok
-    # nececidad: desvio + sumatoria ( desvio.assembly )
-
-    # 138 de pastilla blanca
-  end
-
-  # def test_get_items_in_assemblies
-  #   DB.transaction(rollback: :always, isolation: :uncommitted) do
-  #     product = Product.new.get 193
-  #     items = Item.new.get_by_product(product.p_id).all
-  #     # ap items
-  #   end
-  # end
-
-  def test_set_assembly_id
-    # parts = PartsToAssemblies.new.get_parts_with_part_p_id 137
-    # product = Product.new.get 137
-    # ap product.inventory(1)
-  end
 end
-

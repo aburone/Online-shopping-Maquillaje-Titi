@@ -53,16 +53,18 @@ class Backend < AppController
       end
 
       if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
-        product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
-        product[:ideal_stock] = product.inventory(months).store_1.ideal
+        # product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
+        # product[:ideal_stock] = product.inventory(months).store_1.ideal
         product[:stock_deviation] = product.inventory(months).store_1.v_deviation
         product[:stock_deviation_percentile] = product.inventory(months).store_1.v_deviation_percentile
       else
-        product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
-        product[:ideal_stock] = product.inventory(months).global.ideal
-        product[:stock_deviation] = product.inventory(months).global.v_deviation
+        # product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
+        # product[:ideal_stock] = product.inventory(months).global.ideal
+        product[:stock_deviation] = product.inventory(months).global.v_deviation + product.inventory(months).global.in_assemblies
         product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
       end
+      # ap product.p_name
+      # ap product.inventory(months).global.in_assemblies
 
     end
     if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase

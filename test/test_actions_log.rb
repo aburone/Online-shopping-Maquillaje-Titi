@@ -7,8 +7,8 @@ class ActionsLogTest < Test::Unit::TestCase
   end
 
   def test_create_log_template
-    # current_user_id = User.new.current_user_id
-    # log = ActionsLog.new.set(msg: "#{t('production.load.assigned', label: i.id, p_name: p.p_name, locale: :es)}", u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::INFO, i_id: i.id, p_id: p.p_id)
+    # current_user_id = current_user_id
+    # log = ActionsLog.new.set(msg: "#{t('production.load.assigned', label: i.id, p_name: p.p_name, locale: :es)}", u_id: current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::INFO, i_id: i.id, p_id: p.p_id)
   end
 
   def test_should_validate_msg_and_user

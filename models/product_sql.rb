@@ -27,9 +27,12 @@ class Category < Sequel::Model(:categories)
   end
 end
 
-
+class Supply < Sequel::Model
+  one_to_one :product, key: :p_id
+end
 
 class Product < Sequel::Model
+  one_to_one :supply, key: :p_id
   many_to_one :Category, key: :c_id
   one_to_many :items, key: :p_id
   Product.nested_attributes :items
@@ -42,101 +45,25 @@ class Product < Sequel::Model
   COLUMNS = [:products__p_id, :c_id, :p_name, :p_short_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :notes, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :tercerized, :published, :on_request, :non_saleable, :archived, :end_of_life, :products__img, :img_extra, :products__created_at, :products__price_updated_at, :products__description, :brands__br_name]
   EXCLUDED_ATTRIBUTES_IN_DUPLICATION = [:p_id, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation, :created_at, :price_updated_at]
 
-
-  def category
-    self.Category
-  end
-
-  def d_name
-    return self[:distributors].first[:d_name] if self[:distributors]
-    return self[:distributor][:d_name] if self[:distributor]
-    return "no data"
-  end
-
-  def update_ideal_stock
-
-    # ap "update_ideal_stock"
-
-    self.indirect_ideal_stock = BigDecimal.new(0)
-    # ap "start"
-    # ap self.indirect_ideal_stock
-
-    self.assemblies.each do |assembly|
-      # ap "adding #{assembly.p_name} #{assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived}"
-      self.indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived
-      # ap self.indirect_ideal_stock
-    end
-
-    # p "final indirect"
-    # ap self.indirect_ideal_stock
-    self.ideal_stock = self.direct_ideal_stock * 2 + self.indirect_ideal_stock
+  def update_costs
+    parts_cost
+    materials_cost
     self
   end
-
-  def distributors
-    return [] unless self.p_id.to_i > 0
-    distributors = Distributor
-                    .select_group(*Distributor::COLUMNS, *ProductDistributor::COLUMNS)
-                    .join(:products_to_distributors, distributors__d_id: :products_to_distributors__d_id, products_to_distributors__p_id: self.p_id)
-                    .order(:products_to_distributors__ptd_id)
-    return [] if distributors.nil?
-    distributors
+  def materials_cost
+    cost = BigDecimal.new 0, 6
+    self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
+    p "el costo de materiales retorno nil" if cost.nil?
+    self.materials_cost = cost.round(3)
+    cost.round(3)
   end
-
-
-  def create_default
-    last_p_id = "ERROR"
-    previous = Product.where(p_short_name: "NEW").first
-    return previous.p_id unless previous.nil?
-    DB.transaction do
-      product = Product.new
-      product[:public_sku] = rand
-      product[:sku] = product[:public_sku]
-      if product.errors.count > 0
-        raise product.errors.to_a.flatten.join(": ")
-      end
-      product.save validate: false
-      last_p_id = DB.fetch( "SELECT last_insert_id() AS p_id" ).first[:p_id]
-      message = R18n.t.product.created
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, p_id: last_p_id).save
-    end
-    last_p_id
-  end
-
-  def duplicate
-    dest_id = create_default
-    dest = Product[dest_id]
-    dest.update_from(self)
-    dest.save
-    self.parts.map { |part| dest.add_part part }
-    self.materials.map { |material| dest.add_material material }
-    self.distributors.map { |distributor| dest.add_distributor distributor }
-    dest
-  end
-  def update_from product
-    columns_to_copy = ATTRIBUTES - EXCLUDED_ATTRIBUTES_IN_DUPLICATION
-    columns_to_copy.each { |col| self[col] = product[col] }
-    self
-  end
-
-  def save (opts=OPTS)
-    opts = opts.merge({columns: Product::ATTRIBUTES})
-    self.end_of_life = false if self.archived
-
-    begin
-      super opts
-      if self.p_name and not self.archived
-        message = "Actualizando todos los items de #{self.p_name}"
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: self.p_id).save
-        DB.run "UPDATE items
-        JOIN products using(p_id)
-        SET items.i_price = products.price, items.i_price_pro = products.price_pro, items.p_name = products.p_name
-        WHERE p_id = #{self.p_id} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
-      end
-    rescue Sequel::UniqueConstraintViolation => e
-      errors.add "Error, valor duplicado", e.message
-    end
-    self
+  def parts_cost
+    cost = BigDecimal.new 0, 2
+    self.parts.map { |part| cost += part.materials_cost }
+    p "el costo de partes retorno nil" if cost.nil?
+    cost = BigDecimal.new 0, 2 if cost.nil?
+    self.parts_cost = cost
+    cost
   end
 
   def update_stocks
@@ -167,6 +94,109 @@ class Product < Sequel::Model
     self
   end
 
+  def update_ideal_stock debug = false
+    ap "update_ideal_stock (#{p_id})" if debug
+    self.indirect_ideal_stock = BigDecimal.new(0)
+    p "indirect_ideal_stock: #{self.indirect_ideal_stock.to_s("F")}" if debug
+    self.assemblies.each do |assembly|
+      p "adding #{assembly.p_name} #{(assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived).to_s("F")}" if debug
+      self.indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived
+      p "indirect_ideal_stock: #{self.indirect_ideal_stock.to_s("F")}" if debug
+    end
+    p "direct_ideal_stock: #{direct_ideal_stock.to_s("F")} (x2)" if debug
+    self.ideal_stock = self.direct_ideal_stock * 2 + self.indirect_ideal_stock
+    p "ideal_stock: #{self.ideal_stock.to_s("F")}" if debug
+    self
+  end
+
+  def save (opts=OPTS)
+    opts = opts.merge({columns: Product::ATTRIBUTES})
+    self.end_of_life = false if self.archived
+    cast
+    # self.update_stocks #yadda
+    self.update_ideal_stock
+    self.update_costs
+    self.recalculate_markups
+
+    begin
+      super opts
+      if self.p_name and not self.archived
+        current_user_id =  User.new.current_user_id
+        current_location = User.new.current_location[:name]
+        message = "Actualizando todos los items de #{self.p_name}"
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, p_id: self.p_id).save
+        DB.run "UPDATE items
+        JOIN products using(p_id)
+        SET items.i_price = products.price, items.i_price_pro = products.price_pro, items.p_name = products.p_name
+        WHERE p_id = #{self.p_id} AND i_status IN ( 'ASSIGNED', 'MUST_VERIFY', 'VERIFIED', 'READY' )"
+      end
+    rescue Sequel::UniqueConstraintViolation => e
+      errors.add "Error, valor duplicado", e.message
+    end
+    self
+  end
+
+  def distributors
+    return [] unless self.p_id.to_i > 0
+    distributors = Distributor
+                    .select_group(*Distributor::COLUMNS, *ProductDistributor::COLUMNS)
+                    .join(:products_to_distributors, distributors__d_id: :products_to_distributors__d_id, products_to_distributors__p_id: self.p_id)
+                    .order(:products_to_distributors__ptd_id)
+    return [] if distributors.nil?
+    distributors
+  end
+
+  def d_name
+    return self[:distributors].first[:d_name] if self[:distributors]
+    return self[:distributor][:d_name] if self[:distributor]
+    return "no data"
+  end
+
+  def category
+    self.Category
+  end
+
+  def create_default
+    last_p_id = "ERROR"
+    previous = Product.where(p_short_name: "NEW").first
+    return previous.p_id unless previous.nil?
+    DB.transaction do
+      product = Product.new
+      product[:public_sku] = rand
+      product[:sku] = product[:public_sku]
+      if product.errors.count > 0
+        raise product.errors.to_a.flatten.join(": ")
+      end
+      product.save validate: false
+      last_p_id = DB.fetch( "SELECT last_insert_id() AS p_id" ).first[:p_id]
+      current_user_id =  User.new.current_user_id
+      current_location = User.new.current_location[:name]
+      message = R18n.t.product.created
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::INFO, p_id: last_p_id).save
+    end
+    last_p_id
+  end
+
+  def duplicate debug = false
+    dest_id = create_default
+    dest = Product[dest_id]
+    self.parts.map { |part| dest.add_part part }
+    self.materials.map { |material| dest.add_material material }
+    self.distributors.map { |distributor| dest.add_distributor distributor }
+    dest.update_from self, debug
+    dest.save
+    dest
+  end
+  def update_from product, debug = false
+    columns_to_copy = ATTRIBUTES - EXCLUDED_ATTRIBUTES_IN_DUPLICATION
+    columns_to_copy.each do |col|
+      p "copying #{col} => #{product[col]}" if debug
+      self[col] = product[col]
+      @values[col] = product[col]
+    end
+    self
+  end
+
   def get p_id
     return Product.new unless p_id.to_i > 0
     product = Product.select_group(*Product::COLUMNS, :brands__br_name, :categories__c_name)
@@ -175,31 +205,9 @@ class Product < Sequel::Model
                 .left_join(:brands, [:br_id])
                 .first
     return Product.new if product.nil?
+                # .left_join(:supplies, [:p_id])
     product.br_name = product[:br_name]
-    product.update_costs
-    product.recalculate_markups
-    product.update_stocks
     product
-  end
-  def update_costs
-    parts_cost
-    materials_cost
-    self
-  end
-  def materials_cost
-    cost = BigDecimal.new 0, 6
-    self.materials.map { |material| cost +=  material[:m_qty] * material[:m_price] }
-    p "el costo de materiales retorno nil" if cost.nil?
-    self.materials_cost = cost.round(3)
-    cost.round(3)
-  end
-  def parts_cost
-    cost = BigDecimal.new 0, 2
-    self.parts.map { |part| cost += part.materials_cost }
-    p "el costo de partes retorno nil" if cost.nil?
-    cost = BigDecimal.new 0, 2 if cost.nil?
-    self.parts_cost = cost
-    cost
   end
 
 
@@ -299,9 +307,11 @@ class Product < Sequel::Model
 
   def add_item label, o_id
     o_id = o_id.to_i
+    current_user_id =  User.new.current_user_id
+    current_location = current_location
     if label.nil?
       message = R18n::t.errors.inexistent_label
-      log = ActionsLog.new.set(msg: "#{message}", u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::ERROR)
+      log = ActionsLog.new.set(msg: "#{message}", u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR)
       log.set(o_id: o_id) unless o_id == 0
       log.save
       errors.add "General", message
@@ -309,13 +319,12 @@ class Product < Sequel::Model
     end
     if label.class != Label
       message = R18n::t.errors.this_is_not_a_label(label.class)
-      log = ActionsLog.new.set(msg: "#{message}", u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::ERROR)
+      log = ActionsLog.new.set(msg: "#{message}", u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR)
       log.set(o_id: o_id) unless o_id == 0
       log.save
       errors.add "General", message
       return ""
     end
-    current_user_id = User.new.current_user_id
     label.p_id = @values[:p_id]
     label.p_name = @values[:p_name]
     label.i_status = Item::ASSIGNED
@@ -324,23 +333,23 @@ class Product < Sequel::Model
     begin
       label.save
       super label
-      assigned_msg = R18n::t.label.assigned(label.i_id, @values[:p_name])
-      log = ActionsLog.new.set(msg: assigned_msg, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::INFO, i_id: label.i_id, p_id: @values[:p_id])
+      message = R18n::t.label.assigned(label.i_id, @values[:p_name])
+      log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::INFO, i_id: label.i_id, p_id: @values[:p_id])
       log.set(o_id: o_id) unless o_id == 0
       log.save
-      return assigned_msg
+      return message
     rescue Sequel::ValidationFailed
-      assigned_msg = label.errors.to_s
-      log = ActionsLog.new.set(msg: assigned_msg, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::ERROR, i_id: label.i_id, p_id: @values[:p_id])
+      message = label.errors.to_s
+      log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR, i_id: label.i_id, p_id: @values[:p_id])
       log.set(o_id: o_id) unless o_id == 0
       log.save
-      return assigned_msg
+      return message
     rescue => detail
-      assigned_msg = detail.message
-      log = ActionsLog.new.set(msg: assigned_msg, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl:  ActionsLog::ERROR, i_id: label.i_id, p_id: @values[:p_id])
+      message = detail.message
+      log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::ERROR, i_id: label.i_id, p_id: @values[:p_id])
       log.set(o_id: o_id) unless o_id == 0
       log.save
-      return assigned_msg
+      return message
     end
   end
 
@@ -359,8 +368,10 @@ class Product < Sequel::Model
     item.i_price_pro = defaults[:i_price_pro]
     item.i_status = Item::PRINTED
     item.save validate: false
-    assigned_msg = R18n::t.product.item_removed
-    ActionsLog.new.set(msg: assigned_msg, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, i_id: item.i_id, p_id: @values[:p_id]).save
+    current_user_id =  User.new.current_user_id
+    current_location = current_location
+    message = R18n::t.product.item_removed
+    ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::INFO, i_id: item.i_id, p_id: @values[:p_id]).save
   end
 
   def get_by_sku sku

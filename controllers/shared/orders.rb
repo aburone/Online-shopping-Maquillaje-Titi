@@ -32,9 +32,9 @@ module Orders
     end
     if @order && @order.type == Order::CREDIT_NOTE
       credits = @order.credits
-      slim :credit_note, layout: Thread.current.thread_variable_get(:layout), locals: {order: @order, credits: credits, sec_nav: :nav_orders, base_url: request.env['REQUEST_PATH']}
+      slim :credit_note, layout: session[:layout], locals: {order: @order, credits: credits, sec_nav: :nav_orders, base_url: request.env['REQUEST_PATH']}
     else
-      slim :orders, layout: Thread.current.thread_variable_get(:layout),
+      slim :orders, layout: session[:layout],
         locals: {sec_nav: :nav_orders, base_url: request.env['REQUEST_PATH'], title: t.orders.title, payments_total: payments_total, payment_type: payment_type}
     end
   end
@@ -48,7 +48,7 @@ class Backend < AppController
     @order = Order.new.get params[:o_id]
     @items = @order.items
     @bulks = @order.bulks
-    slim :order, layout: Thread.current.thread_variable_get(:layout), locals: {can_filter: false, title: t.orders.title}
+    slim :order, layout: session[:layout], locals: {can_filter: false, title: t.orders.title}
   end
 end
 

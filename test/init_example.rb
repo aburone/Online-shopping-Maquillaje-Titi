@@ -29,7 +29,7 @@ class InitTest < Test::Unit::TestCase
     p "needy test"
     assert true
     notify("Debug")
-    p " yadda "
+    p " debug statement "
     notify("/Debug")
     # pend()
     # omit("pete")

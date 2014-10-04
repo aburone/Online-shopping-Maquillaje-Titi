@@ -6,26 +6,28 @@ end
 
 When(/^I go to returns$/) do
   visit "/sales/returns"
-  page.status_code.should == 200
-  page.should have_content( t.return.title )
+  expect(page.status_code).to be(200)
+
+  # puts body
+  expect(page).to have_content( t.return.title )
 end
 
 When(/^It ask for a order code$/) do
-  page.should have_content( t.return.verify_order_code_legend )
+  expect(page).to have_content( t.return.verify_order_code_legend )
 end
 
 When(/^I give it a valid code$/) do
   @order = get_a_sale_order
   fill_in( "o_code", with: @order.o_code)
   click_button( t.actions.verify )
-  page.status_code.should == 200
-  page.should have_content( t.return.sale_details @order.o_id, @order.o_code_with_dash )
+  expect(page.status_code).to be(200)
+  expect(page).to have_content( t.return.sale_details @order.o_id, @order.o_code_with_dash )
 end
 
 When(/^I give it an invalid code, then I should see an error$/) do
   fill_in( "o_code", with: '¯\(°_o)/¯. I DUNNO LOL.')
   click_button( t.actions.verify )
-  page.status_code.should == 200
+  expect(page.status_code).to be(200)
   page.should have_content( "#{t.errors.inexistent_order.to_s}: #{t.errors.invalid_order_id.to_s}" )
 end
 
@@ -33,8 +35,8 @@ When(/^I give it a valid code, but ist's not a sale, then I should see an error$
   o_code = Order.select(:o_code).filter(type: Order::CREDIT_NOTE).first
   fill_in( "o_code", with: "#{o_code}")
   click_button( t.actions.verify )
-  page.status_code.should == 200
-  page.should have_content( "#{t.errors.inexistent_order.to_s}: #{t.errors.invalid_order_id.to_s}" )
+  expect(page.status_code).to be(200)
+  expect(page).to have_content( "#{t.errors.inexistent_order.to_s}: #{t.errors.invalid_order_id.to_s}" )
 end
 
 When(/^The order is a sale$/) do

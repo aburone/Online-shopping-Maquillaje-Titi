@@ -1,4 +1,4 @@
-- if authorized? && User.new.curret_user.level > 2
+- if authorized? && session[:user_level] > 2
   nav.collapsable role="navigation"
     ul
       li.autohide: ul

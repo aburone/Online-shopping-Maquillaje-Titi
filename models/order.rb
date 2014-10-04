@@ -90,7 +90,7 @@ class Order < Sequel::Model
   end
 
   def add_bulk bulk
-    current_user_id = User.new.current_user_id
+    current_user_id =  User.new.current_user_id
     current_location = User.new.current_location[:name]
     if bulk.nil?
       message = R18n::t.errors.inexistent_bulk
@@ -136,32 +136,43 @@ class Order < Sequel::Model
 
   def remove_item item
     super
+    current_user_id =  User.new.current_user_id
+    current_location = User.new.current_location[:name]
     message = R18n::t.order.item_removed
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, i_id: item.i_id, p_id: item.p_id, o_id: @values[:o_id]).save
+    ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, i_id: item.i_id, p_id: item.p_id, o_id: @values[:o_id]).save
   end
 
   def remove_bulk bulk
     super
+    current_user_id =  User.new.current_user_id
+    current_location = User.new.current_location[:name]
     message = R18n::t.order.bulk_removed
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, b_id: bulk.b_id, m_id: bulk.m_id, o_id: @values[:o_id]).save
+    ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, b_id: bulk.b_id, m_id: bulk.m_id, o_id: @values[:o_id]).save
   end
 
   def remove_all_items
     super
+    current_user_id =  User.new.current_user_id
+    current_location = User.new.current_location[:name]
     message = R18n::t.order.all_items_removed
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+    ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
   end
 
   def remove_all_bulks
     super
+    current_user_id =  User.new.current_user_id
+    current_location = User.new.current_location[:name]
     message = R18n::t.order.all_bulks_removed
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+    ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
   end
 
   def change_status status
     @values[:o_status] = status
     save columns: [:o_status]
-    ActionsLog.new.set(msg: R18n.t.actions.changed_order_status(ConstantsTranslator.new(status).t), u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::INFO, o_id: @values[:o_id]).save
+    current_user_id =  User.new.current_user_id
+    current_location = User.new.current_location[:name]
+    message = R18n.t.actions.changed_order_status(ConstantsTranslator.new(status).t)
+    ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::INFO, o_id: @values[:o_id]).save
     self
   end
 
@@ -211,8 +222,10 @@ class Order < Sequel::Model
         items.each { |item| item.change_status(Item::READY, self.o_id).save if item.i_status == Item::RETURNING }
         self.change_status Order::FINISHED
         save columns: Order::ATTRIBUTES
+        current_user_id =  User.new.current_user_id
+        current_location = User.new.current_location[:name]
         message = R18n.t.return.finished
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: self.o_id).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, o_id: self.o_id).save
         return true
       end
     end
@@ -226,8 +239,10 @@ class Order < Sequel::Model
       remove_all_items
       @values[:o_status] = Order::VOID
       save columns: [:o_id, :type, :o_status, :o_loc, :o_dst, :u_id, :created_at]
+      current_user_id =  User.new.current_user_id
+      current_location = User.new.current_location[:name]
       message = R18n.t.order.void
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
       return true
     end
     return false
@@ -236,32 +251,36 @@ class Order < Sequel::Model
   def non_destructive_cancel
     DB.transaction do
       items = self.items
+      current_user_id =  User.new.current_user_id
+      current_location = User.new.current_location[:name]
       items.each do |item|
         message = "Removiendo #{item.p_name} de la orden #{@values[:o_id]}"
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id], i_id: item.i_id, p_id: item.p_id).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, o_id: @values[:o_id], i_id: item.i_id, p_id: item.p_id).save
         item.change_status Item::READY, @values[:o_id]
       end
       remove_all_items
       @values[:o_status] = Order::VOID
       save columns: Order::ATTRIBUTES
       message = R18n.t.order.void
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
     end
   end
 
   def cancel_return
     DB.transaction do
       items = self.items
+      current_user_id =  User.new.current_user_id
+      current_location = User.new.current_location[:name]
       items.each do |item|
         message = "Removiendo #{item.p_name} de la orden #{@values[:o_id]}"
-        ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id], i_id: item.i_id, p_id: item.p_id).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, o_id: @values[:o_id], i_id: item.i_id, p_id: item.p_id).save
         item.change_status Item::SOLD, @values[:o_id]
       end
       remove_all_items
       @values[:o_status] = Order::VOID
       save columns: Order::ATTRIBUTES
       message = R18n.t.order.void
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, o_id: @values[:o_id]).save
       return true
     end
   end
@@ -279,8 +298,10 @@ class Order < Sequel::Model
     if order.class ==  NilClass
       order = Order
       .create(type: type, o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
+      current_user_id =  User.new.current_user_id
+      current_location = User.new.current_location[:name]
       message = R18n.t.order.created(order.type)
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: current_location, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     end
     order
   end
@@ -289,8 +310,10 @@ class Order < Sequel::Model
     u = User.new
     current_user_id = u.current_user_id
     order = Order.create(type: Order::INVALIDATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
+    current_user_id =  User.new.current_user_id
+    current_location = User.new.current_location[:name]
     message = R18n.t.order.created(order.type)
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
+    ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     order
   end
 
@@ -298,8 +321,10 @@ class Order < Sequel::Model
     u = User.new
     current_user_id = u.current_user_id
     order = Order.create(type: Order::TRANSMUTATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
+    current_user_id =  User.new.current_user_id
+    current_location = User.new.current_location[:name]
     message = R18n.t.order.created(order.type)
-    ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
+    ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     order
   end
 

@@ -66,8 +66,10 @@ class Item < Sequel::Model
 
   def dissociate o_id=nil
     DB.transaction do
+      current_user_id =  User.new.current_user_id
+      current_location = User.new.current_location[:name]
       message = R18n::t.product.item_removed
-      ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, i_id: @values[:i_id], p_id: @values[:p_id], o_id: o_id).save
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, i_id: @values[:i_id], p_id: @values[:p_id], o_id: o_id).save
 
       defaults = Item
                   .select{default(:p_id).as(p_id)}
@@ -92,7 +94,10 @@ class Item < Sequel::Model
     product = check_product_for_transmutation p_id
     original = self.dup
 
-    order = Order.new.create_transmutation User.new.current_location[:name]
+    current_user_id =  User.new.current_user_id
+    current_location = User.new.current_location[:name]
+
+    order = Order.new.create_transmutation current_location
     order.add_item self
     @values[:p_id] = product.p_id
     @values[:p_name] = product.p_name
@@ -101,7 +106,7 @@ class Item < Sequel::Model
     save
 
     message = "Item Transmutado: #{original.p_name} -> #{@values[:p_name]}. Razon: #{reason}"
-    log = ActionsLog.new.set(msg: message, u_id: User.new.current_user_id, l_id: @values[:i_loc], lvl: ActionsLog::WARN, o_id: order.o_id, i_id: @values[:i_id], p_id: @values[:p_id])
+    log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: @values[:i_loc], lvl: ActionsLog::WARN, o_id: order.o_id, i_id: @values[:i_id], p_id: @values[:p_id])
     log.save
 
     product = Product[original.p_id]
@@ -373,7 +378,13 @@ class Item < Sequel::Model
 
   def get_for_return i_id, return_id
     i_id = i_id.to_s.strip
-    sale_id = SalesToReturn.filter(return: return_id).first[:sale]
+    return self if missing(i_id)
+    sale = SalesToReturn.filter(:return=>return_id).first
+    if sale.nil?
+      errors.add("orden inválida", "No tengo ninguna orden de devolucion con el id '#{return_id}'")
+      return self
+    end
+    sale_id = sale[:sale]
     item = Item
             .filter(i_status: Item::SOLD, i_loc: User.new.current_location[:name], type: Order::SALE, i_id: i_id, o_id: sale_id)
             .join(:line_items, [:i_id])

@@ -138,16 +138,25 @@ end
 class User
   def current_location= new_location
     Thread.current.thread_variable_set(:current_location, {name: new_location, translation: ConstantsTranslator.new(new_location).t})
+    # current_user_id =  User.new.current_user_id
+    # current_location = User.new.current_location[:name]
   end
 
   def current_user_id= new_user_id
     Thread.current.thread_variable_set(:user_id, new_user_id)
+    # session[:user_id] = new_user_id
   end
 end
 
-def kill_session
-  Thread.current.thread_variable_set(:username, nil)
-  Thread.current.thread_variable_set(:user_real_name, nil)
-  Thread.current.thread_variable_set(:user_id, nil)
-  Thread.current.thread_variable_set(:current_location, nil)
-end
+# def kill_session
+#   session[:user_id] = nil
+#   session[:user_level] = nil
+#   session[:username] = nil
+#   session[:user_real_name] = nil
+#   session[:current_location] = nil
+#   session = nil
+#   # Thread.current.thread_variable_set(:username, nil)
+#   # Thread.current.thread_variable_set(:user_real_name, nil)
+#   # Thread.current.thread_variable_set(:user_id, nil)
+#   # Thread.current.thread_variable_set(:current_location, nil)
+# end
