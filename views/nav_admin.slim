@@ -3,7 +3,7 @@ nav.main_nav role="navigation"
     dt Menu
     - if authorized?
       dd.lnk
-        // span class="current" href="#" = ("#{current_user_name}@#{current_location[:translation]}" if current_user_name and current_location)
+        span class="current" href="#" = ("#{current_user_name}@#{current_location[:translation]}" if current_user_name and current_location)
 
       dd.lnk
         a class="#{inside?("/admin/production")}" href=url('/production') = t.production.title
