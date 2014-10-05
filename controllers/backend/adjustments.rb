@@ -70,6 +70,7 @@ class Backend < AppController
     def save_modded_products
       DB.transaction do
         brand_message = @br_id ? " con marca #{Brand[@br_id].br_name}"  : ""
+        current_user_id =  User.new.current_user_id
         message = "Actualizancion masiva de #{eval("R18n.t.product.fields.#{@attribute.to_s}")} de productos#{brand_message}. multiplicador: #{@mod.to_f}"
         ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
 
@@ -175,6 +176,7 @@ class Backend < AppController
     def save_modded_materials
       DB.transaction do
         brand_message = @br_id ? " con marca #{Brand[@br_id].br_name}"  : ""
+        current_user_id =  User.new.current_user_id
         message = "Actualizancion masiva de #{eval("R18n.t.material.fields.#{@attribute.to_s}")} de materialos#{brand_message}. multiplicador: #{@mod.to_f}"
         ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE).save
 
