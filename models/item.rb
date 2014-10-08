@@ -107,7 +107,6 @@ class Item < Sequel::Model
     save validate: false
 
     current_user_id =  User.new.current_user_id
-    current_location = User.new.current_location[:name]
     message = "#{R18n.t.actions.changed_item_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}"
     log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl: ActionsLog::NOTICE, i_id: @values[:i_id], o_id: order.o_id)
     log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?

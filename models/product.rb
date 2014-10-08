@@ -130,6 +130,10 @@ class Product < Sequel::Model
     self
   end
 
+  def name
+    self.p_name
+  end
+
   def perform
     # TODO: raise errors as warning message
     begin
@@ -139,15 +143,15 @@ class Product < Sequel::Model
       self.update_stocks
       self.update_ideal_stock
       self.save validate: false
-      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::INFO, p_id: self.p_id).save
+      ActionsLog.new.set(msg: message, u_id: 1, l_id: Location::GLOBAL, lvl: ActionsLog::INFO, p_id: self.p_id).save
       self.validate
       if self.errors.count > 0
         message = "Error recalculando producto #{self.p_id} #{self.p_name}: #{self.errors.to_a.flatten.join(" ")}"
-        ActionsLog.new.set(msg: message[0..254], u_id: current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR, p_id: self.p_id).save
+        ActionsLog.new.set(msg: message[0..254], u_id: 1, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR, p_id: self.p_id).save
       end
     rescue => detail
       message = "Error critico: #{detail.message} #{$@}"
-      ActionsLog.new.set(msg: message[0..254], u_id: current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR).save
+      ActionsLog.new.set(msg: message[0..254], u_id: 1, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR).save
     end
   end
 
@@ -271,6 +275,7 @@ class Product < Sequel::Model
     errors.add("El markup real", "no puede ser cero." ) if self[:real_markup] == 0
     # errors.add("El precio exacto", "no puede ser cero" ) if self[:exact_price] == 0
     errors.add("El precio", "no puede ser cero" ) if self.price == 0
+    errors
   end
 
 

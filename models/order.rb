@@ -298,8 +298,6 @@ class Order < Sequel::Model
     if order.class ==  NilClass
       order = Order
       .create(type: type, o_status: Order::OPEN, u_id: current_user_id, o_loc: current_location)
-      current_user_id =  User.new.current_user_id
-      current_location = User.new.current_location[:name]
       message = R18n.t.order.created(order.type)
       ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     end
@@ -307,22 +305,16 @@ class Order < Sequel::Model
   end
 
   def create_invalidation origin
-    u = User.new
-    current_user_id = u.current_user_id
-    order = Order.create(type: Order::INVALIDATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
     current_user_id =  User.new.current_user_id
-    current_location = User.new.current_location[:name]
+    order = Order.create(type: Order::INVALIDATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
     message = R18n.t.order.created(order.type)
     ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     order
   end
 
   def create_transmutation origin
-    u = User.new
-    current_user_id = u.current_user_id
-    order = Order.create(type: Order::TRANSMUTATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
     current_user_id =  User.new.current_user_id
-    current_location = User.new.current_location[:name]
+    order = Order.create(type: Order::TRANSMUTATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
     message = R18n.t.order.created(order.type)
     ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
     order

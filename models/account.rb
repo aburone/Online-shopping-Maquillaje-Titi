@@ -116,7 +116,9 @@ class Transaction
   end
 
   def save
-    # BookRecord.new(b_loc: current_location[:name], o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total).save
+    # current_user_id =  User.new.current_user_id
+    # current_location = User.new.current_location[:name]
+    # BookRecord.new(b_loc: current_location, o_id: @order.o_id, created_at: Time.now, type: "Venta mostrador", description: "#{items.count}", amount: @cart_total).save
     DB.transaction do
       raise R18n.t.errors.empty_transaction if @operations.empty?
       @transaction.save

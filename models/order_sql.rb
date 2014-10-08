@@ -136,8 +136,7 @@ class Order < Sequel::Model
   end
 
   def create_invalidation origin
-    u = User.new
-    current_user_id = u.current_user_id
+    current_user_id =  User.new.current_user_id
     order = Order.create(type: Order::INVALIDATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
     message = R18n.t.order.created(order.type)
     ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
@@ -145,8 +144,7 @@ class Order < Sequel::Model
   end
 
   def create_transmutation origin
-    u = User.new
-    current_user_id = u.current_user_id
+    current_user_id =  User.new.current_user_id
     order = Order.create(type: Order::TRANSMUTATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
     message = R18n.t.order.created(order.type)
     ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
@@ -253,8 +251,11 @@ class Order < Sequel::Model
     if order.class == Order
       return order
     else
-      message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::PACKAGING, o_id)
-      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::ERROR).save
+      current_user_id =  User.new.current_user_id
+      current_user_name =  User.new.current_user_name
+      current_location = User.new.current_location[:name]
+      message = R18n.t.order.user_is_editing_nil(current_user_name, Order::PACKAGING, o_id)
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::ERROR).save
       return Order.new
     end
   end
@@ -274,30 +275,33 @@ class Order < Sequel::Model
       .filter(o_status: Order::MUST_VERIFY)
       .filter(o_id: o_id.to_i)
       .first
+    current_user_id =  User.new.current_user_id
+    current_user_name =  User.new.current_user_name
+    current_location = User.new.current_location[:name]
     if order.class == Order
       if order.type == Order::PACKAGING
         if order.o_status == Order::MUST_VERIFY
-          message = R18n.t.order.user_is_verifying(User.new.current_user_name, order.type, order.o_id)
-          ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: location, lvl: ActionsLog::NOTICE, o_id: order.o_id).save if log
+          message = R18n.t.order.user_is_verifying(current_user_name, order.type, order.o_id)
+          ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, o_id: order.o_id).save if log
           return order
         else
-          message = R18n.t.order.user_is_verfying_order_in_invalid_status(User.new.current_user_name, order.type, order.o_id, order.o_status)
-          ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: location, lvl: ActionsLog::ERROR, o_id: order.o_id).save
+          message = R18n.t.order.user_is_verfying_order_in_invalid_status(current_user_name, order.type, order.o_id, order.o_status)
+          ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::ERROR, o_id: order.o_id).save
           order = Order.new
           order.errors.add("", message)
           return order
         end
       else
-        message = R18n.t.order.user_is_verfying_order_of_wrong_type(User.new.current_user_name, order.o_id, order.o_status, order.type)
-        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: location, lvl: ActionsLog::ERROR, o_id: order.o_id).save
+        message = R18n.t.order.user_is_verfying_order_of_wrong_type(current_user_name, order.o_id, order.o_status, order.type)
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::ERROR, o_id: order.o_id).save
         order = Order.new
         order.errors.add("", message)
         return order
       end
     else
       order = Order.new
-      message = R18n.t.order.user_is_editing_nil(User.new.current_user_name, Order::PACKAGING, o_id)
-      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: location, lvl: ActionsLog::ERROR).save
+      message = R18n.t.order.user_is_editing_nil(current_user_name, Order::PACKAGING, o_id)
+      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::ERROR).save
       order = Order.new
       order.errors.add("", message)
       return order

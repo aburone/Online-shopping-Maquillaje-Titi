@@ -74,6 +74,15 @@ class Product < Sequel::Model
   COLUMNS = [:products__p_id, :c_id, :p_name, :p_short_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :notes, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :tercerized, :published, :on_request, :non_saleable, :archived, :end_of_life, :products__img, :img_extra, :products__created_at, :products__price_updated_at, :products__description, :brands__br_name]
   EXCLUDED_ATTRIBUTES_IN_DUPLICATION = [:p_id, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation, :created_at, :price_updated_at]
 
+  def supply
+    supply = Supply[p_id]
+    if supply.nil?
+      supply = Supply.new
+      supply.p_id = self.p_id
+    end
+    supply.init self
+  end
+
   def update_costs
     parts_cost
     materials_cost
@@ -181,10 +190,6 @@ class Product < Sequel::Model
     return "no data"
   end
 
-  def category
-    self.Category
-  end
-
   def create_default
     last_p_id = "ERROR"
     previous = Product.where(p_short_name: "NEW").first
@@ -232,9 +237,9 @@ class Product < Sequel::Model
                 .filter(products__p_id: p_id.to_i)
                 .left_join(:categories, [:c_id])
                 .left_join(:brands, [:br_id])
+                .left_join(:supplies, [:p_id])
                 .first
     return Product.new if product.nil?
-                # .left_join(:supplies, [:p_id])
     product.br_name = product[:br_name]
     product
   end

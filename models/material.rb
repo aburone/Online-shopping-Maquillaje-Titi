@@ -2,21 +2,25 @@ class Material < Sequel::Model(:materials)
 
   require_relative 'material_sql.rb'
 
+  def name
+    self.p_name
+  end
+
   def perform
     begin
       self.calculate_ideal_stock
       self.save validate: false
       message = "Recalculando material #{self.m_id}: #{self.m_name}"
-      ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::INFO, m_id: self.m_id).save
+      ActionsLog.new.set(msg: message, u_id: 1, l_id: Location::GLOBAL, lvl: ActionsLog::INFO, m_id: self.m_id).save
 
       self.validate
       if self.errors.count > 0
         message = "Error recalculando material #{self.m_id} #{self.m_name}: #{self.errors.to_a.flatten.join(" ")}"
-        ActionsLog.new.set(msg: message[0..254], u_id: current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR, m_id: self.m_id).save
+        ActionsLog.new.set(msg: message[0..254], u_id: 1, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR, m_id: self.m_id).save
       end
     rescue => detail
       message = "Error critico: #{detail.message} #{$@}"
-      ActionsLog.new.set(msg: message[0..254], u_id: current_user_id, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR).save
+      ActionsLog.new.set(msg: message[0..254], u_id: 1, l_id: Location::GLOBAL, lvl: ActionsLog::ERROR).save
     end
   end
 

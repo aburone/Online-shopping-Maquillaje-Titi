@@ -142,7 +142,6 @@ class Material < Sequel::Model(:materials)
       super opts
       if update_products
         current_user_id =  User.new.current_user_id
-        current_location = User.new.current_location[:name]
         message = "Actualizancion de costo de todos los productos que utilizan #{@values[:m_name]}"
         ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: "GLOBAL", lvl: ActionsLog::NOTICE, m_id: @values[:m_id]).save
         self.products.each do |product|
