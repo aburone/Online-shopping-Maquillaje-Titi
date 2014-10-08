@@ -52,7 +52,9 @@ class AppController < Sinatra::Base
         if task.errors.count > 0
           ap task
         end
+        ap "about to perform #{task.name}"
         task.perform
+        ap "performed #{task.name}"
       rescue => e
         ap e.message
         ap e.class

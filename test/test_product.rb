@@ -3,13 +3,13 @@ require_relative 'prerequisites'
 class ProductTest < Test::Unit::TestCase
 
   def setup
-    @valid = Product.new.get_rand
-    @valid.sale_cost = BigDecimal.new 10
-    @valid.price = BigDecimal.new 20
-    assert_equal @valid.price, BigDecimal.new(20), "Shit"
-    @valid.exact_price = BigDecimal.new 19.54, 5
-    @valid.recalculate_markups
-    @valid.p_name = "ProductTest @valid"
+    @valid_product = Product.where(parts_cost: 0, materials_cost: 0).first
+    @valid_product.sale_cost = BigDecimal.new 10
+    @valid_product.price = BigDecimal.new 20
+    assert_equal @valid_product.price, BigDecimal.new(20), "Shit"
+    @valid_product.exact_price = BigDecimal.new 19.54, 5
+    @valid_product.recalculate_markups
+    @valid_product.p_name = "ProductTest @valid_product"
   end
 
   def test_get_rand
@@ -106,24 +106,24 @@ class ProductTest < Test::Unit::TestCase
   end
 
   def test_mod_price_should_ignore_zero
-    expected_price = @valid.price
-    @valid.price_mod 0
-    assert_equal expected_price, @valid.price
+    expected_price = @valid_product.price
+    @valid_product.price_mod 0
+    assert_equal expected_price, @valid_product.price
   end
 
   def test_mod_price_should_ignore_one
-    expected_price = @valid.exact_price.round(1)
-    @valid.price_mod 1
-    assert_equal expected_price.to_s("F"), @valid.price.to_s("F")
+    expected_price = @valid_product.exact_price.round(1)
+    @valid_product.price_mod 1
+    assert_equal expected_price.to_s("F"), @valid_product.price.to_s("F")
   end
 
   def test_mod_price_should_include_mila_marzi
-    @valid.br_name = "Mila Marzi"
+    @valid_product.br_name = "Mila Marzi"
     mod = 1.1
     expected = 21.5 # 21.494
     expected_price = BigDecimal.new("#{expected}", 2)
-    @valid.price_mod mod
-    assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+    @valid_product.price_mod mod
+    assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
   end
 
   def test_mod_price_should_include_archived
@@ -131,8 +131,8 @@ class ProductTest < Test::Unit::TestCase
       mod = 1.1
       expected = 21.5 # 21.494
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -141,8 +141,8 @@ class ProductTest < Test::Unit::TestCase
       mod = 0.89
       expected = 17.4 # 19.54 * 0.89 = 17.39
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -151,8 +151,8 @@ class ProductTest < Test::Unit::TestCase
       mod = 0.01
       expected = 0.2 # 0.2
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -161,8 +161,8 @@ class ProductTest < Test::Unit::TestCase
       mod = 1.0009
       expected = 19.6 # 19.54 * 1.009 = 19.5575
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -171,8 +171,8 @@ class ProductTest < Test::Unit::TestCase
       mod = 1.1
       expected = 21.5 # 21.494
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -181,8 +181,8 @@ class ProductTest < Test::Unit::TestCase
       mod = 1.01
       expected = 19.7 # 19.7354
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -191,8 +191,8 @@ class ProductTest < Test::Unit::TestCase
       mod = 1.11
       expected = 21.7 # 19.54 * 1.11 = 21.68
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -201,8 +201,8 @@ class ProductTest < Test::Unit::TestCase
       mod = 1.13
       expected = 22.1 # 19.54 * 1.13 = 22.08
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -211,8 +211,8 @@ class ProductTest < Test::Unit::TestCase
       mod = 1.5
       expected = 29.3 # 19.54 * 1.5 = 29.31
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -221,8 +221,8 @@ class ProductTest < Test::Unit::TestCase
       mod = 5.123
       expected = 100 # 19.54 * 5.123 = 100.10342
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -231,8 +231,8 @@ class ProductTest < Test::Unit::TestCase
       mod = "1,0009"
       expected = 19.6 # 19.54 * 1.009 = 19.5575
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -241,8 +241,8 @@ class ProductTest < Test::Unit::TestCase
       mod = "1,1"
       expected = 21.5 # 21.494
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -251,8 +251,8 @@ class ProductTest < Test::Unit::TestCase
       mod = "1,01"
       expected = 19.7 # 19.7354
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -261,8 +261,8 @@ class ProductTest < Test::Unit::TestCase
       mod = "1,11"
       expected = 21.7 # 19.54 * 1.11 = 21.68
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -271,8 +271,8 @@ class ProductTest < Test::Unit::TestCase
       mod = "1,13"
       expected = 22.1 # 19.54 * 1.13 = 22.08
       expected_price = BigDecimal.new("#{expected}", 1)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -281,8 +281,8 @@ class ProductTest < Test::Unit::TestCase
       mod = "1,5"
       expected = 29.3 # 19.54 * 1.5 = 29.31
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -291,8 +291,8 @@ class ProductTest < Test::Unit::TestCase
       mod = "0.89"
       expected = 17.4 # 19.54 * 0.89 = 17.39
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -301,8 +301,8 @@ class ProductTest < Test::Unit::TestCase
       mod = "0,01"
       expected = 0.2 # 0.2
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
@@ -311,17 +311,17 @@ class ProductTest < Test::Unit::TestCase
       mod = "5,123"
       expected = 100 # 19.54 * 5.123 = 100.10342
       expected_price = BigDecimal.new("#{expected}", 2)
-      @valid.price_mod mod
-      assert_equal expected_price.to_s("F") , @valid.price.to_s("F")
+      @valid_product.price_mod mod
+      assert_equal expected_price.to_s("F") , @valid_product.price.to_s("F")
     end
   end
 
   def test_should_update_from_hash
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       hash = {direct_ideal_stock: "90,00", indirect_ideal_stock: "90,00", stock_warehouse_1: "100,00", buy_cost: "1,0", sale_cost: "1,0"}
-      @valid.update_from_hash hash
-      assert_equal BigDecimal.new(180).to_s("F"), @valid.ideal_stock.to_s("F"), "Erroneous ideal_stock 1"
-      assert_equal 100, @valid.stock_warehouse_1
+      @valid_product.update_from_hash hash
+      assert_equal BigDecimal.new(180).to_s("F"), @valid_product.ideal_stock.to_s("F"), "Erroneous ideal_stock 1"
+      assert_equal 100, @valid_product.stock_warehouse_1
     end
   end
 
@@ -371,9 +371,9 @@ class ProductTest < Test::Unit::TestCase
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       material = Material.new.get_rand
       material[:m_qty] = 5
-      prev_count = @valid.materials.count
-      @valid.add_material material
-      new_count = @valid.materials.count
+      prev_count = @valid_product.materials.count
+      @valid_product.add_material material
+      new_count = @valid_product.materials.count
       assert_equal prev_count + 1, new_count
     end
   end
@@ -382,11 +382,11 @@ class ProductTest < Test::Unit::TestCase
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       material = Material.new.get_rand
       material[:m_qty] = 0
-      prev_count = @valid.materials.count
-      @valid.add_material material
-      new_count = @valid.materials.count
+      prev_count = @valid_product.materials.count
+      @valid_product.add_material material
+      new_count = @valid_product.materials.count
       assert_equal prev_count , new_count
-      assert_equal 1, @valid.errors.count
+      assert_equal 1, @valid_product.errors.count
     end
   end
 
@@ -394,31 +394,31 @@ class ProductTest < Test::Unit::TestCase
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       material = Material.new.get_rand
       material[:m_qty] = 5
-      count1 = @valid.materials.count
-      new_material = @valid.add_material material
-      count2 = @valid.materials.count
+      count1 = @valid_product.materials.count
+      new_material = @valid_product.add_material material
+      count2 = @valid_product.materials.count
       assert_equal count1 + 1, count2, "Error adding"
       assert_equal BigDecimal.new(5), new_material[:m_qty], "Error adding"
 
       material[:m_qty] = -5
-      updated_material = @valid.update_material material
-      count3 = @valid.materials.count
+      updated_material = @valid_product.update_material material
+      count3 = @valid_product.materials.count
       assert_equal count2 , count3, "Error updating negative"
-      assert_equal 1, @valid.errors.count, "Error updating negative"
+      assert_equal 1, @valid_product.errors.count, "Error updating negative"
       assert_equal BigDecimal.new(5), updated_material[:m_qty], "Error updating negative"
 
       material[:m_qty] = 3
-      updated_material = @valid.update_material material
-      count4 = @valid.materials.count
+      updated_material = @valid_product.update_material material
+      count4 = @valid_product.materials.count
       assert_equal count3, count4, "Error updating"
-      assert_equal 1, @valid.errors.count, "Error updating"
+      assert_equal 1, @valid_product.errors.count, "Error updating"
       assert_equal BigDecimal.new(3), updated_material[:m_qty], "Error updating"
 
       material[:m_qty] = 0
-      updated_material = @valid.update_material material
-      count5 = @valid.materials.count
+      updated_material = @valid_product.update_material material
+      count5 = @valid_product.materials.count
       assert_equal count4 - 1, count5, "Error removing"
-      assert_equal 1, @valid.errors.count, "Error removing"
+      assert_equal 1, @valid_product.errors.count, "Error removing"
     end
   end
 
@@ -426,9 +426,9 @@ class ProductTest < Test::Unit::TestCase
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       part = Product.new.get_rand
       part[:part_qty] = 5
-      prev_count = @valid.parts.count
-      @valid.add_part part
-      new_count = @valid.parts.count
+      prev_count = @valid_product.parts.count
+      @valid_product.add_part part
+      new_count = @valid_product.parts.count
       assert_equal prev_count + 1, new_count
     end
   end
@@ -437,11 +437,11 @@ class ProductTest < Test::Unit::TestCase
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       part = Product.new.get_rand
       part[:part_qty] = 0
-      prev_count = @valid.parts.count
-      @valid.add_part part
-      new_count = @valid.parts.count
+      prev_count = @valid_product.parts.count
+      @valid_product.add_part part
+      new_count = @valid_product.parts.count
       assert_equal prev_count , new_count
-      assert_equal 1, @valid.errors.count
+      assert_equal 1, @valid_product.errors.count
     end
   end
 
@@ -449,39 +449,39 @@ class ProductTest < Test::Unit::TestCase
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       part = Product.new.get_rand
       part[:part_qty] = 5
-      count1 = @valid.parts.count
-      new_part = @valid.add_part part
-      count2 = @valid.parts.count
+      count1 = @valid_product.parts.count
+      new_part = @valid_product.add_part part
+      count2 = @valid_product.parts.count
       assert_equal count1 + 1, count2, "Error adding"
       assert_equal BigDecimal.new(5), new_part[:part_qty], "Error adding"
 
       part[:part_qty] = -5
-      updated_part = @valid.update_part part
-      count3 = @valid.parts.count
+      updated_part = @valid_product.update_part part
+      count3 = @valid_product.parts.count
       assert_equal count2 , count3, "Error updating negative"
-      assert_equal 1, @valid.errors.count, "Error updating negative"
+      assert_equal 1, @valid_product.errors.count, "Error updating negative"
       assert_equal BigDecimal.new(5), updated_part[:part_qty], "Error updating negative"
 
       part[:part_qty] = 3
-      updated_part = @valid.update_part part
-      count4 = @valid.parts.count
+      updated_part = @valid_product.update_part part
+      count4 = @valid_product.parts.count
       assert_equal count3, count4, "Error updating"
-      assert_equal 1, @valid.errors.count, "Error updating"
+      assert_equal 1, @valid_product.errors.count, "Error updating"
       assert_equal BigDecimal.new(3), updated_part[:part_qty], "Error updating"
 
       part[:part_qty] = 0
-      updated_part = @valid.update_part part
-      count5 = @valid.parts.count
+      updated_part = @valid_product.update_part part
+      count5 = @valid_product.parts.count
       assert_equal count4 - 1, count5, "Error removing"
-      assert_equal 1, @valid.errors.count, "Error removing"
+      assert_equal 1, @valid_product.errors.count, "Error removing"
     end
   end
 
   def test_should_get_product_by_sku
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       sku = rand
-      @valid.sku = sku
-      orig = @valid.save
+      @valid_product.sku = sku
+      orig = @valid_product.save
       product = Product.new.get_by_sku sku
       assert_equal orig.p_id, product.p_id
     end
@@ -498,16 +498,16 @@ class ProductTest < Test::Unit::TestCase
   def test_should_clean_given_sku
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       sku = "    a e i \n \r \t o     u    "
-      @valid.sku = sku
-      assert_equal "a e i o u", @valid.sku
+      @valid_product.sku = sku
+      assert_equal "a e i o u", @valid_product.sku
     end
   end
 
   def test_should_return_nil_if_empty_sku
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       sku = ""
-      @valid.sku = sku
-      assert_equal nil, @valid.sku
+      @valid_product.sku = sku
+      assert_equal nil, @valid_product.sku
     end
   end
 
@@ -524,8 +524,8 @@ class ProductTest < Test::Unit::TestCase
 
   def test_should_round_price_to_1_decimal_if_under_100
     DB.transaction(rollback: :always, isolation: :uncommitted) do
-      @valid.price = 6.5555
-      assert_equal BigDecimal.new(6.5, 1), @valid.price, "Erroneous price"
+      @valid_product.price = 6.5555
+      assert_equal BigDecimal.new(6.5, 1), @valid_product.price, "Erroneous price"
     end
   end
 
