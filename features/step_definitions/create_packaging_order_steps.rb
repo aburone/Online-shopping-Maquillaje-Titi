@@ -1,10 +1,3 @@
-When(/^I go to packaging_list$/) do
-  visit "/admin/production/packaging/select"
-  page.status_code.should == 200
-  page.should have_content( t.production.packaging_select.title )
-end
-
-
 When /^I fill with a printed label$/ do
   label = Label.new.get_printed.first
   expect(page).to have_content(t.production.select_product)
@@ -34,13 +27,6 @@ When /^I remove one item I should see one less$/ do
     page.all('.item').count.should == @count - 1
     @count = @count - 1
   end
-end
-
-
-When(/^I go to allocation_list$/) do
-  visit "/admin/production/allocation/select"
-  page.status_code.should == 200
-  page.should have_content( t.production.allocation_select.title )
 end
 
 Then /^I should see the correct title for the allocation of a packaging order$/ do

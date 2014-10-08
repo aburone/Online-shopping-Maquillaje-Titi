@@ -1,5 +1,5 @@
 # coding: UTF-8
-class Category < Sequel::Model(:categories)
+class Category < Sequel::Model
   one_to_many :products
 
   ATTRIBUTES = [:c_id, :c_name, :description, :c_published, :img]
@@ -25,15 +25,44 @@ class Category < Sequel::Model(:categories)
      category = Category.new if category.nil?
      category
   end
+
 end
 
 class Supply < Sequel::Model
   one_to_one :product, key: :p_id
+  ATTRIBUTES = [:p_id, :s1_whole, :s1_whole_en_route, :s1_whole_future, :s1_whole_ideal, :s1_whole_deviation, :s1_part, :s1_part_en_route, :s1_part_future, :s1_part_ideal, :s1_part_deviation, :s1, :s1_en_route, :s1_future, :s1_ideal, :s1_deviation, :s2_whole, :s2_whole_en_route, :s2_whole_future, :s2_whole_ideal, :s2_whole_deviation, :s2_part, :s2_part_en_route, :s2_part_future, :s2_part_ideal, :s2_part_deviation, :s2, :s2_en_route, :s2_future, :s2_ideal, :s2_deviation, :stores_whole, :stores_whole_en_route, :stores_whole_future, :stores_whole_ideal, :stores_whole_deviation, :stores_part, :stores_part_en_route, :stores_part_future, :stores_part_ideal, :stores_part_deviation, :stores, :stores_en_route, :stores_future, :stores_ideal, :stores_deviation, :w1_whole, :w1_whole_en_route, :w1_whole_future, :w1_whole_ideal, :w1_whole_deviation, :w1_part, :w1_part_en_route, :w1_part_future, :w1_part_ideal, :w1_part_deviation, :w1, :w1_en_route, :w1_future, :w1_ideal, :w1_deviation, :w2_whole, :w2_whole_en_route, :w2_whole_future, :w2_whole_ideal, :w2_whole_deviation, :w2_part, :w2_part_en_route, :w2_part_future, :w2_part_ideal, :w2_part_deviation, :w2, :w2_en_route, :w2_future, :w2_ideal, :w2_deviation, :wharehouses_whole, :wharehouses_whole_en_route, :wharehouses_whole_future, :wharehouses_whole_ideal, :wharehouses_whole_deviation, :wharehouses_part, :wharehouses_part_en_route, :wharehouses_part_future, :wharehouses_part_ideal, :wharehouses_part_deviation, :wharehouses, :wharehouses_en_route, :wharehouses_future, :wharehouses_ideal, :wharehouses_deviation, :global_whole, :global_whole_en_route, :global_whole_future, :global_whole_ideal, :global_whole_deviation, :global_part, :global_part_en_route, :global_part_future, :global_part_ideal, :global_part_deviation, :global, :global_en_route, :global_future, :global_ideal, :global_deviation, :updated_at]
+  COLUMNS = [:supplies__p_id, :s1_whole, :s1_whole_en_route, :s1_whole_future, :s1_whole_ideal, :s1_whole_deviation, :s1_part, :s1_part_en_route, :s1_part_future, :s1_part_ideal, :s1_part_deviation, :s1, :s1_en_route, :s1_future, :s1_ideal, :s1_deviation, :s2_whole, :s2_whole_en_route, :s2_whole_future, :s2_whole_ideal, :s2_whole_deviation, :s2_part, :s2_part_en_route, :s2_part_future, :s2_part_ideal, :s2_part_deviation, :s2, :s2_en_route, :s2_future, :s2_ideal, :s2_deviation, :stores_whole, :stores_whole_en_route, :stores_whole_future, :stores_whole_ideal, :stores_whole_deviation, :stores_part, :stores_part_en_route, :stores_part_future, :stores_part_ideal, :stores_part_deviation, :stores, :stores_en_route, :stores_future, :stores_ideal, :stores_deviation, :w1_whole, :w1_whole_en_route, :w1_whole_future, :w1_whole_ideal, :w1_whole_deviation, :w1_part, :w1_part_en_route, :w1_part_future, :w1_part_ideal, :w1_part_deviation, :w1, :w1_en_route, :w1_future, :w1_ideal, :w1_deviation, :w2_whole, :w2_whole_en_route, :w2_whole_future, :w2_whole_ideal, :w2_whole_deviation, :w2_part, :w2_part_en_route, :w2_part_future, :w2_part_ideal, :w2_part_deviation, :w2, :w2_en_route, :w2_future, :w2_ideal, :w2_deviation, :wharehouses_whole, :wharehouses_whole_en_route, :wharehouses_whole_future, :wharehouses_whole_ideal, :wharehouses_whole_deviation, :wharehouses_part, :wharehouses_part_en_route, :wharehouses_part_future, :wharehouses_part_ideal, :wharehouses_part_deviation, :wharehouses, :wharehouses_en_route, :wharehouses_future, :wharehouses_ideal, :wharehouses_deviation, :global_whole, :global_whole_en_route, :global_whole_future, :global_whole_ideal, :global_whole_deviation, :global_part, :global_part_en_route, :global_part_future, :global_part_ideal, :global_part_deviation, :global, :global_en_route, :global_future, :global_ideal, :global_deviation, :supplies__updated_at]
+  PRODUCT_EQ = {
+    direct_ideal_stock: :stores_whole,
+    indirect_ideal_stock: :stores_part,
+    ideal_stock: :stores_ideal,
+    stock_deviation: :global_deviation,
+    stock_store_1: :s1_whole,
+    stock_store_2: :w2_whole,
+    stock_warehouse_1: :w1_whole,
+    stock_warehouse_: :w2_whole
+  }
+
+  def get p_id
+    supply = Supply.select_group(*Supply::COLUMNS).filter(p_id: p_id.to_i).first
+    return supply.nil? ?  Supply.new.init  :  supply.init
+  end
+
+  def init product = Product.new
+    PRODUCT_EQ.map { |src_key, dst_key| @values[dst_key.to_sym] = product[src_key.to_sym] }
+    Supply.db_schema.map { |column| @values[column[0].to_sym] ||= column[1][:default] }
+    self
+  end
+
+  def empty?
+    return !!!self.p_id
+  end
+
 end
 
 class Product < Sequel::Model
   one_to_one :supply, key: :p_id
-  many_to_one :Category, key: :c_id
+  many_to_one :category, key: :c_id
   one_to_many :items, key: :p_id
   Product.nested_attributes :items
   many_to_many :materials , left_key: :product_id, right_key: :m_id, join_table: :products_materials
@@ -217,7 +246,7 @@ class Product < Sequel::Model
     condition = "product_id = #{self[:p_id]}"
     Product
       .join( ProductsPart.where{condition}, part_id: :products__p_id)
-    .join( Category, [:c_id])
+      .join( Category, [:c_id])
       .order(:p_name)
       .all
   end

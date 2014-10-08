@@ -4,8 +4,8 @@ nav role="navigation"
       == Rack::Csrf.tag(env)
       label for="type" Descuento Pro?
       br
-      input name="type" type="submit" value="Profesional"
-      input name="type" type="submit" value="Regular"
+      input name="type" type="submit" value="#{t.sales.make_sale.profesional}"
+      input name="type" type="submit" value="#{t.sales.make_sale.regular}"
 
 
 
@@ -20,4 +20,4 @@ nav role="navigation"
       == Rack::Csrf.tag(env)
       label for="checkout" Cobrar
       br
-      input name="checkout" type="submit" value="Cobrar venta"
+      input name="checkout" type="submit" value="#{t.sales.make_sale.checkout}"

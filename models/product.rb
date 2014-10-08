@@ -360,11 +360,13 @@ class Product < Sequel::Model
     end
 
     def archive
+      current_user_id =  User.new.current_user_id
+      current_location = User.new.current_location[:name]
       if inventory(1).global.virtual == 0
         self.end_of_life = false
         self.archived =  true
         message = "Archivado por agotar existencias"
-        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::NOTICE, p_id: self.p_id).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::NOTICE, p_id: self.p_id).save
         save
       else
         self.end_of_life = true
@@ -372,7 +374,7 @@ class Product < Sequel::Model
         save
         message = 'No se puede archivar un producto hasta que su stock sea 0. Seteado a "Fin de vida"'
         errors.add "Error de ingreso", message
-        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::WARN, p_id: self.p_id).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::WARN, p_id: self.p_id).save
       end
       self
     end
@@ -381,8 +383,10 @@ class Product < Sequel::Model
       if inventory(1).global.virtual > 0
         self.end_of_life = true
         self.archived =  false
+        current_user_id =  User.new.current_user_id
+        current_location = User.new.current_location[:name]
         message = 'Producto seteado en estado "Fin de vida" por tener stock'
-        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: User.new.current_location[:name], lvl: ActionsLog::WARN, p_id: self.p_id).save
+        ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: current_location, lvl: ActionsLog::WARN, p_id: self.p_id).save
         save
       end
       self

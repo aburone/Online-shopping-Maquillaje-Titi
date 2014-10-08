@@ -111,7 +111,7 @@ module Transport
     if order.errors.size == 0
       item.change_status Item::READY, order.o_id
       if item.errors.size == 0
-        flash[:warning] = "Item borrado de la orden. Sigue siendo un item valido para utilizarlo en otra orden"
+        flash[:warning] = t.item.deleted_from_order
       else
         flash[:error] = item.errors.to_a.flatten.join(": ")
       end

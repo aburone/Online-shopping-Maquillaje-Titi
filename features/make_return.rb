@@ -4,14 +4,6 @@ def get_a_sale_order
 end
 
 
-When(/^I go to returns$/) do
-  visit "/sales/returns"
-  expect(page.status_code).to be(200)
-
-  # puts body
-  expect(page).to have_content( t.return.title )
-end
-
 When(/^It ask for a order code$/) do
   expect(page).to have_content( t.return.verify_order_code_legend )
 end

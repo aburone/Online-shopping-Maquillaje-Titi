@@ -1,34 +1,3 @@
-When(/^I go to warehouse_arrivals$/) do
-  visit "/admin/transport/arrivals/select"
-  page.status_code.should == 200
-  page.should have_content( t.transport.arrivals.title )
-end
-
-When(/^I go to departure_pos_to_wh$/) do
-  visit "/sales/transport/departures/pos_to_wh/select"
-  page.status_code.should == 200
-  page.should have_content( t.transport.departures.pos_to_wh.title )
-end
-
-When(/^I go to departure_wh_to_pos$/) do
-  visit "/admin/transport/departures/wh_to_pos/select"
-  page.status_code.should == 200
-  page.should have_content( t.transport.departures.wh_to_pos.title )
-end
-
-When(/^I go to departure_wh_to_wh$/) do
-  visit "/admin/transport/departures/wh_to_wh/select"
-  page.status_code.should == 200
-  page.should have_content( t.transport.departures.wh_to_wh.title )
-end
-
-When(/^I go to store_arrivals$/) do
-  visit "/sales/transport/arrivals/select"
-  page.status_code.should == 200
-  page.should have_content( t.transport.arrivals.title )
-end
-
-
 When /^I fill with some items from s1$/ do
   init_r18
 

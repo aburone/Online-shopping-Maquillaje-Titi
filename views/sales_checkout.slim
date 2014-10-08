@@ -1,4 +1,4 @@
-- @title = "Detalle de la venta #{@order.o_code_with_dash}"
+- @title = t.sales.checkout.title @order.o_code_with_dash
 
 == slim :items_cart, locals: {can_edit: true, focus: false}
 
@@ -26,7 +26,7 @@ form.grid-form action=url("/make_sale/add_credit_note") method="post"
         input name="o_code" type="text"
       div data-field-span="1"
         label for="add_credit" = t.actions.confirm
-        input.ajax_hide_on_click name="add_credit" type="submit" value="#{t.actions.confirm}"
+        input.ajax_hide_on_click id="add_credit" name="add_credit" type="submit" value="#{t.actions.confirm}"
 
 form.grid-form action=url("/make_sale/finish") method="post"
   == Rack::Csrf.tag(env)
@@ -40,11 +40,11 @@ form.grid-form action=url("/make_sale/finish") method="post"
       - if balance > 0
         div data-field-span="5"
           label for="finish" Cobrar venta
-          input.ajax_hide_on_click name="finish" type="submit" value="Cobrar #{Utils::money_format @cart_total - @payments_total, 2}"
+          input.ajax_hide_on_click id="finish" name="finish" type="submit" value="Cobrar #{Utils::money_format @cart_total - @payments_total, 2}"
       - if balance == 0
         div data-field-span="5"
           label for="finish" Balance cero
-          input.ajax_hide_on_click name="finish" type="submit" value="Finalizar"
+          input.ajax_hide_on_click id="finish" name="finish" type="submit" value="Finalizar"
 
       div data-field-span="1"
         a href="/sales/make_sale" Volver a la venta

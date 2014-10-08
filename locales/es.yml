@@ -306,6 +306,7 @@ item:
     created_at: Creado
   invalid: Identificador de item invalido
   missing: No tengo ningun item con el identificador dado (%1)
+  deleted_from_order: "Item borrado de la orden. Sigue siendo un item valido para utilizarlo en otra orden"
 
 void_items:
   title: Invalidacion de items
@@ -602,6 +603,17 @@ sales:
     scan_label: Escanear el item
   make_sale:
     title: Carrito de compras nº %1 (%2) [%3 items, %4]
+    checkout: Cobrar venta
+    cant_checkout_empty_order: "No podes cobrar una venta vacia"
+    items_list: Lista de items en esta venta
+    add_item: Agregar item a la venta
+    scan_item: Leer el código del item
+    remove_item: Remover un item de la venta
+    scan_codes_to_add: Leer los codigos de los items para agregarlos a la venta actual
+    profesional: Profesional
+    regular: Regular
+  checkout:
+    title: Detalle de la venta %1
 
 orders:
   title: Revision de ordenes
@@ -785,9 +797,3 @@ inventory:
     1: "Falta %1 unidad de %2"
     n: "Faltan %1 unidades de %2"
 
-make_sale:
-  items_list: Lista de items en esta venta
-  add_item: Agregar item a la venta
-  scan_item: Leer el código del item
-  remove_item: Remover un item de la venta
-  scan_codes_to_add: Leer los codigos de los items para agregarlos a la venta actual
