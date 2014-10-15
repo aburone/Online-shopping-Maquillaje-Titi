@@ -24,7 +24,7 @@ class Product < Sequel::Model
     @inventory = OpenStruct.new
     @inventory_months = for_months
     store_1 = OpenStruct.new
-    store_1.stock = BigDecimal.new self.supply.s1_whole, 2
+    store_1.stock = self.stock_store_1
     store_1.en_route = @en_route_stock_store_1.nil? ? BigDecimal.new(0, 2) : BigDecimal.new(@en_route_stock_store_1, 2)
     store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route,)
     store_1.ideal = self.direct_ideal_stock * for_months
@@ -62,7 +62,7 @@ class Product < Sequel::Model
     global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
     global.virtual = global.stock + global.en_route
     global.ideal = store_1.ideal + warehouses.ideal
-    global.in_assemblies = PartsToAssemblies.new.get_parts_with_part_p_id(self.p_id).all.count
+    global.in_assemblies = PartsToAssemblies.get_parts_via_part_id(self.p_id).all.count
 
     global.deviation = global.stock - global.ideal
     global.deviation_percentile = global.deviation * 100 / global.ideal

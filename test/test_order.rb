@@ -145,8 +145,8 @@ class OrderTest < Test::Unit::TestCase
       User.new.current_location = Location::S1
       # ap Order.where(type: Order::RETURN).first
       ret_o_id = 6608
-      # ap Item.where(i_status: Item::READY, i_loc: Location::S1).first
-      unsold_item_id = "338-103663ea"
+      unsold_item_id =  Item.where(i_status: Item::READY, i_loc: Location::S1).first.i_id
+      # unsold_item_id = "338-103663ea"
       erroneous_item = Item.new.get_for_return unsold_item_id, ret_o_id
       assert_equal "#{t.return.errors.invalid_status.to_s}: #{t.return.errors.this_item_is_not_in_sold_status.to_s}", erroneous_item.errors.to_a.flatten.join(": ")
     end

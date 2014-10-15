@@ -30,8 +30,8 @@ end
 
 class Supply < Sequel::Model
   one_to_one :product, key: :p_id
-  ATTRIBUTES = [:p_id, :s1_whole, :s1_whole_en_route, :s1_whole_future, :s1_whole_ideal, :s1_whole_deviation, :s1_part, :s1_part_en_route, :s1_part_future, :s1_part_ideal, :s1_part_deviation, :s1, :s1_en_route, :s1_future, :s1_ideal, :s1_deviation, :s2_whole, :s2_whole_en_route, :s2_whole_future, :s2_whole_ideal, :s2_whole_deviation, :s2_part, :s2_part_en_route, :s2_part_future, :s2_part_ideal, :s2_part_deviation, :s2, :s2_en_route, :s2_future, :s2_ideal, :s2_deviation, :stores_whole, :stores_whole_en_route, :stores_whole_future, :stores_whole_ideal, :stores_whole_deviation, :stores_part, :stores_part_en_route, :stores_part_future, :stores_part_ideal, :stores_part_deviation, :stores, :stores_en_route, :stores_future, :stores_ideal, :stores_deviation, :w1_whole, :w1_whole_en_route, :w1_whole_future, :w1_whole_ideal, :w1_whole_deviation, :w1_part, :w1_part_en_route, :w1_part_future, :w1_part_ideal, :w1_part_deviation, :w1, :w1_en_route, :w1_future, :w1_ideal, :w1_deviation, :w2_whole, :w2_whole_en_route, :w2_whole_future, :w2_whole_ideal, :w2_whole_deviation, :w2_part, :w2_part_en_route, :w2_part_future, :w2_part_ideal, :w2_part_deviation, :w2, :w2_en_route, :w2_future, :w2_ideal, :w2_deviation, :wharehouses_whole, :wharehouses_whole_en_route, :wharehouses_whole_future, :wharehouses_whole_ideal, :wharehouses_whole_deviation, :wharehouses_part, :wharehouses_part_en_route, :wharehouses_part_future, :wharehouses_part_ideal, :wharehouses_part_deviation, :wharehouses, :wharehouses_en_route, :wharehouses_future, :wharehouses_ideal, :wharehouses_deviation, :global_whole, :global_whole_en_route, :global_whole_future, :global_whole_ideal, :global_whole_deviation, :global_part, :global_part_en_route, :global_part_future, :global_part_ideal, :global_part_deviation, :global, :global_en_route, :global_future, :global_ideal, :global_deviation, :updated_at]
-  COLUMNS = [:supplies__p_id, :s1_whole, :s1_whole_en_route, :s1_whole_future, :s1_whole_ideal, :s1_whole_deviation, :s1_part, :s1_part_en_route, :s1_part_future, :s1_part_ideal, :s1_part_deviation, :s1, :s1_en_route, :s1_future, :s1_ideal, :s1_deviation, :s2_whole, :s2_whole_en_route, :s2_whole_future, :s2_whole_ideal, :s2_whole_deviation, :s2_part, :s2_part_en_route, :s2_part_future, :s2_part_ideal, :s2_part_deviation, :s2, :s2_en_route, :s2_future, :s2_ideal, :s2_deviation, :stores_whole, :stores_whole_en_route, :stores_whole_future, :stores_whole_ideal, :stores_whole_deviation, :stores_part, :stores_part_en_route, :stores_part_future, :stores_part_ideal, :stores_part_deviation, :stores, :stores_en_route, :stores_future, :stores_ideal, :stores_deviation, :w1_whole, :w1_whole_en_route, :w1_whole_future, :w1_whole_ideal, :w1_whole_deviation, :w1_part, :w1_part_en_route, :w1_part_future, :w1_part_ideal, :w1_part_deviation, :w1, :w1_en_route, :w1_future, :w1_ideal, :w1_deviation, :w2_whole, :w2_whole_en_route, :w2_whole_future, :w2_whole_ideal, :w2_whole_deviation, :w2_part, :w2_part_en_route, :w2_part_future, :w2_part_ideal, :w2_part_deviation, :w2, :w2_en_route, :w2_future, :w2_ideal, :w2_deviation, :wharehouses_whole, :wharehouses_whole_en_route, :wharehouses_whole_future, :wharehouses_whole_ideal, :wharehouses_whole_deviation, :wharehouses_part, :wharehouses_part_en_route, :wharehouses_part_future, :wharehouses_part_ideal, :wharehouses_part_deviation, :wharehouses, :wharehouses_en_route, :wharehouses_future, :wharehouses_ideal, :wharehouses_deviation, :global_whole, :global_whole_en_route, :global_whole_future, :global_whole_ideal, :global_whole_deviation, :global_part, :global_part_en_route, :global_part_future, :global_part_ideal, :global_part_deviation, :global, :global_en_route, :global_future, :global_ideal, :global_deviation, :supplies__updated_at]
+  ATTRIBUTES = [:p_id, :s1_whole, :s1_whole_en_route, :s1_whole_future, :s1_whole_ideal, :s1_whole_deviation, :s1_part, :s1_part_en_route, :s1_part_future, :s1_part_ideal, :s1_part_deviation, :s1, :s1_en_route, :s1_future, :s1_ideal, :s1_deviation, :s2_whole, :s2_whole_en_route, :s2_whole_future, :s2_whole_ideal, :s2_whole_deviation, :s2_part, :s2_part_en_route, :s2_part_future, :s2_part_ideal, :s2_part_deviation, :s2, :s2_en_route, :s2_future, :s2_ideal, :s2_deviation, :stores_whole, :stores_whole_en_route, :stores_whole_future, :stores_whole_ideal, :stores_whole_deviation, :stores_part, :stores_part_en_route, :stores_part_future, :stores_part_ideal, :stores_part_deviation, :stores, :stores_en_route, :stores_future, :stores_ideal, :stores_deviation, :w1_whole, :w1_whole_en_route, :w1_whole_future, :w1_whole_ideal, :w1_whole_deviation, :w1_part, :w1_part_en_route, :w1_part_future, :w1_part_ideal, :w1_part_deviation, :w1, :w1_en_route, :w1_future, :w1_ideal, :w1_deviation, :w2_whole, :w2_whole_en_route, :w2_whole_future, :w2_whole_ideal, :w2_whole_deviation, :w2_part, :w2_part_en_route, :w2_part_future, :w2_part_ideal, :w2_part_deviation, :w2, :w2_en_route, :w2_future, :w2_ideal, :w2_deviation, :warehouses_whole, :warehouses_whole_en_route, :warehouses_whole_future, :warehouses_whole_ideal, :warehouses_whole_deviation, :warehouses_part, :warehouses_part_en_route, :warehouses_part_future, :warehouses_part_ideal, :warehouses_part_deviation, :warehouses, :warehouses_en_route, :warehouses_future, :warehouses_ideal, :warehouses_deviation, :global_whole, :global_whole_en_route, :global_whole_future, :global_whole_ideal, :global_whole_deviation, :global_part, :global_part_en_route, :global_part_future, :global_part_ideal, :global_part_deviation, :global, :global_en_route, :global_future, :global_ideal, :global_deviation, :updated_at]
+  COLUMNS = [:supplies__p_id, :s1_whole, :s1_whole_en_route, :s1_whole_future, :s1_whole_ideal, :s1_whole_deviation, :s1_part, :s1_part_en_route, :s1_part_future, :s1_part_ideal, :s1_part_deviation, :s1, :s1_en_route, :s1_future, :s1_ideal, :s1_deviation, :s2_whole, :s2_whole_en_route, :s2_whole_future, :s2_whole_ideal, :s2_whole_deviation, :s2_part, :s2_part_en_route, :s2_part_future, :s2_part_ideal, :s2_part_deviation, :s2, :s2_en_route, :s2_future, :s2_ideal, :s2_deviation, :stores_whole, :stores_whole_en_route, :stores_whole_future, :stores_whole_ideal, :stores_whole_deviation, :stores_part, :stores_part_en_route, :stores_part_future, :stores_part_ideal, :stores_part_deviation, :stores, :stores_en_route, :stores_future, :stores_ideal, :stores_deviation, :w1_whole, :w1_whole_en_route, :w1_whole_future, :w1_whole_ideal, :w1_whole_deviation, :w1_part, :w1_part_en_route, :w1_part_future, :w1_part_ideal, :w1_part_deviation, :w1, :w1_en_route, :w1_future, :w1_ideal, :w1_deviation, :w2_whole, :w2_whole_en_route, :w2_whole_future, :w2_whole_ideal, :w2_whole_deviation, :w2_part, :w2_part_en_route, :w2_part_future, :w2_part_ideal, :w2_part_deviation, :w2, :w2_en_route, :w2_future, :w2_ideal, :w2_deviation, :warehouses_whole, :warehouses_whole_en_route, :warehouses_whole_future, :warehouses_whole_ideal, :warehouses_whole_deviation, :warehouses_part, :warehouses_part_en_route, :warehouses_part_future, :warehouses_part_ideal, :warehouses_part_deviation, :warehouses, :warehouses_en_route, :warehouses_future, :warehouses_ideal, :warehouses_deviation, :global_whole, :global_whole_en_route, :global_whole_future, :global_whole_ideal, :global_whole_deviation, :global_part, :global_part_en_route, :global_part_future, :global_part_ideal, :global_part_deviation, :global, :global_en_route, :global_future, :global_ideal, :global_deviation, :supplies__updated_at]
   PRODUCT_EQ = {
     direct_ideal_stock: :stores_whole,
     indirect_ideal_stock: :stores_part,
@@ -64,10 +64,10 @@ class Supply < Sequel::Model
                        virtual: :w2_future
     },
      :warehouses => {
-                         stock: :wharehouses_whole,
-                       virtual: :wharehouses_future,
-                         ideal: :wharehouses_ideal,
-                     deviation: :wharehouses_deviation
+                         stock: :warehouses_whole,
+                       virtual: :warehouses_future,
+                         ideal: :warehouses_ideal,
+                     deviation: :warehouses_deviation
         #   deviation_percentile: :,
         #            v_deviation: :,
         # v_deviation_percentile: :
@@ -90,32 +90,25 @@ class Supply < Sequel::Model
 
   def get p_id
     return @supply unless @supply.nil?
-    # ap "Getting #{p_id}"
-    # ap "Not initialized"
     @supply = Supply.select_group(*Supply::COLUMNS).filter(p_id: p_id.to_i).first
     product = Product.new.get p_id
-    return @supply.nil? ?  Supply.new.init(product) : @supply
+    @supply = init(product) if @supply.nil?
+    return @supply
   end
 
   def init product = Product.new
-    # ap "Initializing #{product.p_id}"
     PRODUCT_EQ.map { |src_key, dst_key| @values[dst_key.to_sym] = eval("product.#{src_key}") }
     unless product.empty?
       INVENTORY_EQ.each do |location|
         INVENTORY_EQ[location[0]].map do |src_key, dst_key|
-          # ap "src_key: #{src_key}, dst_key: #{dst_key}"
-          # ap eval("self.#{dst_key}")
-          # ap location[0]
-          # ap eval("product.inventory(1).#{location[0]}.#{src_key}")
           eval("self.#{dst_key} = product.inventory(1).#{location[0]}.#{src_key}")
-          # ap "self.#{dst_key}: #{eval("self.#{dst_key}")}"
         end
       end
     end
     Supply.db_schema.map { |column| @values[column[0].to_sym] ||= column[1][:default] }
     self.p_id = product.p_id
-    # product.update_stocks
     cast
+    @supply = self
     self
   end
 
@@ -151,6 +144,7 @@ class Product < Sequel::Model
   end
 
   def update_stocks
+    # store 1 whole
     self.supply.s1_whole = BigDecimal.new Product
       .select{count(i_id).as(stock_store_1)}
       .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1)
@@ -158,36 +152,119 @@ class Product < Sequel::Model
       .first[:stock_store_1]
     self.stock_store_1 = self.supply.s1_whole
 
-
-    self.supply.s1_whole_en_route = BigDecimal.new Product
-      .select{count(i_id).as(en_route_stock_store_1)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1)
-      .where(products__p_id: @values[:p_id])
-      .first[:en_route_stock_store_1]
-     @en_route_stock_store_1 = self.supply.s1_whole_en_route
-
-    self.supply.s1_future = self.supply.s1_whole + self.supply.s1_whole_en_route
-
-
-
-
+    self.supply.s1_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_store_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1).where(products__p_id: @values[:p_id]).first[:en_route_stock_store_1]
+    @en_route_stock_store_1 = self.supply.s1_whole_en_route
     self.supply.s1_whole_future = self.supply.s1_whole_en_route + self.supply.s1_whole
+    self.supply.s1_whole_future = self.supply.s1_whole + self.supply.s1_whole_en_route
 
-    # ap self.supply
+    # store 2 whole
+    self.supply.s2_whole = BigDecimal.new Product
+      .select{count(i_id).as(stock_store_2)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S2)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_store_2]
+    self.stock_store_2 = self.supply.s2_whole
 
-    self.stock_warehouse_1 = BigDecimal.new Product
+    self.supply.s2_whole_en_route = BigDecimal.new Product
+      .select{count(i_id).as(en_route_stock_store_2)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S2)
+      .where(products__p_id: @values[:p_id])
+      .first[:en_route_stock_store_2]
+     @en_route_stock_store_2 = self.supply.s2_whole_en_route
+    self.supply.s2_whole_future = self.supply.s2_whole_en_route + self.supply.s2_whole
+    self.supply.s2_whole_future = self.supply.s2_whole + self.supply.s2_whole_en_route
+
+    # stores whole
+    self.supply.stores_whole = self.supply.s1_whole + self.supply.s2_whole
+    self.supply.stores_whole_en_route = self.supply.s1_whole_en_route + self.supply.s2_whole_en_route
+    self.supply.stores_whole_future = self.supply.s1_whole_future + self.supply.s2_whole_future
+
+    #store 1 parts
+    self.supply.s1_part = PartsToAssemblies.get_parts_via_part_id_in_location(self.p_id, Location::S1).all.count
+    self.supply.s1_part_en_route = PartsToAssemblies.get_parts_via_part_id_en_route_to_location(self.p_id, Location::S1).all.count
+    self.supply.s1_part_future = self.supply.s1_part + self.supply.s1_part_en_route
+
+    #store 2 parts
+    self.supply.s2_part = PartsToAssemblies.get_parts_via_part_id_in_location(self.p_id, Location::S2).all.count
+    self.supply.s2_part_en_route = PartsToAssemblies.get_parts_via_part_id_en_route_to_location(self.p_id, Location::S2).all.count
+    self.supply.s2_part_future = self.supply.s2_part + self.supply.s2_part_en_route
+
+    #stores parts
+    self.supply.stores_part = self.supply.s1_part + self.supply.s2_part
+    self.supply.stores_part_en_route = self.supply.s1_part_en_route + self.supply.s2_part_en_route
+    self.supply.stores_part_future = self.supply.s1_part_future + self.supply.s2_part_future
+
+    #warehouse 1 parts
+    self.supply.w1_part = PartsToAssemblies.get_parts_via_part_id_in_location(self.p_id, Location::S1).all.count
+    self.supply.w1_part_en_route = PartsToAssemblies.get_parts_via_part_id_en_route_to_location(self.p_id, Location::W1).all.count
+    self.supply.w1_part_future = self.supply.w1_part + self.supply.w1_part_en_route
+
+    #warehouse 2 parts
+    self.supply.w2_part = PartsToAssemblies.get_parts_via_part_id_in_location(self.p_id, Location::S2).all.count
+    self.supply.w2_part_en_route = PartsToAssemblies.get_parts_via_part_id_en_route_to_location(self.p_id, Location::W2).all.count
+    self.supply.w2_part_future = self.supply.w2_part + self.supply.w2_part_en_route
+
+    #warehouses parts
+    self.supply.warehouses_part = self.supply.w1_part + self.supply.w2_part
+    self.supply.warehouses_part_en_route = self.supply.w1_part_en_route + self.supply.w2_part_en_route
+    self.supply.warehouses_part_future = self.supply.w1_part_future + self.supply.w2_part_future
+
+
+    # warehouse 1
+    self.supply.w1_whole = BigDecimal.new Product
       .select{count(i_id).as(stock_warehouse_1)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W1)
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1)
       .where(products__p_id: @values[:p_id])
       .first[:stock_warehouse_1]
-    self.supply.w1_whole = self.stock_warehouse_1
+    self.stock_warehouse_1 = self.supply.w1_whole
 
-    self.stock_warehouse_2 = BigDecimal.new Product
+    self.supply.w1_whole_en_route = BigDecimal.new Product
+      .select{count(i_id).as(en_route_stock_warehouse_1)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1)
+      .where(products__p_id: @values[:p_id])
+      .first[:en_route_stock_warehouse_1]
+     @en_route_stock_warehouse_1 = self.supply.w1_whole_en_route
+    self.supply.w1_whole_future = self.supply.w1_whole_en_route + self.supply.w1_whole
+    self.supply.w1_whole_future = self.supply.w1_whole + self.supply.w1_whole_en_route
+
+    # warehouse 2
+    self.supply.w2_whole = BigDecimal.new Product
       .select{count(i_id).as(stock_warehouse_2)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W2)
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S2)
       .where(products__p_id: @values[:p_id])
       .first[:stock_warehouse_2]
-    self.supply.w2_whole = self.stock_warehouse_2
+    self.stock_warehouse_2 = self.supply.w2_whole
+
+    self.supply.w2_whole_en_route = BigDecimal.new Product
+      .select{count(i_id).as(en_route_stock_warehouse_2)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S2)
+      .where(products__p_id: @values[:p_id])
+      .first[:en_route_stock_warehouse_2]
+     @en_route_stock_warehouse_2 = self.supply.w2_whole_en_route
+    self.supply.w2_whole_future = self.supply.w2_whole_en_route + self.supply.w2_whole
+    self.supply.w2_whole_future = self.supply.w2_whole + self.supply.w2_whole_en_route
+
+    # warehouses
+    self.supply.warehouses_whole = self.supply.w1_whole + self.supply.w2_whole
+    self.supply.warehouses_whole_en_route = self.supply.w1_whole_en_route + self.supply.w2_whole_en_route
+    self.supply.warehouses_whole_future = self.supply.w1_whole_future + self.supply.w2_whole_future
+
+
+    #totals
+    self.supply.s1 = self.supply.s1_part + self.supply.s1_whole
+    self.supply.s2 = self.supply.s2_part + self.supply.s2_whole
+    self.supply.w1 = self.supply.w1_part + self.supply.w1_whole
+    self.supply.w2 = self.supply.w2_part + self.supply.w2_whole
+
+    self.supply.s1_en_route = self.supply.s1_part_en_route + self.supply.s1_whole_en_route
+    self.supply.s2_en_route = self.supply.s2_part_en_route + self.supply.s2_whole_en_route
+    self.supply.w1_en_route = self.supply.w1_part_en_route + self.supply.w1_whole_en_route
+    self.supply.w2_en_route = self.supply.w2_part_en_route + self.supply.w2_whole_en_route
+
+    self.supply.s1_future = self.supply.s1 + self.supply.s1_en_route
+    self.supply.s2_future = self.supply.s2 + self.supply.s2_en_route
+    self.supply.w1_future = self.supply.w1 + self.supply.w1_en_route
+    self.supply.w2_future = self.supply.w2 + self.supply.w2_en_route
 
     self.stock_deviation = inventory(1).global.deviation
     archive_or_revive
@@ -225,8 +302,15 @@ class Product < Sequel::Model
       p "indirect_ideal_stock: #{self.indirect_ideal_stock.to_s("F")}" if debug
     end
     p "direct_ideal_stock: #{direct_ideal_stock.to_s("F")} (x2)" if debug
+
+
     self.ideal_stock = self.direct_ideal_stock * 2 + self.indirect_ideal_stock
     p "ideal_stock: #{self.ideal_stock.to_s("F")}" if debug
+
+    self.supply.stores_ideal = self.direct_ideal_stock
+    self.supply.warehouses_ideal = self.direct_ideal_stock + self.indirect_ideal_stock
+    self.supply.global_ideal = self.ideal_stock
+
     self
   end
 
