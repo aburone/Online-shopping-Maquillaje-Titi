@@ -125,6 +125,12 @@ class AppController < Sinatra::Base
     slim :not_found, layout: false
   end
 
+  error SecurityError do
+    # slim :error, layout: :layout_bare, locals: {error: $!, backtrace: nil, title: "Error de permisos"}
+    flash[:error] = $!.message
+    redirect to("/")
+  end
+
   error do
     logger.error request.env['sinatra.error']
     ap $@

@@ -1,5 +1,6 @@
 class Material < Sequel::Model(:materials)
 
+  require_relative 'material_perms.rb'
   require_relative 'material_sql.rb'
 
   def name
@@ -56,6 +57,9 @@ class Material < Sequel::Model(:materials)
   end
 
   def update_from_hash(hash_values)
+    raise SecurityError, "#{State.current_user.username}: no tenes permisos para actualizar materiales" unless can_update? State.current_user
+
+
     wanted_keys = [ :m_name, :m_notes, :c_id, :SKU ]
     hash_values.select { |key, value| self[key.to_sym]=value if wanted_keys.include? key.to_sym unless value.nil?}
 
