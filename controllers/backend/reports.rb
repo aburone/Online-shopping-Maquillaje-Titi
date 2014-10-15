@@ -1,7 +1,7 @@
 class Backend < AppController
 
   get '/administration/reports/price_list' do
-    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
+    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).limit(50).all
     slim :products_list, layout: :layout_backend, locals: {title: "Lista de precios", sec_nav: :nav_administration,
       status_col: true,
       can_filter: false
@@ -13,7 +13,7 @@ class Backend < AppController
   end
 
   get '/administration/reports/products_flags' do
-    @products = Product.new.get_all.order(:categories__c_name, :products__p_name).all
+    @products = Product.new.get_all.order(:categories__c_name, :products__p_name).limit(50).all
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de flags", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
       price_col: true,
@@ -25,7 +25,7 @@ class Backend < AppController
   end
 
   get '/administration/reports/markups' do
-    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
+    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).limit(50).all
     @products.sort_by! { |product| product[:markup_deviation_percentile] }
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
@@ -53,18 +53,12 @@ class Backend < AppController
       end
 
       if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
-        # product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
-        # product[:ideal_stock] = product.inventory(months).store_1.ideal
         product[:stock_deviation] = product.inventory(months).store_1.v_deviation
         product[:stock_deviation_percentile] = product.inventory(months).store_1.v_deviation_percentile
       else
-        # product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
-        # product[:ideal_stock] = product.inventory(months).global.ideal
         product[:stock_deviation] = product.inventory(months).global.v_deviation + product.inventory(months).global.in_assemblies
         product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
       end
-      # ap product.p_name
-      # ap product.inventory(months).global.in_assemblies
 
     end
     if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
@@ -77,6 +71,7 @@ class Backend < AppController
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
       can_edit: false,
       can_hide: true,
+      brand_col: false,
       full_row: true,
       price_pro_col: false,
       stock_col: false,
@@ -93,7 +88,7 @@ class Backend < AppController
     reports_products_to_buy months
   end
   def reports_products_to_buy months
-    list = Product.new.get_all_but_archived.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).all
+    list = Product.new.get_all_but_archived.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).limit(50).all #.limit(20)
     @products = Product.new.get_saleable_at_all_locations list
     @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
 
@@ -106,10 +101,20 @@ class Backend < AppController
 
 
     @products.map do |product|
-      product[:virtual_stock_store_1] = product.inventory(months).store_1.virtual
+
+      # product.virtual_stock_store_1 = product.inventory(months).store_1.virtual
+
+
+      # p "s1_future"
+      # ap product.virtual_stock_store_1
+      # ap product.supply.s1_future
+      # p "e"
       product[:ideal_stock] = product.inventory(months).global.ideal
-      product[:stock_deviation] = product.inventory(months).global.v_deviation
+      # ap product[:ideal_stock]
+      # # product[:stock_deviation] = product.inventory(months).global.v_deviation
+      # ap product[:stock_deviation]
       product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
+      # ap product[:stock_deviation_percentile]
 
       product[:distributor] = product.distributors.first
       if product[:distributor]
@@ -142,7 +147,7 @@ class Backend < AppController
     reports_materials_to_buy months
   end
   def reports_materials_to_buy months
-    @materials = Material.new.get_list([Location::W1, Location::W2]).all
+    @materials = Material.new.get_list([Location::W1, Location::W2]).limit(50).all
     @materials.map do |material|
       material.update_stocks
       material.recalculate_ideals months

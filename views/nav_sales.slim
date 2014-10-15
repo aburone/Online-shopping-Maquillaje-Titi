@@ -3,7 +3,7 @@ nav.main_nav role="navigation"
     dt Menu
     - if authorized?
       dd.lnk
-        span class="current" href="#" = ("#{current_user_name}@#{current_location[:translation]}" if current_user_name and current_location)
+        span class="current" href="#" = ("#{current_user.username}@#{current_location[:translation]}" if current_user.username and current_location)
 
       dd.lnk
         a class="#{inside?("/make_sale")}" href=url('/make_sale') = t.nav.sales.make_sale

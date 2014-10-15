@@ -14,6 +14,8 @@ class Product < Sequel::Model
   DEVIATION_CALCULATION_MODES = [STORE_ONLY_1, STORE_ONLY_2, STORE_ONLY_3, ALL_LOCATIONS_1, ALL_LOCATIONS_2, ALL_LOCATIONS_3]
 
   @inventory = nil
+  @en_route_stock_store_1
+  attr_reader :en_route_stock_store_1
 
   require_relative 'product_sql.rb'
 
@@ -22,8 +24,8 @@ class Product < Sequel::Model
     @inventory = OpenStruct.new
     @inventory_months = for_months
     store_1 = OpenStruct.new
-    store_1.stock = BigDecimal.new self.stock_store_1, 2
-    store_1.en_route = @values[:en_route_stock_store_1].nil? ? BigDecimal.new(0, 2) : BigDecimal.new(@values[:en_route_stock_store_1], 2)
+    store_1.stock = BigDecimal.new self.supply.s1_whole, 2
+    store_1.en_route = @en_route_stock_store_1.nil? ? BigDecimal.new(0, 2) : BigDecimal.new(@en_route_stock_store_1, 2)
     store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route,)
     store_1.ideal = self.direct_ideal_stock * for_months
     store_1.deviation = store_1.stock - store_1.ideal
@@ -343,7 +345,6 @@ class Product < Sequel::Model
       @values[:ideal_stock] = @values[:direct_ideal_stock] + @values[:indirect_ideal_stock]
 
       @values[:stock_deviation] = @values[:stock_deviation] ? BigDecimal.new(@values[:stock_deviation], 0) : BigDecimal.new(0, 2)
-      # self.stock_deviation_percentile = self.stock_deviation_percentile ? BigDecimal.new(self.stock_deviation_percentile, 0) : BigDecimal.new(0, 2)
       @values[:stock_store_1] = @values[:stock_store_1] ? BigDecimal.new(@values[:stock_store_1], 0) : BigDecimal.new(0, 2)
       @values[:stock_store_2] = @values[:stock_store_2] ? BigDecimal.new(@values[:stock_store_2], 0) : BigDecimal.new(0, 2)
       @values[:stock_warehouse_1] = @values[:stock_warehouse_1] ? BigDecimal.new(@values[:stock_warehouse_1], 0) : BigDecimal.new(0, 2)

@@ -1,13 +1,9 @@
 class Backend < AppController
 
   post '/products/update_all' do
-    products = Product.filter(archived: false).order(:p_name).all
-    products.each do |product|
-      enqueue product
-    end
-
+    Product.order(:p_name).all.each { |product| enqueue product }
     flash[:warning] = R18n.t.products.updating_in_background
-    redirect to("/products")
+    redirect to("/")
   end
 
   post '/products/:p_id/ajax_add_distributor/:d_id' do

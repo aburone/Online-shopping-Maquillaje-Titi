@@ -40,25 +40,94 @@ class Supply < Sequel::Model
     stock_store_1: :s1_whole,
     stock_store_2: :w2_whole,
     stock_warehouse_1: :w1_whole,
-    stock_warehouse_: :w2_whole
+    stock_warehouse_2: :w2_whole
+  }
+  INVENTORY_EQ = {
+    :store_1 => {
+                         stock: :s1_whole,
+                      en_route: :s1_whole_en_route,
+                       virtual: :s1_future,
+                         ideal: :s1_ideal,
+                     deviation: :s1_deviation
+        #   deviation_percentile: ,
+        #            v_deviation: ,
+        # v_deviation_percentile:
+    },
+    :warehouse_1 => {
+                         stock: :w1_whole,
+                      en_route: :w1_whole_en_route,
+                       virtual: :w1_future
+    },
+    :warehouse_2 => {
+                         stock: :w2_whole,
+                      en_route: :w2_whole_en_route,
+                       virtual: :w2_future
+    },
+     :warehouses => {
+                         stock: :wharehouses_whole,
+                       virtual: :wharehouses_future,
+                         ideal: :wharehouses_ideal,
+                     deviation: :wharehouses_deviation
+        #   deviation_percentile: :,
+        #            v_deviation: :,
+        # v_deviation_percentile: :
+    },
+         :global => {
+                         stock: :global_whole,
+                      en_route: :global_en_route,
+                       virtual: :global_future,
+                         ideal: :global_ideal,
+                 in_assemblies: :global_part,
+                     deviation: :global_deviation
+        #   deviation_percentile: :,
+        #            v_deviation: :,
+        # v_deviation_percentile: :
+    }
+
   }
 
+  @supply = nil
+
   def get p_id
-    supply = Supply.select_group(*Supply::COLUMNS).filter(p_id: p_id.to_i).first
-    return supply.nil? ?  Supply.new.init  :  supply.init
+    return @supply unless @supply.nil?
+    # ap "Getting #{p_id}"
+    # ap "Not initialized"
+    @supply = Supply.select_group(*Supply::COLUMNS).filter(p_id: p_id.to_i).first
+    product = Product.new.get p_id
+    return @supply.nil? ?  Supply.new.init(product) : @supply
   end
 
   def init product = Product.new
-    PRODUCT_EQ.map { |src_key, dst_key| @values[dst_key.to_sym] = product[src_key.to_sym] }
+    # ap "Initializing #{product.p_id}"
+    PRODUCT_EQ.map { |src_key, dst_key| @values[dst_key.to_sym] = eval("product.#{src_key}") }
+    unless product.empty?
+      INVENTORY_EQ.each do |location|
+        INVENTORY_EQ[location[0]].map do |src_key, dst_key|
+          # ap "src_key: #{src_key}, dst_key: #{dst_key}"
+          # ap eval("self.#{dst_key}")
+          # ap location[0]
+          # ap eval("product.inventory(1).#{location[0]}.#{src_key}")
+          eval("self.#{dst_key} = product.inventory(1).#{location[0]}.#{src_key}")
+          # ap "self.#{dst_key}: #{eval("self.#{dst_key}")}"
+        end
+      end
+    end
     Supply.db_schema.map { |column| @values[column[0].to_sym] ||= column[1][:default] }
+    self.p_id = product.p_id
+    # product.update_stocks
+    cast
     self
+  end
+
+  def cast
+    ATTRIBUTES.map { |key| @values[key.to_sym] = @values[key.to_sym].to_i if @values[key.to_sym].class == String }
   end
 
   def empty?
     return !!!self.p_id
   end
-
 end
+
 
 class Product < Sequel::Model
   one_to_one :supply, key: :p_id
@@ -74,13 +143,55 @@ class Product < Sequel::Model
   COLUMNS = [:products__p_id, :c_id, :p_name, :p_short_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :notes, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :tercerized, :published, :on_request, :non_saleable, :archived, :end_of_life, :products__img, :img_extra, :products__created_at, :products__price_updated_at, :products__description, :brands__br_name]
   EXCLUDED_ATTRIBUTES_IN_DUPLICATION = [:p_id, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation, :created_at, :price_updated_at]
 
+  @supply = nil
   def supply
-    supply = Supply[p_id]
-    if supply.nil?
-      supply = Supply.new
-      supply.p_id = self.p_id
-    end
-    supply.init self
+    return @supply unless @supply.nil?
+    @supply = Supply.new.get p_id
+    @supply
+  end
+
+  def update_stocks
+    self.supply.s1_whole = BigDecimal.new Product
+      .select{count(i_id).as(stock_store_1)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_store_1]
+    self.stock_store_1 = self.supply.s1_whole
+
+
+    self.supply.s1_whole_en_route = BigDecimal.new Product
+      .select{count(i_id).as(en_route_stock_store_1)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1)
+      .where(products__p_id: @values[:p_id])
+      .first[:en_route_stock_store_1]
+     @en_route_stock_store_1 = self.supply.s1_whole_en_route
+
+    self.supply.s1_future = self.supply.s1_whole + self.supply.s1_whole_en_route
+
+
+
+
+    self.supply.s1_whole_future = self.supply.s1_whole_en_route + self.supply.s1_whole
+
+    # ap self.supply
+
+    self.stock_warehouse_1 = BigDecimal.new Product
+      .select{count(i_id).as(stock_warehouse_1)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W1)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_warehouse_1]
+    self.supply.w1_whole = self.stock_warehouse_1
+
+    self.stock_warehouse_2 = BigDecimal.new Product
+      .select{count(i_id).as(stock_warehouse_2)}
+      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W2)
+      .where(products__p_id: @values[:p_id])
+      .first[:stock_warehouse_2]
+    self.supply.w2_whole = self.stock_warehouse_2
+
+    self.stock_deviation = inventory(1).global.deviation
+    archive_or_revive
+    self
   end
 
   def update_costs
@@ -104,34 +215,6 @@ class Product < Sequel::Model
     cost
   end
 
-  def update_stocks
-    self.stock_store_1 = BigDecimal.new Product
-      .select{count(i_id).as(stock_store_1)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1)
-      .where(products__p_id: @values[:p_id])
-      .first[:stock_store_1]
-    @values[:en_route_stock_store_1] = BigDecimal.new Product
-      .select{count(i_id).as(en_route_stock_store_1)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1)
-      .where(products__p_id: @values[:p_id])
-      .first[:en_route_stock_store_1]
-    @values[:virtual_stock_store_1] = @values[:en_route_stock_store_1] + @values[:stock_store_1]
-    self.stock_warehouse_1 = BigDecimal.new Product
-      .select{count(i_id).as(stock_warehouse_1)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W1)
-      .where(products__p_id: @values[:p_id])
-      .first[:stock_warehouse_1]
-    self.stock_warehouse_2 = BigDecimal.new Product
-      .select{count(i_id).as(stock_warehouse_2)}
-      .left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W2)
-      .where(products__p_id: @values[:p_id])
-      .first[:stock_warehouse_2]
-
-    self.stock_deviation = inventory(1).global.deviation
-    archive_or_revive
-    self
-  end
-
   def update_ideal_stock debug = false
     ap "update_ideal_stock (#{p_id})" if debug
     self.indirect_ideal_stock = BigDecimal.new(0)
@@ -151,13 +234,15 @@ class Product < Sequel::Model
     opts = opts.merge({columns: Product::ATTRIBUTES})
     self.end_of_life = false if self.archived
     cast
-    # self.update_stocks #yadda
+    self.update_stocks
     self.update_ideal_stock
     self.update_costs
     self.recalculate_markups
 
     begin
-      super opts
+      super(opts)[:p_id]
+      self.supply.p_id = self.p_id
+      self.supply.save
       if self.p_name and not self.archived
         current_user_id =  User.new.current_user_id
         current_location = User.new.current_location[:name]

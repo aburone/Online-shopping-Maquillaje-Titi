@@ -10,12 +10,15 @@ module Sinatra
     module Helpers
       def authorized?
         user = session[:user_id] ? User.new.get_by_id(session[:user_id]) : User.new
-        session[:user_id] = user.user_id
-        session[:user_level] = user.level
-        session[:username]  = user.username
-        session[:user_real_name]  = user.user_real_name
-        Thread.current.thread_variable_set(:user_id, session[:user_id])
-        Thread.current.thread_variable_set(:current_location, session[:current_location])
+        # session[:user_id] = user.user_id
+        # session[:user_level] = user.level
+        # session[:username]  = user.username
+        # session[:user_real_name]  = user.user_real_name
+        # Thread.current.thread_variable_set(:user_id, session[:user_id])
+        # Thread.current.thread_variable_set(:current_location, session[:current_location])
+
+        State.current_user = user
+        State.current_location = session[:current_location]
         session[:user_id]
       end
 
@@ -27,9 +30,9 @@ module Sinatra
       end
       def set_user user, location
         session[:user_id] = user.user_id
-        session[:user_level] = user.level
-        session[:username]  = user.username
-        session[:user_real_name]  = user.user_real_name
+        # session[:user_level] = user.level
+        # session[:username]  = user.username
+        # session[:user_real_name]  = user.user_real_name
         session[:current_location] = location
       end
       def unset_user
@@ -42,12 +45,12 @@ module Sinatra
 
       app.get '/login' do
         if session[:user_id]
-          @user_real_name = session[:user_real_name]
+          user_real_name = State.current_user.user_real_name
         else
           flash[:warning] = t.auth.must_login
         end
         redirect to(session[:root_path]) if authorized?
-        slim :admin_login, locals: {login_path: session[:login_path]}
+        slim :admin_login, locals: {login_path: session[:login_path], user_real_name: user_real_name}
       end
       app.post '/login' do
         user = User.new.valid?(params[:admin_username], params[:admin_password])

@@ -90,7 +90,7 @@ body:after {
 .items td {padding:0.3em 1em 0.1em 0; vertical-align: middle}
 .items tr td:first-child, .items th:first-child{padding-left: 1em}
 .items tr td:first-child.no_padding {padding-left: 0}
-.item td {vertical-align:top}
+.item td {vertical-align:top;font-size: 13px;font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,serif; }
 .ajax_item:hover {cursor: pointer}
 .actions {white-space: nowrap}
 .actions:hover {cursor: default}

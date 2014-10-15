@@ -173,7 +173,8 @@ class OrderTest < Test::Unit::TestCase
 
   def test_shoud_create_assembly_relation
     DB.transaction(rollback: :always, isolation: :uncommitted) do
-      order = Order.new.get_rand
+      Order.new.save
+      order = Order.last
       product = Product.where(parts_cost: 0).first
       assy = Assembly_order_to_product.new.create order.o_id, product.p_id
       assert assy.o_id == order.o_id

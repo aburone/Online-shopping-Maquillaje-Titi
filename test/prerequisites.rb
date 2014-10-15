@@ -137,10 +137,12 @@ end
 
 class User
   def current_location= new_location
-    Thread.current.thread_variable_set(:current_location, {name: new_location, translation: ConstantsTranslator.new(new_location).t})
+    # Thread.current.thread_variable_set(:current_location, {name: new_location, translation: ConstantsTranslator.new(new_location).t})
+    State.current_location = {name: new_location, translation: ConstantsTranslator.new(new_location).t}
   end
 
-  def current_user_id= new_user_id
-    Thread.current.thread_variable_set(:user_id, new_user_id)
-  end
+  # def current_user_id= new_user_id
+  #   # Thread.current.thread_variable_set(:user_id, new_user_id)
+  #   State.current_user = user
+  # end
 end

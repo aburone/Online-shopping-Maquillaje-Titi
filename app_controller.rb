@@ -63,28 +63,26 @@ class AppController < Sinatra::Base
   end
 
   def current_user
-    session[:user_id] ? User.new.get_by_id(session[:user_id]) : User.new
+    State.current_user ? State.current_user : User.new
   end
 
   def current_user_id
-    session[:user_id]
-  end
-
-  def current_user_name
-    session[:username]
+    State.current_user.user_id
   end
 
   def current_location
-    session[:current_location]
+    State.current_location
   end
 
   configure :production, :development, :test do
     #rack protection
     set :protection, :origin_whitelist => ['http://www.maquillajetiti.com.ar']
 
-    # cache disabled for backend
     before do
-      cache_control :no_cache, :no_store, :must_revalidate, :proxy_revalidate
+      # cache_control :no_cache, :no_store, :must_revalidate, :proxy_revalidate
+    end
+
+    after do
     end
 
     require_relative 'models/stdout_logger' if settings.debug_sql

@@ -15,4 +15,3 @@ And I click "Crear nueva"
 Then I should see 4 item
 When I click "Bajar"
 
-Then Stock of ribbon and labels should be lower

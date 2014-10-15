@@ -10,9 +10,9 @@ module Utils
           return true
       when /\A\s*[+-]?\d+(\.\d+)?[eE]\d+\z/
           return true
-      when /\A\s*[+-]?\d+\z/ 
+      when /\A\s*[+-]?\d+\z/
           return true
-      else  
+      else
           return false
       end
     end
@@ -25,8 +25,8 @@ module Utils
           v.to_s.gsub(',', '.').to_f
       when /\A\s*[+-]?\d+(\.\d+)?[eE]\d+\z/
           v.to_f
-      when /\A\s*[+-]?\d+\z/ 
-          v.to_i     
+      when /\A\s*[+-]?\d+\z/
+          v.to_i
       when /\d/
         Utils::as_number v.gsub(/[^\d|.|,]/, '')
       else
@@ -36,3 +36,4 @@ module Utils
 
   end
 end
+

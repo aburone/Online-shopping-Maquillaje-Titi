@@ -416,6 +416,8 @@ product:
     stock_deviation_percentile: "%"
     cost: "Costo"
     buy_cost: "Costo de compra"
+    unit_cost: "Costo unitario"
+    total_cost: "Costo total"
     parts_cost: "Partes"
     materials_cost: "Materiales"
     sale_cost: "Costo de venta"

@@ -27,7 +27,7 @@ class Backend < AppController
 
   route :get, ['/', '/administration'] do
     protected! # needed by cucumber
-    if session[:user_level] > 2
+    if current_user.level > 2
       nav = :nav_administration
       title = t.administration.title
     else

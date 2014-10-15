@@ -2,7 +2,7 @@
 - @title = "Login"
 
 - if authorized?
-    p = t.auth.hello(@user_real_name)
+    p = t.auth.hello(user_real_name)
 - else
   - locations = []
   - if request.env["REQUEST_PATH"].nil?
