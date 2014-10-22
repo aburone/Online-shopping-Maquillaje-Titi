@@ -660,7 +660,7 @@ class Product < Sequel::Model
     return assy.nil? ? Product.new : assy
   end
 
-  def get_saleable_at_location location
+  def get_available_at_location location
     Product
       .select_group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_store_1, :stock_warehouse_1, :stock_warehouse_2, :products__img, :products__c_id, :products__br_id, :sku)
       .where(archived: 0)
@@ -674,7 +674,12 @@ class Product < Sequel::Model
       .group(:products__p_id, :products__p_name, :buy_cost, :sale_cost, :ideal_markup, :real_markup, :price, :price_pro, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_store_1, :stock_warehouse_1, :stock_warehouse_2, :products__img, :products__c_id, :categories__c_name, :products__br_id, :brands__br_name, :sku)
   end
 
-  def get_saleable_at_all_locations products = nil
+  def get_saleable_at_location location
+    get_available_at_location(location)
+      .where(non_saleable: 0)
+  end
+
+  def deprecated_update_stock_of_products products = nil
     products = get_all_but_archived.order(:categories__c_name, :products__p_name) if products.nil?
     new_products = []
     products.map do |product|

@@ -40,7 +40,7 @@ class Backend < AppController
 
   get '/production/reports/to_package/:mode' do
     list = Product.new.get_all_but_archived.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name)
-    @products = Product.new.get_saleable_at_all_locations list
+    @products = Product.new.deprecated_update_stock_of_products list
     months = 0
     @products.map do |product|
       case params[:mode].upcase
@@ -89,7 +89,7 @@ class Backend < AppController
   end
   def reports_products_to_buy months
     list = Product.new.get_all_but_archived.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).limit(50).all #.limit(20)
-    @products = Product.new.get_saleable_at_all_locations list
+    @products = Product.new.deprecated_update_stock_of_products list
     @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
 
     distributors = Distributor.all
@@ -166,7 +166,7 @@ class Backend < AppController
   end
   def reports_products_to_move months
     list = Product.new.get_all_but_archived.where(non_saleable: 0).order(:categories__c_name, :products__p_name)
-    products = Product.new.get_saleable_at_all_locations(list)
+    products = Product.new.deprecated_update_stock_of_products(list)
     @products = []
     products.map do |product|
       product[:stock_deviation] = product.inventory(months).store_1.v_deviation
