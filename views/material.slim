@@ -16,31 +16,36 @@
           input autofocus="" type="text" name="m_name" size=50 maxlength=80 required="" value="#{@material[:m_name]}"
         div data-field-span="1"
           label for="c_id" = t.material.fields.category
-          select name="c_id"
-            -  @materials_categories.each do |cat|
-              - if @material[:c_id] == cat[:c_id]
-                option selected="selected" value="#{cat[:c_id]}" = cat[:c_name]
-              - else
-                option value="#{cat[:c_id]}" = cat[:c_name]
+          - if State.current_user.can_edit_materials?
+            select name="c_id"
+              -  @materials_categories.each do |cat|
+                - if @material[:c_id] == cat[:c_id]
+                  option selected="selected" value="#{cat[:c_id]}" = cat[:c_name]
+                - else
+                  option value="#{cat[:c_id]}" = cat[:c_name]
+          - if State.current_user.can_edit_materials? == false
+            input type="text" name="c_name" value="#{@material[:c_name]}"
 
       div data-row-span="3"
         div data-field-span="1"
           label for="d_id" = t.material.fields.distributor
           div#ajax_distributors
             == slim :item_distributors, locals: {i_distributors: @i_distributors}
-          select#ajax_add_distributor data-url="/admin/materials/#{@material.m_id}/ajax_add_distributor/" data-csrf-key="#{Rack::Csrf.key}" data-csrf-token="#{Rack::Csrf.token(env)}" name="d_id"
-            option value=""
-            - @distributors.each do |distributor|
-              option selected=("selected" if params['d_id'].to_i == distributor.d_id) value="#{distributor.d_id}" = distributor.d_name
+          - if State.current_user.can_edit_materials?
+            select#ajax_add_distributor data-url="/admin/materials/#{@material.m_id}/ajax_add_distributor/" data-csrf-key="#{Rack::Csrf.key}" data-csrf-token="#{Rack::Csrf.token(env)}" name="d_id"
+              option value=""
+              - @distributors.each do |distributor|
+                option selected=("selected" if params['d_id'].to_i == distributor.d_id) value="#{distributor.d_id}" = distributor.d_name
 
         div data-field-span="1"
           label for="SKU" = t.material.fields.SKU
           input autofocus="" type="text" name="SKU" size=50 maxlength=80 value="#{@material[:SKU]}"
 
 
-        div data-field-span="1"
-          label for="m_price" = t.material.fields.price
-          input.positive.number type="tel" name="m_price" size=50 value="#{Utils::number_format @material[:m_price], 6}"
+        - if State.current_user.can_edit_materials?
+          div data-field-span="1"
+            label for="m_price" = t.material.fields.price
+            input.positive.number type="tel" name="m_price" size=50 value="#{Utils::number_format @material[:m_price], 6}"
 
 
 
@@ -67,19 +72,19 @@
           label for="price_updated_at" = t.material.fields.price_updated_at
           input type="text"  name="price_updated_at" id="price_updated_at" readonly="readonly" tabindex="-1" value="#{l @material[:price_updated_at]}"
 
-
-    fieldset
-      legend Acciones
-      div data-row-span="1"
-        div data-field-span="1"
-          input.aligned type="submit" value="#{t.actions.save}"
+    - if State.current_user.can_edit_materials?
+      fieldset
+        legend Acciones
+        div data-row-span="1"
+          div data-field-span="1"
+            input.aligned type="submit" value="#{t.actions.save}"
 
 
   - if @bulks.empty?
     h2 = t.material.bulks_not_found
   - else
     h2 = t.material.bulks_list
-    == slim :bulks_list, locals: {can_filter: false}
+    == slim :bulks_list, locals: {show_filters: false}
 
   form action=url("/bulks/new") method="post"
     == Rack::Csrf.tag(env)
@@ -93,4 +98,4 @@ div#ajax_panel
 - else
   h2 = t.material.products_list
   - @focus = "no_focus"
-  == slim :products_list, locals: {can_filter: false, can_edit:true, edit_link: "edit_product"}
+  == slim :products_list, locals: {show_filters: false, show_edit_button:true, edit_link: "edit_product"}

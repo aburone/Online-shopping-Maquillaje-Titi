@@ -44,10 +44,6 @@ class Material < Sequel::Model(:materials)
     self
   end
 
-  def owned_by? actor
-    return actor.is_a?(User) && actor.user_id == 1 ? true : false # 1 is system
-  end
-
   def bulk
     begin
       Bulk.filter(m_id: @values[:m_id], b_loc: location).order(:b_status, :created_at).all
@@ -140,7 +136,7 @@ class Material < Sequel::Model(:materials)
   end
 
   def save (opts=OPTS)
-    # raise SecurityError, "#{State.current_user.username}: no tenes permisos para actualizar materiales" unless can_update? State.current_user
+    # raise SecurityError, "#{State.current_user.username}: no tenes permisos para actualizar materiales" unless self.can_be_updated_by? State.current_user
 
     opts = opts.merge({columns: Material::COLUMNS})
     begin

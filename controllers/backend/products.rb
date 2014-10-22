@@ -21,7 +21,7 @@ class Backend < AppController
 
   get '/products/sku' do
     @products = Product.new.get_saleable_at_location(current_location[:name]).order(:c_name, :p_name).all
-    slim :products_list, layout: :layout_backend, locals: {full_row: false, sku_col: true, can_edit: true, edit_link: :edit_product, title: R18n.t.products.sku_editor.title, caption: R18n.t.products.sku_editor.caption}
+    slim :products_list, layout: :layout_backend, locals: {full_row: false, sku_col: true, show_edit_button: true, edit_link: :edit_product, title: R18n.t.products.sku_editor.title, caption: R18n.t.products.sku_editor.caption}
   end
 
   post '/products/ajax_update' do
@@ -159,7 +159,7 @@ class Backend < AppController
 
   get '/products' do
     @products = Product.new.get_saleable_at_location(current_location[:name]).order(:c_name, :p_name).all
-    slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, can_edit: true, edit_link: :edit_product, title: t.products.title}
+    slim :products, layout: :layout_backend, locals: {stock_col: true, full_row:true, show_edit_button: true, edit_link: :edit_product, title: t.products.title}
   end
 
   post '/products/new' do

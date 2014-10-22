@@ -319,4 +319,4 @@
         div data-row-span="1"
           div data-field-span="1"
             - @products = @p_assemblies
-            == slim :products_list, locals: {can_edit: true, edit_link: "edit_product", focus: false}
+            == slim :products_list, locals: {show_edit_button: true, edit_link: "edit_product", focus: false}

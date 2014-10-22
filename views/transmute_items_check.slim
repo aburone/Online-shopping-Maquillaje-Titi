@@ -23,8 +23,8 @@
 
 
   h2 Producto hacia el cual cambiar la asociacion
-  
+
 / Initial product selection
 - unless @products.empty?
   section#prod_list_selector
-    == slim :products_list, locals: {focus: true, full_rows: false, can_edit: true, edit_link: "transmutation_select_product", order: @order}
+    == slim :products_list, locals: {focus: true, full_rows: false, show_edit_button: true, edit_link: "transmutation_select_product", order: @order}

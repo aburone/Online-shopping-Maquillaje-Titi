@@ -60,7 +60,7 @@
       input type="submit" value="#{t.actions.ok}"
 
     h2 = t.sales.inventory_review.select_product
-    == slim :products_list, locals: {focus: true, full_rows: false, can_edit: true, edit_link: "sales_inventory_review", order: @order}
+    == slim :products_list, locals: {focus: true, full_rows: false, show_edit_button: true, edit_link: "sales_inventory_review", order: @order}
 
 
 

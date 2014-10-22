@@ -1,5 +1,5 @@
 - full_row = false if full_row.nil?
-- can_edit = true if can_edit.nil?
+- show_edit_button = true if show_edit_button.nil?
 - edit_link ||= "void"
 - list_mode ||= "normal"
 
@@ -9,11 +9,11 @@
 - if orders.empty?
   p = t.orders.empty
 - else
-  - can_filter = true if can_filter.nil?
+  - show_filters = true if show_filters.nil?
   - focus = true if focus.nil?
-  == slim :table_global_filter, locals: {can_filter: can_filter, focus: focus} if can_filter
-  - tablesorter_class = can_filter ? "tablesorter" : "tablesorter_nofilter"
-  - caption = can_filter ? t.tablesorter.default_caption : caption unless !caption.nil?
+  == slim :table_global_filter, locals: {show_filters: show_filters, focus: focus} if show_filters
+  - tablesorter_class = show_filters ? "tablesorter" : "tablesorter_nofilter"
+  - caption = show_filters ? t.tablesorter.default_caption : caption unless !caption.nil?
   table class="items #{tablesorter_class}"
     caption #{caption}
     thead
@@ -31,7 +31,7 @@
           - if list_mode == "transport"
             th.filter-select.filter-onlyAvail = t.order.fields.origin
             th.filter-select.filter-onlyAvail = t.order.fields.destination
-        - if can_edit
+        - if show_edit_button
           th.filter-false.sorter-false.sm_cell = t.actions.actions
     tfoot
       tr
@@ -39,7 +39,7 @@
         td colspan="#{colspan}" = t.orders.count(orders.count)
     tbody
       - orders.each do |order|
-        - ajax_edit = can_edit ? " ajax_item" : ""
+        - ajax_edit = show_edit_button ? " ajax_item" : ""
         tr class="item#{ajax_edit}"
           td = order.o_id
           - if full_row
@@ -54,7 +54,7 @@
             - if list_mode == "transport"
               td = ConstantsTranslator.new(order.o_loc).t
               td = ConstantsTranslator.new(order.o_dst).t
-          - if can_edit
+          - if show_edit_button
             td
               - if edit_link == "void"
                 a.text_icon href="#" ✎

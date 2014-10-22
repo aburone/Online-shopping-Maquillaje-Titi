@@ -35,12 +35,12 @@
 - items = pending_items
 - unless items.empty?
   h3 = t.production.verification.pending_items
-  == slim :items_list, locals: {items: items, can_filter: false, price_pro_col: false}
+  == slim :items_list, locals: {items: items, show_filters: false, price_pro_col: false}
 
 - items = verified_items
 - unless items.empty?
   h3 = t.production.verification.verified_items
-  == slim :items_list, locals: {items: items, can_filter: false, price_pro_col: false}
+  == slim :items_list, locals: {items: items, show_filters: false, price_pro_col: false}
 
 - unless pending_items.empty? and verified_items.empty?
   / Remove single item

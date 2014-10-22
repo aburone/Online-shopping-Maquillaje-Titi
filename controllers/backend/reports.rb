@@ -1,10 +1,34 @@
 class Backend < AppController
+  get '/administration/reports/sales' do
+    sales_report = []
+    Product.new.get_live.order(:p_name).all.each do |product|
+      raw_sales = DB.fetch("
+          select DATE_FORMAT(orders.created_at,'%y%m') as date, count(1) as qty
+          from orders
+          join line_items using (o_id)
+          join items using (i_id)
+          where type = 'SALE' and p_id = #{product.p_id}
+          group by p_id, year(orders.created_at) ,month(orders.created_at), orders.created_at, items.p_name
+          order by p_name, year(orders.created_at) ,month(orders.created_at)
+        ").all
+      raw_sales ||= []
+      sales = {}
+      raw_sales.each do |month|
+        sales[month[:date]] = month[:qty]
+      end
+      product[:sales] = sales
+      product[:distributors] = product.distributors
+      sales_report << product
+    end
+
+    slim :sales_report, layout: :layout_backend, locals: {title: "reporte de ventas", sec_nav: :nav_administration, products: sales_report, months: prev_year_months}
+  end
 
   get '/administration/reports/price_list' do
     @products = Product.new.get_live.order(:categories__c_name, :products__p_name).limit(50).all
     slim :products_list, layout: :layout_backend, locals: {title: "Lista de precios", sec_nav: :nav_administration,
       status_col: true,
-      can_filter: false
+      show_filters: false
     }
   end
 
@@ -15,7 +39,7 @@ class Backend < AppController
   get '/administration/reports/products_flags' do
     @products = Product.new.get_all.order(:categories__c_name, :products__p_name).limit(50).all
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de flags", sec_nav: :nav_administration,
-      can_edit: true, edit_link: :edit_product,
+      show_edit_button: true, edit_link: :edit_product,
       price_col: true,
       price_pro_col: false,
       stock_col: false,
@@ -28,7 +52,7 @@ class Backend < AppController
     @products = Product.new.get_live.order(:categories__c_name, :products__p_name).limit(50).all
     @products.sort_by! { |product| product[:markup_deviation_percentile] }
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
-      can_edit: true, edit_link: :edit_product,
+      show_edit_button: true, edit_link: :edit_product,
       price_pro_col: false,
       stock_col: false,
       real_markup_col: true,
@@ -69,8 +93,8 @@ class Backend < AppController
       @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
     end
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
-      can_edit: false,
-      can_hide: true,
+      show_edit_button: false,
+      show_hide_button: true,
       brand_col: false,
       full_row: true,
       price_pro_col: false,

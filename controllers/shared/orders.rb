@@ -48,7 +48,7 @@ class Backend < AppController
     @order = Order.new.get params[:o_id]
     @items = @order.items
     @bulks = @order.bulks
-    slim :order, layout: session[:layout], locals: {can_filter: false, title: t.orders.title}
+    slim :order, layout: session[:layout], locals: {show_filters: false, title: t.orders.title}
   end
 end
 

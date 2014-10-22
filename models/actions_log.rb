@@ -78,7 +78,7 @@ class ActionsLog < Sequel::Model(:actions_log)
   end
 
   def get_logins username
-    observee = User.new.get_by_id current_user_id
+    observee = State.current_user
     observed = User.new.get_user username
     raise SecurityError, "No podes mirar los datos de este usuario" unless observee.level > observed.level || observee.user_id == observed.user_id
     username = username.to_s.strip

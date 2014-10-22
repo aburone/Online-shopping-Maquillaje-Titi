@@ -16,13 +16,13 @@ h2 Armando de #{product.p_name}
       input type="submit" value="Aceptar"
 
   h2 Partes por agregar
-  == slim :products_list, locals: {price_col: false, price_pro_col: false, full_rows: false, can_edit: false, order: order, products: missing_parts, can_filter: false, category_col: false, brand_col: false}
+  == slim :products_list, locals: {price_col: false, price_pro_col: false, full_rows: false, show_edit_button: false, order: order, products: missing_parts, show_filters: false, category_col: false, brand_col: false}
 
 
 
 / Current items in order and removal option
 h2 Partes agregadas a esta orden
-== slim :items_list, locals: {items: added_parts, can_filter: false, price_col: false, price_pro_col: false}
+== slim :items_list, locals: {items: added_parts, show_filters: false, price_col: false, price_pro_col: false}
 / Remove single item
 - unless added_parts.empty?
   a href="/admin/production/#{order.type.downcase}/#{order.o_id}/item/remove" Remover una parte de la orden
@@ -38,7 +38,7 @@ h2 Partes agregadas a esta orden
         li #{material[:m_qty].to_s("F")} x #{material[:m_name]}
   - elsif !missing_materials.empty?
     h2 = t.production.packaging.missing_materials_cant_allocate
-    == slim :materials_list, locals: {can_filter: false, stock_col: true, id: :missing_materials, can_edit: true, materials: missing_materials}
+    == slim :materials_list, locals: {show_filters: false, stock_col: true, id: :missing_materials, show_edit_button: true, materials: missing_materials}
   - else
     h2 Finalización de armado
     p

@@ -14,5 +14,5 @@ h2 = t.sales.make_sale.items_list
   p
     i = t.sales.make_sale.scan_codes_to_add
 - else
-  == slim :items_cart, locals: {can_edit: true, can_filter: false, cart: cart}
+  == slim :items_cart, locals: {show_edit_button: true, show_filters: false, cart: cart}
   a href="/sales/make_sale/remove_item" = t.sales.make_sale.remove_item

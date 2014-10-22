@@ -10,3 +10,16 @@ class Fixnum
 end
 
 
+module ApplicationHelper
+  def prev_year_months
+    date = Date.today
+    months = {}
+    13.times do
+      months[date.strftime('%y%m')] = ""
+      date = date.prev_month
+    end
+    Hash[months.sort]
+  end
+end
+
+
