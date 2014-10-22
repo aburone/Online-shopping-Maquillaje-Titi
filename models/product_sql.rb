@@ -1,32 +1,4 @@
 # coding: UTF-8
-class Category < Sequel::Model
-  one_to_many :products
-
-  ATTRIBUTES = [:c_id, :c_name, :description, :c_published, :img]
-  # same as ATTRIBUTES but with the neccesary table references for get_ functions
-  COLUMNS = [:categories__c_id, :categories__c_name, :categories__description, :c_published, :categories__img]
-
-  def update_from_hash hash_values
-    raise ArgumentError, t.errors.nil_params if hash_values.nil?
-    alpha_keys = [ :c_name, :description ]
-    hash_values.select { |key, value| self[key.to_sym]=value.to_s if alpha_keys.include? key.to_sym unless value.nil?}
-    checkbox_keys = [ :c_published ]
-    checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }
-    self
-  end
-
-  def empty?
-    return !!!@values[:c_id]
-  end
-
-  def get_by_id c_id
-     c_id = c_id.to_i
-     category = Category[c_id]
-     category = Category.new if category.nil?
-     category
-  end
-
-end
 
 class Supply < Sequel::Model
   one_to_one :product, key: :p_id
@@ -120,6 +92,22 @@ class Supply < Sequel::Model
     return !!!self.p_id
   end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class Product < Sequel::Model
@@ -402,8 +390,8 @@ class Product < Sequel::Model
   end
 
   def d_name
-    return self[:distributors].first[:d_name] if self[:distributors]
-    return self[:distributor][:d_name] if self[:distributor]
+    return self[:distributors].first[:d_name] if self[:distributors] && self[:distributors].empty? == false
+    return self[:distributor][:d_name] if self[:distributor] && self[:distributor].empty? == false
     return "no data"
   end
 

@@ -244,7 +244,7 @@ class Sales < AppController
 
   route :get, ["/transport/arrivals", "/transport/arrivals/select"] do
     @orders = Order.new.get_orders_at_destination_with_type_and_status(current_location[:name], Order::WH_TO_POS, Order::EN_ROUTE).all
-    slim :orders_list, layout: :layout_sales, locals: {title: t.transport.arrivals.title, sec_nav: :nav_sales_transport, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/sales/transport/arrivals/o_id", can_filter: false}
+    slim :orders_list, layout: :layout_sales, locals: {title: t.transport.arrivals.title, sec_nav: :nav_sales_transport, full_row: true, list_mode: "transport", show_edit_button: true, edit_link: "/sales/transport/arrivals/o_id", show_filters: false}
   end
 
   route :get, :post, '/transport/arrivals/:o_id' do
@@ -387,7 +387,7 @@ class Backend < AppController
 
   route :get, ["/transport/arrivals/select"] do
     @orders = Order.new.get_orders_at_destination_with_type_and_status(current_location[:name], [Order::WH_TO_WH, Order::POS_TO_WH], Order::EN_ROUTE).all
-    slim :orders_list, layout: :layout_backend, locals: {title: t.transport.arrivals.title, sec_nav: :nav_production, full_row: true, list_mode: "transport", can_edit: true, edit_link: "/admin/transport/arrivals/o_id", can_filter: false}
+    slim :orders_list, layout: :layout_backend, locals: {title: t.transport.arrivals.title, sec_nav: :nav_production, full_row: true, list_mode: "transport", show_edit_button: true, edit_link: "/admin/transport/arrivals/o_id", show_filters: false}
   end
 
   route :get, :post, '/transport/arrivals/:o_id' do

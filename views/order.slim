@@ -8,7 +8,7 @@ h3 = t.items.title
 - payment_type ||= nil
 - price_col = payment_type == "profesional" ? false : true
 - price_pro_col = payment_type == "normal" ? false : true
-== slim :items_list, locals: {can_edit: false, can_filter: can_filter, price_col: price_col, price_pro_col: price_pro_col}
+== slim :items_list, locals: {show_edit_button: false, show_filters: show_filters, price_col: price_col, price_pro_col: price_pro_col}
 
 - unless payments_total.nil?
   table.items
@@ -17,4 +17,4 @@ h3 = t.items.title
 
 - unless @bulks.nil? || @bulks.empty?
   h3 = t.bulks.title
-  == slim :bulks_list, locals: {can_edit: false, can_filter: true, m_name_col: true}
+  == slim :bulks_list, locals: {show_edit_button: false, show_filters: true, m_name_col: true}

@@ -8,7 +8,7 @@
 - if @order
   - payments_total ||= nil
   - payment_type ||= nil
-  == slim :order, locals: {can_filter: true, payments_total: payments_total, payment_type: payment_type}
+  == slim :order, locals: {show_filters: true, payments_total: payments_total, payment_type: payment_type}
 
 
   // reprint sale order

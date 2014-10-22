@@ -1,6 +1,6 @@
 - @title = t.sales.checkout.title @order.o_code_with_dash
 
-== slim :items_cart, locals: {can_edit: true, focus: false}
+== slim :items_cart, locals: {show_edit_button: true, focus: false}
 
 == slim :payments_list, locals: {payments: @payments}
 

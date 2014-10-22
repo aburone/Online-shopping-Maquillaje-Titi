@@ -11,13 +11,15 @@ class Backend < AppController
 
   post '/materials/:m_id/ajax_add_distributor/:d_id' do
     material = Material.new.get_by_id params[:m_id].to_i, current_location[:name]
-    return "#{h t.material.missing params[:m_id].to_s}" if material.empty?
-    distributor = Distributor.new.get params[:d_id].to_i
-    return "#{h t.distributor.missing params[:d_id].to_s}" if distributor.empty?
-    begin
-      distributor.add_material material.m_id
-    rescue Sequel::UniqueConstraintViolation
-      distributor.remove_material material.m_id
+    if State.current_user.can_edit_materials?
+      return "#{h t.material.missing params[:m_id].to_s}" if material.empty?
+      distributor = Distributor.new.get params[:d_id].to_i
+      return "#{h t.distributor.missing params[:d_id].to_s}" if distributor.empty?
+      begin
+        distributor.add_material material.m_id
+      rescue Sequel::UniqueConstraintViolation
+        distributor.remove_material material.m_id
+      end
     end
     slim :item_distributors, layout: false, locals: {i_distributors: material.distributors.all}
   end
@@ -32,15 +34,20 @@ class Backend < AppController
     slim :materials, layout: :layout_backend, locals: {title: t.materials.title}
   end
   post '/materials/new' do
-    begin
-      m_id = Material.new.create_default
-      flash[:notice] = R18n.t.material.created
-      redirect to("/materials/#{m_id}")
-    rescue Sequel::UniqueConstraintViolation => e
-      puts e.message
-      material = Material.filter(m_name: R18n.t.material.default_name).first
-      flash[:warning] = R18n.t.material.there_can_be_only_one_new
-      redirect to("/materials/#{material[:m_id]}")
+    if State.current_user.can_edit_materials?
+      begin
+        m_id = Material.new.create_default
+        flash[:notice] = R18n.t.material.created
+        redirect to("/materials/#{m_id}")
+      rescue Sequel::UniqueConstraintViolation => e
+        puts e.message
+        material = Material.filter(m_name: R18n.t.material.default_name).first
+        flash[:warning] = R18n.t.material.there_can_be_only_one_new
+        redirect to("/materials/#{material[:m_id]}")
+      end
+    else
+      flash[:error] = "No tenes permisos para crear materiales"
+      redirect to("/materials")
     end
   end
   get '/materials/:id' do

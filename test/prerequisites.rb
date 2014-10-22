@@ -26,6 +26,7 @@ require_relative '../models/init'
 
 $settings = Settings.new '../config.yml'
 
+State.current_user = User.new.get_user("aburone")
 
 module Test::Unit::Assertions
   def assert_false(object, message="")

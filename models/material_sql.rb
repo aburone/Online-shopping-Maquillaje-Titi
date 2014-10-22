@@ -136,6 +136,8 @@ class Material < Sequel::Model(:materials)
   end
 
   def save (opts=OPTS)
+    # raise SecurityError, "#{State.current_user.username}: no tenes permisos para actualizar materiales" unless self.can_be_updated_by? State.current_user
+
     opts = opts.merge({columns: Material::COLUMNS})
     begin
       update_products = self.changed_columns.include? :m_price

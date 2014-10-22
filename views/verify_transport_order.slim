@@ -37,36 +37,36 @@
 - unless @pending_items.empty?
   h2 Items pendientes de verificacion
   - @items = @pending_items
-  == slim :items_list, locals: {price_pro_col: false, can_filter: false}
+  == slim :items_list, locals: {price_pro_col: false, show_filters: false}
   / Remove single item
   a href="/#{@module}/#{@route}/#{@order.o_id}/item/remove" Remover un item de la orden
 
 - unless @pending_bulks.empty?
   h2 Graneles pendientes de verificacion
   - @bulks = @pending_bulks
-  == slim :bulks_list, locals: {can_edit: false, can_filter: false, m_name_col: true}
+  == slim :bulks_list, locals: {show_edit_button: false, show_filters: false, m_name_col: true}
   / Remove single bulk
   a href="/#{@module}/#{@route}/#{@order.o_id}/bulk/remove" Remover un granel de la orden
 
 - unless @verified_items.empty?
   h2 Items verificados
   - @items = @verified_items
-  == slim :items_list, locals: {price_pro_col: false, can_filter: false}
+  == slim :items_list, locals: {price_pro_col: false, show_filters: false}
 
 - unless @verified_bulks.empty?
   h2 Graneles verificados
   - @bulks = @verified_bulks
-  == slim :bulks_list, locals: {can_edit: false, can_filter: false, m_name_col: true}
+  == slim :bulks_list, locals: {show_edit_button: false, show_filters: false, m_name_col: true}
 
 - unless @void_items.empty?
   h2 Items con problemas
   - @items = @void_items
-  == slim :items_list, locals: {price_pro_col: false, can_filter: false, m_name_col: true}
+  == slim :items_list, locals: {price_pro_col: false, show_filters: false, m_name_col: true}
 
 - unless @void_bulks.empty?
   h2 Graneles con problemas
   - @bulks = @void_bulks
-  == slim :bulks_list, locals: {can_edit: false, can_filter: false, m_name_col: true}
+  == slim :bulks_list, locals: {show_edit_button: false, show_filters: false, m_name_col: true}
 
 form.v_island_1#finish_packaging action=url("#{base_route}/#{@order.o_id}/finish") method="post"
   == Rack::Csrf.tag(env)

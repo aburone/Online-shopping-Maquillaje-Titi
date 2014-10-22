@@ -37,4 +37,12 @@ class User < UserAuth
     current_location
   end
 
+  def can_edit_products?
+      self.level >= 3
+  end
+
+  def can_edit_materials?
+      self.level >= 3
+  end
+
 end
