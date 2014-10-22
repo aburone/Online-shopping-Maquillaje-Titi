@@ -3,13 +3,13 @@ class Backend < AppController
     sales_report = []
     Product.new.get_live.order(:p_name).all.each do |product|
       raw_sales = DB.fetch("
-          select DATE_FORMAT(orders.created_at,'%y%m') as date, count(1) as qty
+          select p_id, DATE_FORMAT(orders.created_at,'%y%m') as date, count(1) as qty
           from orders
           join line_items using (o_id)
           join items using (i_id)
           where type = 'SALE' and p_id = #{product.p_id}
-          group by p_id, year(orders.created_at) ,month(orders.created_at), orders.created_at, items.p_name
-          order by p_name, year(orders.created_at) ,month(orders.created_at)
+          group by p_id, date
+          order by p_id, date
         ").all
       raw_sales ||= []
       sales = {}
@@ -97,6 +97,7 @@ class Backend < AppController
       show_hide_button: true,
       brand_col: false,
       full_row: true,
+
       price_pro_col: false,
       stock_col: false,
       multi_stock_col: true,
