@@ -165,7 +165,7 @@ class Backend < AppController
     reports_products_to_move months
   end
   def reports_products_to_move months
-    list = Product.new.get_all_but_archived.order(:categories__c_name, :products__p_name)
+    list = Product.new.get_all_but_archived.where(non_saleable: 0).order(:categories__c_name, :products__p_name)
     products = Product.new.get_saleable_at_all_locations(list)
     @products = []
     products.map do |product|
