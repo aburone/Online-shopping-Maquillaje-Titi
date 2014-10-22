@@ -97,14 +97,14 @@ class Supply < Sequel::Model
   end
 
   def init product = Product.new
-    PRODUCT_EQ.map { |src_key, dst_key| @values[dst_key.to_sym] = eval("product.#{src_key}") }
-    unless product.empty?
-      INVENTORY_EQ.each do |location|
-        INVENTORY_EQ[location[0]].map do |src_key, dst_key|
-          eval("self.#{dst_key} = product.inventory(1).#{location[0]}.#{src_key}")
-        end
-      end
-    end
+    # PRODUCT_EQ.map { |src_key, dst_key| @values[dst_key.to_sym] = eval("product.#{src_key}") }
+    # unless product.empty?
+    #   INVENTORY_EQ.each do |location|
+    #     INVENTORY_EQ[location[0]].map do |src_key, dst_key|
+    #       eval("self.#{dst_key} = product.inventory(1).#{location[0]}.#{src_key}")
+    #     end
+    #   end
+    # end
     Supply.db_schema.map { |column| @values[column[0].to_sym] ||= column[1][:default] }
     self.p_id = product.p_id
     cast
@@ -218,6 +218,7 @@ class Product < Sequel::Model
     "p_id"
 
     supply.s1_whole = BigDecimal.new Product.select{count(i_id).as(stock_store_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1).where(products__p_id: @values[:p_id]).first[:stock_store_1]
+    ap "supply.s1_whole #{supply.s1_whole.to_s("F")}"
       self.stock_store_1 = supply.s1_whole
     supply.s1_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_store_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1).where(products__p_id: @values[:p_id]).first[:en_route_stock_store_1]
       @en_route_stock_store_1 = supply.s1_whole_en_route
@@ -269,9 +270,10 @@ class Product < Sequel::Model
     "stores_ideal"
     "stores_deviation"
 
-    supply.w1_whole = BigDecimal.new Product.select{count(i_id).as(stock_warehouse_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1).where(products__p_id: @values[:p_id]).first[:stock_warehouse_1]
+    supply.w1_whole = BigDecimal.new Product.select{count(i_id).as(stock_warehouse_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W1).where(products__p_id: @values[:p_id]).first[:stock_warehouse_1]
       self.stock_warehouse_1 = supply.w1_whole
-    supply.w1_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_warehouse_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1).where(products__p_id: @values[:p_id]).first[:en_route_stock_warehouse_1]
+    ap "supply.w1_whole #{supply.w1_whole.to_s("F")}"
+    supply.w1_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_warehouse_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::W1).where(products__p_id: @values[:p_id]).first[:en_route_stock_warehouse_1]
       @en_route_stock_warehouse_1 = supply.w1_whole_en_route
     supply.w1_whole_future = supply.w1_whole + supply.w1_whole_en_route
     "w1_whole_ideal"
@@ -287,9 +289,9 @@ class Product < Sequel::Model
     "w1_ideal"
     "w1_deviation"
 
-    supply.w2_whole = BigDecimal.new Product.select{count(i_id).as(stock_warehouse_2)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S2).where(products__p_id: @values[:p_id]).first[:stock_warehouse_2]
+    supply.w2_whole = BigDecimal.new Product.select{count(i_id).as(stock_warehouse_2)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W2).where(products__p_id: @values[:p_id]).first[:stock_warehouse_2]
       self.stock_warehouse_2 = supply.w2_whole
-    supply.w2_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_warehouse_2)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S2).where(products__p_id: @values[:p_id]).first[:en_route_stock_warehouse_2]
+    supply.w2_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_warehouse_2)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::W2).where(products__p_id: @values[:p_id]).first[:en_route_stock_warehouse_2]
       @en_route_stock_warehouse_2 = supply.w2_whole_en_route
     supply.w2_whole_future = supply.w2_whole + supply.w2_whole_en_route
     "w2_whole_ideal"
