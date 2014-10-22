@@ -1,4 +1,5 @@
 # coding: utf-8
+require_relative 'prerequisites'
 class UserTest < Test::Unit::TestCase
 
   def setup
@@ -43,6 +44,6 @@ class UserTest < Test::Unit::TestCase
   end
 
   def create_passwords
-    ap BCrypt::Password.create("1234")
+    pass =  BCrypt::Password.create("****", {cost: 16})
   end
 end

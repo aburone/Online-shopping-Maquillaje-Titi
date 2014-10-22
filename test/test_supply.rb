@@ -1,3 +1,4 @@
+# coding: utf-8
 require_relative 'prerequisites'
 
 class SupplyTest < Test::Unit::TestCase
@@ -196,58 +197,130 @@ class SupplyTest < Test::Unit::TestCase
 
   def test_supply_should_be_filled
     DB.transaction(rollback: :always, isolation: :uncommitted) do
-      base = Product.new.get 135
+      p = Product.new.get 135
+      p.update_stocks
 
-      #whole
-      assert_equal base.supply.s1_whole + base.supply.s1_whole_en_route, base.supply.s1_whole_future
-      assert_equal base.supply.s2_whole + base.supply.s2_whole_en_route, base.supply.s2_whole_future
-      assert_equal base.supply.stores_whole + base.supply.stores_whole_en_route, base.supply.stores_whole_future
+      "p_id"
+      "s1_whole"
+      "s1_whole_en_route"
+      assert_equal p.supply.s1_whole + p.supply.s1_whole_en_route, p.supply.s1_whole_future, "s1_whole_future"
+      "s1_whole_ideal"
+      "s1_whole_deviation"
+      "s1_part"
+      "s1_part_en_route"
+      assert_equal p.supply.s1_part + p.supply.s1_part_en_route, p.supply.s1_part_future, "s1_part_future"
+      "s1_part_ideal"
+      "s1_part_deviation"
+      "s1"
+      assert_equal p.supply.s1_whole_en_route + p.supply.s1_part_en_route,  p.supply.s1_en_route, "s1_en_route"
+      assert_equal p.supply.s1 + p.supply.s1_en_route,  p.supply.s1_future, "s1_future"
+      "s1_ideal"
+      "s1_deviation"
 
-      assert_equal base.supply.s1_whole + base.supply.s2_whole, base.supply.stores_whole
-      assert_equal base.supply.s1_whole_en_route + base.supply.s2_whole_en_route, base.supply.stores_whole_en_route
-      assert_equal base.supply.s1_whole_future + base.supply.s2_whole_future, base.supply.stores_whole_future
+      "s2_whole"
+      "s2_whole_en_route"
+      assert_equal p.supply.s2_whole + p.supply.s2_whole_en_route, p.supply.s2_whole_future, "s2_whole_future"
+      "s2_whole_ideal"
+      "s2_whole_deviation"
+      "s2_part"
+      "s2_part_en_route"
+      assert_equal p.supply.s2_part + p.supply.s2_part_en_route, p.supply.s2_part_future, "s2_part_future"
+      "s2_part_ideal"
+      "s2_part_deviation"
+      "s2"
+      assert_equal p.supply.s2_whole_en_route + p.supply.s2_part_en_route,  p.supply.s2_en_route, "s2_en_route"
+      assert_equal p.supply.s2 + p.supply.s2_en_route,  p.supply.s2_future, "s2_future"
+      "s2_ideal"
+      "s2_deviation"
+
+      assert_equal p.supply.s1_whole + p.supply.s2_whole, p.supply.stores_whole, "stores_whole"
+      assert_equal p.supply.s1_whole_en_route + p.supply.s2_whole_en_route, p.supply.stores_whole_en_route, "stores_whole_en_route"
+      assert_equal p.supply.stores_whole + p.supply.stores_whole_en_route, p.supply.stores_whole_future, "stores_whole_future"
+      "stores_whole_ideal"
+      "stores_whole_deviation"
+      assert_equal p.supply.s1_part + p.supply.s2_part, p.supply.stores_part, "stores_part"
+      assert_equal p.supply.s1_part_en_route + p.supply.s2_part_en_route, p.supply.stores_part_en_route, "stores_part_en_route"
+      assert_equal p.supply.stores_part + p.supply.stores_part_en_route, p.supply.stores_part_future, "stores_part_future"
+      "stores_part_ideal"
+      "stores_part_deviation"
+
+      assert_equal p.supply.s1 + p.supply.s2, p.supply.stores, "stores"
+      assert_equal p.supply.stores_whole_en_route + p.supply.stores_part_en_route, p.supply.stores_en_route, "stores_en_route"
+      assert_equal p.supply.stores + p.supply.stores_en_route, p.supply.stores_future, "stores_future"
+      "stores_ideal"
+      "stores_deviation"
 
 
-      assert_equal base.supply.w1_whole + base.supply.w1_whole_en_route, base.supply.w1_whole_future
-      assert_equal base.supply.w2_whole + base.supply.w2_whole_en_route, base.supply.w2_whole_future
-      assert_equal base.supply.warehouses_whole + base.supply.warehouses_whole_en_route, base.supply.warehouses_whole_future
-
-      assert_equal base.supply.w1_whole + base.supply.w2_whole, base.supply.warehouses_whole
-      assert_equal base.supply.w1_whole_en_route + base.supply.w2_whole_en_route, base.supply.warehouses_whole_en_route
-      assert_equal base.supply.w1_whole_future + base.supply.w2_whole_future, base.supply.warehouses_whole_future
 
 
-      #part stores
-      assert_equal base.supply.s1_part + base.supply.s1_part_en_route, base.supply.s1_part_future
-      assert_equal base.supply.s2_part + base.supply.s2_part_en_route, base.supply.s2_part_future
-      assert_equal base.supply.s1_part + base.supply.s2_part, base.supply.stores_part
-      assert_equal base.supply.s1_part_en_route + base.supply.s2_part_en_route, base.supply.stores_part_en_route
-      assert_equal base.supply.stores_part + base.supply.stores_part_en_route, base.supply.stores_part_future
+#################################
 
-      #part warehouses
-      assert_equal base.supply.w1_part + base.supply.w1_part_en_route, base.supply.w1_part_future
+      "w1_whole"
+      "w1_whole_en_route"
+      assert_equal p.supply.w1_whole + p.supply.w1_whole_en_route, p.supply.w1_whole_future, "w1_whole_future"
+      "w1_whole_ideal"
+      "w1_whole_deviation"
+      "w1_part"
+      "w1_part_en_route"
+      assert_equal p.supply.w1_part + p.supply.w1_part_en_route, p.supply.w1_part_future, "w1_part_future"
+      "w1_part_ideal"
+      "w1_part_deviation"
+      "w1"
+      assert_equal p.supply.w1_whole_en_route + p.supply.w1_part_en_route,  p.supply.w1_en_route, "w1_en_route"
+      assert_equal p.supply.w1 + p.supply.w1_en_route,  p.supply.w1_future, "w1_future"
+      "w1_ideal"
+      "w1_deviation"
 
-      assert_equal base.supply.w2_part + base.supply.w2_part_en_route, base.supply.w2_part_future
-      assert_equal base.supply.w1_part + base.supply.w2_part, base.supply.warehouses_part
-      assert_equal base.supply.w1_part_en_route + base.supply.w2_part_en_route, base.supply.warehouses_part_en_route
-      assert_equal base.supply.warehouses_part + base.supply.warehouses_part_en_route, base.supply.warehouses_part_future
+      "w2_whole"
+      "w2_whole_en_route"
+      assert_equal p.supply.w2_whole + p.supply.w2_whole_en_route, p.supply.w2_whole_future, "w2_whole_future"
+      "w2_whole_ideal"
+      "w2_whole_deviation"
+      "w2_part"
+      "w2_part_en_route"
+      assert_equal p.supply.w2_part + p.supply.w2_part_en_route, p.supply.w2_part_future, "w2_part_future"
+      "w2_part_ideal"
+      "w2_part_deviation"
+      "w2"
+      assert_equal p.supply.w2_whole_en_route + p.supply.w2_part_en_route,  p.supply.w2_en_route, "w2_en_route"
+      assert_equal p.supply.w2 + p.supply.w2_en_route,  p.supply.w2_future, "w2_future"
+      "w2_ideal"
+      "w2_deviation"
 
 
-      #totals
-      assert_equal base.supply.s1_whole + base.supply.s1_part, base.supply.s1
-      assert_equal base.supply.s2_whole + base.supply.s2_part, base.supply.s2
 
 
-      # ap PartsToAssemblies.get_parts_via_part_id_en_route_to_location(base.p_id, Location::S1).all.count
+      assert_equal p.supply.w1_whole + p.supply.w1_whole_en_route, p.supply.w1_whole_future, "w1_whole_future"
+      assert_equal p.supply.w2_whole + p.supply.w2_whole_en_route, p.supply.w2_whole_future, "w2_whole_future"
+      assert_equal p.supply.warehouses_whole + p.supply.warehouses_whole_en_route, p.supply.warehouses_whole_future, "warehouses_whole_future"
+      assert_equal p.supply.w1_whole + p.supply.w2_whole, p.supply.warehouses_whole, "warehouses_whole"
+      assert_equal p.supply.w1_whole_en_route + p.supply.w2_whole_en_route, p.supply.warehouses_whole_en_route, "warehouses_whole_en_route"
+      assert_equal p.supply.w1_whole_future + p.supply.w2_whole_future, p.supply.warehouses_whole_future, "warehouses_whole_future"
+
+      #part stores, "stores"
+
+      #part warehouses, "warehouses"
+      assert_equal p.supply.w1_part + p.supply.w1_part_en_route, p.supply.w1_part_future, "w1_part_future"
+      assert_equal p.supply.w2_part + p.supply.w2_part_en_route, p.supply.w2_part_future, "w2_part_future"
+      assert_equal p.supply.w1_part + p.supply.w2_part, p.supply.warehouses_part, "warehouses_part"
+      assert_equal p.supply.w1_part_en_route + p.supply.w2_part_en_route, p.supply.warehouses_part_en_route, "warehouses_part_en_route"
+      assert_equal p.supply.warehouses_part + p.supply.warehouses_part_en_route, p.supply.warehouses_part_future, "warehouses_part_future"
+
+      #totals, "totals"
+      assert_equal p.supply.s2_whole + p.supply.s2_part, p.supply.s2, "s2"
 
 
-      assert_equal base.supply.w1_part + base.supply.w1_part_en_route, base.supply.w1_part_future
-      assert_equal base.supply.w2_part + base.supply.w2_part_en_route, base.supply.w2_part_future
-      assert_equal base.supply.warehouses_part + base.supply.warehouses_part_en_route, base.supply.warehouses_part_future
+      # ap PartsToAssemblies.get_parts_via_part_id_en_route_to_location(p.p_id, Location::S1).all.count
 
-      assert_equal base.supply.w1_part + base.supply.w2_part, base.supply.warehouses_part
-      assert_equal base.supply.w1_part_en_route + base.supply.w2_part_en_route, base.supply.warehouses_part_en_route
-      assert_equal base.supply.w1_part_future + base.supply.w2_part_future, base.supply.warehouses_part_future
+
+      assert_equal p.supply.w1_part + p.supply.w1_part_en_route, p.supply.w1_part_future
+      assert_equal p.supply.w2_part + p.supply.w2_part_en_route, p.supply.w2_part_future
+      assert_equal p.supply.warehouses_part + p.supply.warehouses_part_en_route, p.supply.warehouses_part_future
+      assert_equal p.supply.w1_part + p.supply.w2_part, p.supply.warehouses_part
+      assert_equal p.supply.w1_part_en_route + p.supply.w2_part_en_route, p.supply.warehouses_part_en_route
+      assert_equal p.supply.w1_part_future + p.supply.w2_part_future, p.supply.warehouses_part_future
+
+      p.supply.keys.each { |key| ap "#{key}: #{p.supply[key].to_s('F')}" if p.supply[key] == 999}
     end
   end
 
