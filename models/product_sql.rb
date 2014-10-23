@@ -152,8 +152,8 @@ class Product < Sequel::Model
     indirect_ideal_stock = BigDecimal.new(0)
     p "indirect_ideal_stock: #{indirect_ideal_stock.to_s("F")}" if debug
     assemblies.each do |assembly|
-      p "adding #{assembly.p_name} #{(assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived).to_s("F")}" if debug
-      indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal unless assembly.archived
+      p "adding #{assembly.p_name} #{(assembly[:part_qty] * assembly.supply.s1_ideal unless assembly.archived).to_s("F")}" if debug
+      indirect_ideal_stock += assembly[:part_qty] * assembly.supply.s1_ideal unless assembly.archived
       p "indirect_ideal_stock: #{indirect_ideal_stock.to_s("F")}" if debug
     end
     supply.s1_part_ideal = indirect_ideal_stock
