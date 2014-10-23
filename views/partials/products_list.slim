@@ -141,7 +141,7 @@
             - if !use_virtual_stocks
               td.number #{Utils::number_format product.supply.s1_whole, 0}
             - if use_virtual_stocks
-                td.number #{Utils::number_format product.supply.s1_future, 0}
+                td.number #{Utils::number_format product.supply.s1_whole_future, 0}
           - if stock_col or multi_stock_col
             td.number #{Utils::number_format product.supply.s1_ideal, 2, 0}
           - if stock_deviation_col

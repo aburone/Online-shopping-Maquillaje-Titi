@@ -158,7 +158,7 @@ class Product < Sequel::Model
     end
     supply.s1_part_ideal = indirect_ideal_stock
     "s1_part_deviation"
-    "s1_ideal"
+    supply.s1_ideal = supply.s1_whole_ideal + supply.s1_part_ideal
     "s1_deviation"
 
     supply.s2_whole_ideal = 0
