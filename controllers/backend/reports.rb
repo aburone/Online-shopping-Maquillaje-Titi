@@ -66,15 +66,31 @@ class Backend < AppController
     list = Product.new.get_all_but_archived.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name)
     @products = Product.new.deprecated_update_stock_of_products list
     months = 0
+    case params[:mode].upcase
+      when Product::STORE_ONLY_1
+        months = 1
+        locations = 1
+      when Product::ALL_LOCATIONS_1
+        months = 1
+        locations = 2
+      when Product::STORE_ONLY_2
+        months = 2
+        locations = 1
+      when Product::ALL_LOCATIONS_2
+        months = 2
+        locations = 2
+      when Product::STORE_ONLY_3
+        months = 3
+        locations = 1
+      when Product::ALL_LOCATIONS_3
+        months = 3
+        locations = 2
+    end
+    ap params
+    ap months
+    ap locations
+
     @products.map do |product|
-      case params[:mode].upcase
-        when Product::STORE_ONLY_1, Product::ALL_LOCATIONS_1
-          months = 1
-        when Product::STORE_ONLY_2, Product::ALL_LOCATIONS_2
-          months = 2
-        when Product::STORE_ONLY_3, Product::ALL_LOCATIONS_3
-          months = 3
-      end
 
       if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
         product[:stock_deviation] = product.inventory(months).store_1.v_deviation
@@ -103,6 +119,9 @@ class Backend < AppController
       multi_stock_col: true,
       use_virtual_stocks: true,
       stock_deviation_col: true,
+
+      months: months,
+      locations: locations
     }
   end
 

@@ -194,9 +194,7 @@ class Product < Sequel::Model
 
     ideal_stock = direct_ideal_stock * 2 + indirect_ideal_stock
     p "ideal_stock: #{ideal_stock.to_s("F")}" if debug
-
     self.stock_deviation = inventory(1).global.deviation
-
 
     self
   end
@@ -206,7 +204,7 @@ class Product < Sequel::Model
     "p_id"
 
     supply.s1_whole = BigDecimal.new Product.select{count(i_id).as(stock_store_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1).where(products__p_id: @values[:p_id]).first[:stock_store_1]
-    ap "supply.s1_whole #{supply.s1_whole.to_s("F")}"
+    #ap "supply.s1_whole #{supply.s1_whole.to_s("F")}"
       self.stock_store_1 = supply.s1_whole
     supply.s1_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_store_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1).where(products__p_id: @values[:p_id]).first[:en_route_stock_store_1]
       @en_route_stock_store_1 = supply.s1_whole_en_route
@@ -260,7 +258,7 @@ class Product < Sequel::Model
 
     supply.w1_whole = BigDecimal.new Product.select{count(i_id).as(stock_warehouse_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W1).where(products__p_id: @values[:p_id]).first[:stock_warehouse_1]
       self.stock_warehouse_1 = supply.w1_whole
-    ap "supply.w1_whole #{supply.w1_whole.to_s("F")}"
+    #ap "supply.w1_whole #{supply.w1_whole.to_s("F")}"
     supply.w1_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_warehouse_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::W1).where(products__p_id: @values[:p_id]).first[:en_route_stock_warehouse_1]
       @en_route_stock_warehouse_1 = supply.w1_whole_en_route
     supply.w1_whole_future = supply.w1_whole + supply.w1_whole_en_route
