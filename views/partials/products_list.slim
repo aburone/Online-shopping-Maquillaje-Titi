@@ -137,16 +137,14 @@
           - if stock_col
             td.number #{Utils::number_format product[:qty], 0}
           - if multi_stock_col
-            - ap "product[:stock_warehouse_1] (#{product[:stock_warehouse_1]}) != product.supply.w1_whole (#{product.supply.w1_whole})" if product[:stock_warehouse_1] != product.supply.w1_whole
-            td.number #{Utils::number_format product[:stock_warehouse_1], 0}
-            - ap "product[:stock_warehouse_2] (#{product[:stock_warehouse_2]}) != product.supply.w2_whole (#{product.supply.w2_whole})" if product[:stock_warehouse_2] != product.supply.w2_whole
-            td.number #{Utils::number_format product[:stock_warehouse_2], 0}
+            td.number #{Utils::number_format product.supply.w1_whole, 0}
+            td.number #{Utils::number_format product.supply.w2_whole, 0}
             - if !use_virtual_stocks
               td.number #{Utils::number_format product.supply.s1_whole, 0}
             - if use_virtual_stocks
-                td.number #{Utils::number_format product.supply.s1_future, 0}
+                td.number #{Utils::number_format product.supply.s1_whole_future, 0}
           - if stock_col or multi_stock_col
-            td.number #{Utils::number_format product.inventory(1).store_1.ideal, 2, 0}
+            td.number #{Utils::number_format product.supply.s1_ideal, 2, 0}
           - if stock_deviation_col
             - col_class = (product[:stock_deviation] > 0) ? "number overstocked" : (product[:stock_deviation] < 0) ? "number understocked" : "number"
             - stock_deviation = product[:stock_deviation] == 0 ? "-" : Utils::number_format(product[:stock_deviation], 0)
