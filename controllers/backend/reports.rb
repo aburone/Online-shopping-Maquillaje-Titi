@@ -1,7 +1,7 @@
 class Backend < AppController
 
   get '/administration/reports/price_list' do
-    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).limit(50).all
+    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
     slim :products_list, layout: :layout_backend, locals: {title: "Lista de precios", sec_nav: :nav_administration,
       status_col: true,
       can_filter: false
@@ -13,7 +13,7 @@ class Backend < AppController
   end
 
   get '/administration/reports/products_flags' do
-    @products = Product.new.get_all.order(:categories__c_name, :products__p_name).limit(50).all
+    @products = Product.new.get_all.order(:categories__c_name, :products__p_name).all
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de flags", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
       price_col: true,
@@ -25,7 +25,7 @@ class Backend < AppController
   end
 
   get '/administration/reports/markups' do
-    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).limit(50).all
+    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
     @products.sort_by! { |product| product[:markup_deviation_percentile] }
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
       can_edit: true, edit_link: :edit_product,
@@ -88,7 +88,7 @@ class Backend < AppController
     reports_products_to_buy months
   end
   def reports_products_to_buy months
-    list = Product.new.get_all_but_archived.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).limit(50).all #.limit(20)
+    list = Product.new.get_all_but_archived.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).all
     @products = Product.new.deprecated_update_stock_of_products list
     @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
 
