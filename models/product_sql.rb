@@ -212,6 +212,7 @@ class Product < Sequel::Model
     "s1_whole_ideal"
     "s1_whole_deviation"
     supply.s1_part = PartsToAssemblies.get_parts_via_part_id_in_location(self.p_id, Location::S1).all.count
+
     supply.s1_part_en_route = PartsToAssemblies.get_parts_via_part_id_en_route_to_location(self.p_id, Location::S1).all.count
     supply.s1_part_future = supply.s1_part + supply.s1_part_en_route
     "s1_part_ideal"

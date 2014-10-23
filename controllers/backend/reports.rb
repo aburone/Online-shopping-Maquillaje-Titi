@@ -103,10 +103,10 @@ class Backend < AppController
     end
     if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
       @products.sort_by! { |product| [ product.inventory(months).store_1.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-      @products.delete_if { |product| product.inventory(months).store_1.v_deviation_percentile >= settings.reports_percentage_threshold}
+      @products.delete_if { |product| product.inventory(months).store_1.v_deviation_percentile >= 0} # don't overpackage
     else
       @products.sort_by! { |product| [ product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-      @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
+      @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= 0} # don't overpackage
     end
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
       show_edit_button: false,
@@ -134,7 +134,7 @@ class Backend < AppController
   def reports_products_to_buy months
     list = Product.new.get_all_but_archived.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).all
     @products = Product.new.deprecated_update_stock_of_products list
-    @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= settings.reports_percentage_threshold}
+    @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= 0} # don't overbuy
 
     distributors = Distributor.all
     distributors.map do |distributor|
@@ -181,7 +181,7 @@ class Backend < AppController
     end
 
     @products.sort_by! { |product| [ product[:distributor][:ponderated_deviation], product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-    slim :reports_products_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration, months: months}
+    slim :reports_products_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration, months: months, ponderated_deviation_col: true}
   end
 
 
@@ -198,7 +198,7 @@ class Backend < AppController
       material[:distributors] = material.distributors.all
     end
     @materials.sort_by! { |material| [ material[:stock_deviation_percentile], material[:stock_deviation] ] }
-    @materials.delete_if { |material| material[:stock_deviation_percentile] >= settings.reports_percentage_threshold}
+    @materials.delete_if { |material| material[:stock_deviation_percentile] >= 0} # don't overbuy
     slim :reports_materials_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_materials_to_buy(months), sec_nav: :nav_administration, months: months}
   end
 
