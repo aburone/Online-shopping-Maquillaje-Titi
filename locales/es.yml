@@ -566,6 +566,7 @@ constant:
   IN_ASSEMBLY: En kit
   SOLD: Vendido
   RETURNING: En devolución
+  SAMPLE: Muestra
 
 location:
   title: Ubicacion
