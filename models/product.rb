@@ -62,7 +62,7 @@ class Product < Sequel::Model
     global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
     global.virtual = global.stock + global.en_route
     global.ideal = store_1.ideal + warehouses.ideal
-    global.in_assemblies = PartsToAssemblies.get_parts_via_part_id(self.p_id).all.count
+    global.in_assemblies = PartsToAssemblies.get_items_via_assembly_part_p_id(self.p_id).all.count
 
     global.deviation = global.stock - global.ideal
     global.deviation_percentile = global.deviation * 100 / global.ideal

@@ -22,7 +22,6 @@ Sequel::Model.plugin :defaults_setter
 
 
 Sequel::Model.plugin :dataset_associations
-
 Sequel::Model.plugin :nested_attributes
 Sequel::Model.plugin :skip_create_refresh # necesario por el trigger que regenera el id
   # Sequel::Model.plugin :update_primary_key

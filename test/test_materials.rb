@@ -157,7 +157,7 @@ end
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       material = Material[38]
       material.calculate_ideal_stock(debug: false)
-      assert_equal BigDecimal.new(1718.4, 6).to_s("F"), material.m_ideal_stock.to_s("F")
+      assert_equal BigDecimal.new(1520.2, 6).to_s("F"), material.m_ideal_stock.to_s("F")
     end
 
   end
