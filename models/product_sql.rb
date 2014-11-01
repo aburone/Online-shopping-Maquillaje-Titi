@@ -229,6 +229,13 @@ class Product < Sequel::Model
     @supply
   end
 
+  def init product = Product.new
+    Product.default_values.each { |key, val| self.send("#{key}=", val) } # default setter
+    self
+  end
+
+
+
   def update_ideal_stock debug = false
 
     # temporal

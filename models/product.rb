@@ -26,8 +26,8 @@ class Product < Sequel::Model
     store_1 = OpenStruct.new
     store_1.stock = self.stock_store_1
     store_1.en_route = @en_route_stock_store_1.nil? ? BigDecimal.new(0, 2) : BigDecimal.new(@en_route_stock_store_1, 2)
-    store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route,)
-    store_1.ideal = self.direct_ideal_stock * for_months
+    store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route, 2)
+    store_1.ideal = self.direct_ideal_stock * for_months # TODO: null pointer if Product.new set_life_point: archived
     store_1.deviation = store_1.stock - store_1.ideal
     store_1.deviation_percentile = store_1.deviation * 100 / store_1.ideal
     store_1.deviation_percentile = BigDecimal.new(0, 2) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
@@ -355,24 +355,24 @@ class Product < Sequel::Model
       @values[:stock_warehouse_2] = @values[:stock_warehouse_2] ? BigDecimal.new(@values[:stock_warehouse_2], 0) : BigDecimal.new(0, 2)
     end
 
+    def must_be_archived?
+      self.end_of_life and supply.global == 0
+    end
+
+    def must_be_revived?
+      self.archived and supply.global > 0
+    end
+
     def archive_or_revive
-      return archive if must_be_archived
-      return revive if must_be_revived
+      return archive if must_be_archived?
+      return revive if must_be_revived?
       self
-    end
-
-    def must_be_archived
-      self.end_of_life and inventory(1).global.virtual == 0
-    end
-
-    def must_be_revived
-      self.archived and inventory(1).global.virtual > 0
     end
 
     def archive
       current_user_id =  User.new.current_user_id
       current_location = User.new.current_location[:name]
-      if inventory(1).global.virtual == 0
+      if supply.global == 0
         self.end_of_life = false
         self.archived =  true
         message = "Archivado por agotar existencias"
@@ -390,7 +390,7 @@ class Product < Sequel::Model
     end
 
     def revive
-      if inventory(1).global.virtual > 0
+      if supply.global > 0
         self.end_of_life = true
         self.archived =  false
         current_user_id =  User.new.current_user_id

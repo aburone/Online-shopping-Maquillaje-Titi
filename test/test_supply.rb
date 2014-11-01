@@ -263,7 +263,10 @@ class SupplyTest < Test::Unit::TestCase
       assy.supply.s1_whole_ideal = 50
 
       assy.supply.recalculate_ideals
-
+      # p "s1_part_deviation"
+      # ap assy.supply.s1_part_deviation
+      # p "s1_whole_deviation "
+      # ap assy.supply.s1_whole_deviation
       assert_equal BigDecimal.new(-30, 2).to_s("F"), assy.supply.s1_deviation.to_s("F"), "s1_deviation"
       assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.s2_deviation.to_s("F"), "s2_deviation"
     end
@@ -279,10 +282,6 @@ class SupplyTest < Test::Unit::TestCase
       assy.supply.s1_whole_ideal = 50
 
       assy.supply.recalculate_ideals
-      # p "s1_part_deviation"
-      # ap assy.supply.s1_part_deviation
-      # p "s1_whole_deviation "
-      # ap assy.supply.s1_whole_deviation
       assert_equal BigDecimal.new(-30, 2).to_s("F"), assy.supply.s1_deviation.to_s("F"), "s1_deviation"
       assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.s2_deviation.to_s("F"), "s2_deviation"
     end
@@ -298,10 +297,6 @@ class SupplyTest < Test::Unit::TestCase
       assy.supply.s1_whole_ideal = 50
 
       assy.supply.recalculate_ideals
-      # p "s1_part_deviation"
-      # ap assy.supply.s1_part_deviation
-      # p "s1_whole_deviation "
-      # ap assy.supply.s1_whole_deviation
       assert_equal BigDecimal.new(10, 2).to_s("F"), assy.supply.s1_deviation.to_s("F"), "s1_deviation"
       assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.s2_deviation.to_s("F"), "s2_deviation"
     end
@@ -317,10 +312,6 @@ class SupplyTest < Test::Unit::TestCase
       assy.supply.s1_whole_ideal = 50
 
       assy.supply.recalculate_ideals
-      # p "s1_part_deviation"
-      # ap assy.supply.s1_part_deviation
-      # p "s1_whole_deviation "
-      # ap assy.supply.s1_whole_deviation
       assert_equal BigDecimal.new(-20, 2).to_s("F"), assy.supply.s1_deviation.to_s("F"), "s1_deviation"
       assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.s2_deviation.to_s("F"), "s2_deviation"
     end
@@ -339,8 +330,6 @@ class SupplyTest < Test::Unit::TestCase
       assy.supply.w2 = 0
 
       assy.supply.recalculate_ideals
-
-
       assert_equal BigDecimal.new(-30, 2).to_s("F"), assy.supply.w1_deviation.to_s("F"), "w1_deviation"
       assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.w2_deviation.to_s("F"), "w2_deviation"
     end
@@ -359,10 +348,6 @@ class SupplyTest < Test::Unit::TestCase
       assy.supply.w2 = 0
 
       assy.supply.recalculate_ideals
-      # p "w1_part_deviation"
-      # ap assy.supply.w1_part_deviation
-      # p "w1_whole_deviation "
-      # ap assy.supply.w1_whole_deviation
       assert_equal BigDecimal.new(-30, 2).to_s("F"), assy.supply.w1_deviation.to_s("F"), "w1_deviation"
       assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.w2_deviation.to_s("F"), "w2_deviation"
     end
@@ -381,10 +366,6 @@ class SupplyTest < Test::Unit::TestCase
       assy.supply.w2 = 0
 
       assy.supply.recalculate_ideals
-      # p "w1_part_deviation"
-      # ap assy.supply.w1_part_deviation
-      # p "w1_whole_deviation "
-      # ap assy.supply.w1_whole_deviation
       assert_equal BigDecimal.new(10, 2).to_s("F"), assy.supply.w1_deviation.to_s("F"), "w1_deviation"
       assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.w2_deviation.to_s("F"), "w2_deviation"
     end
@@ -403,10 +384,6 @@ class SupplyTest < Test::Unit::TestCase
       assy.supply.w2 = 0
 
       assy.supply.recalculate_ideals
-      # p "w1_part_deviation"
-      # ap assy.supply.w1_part_deviation
-      # p "w1_whole_deviation "
-      # ap assy.supply.w1_whole_deviation
       assert_equal BigDecimal.new(-20, 2).to_s("F"), assy.supply.w1_deviation.to_s("F"), "w1_deviation"
       assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.w2_deviation.to_s("F"), "w2_deviation"
     end
@@ -417,48 +394,14 @@ class SupplyTest < Test::Unit::TestCase
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       product = Product.new.get 135
       product.update_ideal_stock
-      # ap product.p_name
-      # p "ideal global "
-      # ap product.inventory(1).global.ideal.to_s("F")
-
-      # ap "assemblies"
-      calculated_needed_parts = BigDecimal.new(0)
+      calculated_parts_ideal = BigDecimal.new(0)
       product.assemblies.each do |assembly|
         assembly.update_ideal_stock
-
-        # ap assembly.p_name
-        # ap "global ideal"
-        # ap assembly.inventory(1).global.ideal.to_s("F")
-
-
-        calculated_needed_parts += assembly[:part_qty] * assembly.inventory(1).global.ideal / 2 unless assembly.archived #divido para considerar solo una locacion
+        calculated_parts_ideal += assembly[:part_qty] * assembly.supply.global_whole_ideal unless assembly.archived
       end
-      calculated_needed_parts *= 2
-      # ap calculated_needed_parts
-
-
-      assert_equal calculated_needed_parts.round(2).to_s("F"), product.supply.global_part_ideal.round(2).to_s("F"), "Erroneous parts ideal stock"
-
-#yadda
-      # assert_equal (calculated_needed_parts + product.supply.s1_whole_ideal * 2).round(2).to_s("F"), product.supply.s1_whole_ideal.round(2).to_s("F"), "Erroneous ideal stock"
-
-
-      # assert_equal BigDecimal.new(50.00, 6).round(2).to_s("F"), calculated_needed_parts.round(2).to_s("F"), "Erroneous calculated_needed_parts"
-      # assert_equal BigDecimal.new(170.00, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
-      # assert_equal 0, (product.ideal_stock - calculated_needed_parts - product.direct_ideal_stock * 2).round, "Erroneous ideal stock relation"
-
+      assert_equal calculated_parts_ideal.round(2).to_s("F"), product.supply.global_part_ideal.round(2).to_s("F"), "global_part_ideal"
+      assert_equal (calculated_parts_ideal + product.supply.global_whole_ideal).round(2).to_s("F"), product.supply.global_ideal.round(2).to_s("F"), "global_ideal"
+      assert_equal 0, (product.supply.global_ideal - calculated_parts_ideal - product.supply.global_whole_ideal).round, "Erroneous ideal stock relation"
     end
   end
-
-  def ideal_para_kits
-    # ideal kits:  sumatoria( ideal_global_assembly )
-    # ideal global: ( ideal_store_1 * 2 ) + ideal kits * 2
-    # 48*2 + 59*2 = 96+118 = 214
-
-    # necesidad: ideal_global - stock_global - assembly.global_stok
-    # nececidad: desvio + sumatoria ( desvio.assembly )
-
-    # 138 de pastilla blanca
-  end
-
 end
