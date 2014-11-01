@@ -31,11 +31,10 @@ class Item < Sequel::Model
     Item[i_id.to_s]
   end
 
-  def get_by_product p_id
+  def get_via_p_id p_id
     Item
       .select_group(*Item::COLUMNS)
       .where(p_id: p_id)
-      .where(i_status: Item::READY)
   end
 
   def in_orders

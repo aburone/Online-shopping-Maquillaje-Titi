@@ -322,4 +322,10 @@ class ItemTest < Test::Unit::TestCase
     assert_false item_1.is_a_different_product(products)
   end
 
+  def test_get_items_in_assemblies
+    product = Product.new.get 193
+    items = Item.new.get_via_p_id(product.p_id).all
+    items.each { |item| assert_equal product.p_id, item.p_id}
+  end
+
 end

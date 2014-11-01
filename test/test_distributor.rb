@@ -44,8 +44,8 @@ class DistributorTest < Test::Unit::TestCase
 
   def test_should_add_multiple_distributors_to_product_and_get_them_ordered_by_date_added
     DB.transaction(rollback: :always, isolation: :uncommitted) do
-      distributor1 = Distributor.new.get_rand
-      distributor2 = Distributor.new.get_rand
+      distributor1 = Distributor.first
+      distributor2 = Distributor.last
 
       # sanity check
       distributor1.remove_product @valid_product

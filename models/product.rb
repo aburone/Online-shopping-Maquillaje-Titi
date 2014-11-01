@@ -61,8 +61,8 @@ class Product < Sequel::Model
     store_1 = OpenStruct.new
     store_1.stock = self.stock_store_1
     store_1.en_route = @en_route_stock_store_1.nil? ? BigDecimal.new(0, 2) : BigDecimal.new(@en_route_stock_store_1, 2)
-    store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route,)
-    store_1.ideal = self.direct_ideal_stock * for_months
+    store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route, 2)
+    store_1.ideal = self.direct_ideal_stock * for_months # TODO: null pointer if Product.new set_life_point: archived
     store_1.deviation = store_1.stock - store_1.ideal
     store_1.deviation_percentile = store_1.deviation * 100 / store_1.ideal
     store_1.deviation_percentile = BigDecimal.new(0, 2) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
@@ -97,7 +97,7 @@ class Product < Sequel::Model
     global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
     global.virtual = global.stock + global.en_route
     global.ideal = store_1.ideal + warehouses.ideal
-    global.in_assemblies = PartsToAssemblies.get_parts_via_part_id(self.p_id).all.count
+    global.in_assemblies = PartsToAssemblies.get_items_via_assembly_part_p_id(self.p_id).all.count
 
     global.deviation = global.stock - global.ideal
     global.deviation_percentile = global.deviation * 100 / global.ideal
@@ -128,16 +128,19 @@ class Product < Sequel::Model
   def materials_cost= cost
     self[:materials_cost] = cost
     recalculate_sale_cost
+    super cost
   end
 
   def parts_cost= cost
     self[:parts_cost] = cost
     recalculate_sale_cost
+    super cost
   end
 
   def buy_cost= cost
     self[:buy_cost] = cost
     recalculate_sale_cost
+    super cost
   end
 
   def sale_cost
@@ -315,55 +318,66 @@ class Product < Sequel::Model
     errors
   end
 
+  def update_from_hash(hash_values)
+    raise ArgumentError, t.errors.nil_params if hash_values.nil?
+
+    #yadda deprecated supply keys
+    numerical_keys = [ :direct_ideal_stock, :indirect_ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :stock_deviation, :buy_cost, :materials_cost, :parts_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
+    hash_values.select do |key, value|
+      if numerical_keys.include? key.to_sym
+        unless value.nil? or (value.class == String and value.length == 0)
+          if Utils::is_numeric? value.to_s.gsub(',', '.')
+            self[key.to_sym] = BigDecimal.new(value, 2)
+          end
+        end
+      end
+    end
+
+
+    alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :description, :notes, :img, :img_extra ]
+    hash_values.select { |key, value| eval("self.#{key}=value.to_s") if alpha_keys.include? key.to_sym unless value.nil?}
+
+    checkbox_keys = [:published_price, :published]
+    checkbox_keys.each { |key| self[key.to_sym] = hash_values[key].nil? ? 0 : 1 }
+
+    true_false_keys = [:tercerized]
+    true_false_keys.each { |key| self[key.to_sym] = hash_values[key] == "true" ? 1 : 0 }
+
+    set_life_phase hash_values[:life_phase]
+    set_sale_mode hash_values[:sale_mode]
+
+    unless hash_values[:brand].nil?
+      brand_json = JSON.parse(hash_values[:brand])
+      brand_keys = [ :br_id, :br_name ]
+      brand_keys.select { |key, value| self[key.to_sym]=brand_json[key.to_s] unless brand_json[key.to_s].nil?}
+    end
+
+    self[:p_name] = ""
+    [self[:p_short_name], self[:br_name], self[:packaging], self[:size], self[:color], self[:public_sku] ].map  { |part| self[:p_name] += " " + part unless part.nil?}
+    @values[:ideal_stock] = @values[:direct_ideal_stock] + @values[:indirect_ideal_stock]
+    self
+  end
 
   private
-    def cast
-      @values[:buy_cost] = @values[:buy_cost] ? BigDecimal.new(@values[:buy_cost], 0) : BigDecimal.new(0, 2)
-      @values[:materials_cost] = @values[:materials_cost] ? BigDecimal.new(@values[:materials_cost], 0) : BigDecimal.new(0, 2)
-      @values[:parts_cost] = @values[:parts_cost] ? BigDecimal.new(@values[:parts_cost], 0) : BigDecimal.new(0, 2)
-      @values[:sale_cost] = @values[:sale_cost] ? BigDecimal.new(@values[:sale_cost], 0) : BigDecimal.new(0, 2)
-      self.buy_cost = self.buy_cost ? BigDecimal.new(self.buy_cost, 0) : BigDecimal.new(0, 2)
-      self.materials_cost = self.materials_cost ? BigDecimal.new(self.materials_cost, 0) : BigDecimal.new(0, 2)
-      self.parts_cost = self.parts_cost ? BigDecimal.new(self.parts_cost, 0) : BigDecimal.new(0, 2)
-      self.sale_cost = self.sale_cost ? BigDecimal.new(self.sale_cost, 0) : BigDecimal.new(0, 2)
 
-      @values[:ideal_markup] = @values[:ideal_markup] ? BigDecimal.new(@values[:ideal_markup], 0) : BigDecimal.new(0, 2)
-      @values[:real_markup] = @values[:real_markup] ? BigDecimal.new(@values[:real_markup], 0) : BigDecimal.new(0, 2)
-      @values[:exact_price] = @values[:exact_price] ? BigDecimal.new(@values[:exact_price], 0) : BigDecimal.new(0, 2)
-      self.price = @values[:price] ? BigDecimal.new(@values[:price], 0) : BigDecimal.new(0, 2)
+    def must_be_archived?
+      self.end_of_life and supply.global == 0
+    end
 
-      @values[:c_id] = 0 if @values[:c_id].nil?
-
-
-      @values[:direct_ideal_stock] = @values[:direct_ideal_stock] ? BigDecimal.new(@values[:direct_ideal_stock], 0) : BigDecimal.new(0, 2)
-      @values[:indirect_ideal_stock] = @values[:indirect_ideal_stock] ? BigDecimal.new(@values[:indirect_ideal_stock], 0) : BigDecimal.new(0, 2)
-      @values[:ideal_stock] = @values[:direct_ideal_stock] + @values[:indirect_ideal_stock]
-
-      @values[:stock_deviation] = @values[:stock_deviation] ? BigDecimal.new(@values[:stock_deviation], 0) : BigDecimal.new(0, 2)
-      @values[:stock_store_1] = @values[:stock_store_1] ? BigDecimal.new(@values[:stock_store_1], 0) : BigDecimal.new(0, 2)
-      @values[:stock_store_2] = @values[:stock_store_2] ? BigDecimal.new(@values[:stock_store_2], 0) : BigDecimal.new(0, 2)
-      @values[:stock_warehouse_1] = @values[:stock_warehouse_1] ? BigDecimal.new(@values[:stock_warehouse_1], 0) : BigDecimal.new(0, 2)
-      @values[:stock_warehouse_2] = @values[:stock_warehouse_2] ? BigDecimal.new(@values[:stock_warehouse_2], 0) : BigDecimal.new(0, 2)
+    def must_be_revived?
+      self.archived and supply.global > 0
     end
 
     def archive_or_revive
-      return archive if must_be_archived
-      return revive if must_be_revived
+      return archive if must_be_archived?
+      return revive if must_be_revived?
       self
-    end
-
-    def must_be_archived
-      self.end_of_life and inventory(1).global.virtual == 0
-    end
-
-    def must_be_revived
-      self.archived and inventory(1).global.virtual > 0
     end
 
     def archive
       current_user_id =  User.new.current_user_id
       current_location = User.new.current_location[:name]
-      if inventory(1).global.virtual == 0
+      if supply.global == 0
         self.end_of_life = false
         self.archived =  true
         message = "Archivado por agotar existencias"
@@ -381,7 +395,7 @@ class Product < Sequel::Model
     end
 
     def revive
-      if inventory(1).global.virtual > 0
+      if supply.global > 0
         self.end_of_life = true
         self.archived =  false
         current_user_id =  User.new.current_user_id

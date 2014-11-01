@@ -536,4 +536,58 @@ class ProductTest < Test::Unit::TestCase
     end
   end
 
+  def test_should_ignore_non_present_values
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      product = Product.where(parts_cost: 0, materials_cost: 0).first
+      cost = BigDecimal.new(10, 2)
+      product.buy_cost = cost
+      product.sale_cost = cost
+      hash = {}
+      product.update_from_hash hash
+      assert_equal cost.to_s("F"), product.sale_cost.to_s("F"), "non_present_values"
+      assert_equal cost.to_s("F"), product.buy_cost.to_s("F"), "non_present_values"
+    end
+  end
+
+
+  def test_should_reject_invalid_strings_in_numerical_values
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      product = Product.where(parts_cost: 0, materials_cost: 0).first
+      cost = BigDecimal.new(10, 2)
+      product.buy_cost = cost
+      product.sale_cost = cost
+      hash = {sale_cost: "a"}
+      product.update_from_hash hash
+      assert_equal cost.to_s("F"), product.sale_cost.to_s("F"), "invalid_strings_in_numerical_values"
+    end
+  end
+
+  def test_should_reject_badly_formatted_numbers
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      product = Product.where(parts_cost: 0, materials_cost: 0).first
+      cost = BigDecimal.new(10, 2)
+      product.buy_cost = cost
+      product.sale_cost = cost
+      hash = {sale_cost: "1..1"}
+      product.update_from_hash hash
+      assert_equal cost.to_s("F"), product.sale_cost.to_s("F"), "badly_formatted_numbers"
+    end
+  end
+
+  def test_should_reject_nil_numerical_values
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      product = Product.new.get_rand
+      cost = BigDecimal.new(10, 2)
+      zero = BigDecimal.new(0, 2)
+      product.parts_cost = zero
+      product.materials_cost = zero
+      product.buy_cost = cost
+      product.sale_cost = cost
+      hash = {sale_cost: nil, buy_cost: nil}
+      product.update_from_hash hash
+      assert_equal cost.to_s("F"), product.sale_cost.to_s("F"), "sale_cost"
+      assert_equal cost.to_s("F"), product.buy_cost.to_s("F"), "buy_cost"
+    end
+  end
+
 end

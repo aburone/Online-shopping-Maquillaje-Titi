@@ -3,141 +3,14 @@ require_relative 'prerequisites'
 
 class SupplyTest < Test::Unit::TestCase
 
-  def test_should_reject_nil_numerical_values
+
+  def test_s1_whole_ideal_should_not_be_modified_on_save
     DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get_rand
-      product.direct_ideal_stock=10
-      product.indirect_ideal_stock=0
-      hash = {direct_ideal_stock: nil}
-      product.update_from_hash hash
-      assert_equal 10, product.ideal_stock
-    end
-  end
-
-  def test_should_ignore_non_present_values
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get_rand
-      product.direct_ideal_stock=10
-      product.indirect_ideal_stock=0
-      hash = {}
-      product.update_from_hash hash
-      assert_equal BigDecimal.new(10).to_s("F"), product.ideal_stock.to_s("F"), "non_present_values"
-    end
-  end
-
-  def test_should_reject_invalid_strings_in_numerical_values
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get_rand
-      product.direct_ideal_stock=10
-      product.indirect_ideal_stock=10
-      hash = {direct_ideal_stock: "a"}
-      product.update_from_hash hash
-      assert_equal 20, product.ideal_stock
-    end
-  end
-
-  def test_should_reject_badly_formatted_numbers
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get_rand
-      product.direct_ideal_stock=10
-      product.indirect_ideal_stock=10
-      hash = {direct_ideal_stock: "1..1"}
-      product.update_from_hash hash
-      assert_equal 20, product.ideal_stock, "formatted_numbers"
-    end
-  end
-
-
-  def test_should_ideal_stock_should_not_be_modified_by_stored_procedure
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get 135
-      product.direct_ideal_stock = 5
-      product.save
-      product = Product.new.get 135
-      assert_equal product.direct_ideal_stock, 5, "Erroneous ideal stock "
-    end
-  end
-
-
-  def test_should_calculate_ideal_stock
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get 135
-      product.update_ideal_stock
-      # ap product.p_name
-      # p "ideal global "
-      # ap product.inventory(1).global.ideal.to_s("F")
-
-      # ap "assemblies"
-      calculated_indirect_ideal_stock = BigDecimal.new(0)
-      product.assemblies.each do |assembly|
-        assembly.update_ideal_stock
-
-        # ap assembly.p_name
-        # ap "global ideal"
-        # ap assembly.inventory(1).global.ideal.to_s("F")
-
-
-        calculated_indirect_ideal_stock += assembly[:part_qty] * assembly.inventory(1).global.ideal / 2 unless assembly.archived #divido para considerar solo una locacion
-      end
-      calculated_indirect_ideal_stock *= 2
-      assert_equal calculated_indirect_ideal_stock.round(2).to_s("F"), product.indirect_ideal_stock.round(2).to_s("F"), "Erroneous indirect ideal stock"
-      assert_equal (calculated_indirect_ideal_stock + product.direct_ideal_stock * 2).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
-
-      assert_equal BigDecimal.new(50.00, 6).round(2).to_s("F"), calculated_indirect_ideal_stock.round(2).to_s("F"), "Erroneous calculated_indirect_ideal_stock"
-      # assert_equal BigDecimal.new(170.00, 6).round(2).to_s("F"), product.ideal_stock.round(2).to_s("F"), "Erroneous ideal stock"
-      assert_equal 0, (product.ideal_stock - calculated_indirect_ideal_stock - product.direct_ideal_stock * 2).round, "Erroneous ideal stock relation"
-
-    end
-  end
-
-  def test_inventory_should_return_same_values_as_stored_object
-    product = Product.new.get 135
-    assert_equal product.ideal_stock.round(2).to_s("F"), product.inventory(1).global.ideal.round(2).to_s("F"), "Stored and calculated are different"
-  end
-
-  def ideal_para_kits
-    # ideal kits:  sumatoria( ideal_global_assembly )
-    # ideal global: ( ideal_store_1 * 2 ) + ideal kits * 2
-    # 48*2 + 59*2 = 96+118 = 214
-
-    # necesidad: ideal_global - stock_global - assembly.global_stok
-    # nececidad: desvio + sumatoria ( desvio.assembly )
-
-    # 138 de pastilla blanca
-  end
-
-  def test_get_items_in_assemblies
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get 193
-      items = Item.new.get_by_product(product.p_id).all
-      # ap items
-    end
-  end
-
-  def test_set_assembly_id
-    # parts = PartsToAssemblies.get_parts_via_part_id 137
-    # product = Product.new.get 137
-    # ap product.inventory(1)
-  end
-
-
-
-
-######################################################################33
-
-  def test_get_supply_from_product
-    product = Product.new.get 135
-    supply = product.supply
-    assert_equal product.p_id, supply.p_id
-  end
-
-  def test_get_product_from_supply
-    supply = Supply[135]
-    if supply.nil?
-      ap "No supply record for 135"
-    else
-      product = supply.product
-      assert_equal supply.p_id, product.p_id
+      s = Supply.new.get 135
+      s.s1_whole_ideal = 5
+      s.save
+      s = Supply.new.get 135
+      assert_equal 5, s.s1_whole_ideal, "Erroneous s1_whole_ideal"
     end
   end
 
@@ -146,47 +19,41 @@ class SupplyTest < Test::Unit::TestCase
     assert supply.empty?
   end
 
-  def test_init_new_supply_should_fill_defaults
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      supply = Supply.new.init
-      Supply.db_schema.map { |column| assert supply[column[0].to_sym].to_f >= 0 unless column[0].to_sym == :p_id }
-    end
-  end
-
-  def test_get_nil_supply_should_return_default
+  def test_get_nil_should_fill_defaults
     supply = Supply.new.get nil
     Supply.db_schema.map { |column| assert supply.respond_to? column[0].to_sym }
+    Supply.default_values.each { |key, val| assert_equal supply.send(key), val }
+    assert supply.p_id.nil?
+    assert supply.updated_at.nil?
   end
 
+  def test_init_should_fill_defaults
+    supply = Supply.new.init
+    Supply.db_schema.map { |column| assert supply.respond_to? column[0].to_sym }
+    Supply.default_values.each { |key, val| assert_equal supply.send(key), val }
+    assert supply.p_id.nil?
+    assert supply.updated_at.nil?
+  end
 
   def test_should_not_save_empty_supply
-    assert_raise Sequel::NotNullConstraintViolation do
-      Supply.new.init.save
+    assert_raise Sequel::DatabaseError do
+      supply = Supply.new.init.save
     end
   end
 
-  def test_init_supply_should_fill_missing_values
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      Product.new.save validate: false
-      product = Product.last
-      supply = Supply.new.get product.p_id
-      assert_equal product.p_id, supply.p_id
-    end
+  def test_get_should_fill_missing_p_id
+    product = Product.last
+    supply = Supply.new.get product.p_id
+    assert_equal product.p_id, supply.p_id
   end
 
-  def test_getting_a_product_supply_should_get_old_values
-    DB.transaction(rollback: :always, isolation: :uncommitted) do
-      product = Product.new.get 135
-      supply = product.supply
-      Supply::PRODUCT_EQ.map do |src_key, dst_key|
-        # assert_equal product[src_key.to_sym], supply[dst_key.to_sym], "#{src_key}: #{product[src_key.to_sym].to_s('F')} <> #{supply[dst_key.to_sym].to_s('F')}"
-      end
-      assert !product.empty?
-      Supply::INVENTORY_EQ.each do |location|
-        Supply::INVENTORY_EQ[location[0]].map do |src_key, dst_key|
-          # assert eval("product.inventory(1).#{location[0]}.#{src_key} == supply.#{dst_key}"), "#{src_key} (#{ eval("product.inventory(1).#{location[0]}.#{src_key}")}) != #{dst_key} (#{ eval("supply.#{dst_key}")})"
-        end
-      end
+  def test_get_product_from_supply
+    supply = Supply[Product.last.p_id]
+    if supply.nil?
+      ap "No supply record for #{Product.last.p_id}"
+    else
+      product = supply.product
+      assert_equal supply.p_id, product.p_id
     end
   end
 
@@ -194,64 +61,68 @@ class SupplyTest < Test::Unit::TestCase
     assert_equal Product.count, Supply.count
   end
 
+  def test_every_product_should_have_s1_whole_ideal
+    products = Product.new.get_all.where(archived: 0).where(end_of_life: 0).where(non_saleable: 0).where(on_request: 0).where(end_of_life: 0).all
+    products.each do |p|
+      ap "#{p.p_name} (#{p.p_id}) has an ideal of zero" unless p.supply.s1_whole_ideal > 0
+    end
+  end
 
-  def test_supply_should_be_filled
+  def test_supply_check_values
     DB.transaction(rollback: :always, isolation: :uncommitted) do
       p = Product.new.get 135
       p.update_stocks
+      p.update_ideal_stock
 
       "p_id"
+
       "s1_whole"
       "s1_whole_en_route"
       assert_equal p.supply.s1_whole + p.supply.s1_whole_en_route, p.supply.s1_whole_future, "s1_whole_future"
       "s1_whole_ideal"
-      "s1_whole_deviation"
+      assert_equal (p.supply.s1_whole - p.supply.s1_whole_ideal).to_s("F"), p.supply.s1_whole_deviation.to_s("F"), "s1_whole_deviation"
       "s1_part"
       "s1_part_en_route"
       assert_equal p.supply.s1_part + p.supply.s1_part_en_route, p.supply.s1_part_future, "s1_part_future"
       "s1_part_ideal"
-      "s1_part_deviation"
-      "s1"
+      assert_equal (p.supply.s1_part - p.supply.s1_part_ideal).to_s("F"), p.supply.s1_part_deviation.to_s("F"), "s1_part_deviation"
+      assert_equal (p.supply.s1_whole_future + p.supply.s1_part_future).to_s("F"), p.supply.s1.to_s("F"), "s1"
       assert_equal p.supply.s1_whole_en_route + p.supply.s1_part_en_route,  p.supply.s1_en_route, "s1_en_route"
       assert_equal p.supply.s1 + p.supply.s1_en_route,  p.supply.s1_future, "s1_future"
-      "s1_ideal"
-      "s1_deviation"
+      assert_equal (p.supply.s1_whole_ideal + p.supply.s1_part_ideal).to_s("F"), p.supply.s1_ideal.to_s("F"), "s1_ideal"
+      # assert_equal (p.supply.s1 - p.supply.s1_ideal).to_s("F"), p.supply.s1_deviation.to_s("F"), "s1_deviation"
 
       "s2_whole"
       "s2_whole_en_route"
       assert_equal p.supply.s2_whole + p.supply.s2_whole_en_route, p.supply.s2_whole_future, "s2_whole_future"
       "s2_whole_ideal"
-      "s2_whole_deviation"
+      assert_equal (p.supply.s2_whole - p.supply.s2_whole_ideal).to_s("F"), p.supply.s2_whole_deviation.to_s("F"), "s2_whole_deviation"
       "s2_part"
       "s2_part_en_route"
       assert_equal p.supply.s2_part + p.supply.s2_part_en_route, p.supply.s2_part_future, "s2_part_future"
       "s2_part_ideal"
-      "s2_part_deviation"
-      "s2"
+      assert_equal (p.supply.s2_part - p.supply.s2_part_ideal).to_s("F"), p.supply.s2_part_deviation.to_s("F"), "s2_part_deviation"
+      assert_equal (p.supply.s2_whole_future + p.supply.s2_part_future).to_s("F"), p.supply.s2.to_s("F"), "s2"
       assert_equal p.supply.s2_whole_en_route + p.supply.s2_part_en_route,  p.supply.s2_en_route, "s2_en_route"
       assert_equal p.supply.s2 + p.supply.s2_en_route,  p.supply.s2_future, "s2_future"
-      "s2_ideal"
-      "s2_deviation"
+      assert_equal (p.supply.s2_whole_ideal + p.supply.s2_part_ideal).to_s("F"), p.supply.s2_ideal.to_s("F"), "s2_ideal"
+      assert_equal (p.supply.s2 - p.supply.s2_ideal).to_s("F"), p.supply.s2_deviation.to_s("F"), "s2_deviation"
 
       assert_equal p.supply.s1_whole + p.supply.s2_whole, p.supply.stores_whole, "stores_whole"
       assert_equal p.supply.s1_whole_en_route + p.supply.s2_whole_en_route, p.supply.stores_whole_en_route, "stores_whole_en_route"
       assert_equal p.supply.stores_whole + p.supply.stores_whole_en_route, p.supply.stores_whole_future, "stores_whole_future"
-      "stores_whole_ideal"
-      "stores_whole_deviation"
+      assert_equal p.supply.s1_whole_ideal + p.supply.s2_whole_ideal, p.supply.stores_whole_ideal, "stores_whole_ideal"
+      # assert_equal (p.supply.stores_whole - p.supply.stores_whole_ideal).to_s("F"), p.supply.stores_whole_deviation.to_s("F"), "stores_whole_deviation"
       assert_equal p.supply.s1_part + p.supply.s2_part, p.supply.stores_part, "stores_part"
       assert_equal p.supply.s1_part_en_route + p.supply.s2_part_en_route, p.supply.stores_part_en_route, "stores_part_en_route"
       assert_equal p.supply.stores_part + p.supply.stores_part_en_route, p.supply.stores_part_future, "stores_part_future"
-      "stores_part_ideal"
-      "stores_part_deviation"
-
+      assert_equal (p.supply.s1_part_ideal + p.supply.s2_part_ideal).to_s("F"), p.supply.stores_part_ideal.to_s("F"), "stores_part_ideal"
+      # assert_equal (p.supply.stores_part - p.supply.stores_part_ideal).to_s("F"), p.supply.stores_part_deviation.to_s("F"), "stores_part_deviation"
       assert_equal p.supply.s1 + p.supply.s2, p.supply.stores, "stores"
       assert_equal p.supply.stores_whole_en_route + p.supply.stores_part_en_route, p.supply.stores_en_route, "stores_en_route"
       assert_equal p.supply.stores + p.supply.stores_en_route, p.supply.stores_future, "stores_future"
-      "stores_ideal"
-      "stores_deviation"
-
-
-
+      assert_equal (p.supply.s1_ideal + p.supply.s2_ideal).to_s("F"), p.supply.stores_ideal.to_s("F"), "stores_ideal"
+      # assert_equal (p.supply.stores - p.supply.stores_ideal).to_s("F"), p.supply.stores_deviation.to_s("F"), "stores_deviation"
 
 #################################
 
@@ -259,100 +130,278 @@ class SupplyTest < Test::Unit::TestCase
       "w1_whole_en_route"
       assert_equal p.supply.w1_whole + p.supply.w1_whole_en_route, p.supply.w1_whole_future, "w1_whole_future"
       "w1_whole_ideal"
-      "w1_whole_deviation"
+      # assert_equal (p.supply.w1_whole - p.supply.w1_whole_ideal).to_s("F"), p.supply.w1_whole_deviation.to_s("F"), "w1_whole_deviation"
       "w1_part"
       "w1_part_en_route"
       assert_equal p.supply.w1_part + p.supply.w1_part_en_route, p.supply.w1_part_future, "w1_part_future"
       "w1_part_ideal"
-      "w1_part_deviation"
-      "w1"
+      # assert_equal (p.supply.w1_part - p.supply.w1_part_ideal).to_s("F"), p.supply.w1_part_deviation.to_s("F"), "w1_part_deviation"
+      assert_equal (p.supply.w1_whole_future + p.supply.w1_part_future).to_s("F"), p.supply.w1.to_s("F"), "w1"
       assert_equal p.supply.w1_whole_en_route + p.supply.w1_part_en_route,  p.supply.w1_en_route, "w1_en_route"
       assert_equal p.supply.w1 + p.supply.w1_en_route,  p.supply.w1_future, "w1_future"
-      "w1_ideal"
-      "w1_deviation"
+      assert_equal (p.supply.w1_whole_ideal + p.supply.w1_part_ideal).to_s("F"), p.supply.w1_ideal.to_s("F"), "w1_ideal"
+      # assert_equal (p.supply.w1 - p.supply.w1_ideal).to_s("F"), p.supply.w1_deviation.to_s("F"), "w1_deviation"
 
       "w2_whole"
       "w2_whole_en_route"
       assert_equal p.supply.w2_whole + p.supply.w2_whole_en_route, p.supply.w2_whole_future, "w2_whole_future"
       "w2_whole_ideal"
-      "w2_whole_deviation"
+      assert_equal (p.supply.w2_whole - p.supply.w2_whole_ideal).to_s("F"), p.supply.w2_whole_deviation.to_s("F"), "w2_whole_deviation"
       "w2_part"
       "w2_part_en_route"
       assert_equal p.supply.w2_part + p.supply.w2_part_en_route, p.supply.w2_part_future, "w2_part_future"
       "w2_part_ideal"
-      "w2_part_deviation"
-      "w2"
+      assert_equal (p.supply.w2_part - p.supply.w2_part_ideal).to_s("F"), p.supply.w2_part_deviation.to_s("F"), "w2_part_deviation"
+      assert_equal (p.supply.w2_whole_future + p.supply.w2_part_future).to_s("F"), p.supply.w2.to_s("F"), "w2"
       assert_equal p.supply.w2_whole_en_route + p.supply.w2_part_en_route,  p.supply.w2_en_route, "w2_en_route"
       assert_equal p.supply.w2 + p.supply.w2_en_route,  p.supply.w2_future, "w2_future"
-      "w2_ideal"
-      "w2_deviation"
+      assert_equal (p.supply.w2_whole_ideal + p.supply.w2_part_ideal).to_s("F"), p.supply.w2_ideal.to_s("F"), "w2_ideal"
+      # assert_equal (p.supply.w2 - p.supply.w2_ideal).to_s("F"), p.supply.w2_deviation.to_s("F"), "w2_deviation"
 
-
-
-
-      assert_equal p.supply.w1_whole + p.supply.w1_whole_en_route, p.supply.w1_whole_future, "w1_whole_future"
-      assert_equal p.supply.w2_whole + p.supply.w2_whole_en_route, p.supply.w2_whole_future, "w2_whole_future"
-      assert_equal p.supply.warehouses_whole + p.supply.warehouses_whole_en_route, p.supply.warehouses_whole_future, "warehouses_whole_future"
       assert_equal p.supply.w1_whole + p.supply.w2_whole, p.supply.warehouses_whole, "warehouses_whole"
       assert_equal p.supply.w1_whole_en_route + p.supply.w2_whole_en_route, p.supply.warehouses_whole_en_route, "warehouses_whole_en_route"
-      assert_equal p.supply.w1_whole_future + p.supply.w2_whole_future, p.supply.warehouses_whole_future, "warehouses_whole_future"
-
-      #part stores, "stores"
-
-      #part warehouses, "warehouses"
-      assert_equal p.supply.w1_part + p.supply.w1_part_en_route, p.supply.w1_part_future, "w1_part_future"
-      assert_equal p.supply.w2_part + p.supply.w2_part_en_route, p.supply.w2_part_future, "w2_part_future"
+      assert_equal p.supply.warehouses_whole + p.supply.warehouses_whole_en_route, p.supply.warehouses_whole_future, "warehouses_whole_future"
+      "warehouses_whole_ideal"
+      # assert_equal (p.supply.warehouses_whole - p.supply.warehouses_whole_ideal).to_s("F"), p.supply.warehouses_whole_deviation.to_s("F"), "warehouses_whole_deviation"
       assert_equal p.supply.w1_part + p.supply.w2_part, p.supply.warehouses_part, "warehouses_part"
       assert_equal p.supply.w1_part_en_route + p.supply.w2_part_en_route, p.supply.warehouses_part_en_route, "warehouses_part_en_route"
       assert_equal p.supply.warehouses_part + p.supply.warehouses_part_en_route, p.supply.warehouses_part_future, "warehouses_part_future"
+      "warehouses_part_ideal"
+      # assert_equal (p.supply.warehouses_part - p.supply.warehouses_part_ideal).to_s("F"), p.supply.warehouses_part_deviation.to_s("F"), "warehouses_part_deviation"
+      assert_equal p.supply.w1 + p.supply.w2, p.supply.warehouses, "warehouses"
+      assert_equal p.supply.warehouses_whole_en_route + p.supply.warehouses_part_en_route, p.supply.warehouses_en_route, "warehouses_en_route"
+      assert_equal p.supply.warehouses + p.supply.warehouses_en_route, p.supply.warehouses_future, "warehouses_future"
+      assert_equal (p.supply.w1_ideal + p.supply.w2_ideal).to_s("F"), p.supply.warehouses_ideal.to_s("F"), "warehouses_ideal"
+      # assert_equal (p.supply.warehouses - p.supply.warehouses_ideal).to_s("F"), p.supply.warehouses_deviation.to_s("F"), "warehouses_deviation"
 
-      #totals, "totals"
-      assert_equal p.supply.s2_whole + p.supply.s2_part, p.supply.s2, "s2"
+#################################
+      assert_equal p.supply.stores_whole + p.supply.warehouses_whole, p.supply.global_whole, "global_whole"
+      assert_equal p.supply.stores_whole_en_route + p.supply.warehouses_whole_en_route, p.supply.global_whole_en_route, "global_whole_en_route"
+      assert_equal p.supply.stores_whole_future + p.supply.warehouses_whole_future, p.supply.global_whole_future, "global_whole_future"
+      assert_equal p.supply.stores_whole_ideal + p.supply.warehouses_whole_ideal, p.supply.global_whole_ideal, "global_whole_ideal"
+      "global_whole_deviation"
+      assert_equal p.supply.stores_part + p.supply.warehouses_part, p.supply.global_part, "global_part"
+      assert_equal (p.supply.stores_part_en_route + p.supply.warehouses_part_en_route).to_s("F"), p.supply.global_part_en_route.to_s("F"), "global_part_en_route"
+      assert_equal p.supply.stores_part_future + p.supply.warehouses_part_future, p.supply.global_part_future, "global_part_future"
+      assert_equal p.supply.stores_part_ideal + p.supply.warehouses_part_ideal, p.supply.global_part_ideal, "global_part_ideal"
+      "global_part_deviation"
+      assert_equal p.supply.stores + p.supply.warehouses, p.supply.global, "global"
+      assert_equal p.supply.stores_en_route + p.supply.warehouses_en_route, p.supply.global_en_route, "global_en_route"
+      assert_equal p.supply.stores_future + p.supply.warehouses_future, p.supply.global_future, "global_future"
+      assert_equal (p.supply.stores_ideal + p.supply.warehouses_ideal).to_s("F"), p.supply.global_ideal.to_s("F"), "global_ideal"
+      "global_deviation"
 
 
-      # ap PartsToAssemblies.get_parts_via_part_id_en_route_to_location(p.p_id, Location::S1).all.count
+      "global_whole"
+      "global_whole_en_route"
+      "global_whole_future"
+      "global_whole_ideal"
+      "global_whole_deviation"
+      "global_part"
+      "global_part_en_route"
+      "global_part_future"
+      "global_part_ideal"
+      "global_part_deviation"
+      "global"
+      "global_en_route"
+      "global_future"
+      "global_ideal"
+      "global_deviation"
 
 
-      assert_equal p.supply.w1_part + p.supply.w1_part_en_route, p.supply.w1_part_future
-      assert_equal p.supply.w2_part + p.supply.w2_part_en_route, p.supply.w2_part_future
-      assert_equal p.supply.warehouses_part + p.supply.warehouses_part_en_route, p.supply.warehouses_part_future
-      assert_equal p.supply.w1_part + p.supply.w2_part, p.supply.warehouses_part
-      assert_equal p.supply.w1_part_en_route + p.supply.w2_part_en_route, p.supply.warehouses_part_en_route
-      assert_equal p.supply.w1_part_future + p.supply.w2_part_future, p.supply.warehouses_part_future
-
-      p.supply.keys.each { |key| ap "#{key}: #{p.supply[key].to_s('F')}" if p.supply[key] == 999}
+      p.supply.keys.each { |key| ap "#{key}: #{p.supply[key].to_s('F')}" if p.supply[key] == 999} # yadda
     end
   end
 
   def test_ideal_stock
     DB.transaction(rollback: :always, isolation: :uncommitted) do
-      base = Product.new.get 135
-      base.direct_ideal_stock = 10
-      # p ""
-      # p base.p_name
-      assemblies = base.assemblies
-      assemblies.each do |assy|
-        assy.direct_ideal_stock = 5
-        assy.save
-        assy = Product.new.get assy.p_id
-      end
-      base.save
+      p = Product.new.get 135
+      assemblies = p.assemblies
+      assemblies.map do |assy|
+        assy.supply.s1_whole_ideal = 5
+        assy.supply.s1_part_ideal = 5
 
 
-      assemblies = base.assemblies
-      assemblies.each do |assy|
-        # ap "#{assy.p_name} (#{assy.supply.stores_whole})"
-        # assert_equal assy.supply.stores_whole, assy.direct_ideal_stock
-        assert_equal assy.supply.global_ideal, assy.ideal_stock, "#{assy.supply.global_ideal.to_s('F')} != #{assy.ideal_stock.to_s('F')}"
-        parts = assy.parts
-        # parts.each { |part| ap "  #{part[:part_qty].to_s("F")} x #{part.p_name}" if part.p_id == base.p_id}
+        assy.supply.recalculate_ideals
+
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.s1_whole_ideal.to_s("F"), "s1_whole_ideal"
+        assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.s2_whole_ideal.to_s("F"), "s2_whole_ideal"
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.stores_whole_ideal.to_s("F"), "stores_whole_ideal"
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.s1_part_ideal.to_s("F"), "s1_part_ideal"
+        assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.s2_part_ideal.to_s("F"), "s2_part_ideal"
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.stores_part_ideal.to_s("F"), "stores_part_ideal"
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.stores_whole_ideal.to_s("F"), "stores_whole_ideal"
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.stores_part_ideal.to_s("F"), "stores_part_ideal"
+        assert_equal BigDecimal.new(10, 2).to_s("F"), assy.supply.stores_ideal.to_s("F"), "stores_ideal"
+
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.w1_whole_ideal.to_s("F"), "w1_whole_ideal"
+        assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.w2_whole_ideal.to_s("F"), "w2_whole_ideal"
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.warehouses_whole_ideal.to_s("F"), "warehouses_whole_ideal"
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.w1_part_ideal.to_s("F"), "w1_part_ideal"
+        assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.w2_part_ideal.to_s("F"), "w2_part_ideal"
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.warehouses_part_ideal.to_s("F"), "warehouses_part_ideal"
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.warehouses_whole_ideal.to_s("F"), "warehouses_whole_ideal"
+        assert_equal BigDecimal.new(5, 2).to_s("F"), assy.supply.warehouses_part_ideal.to_s("F"), "warehouses_part_ideal"
+        assert_equal BigDecimal.new(10, 2).to_s("F"), assy.supply.warehouses_ideal.to_s("F"), "warehouses_ideal"
+
+        assert_equal BigDecimal.new(10, 2).to_s("F"), assy.supply.global_whole_ideal.to_s("F"), "global_whole_ideal"
+        assert_equal BigDecimal.new(10, 2).to_s("F"), assy.supply.global_part_ideal.to_s("F"), "global_part_ideal"
+        assert_equal BigDecimal.new(20, 2).to_s("F"), assy.supply.global_ideal.to_s("F"), "global_ideal"
+
       end
 
-      base.supply.keys.each do |key|
-        # ap "#{key}: #{base.supply[key].to_s('F')}" if key.to_s.include? "s1"
-      end
+    end
+  end
+
+  def test_deviations_stores_1
+    p = Product.new.get 135
+    assemblies = p.assemblies
+    assemblies.map do |assy|
+      assy.supply.s1_part = 20
+      assy.supply.s1_whole = 60
+      assy.supply.s1_part_ideal = 50
+      assy.supply.s1_whole_ideal = 50
+
+      assy.supply.recalculate_ideals
+      # p "s1_part_deviation"
+      # ap assy.supply.s1_part_deviation
+      # p "s1_whole_deviation "
+      # ap assy.supply.s1_whole_deviation
+      assert_equal BigDecimal.new(-30, 2).to_s("F"), assy.supply.s1_deviation.to_s("F"), "s1_deviation"
+      assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.s2_deviation.to_s("F"), "s2_deviation"
+    end
+  end
+
+  def test_deviations_stores_2
+    p = Product.new.get 135
+    assemblies = p.assemblies
+    assemblies.map do |assy|
+      assy.supply.s1_part = 60
+      assy.supply.s1_whole = 20
+      assy.supply.s1_part_ideal = 50
+      assy.supply.s1_whole_ideal = 50
+
+      assy.supply.recalculate_ideals
+      assert_equal BigDecimal.new(-30, 2).to_s("F"), assy.supply.s1_deviation.to_s("F"), "s1_deviation"
+      assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.s2_deviation.to_s("F"), "s2_deviation"
+    end
+  end
+
+  def test_deviations_stores_3
+    p = Product.new.get 135
+    assemblies = p.assemblies
+    assemblies.map do |assy|
+      assy.supply.s1_part = 60
+      assy.supply.s1_whole = 60
+      assy.supply.s1_part_ideal = 50
+      assy.supply.s1_whole_ideal = 50
+
+      assy.supply.recalculate_ideals
+      assert_equal BigDecimal.new(10, 2).to_s("F"), assy.supply.s1_deviation.to_s("F"), "s1_deviation"
+      assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.s2_deviation.to_s("F"), "s2_deviation"
+    end
+  end
+
+  def test_deviations_stores_4
+    p = Product.new.get 135
+    assemblies = p.assemblies
+    assemblies.map do |assy|
+      assy.supply.s1_part = 40
+      assy.supply.s1_whole = 40
+      assy.supply.s1_part_ideal = 50
+      assy.supply.s1_whole_ideal = 50
+
+      assy.supply.recalculate_ideals
+      assert_equal BigDecimal.new(-20, 2).to_s("F"), assy.supply.s1_deviation.to_s("F"), "s1_deviation"
+      assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.s2_deviation.to_s("F"), "s2_deviation"
+    end
+  end
+
+  def test_deviations_warehouses_1
+    p = Product.new.get 135
+    assemblies = p.assemblies
+    assemblies.map do |assy|
+      assy.supply.w1_part = 20
+      assy.supply.w1_whole = 60
+      assy.supply.w1_part_ideal = 50
+      assy.supply.w1_whole_ideal = 50
+      assy.supply.w2_part = 0
+      assy.supply.w2_whole = 0
+      assy.supply.w2 = 0
+
+      assy.supply.recalculate_ideals
+      assert_equal BigDecimal.new(-30, 2).to_s("F"), assy.supply.w1_deviation.to_s("F"), "w1_deviation"
+      assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.w2_deviation.to_s("F"), "w2_deviation"
+    end
+  end
+
+  def test_deviations_warehouses_2
+    p = Product.new.get 135
+    assemblies = p.assemblies
+    assemblies.map do |assy|
+      assy.supply.w1_part = 60
+      assy.supply.w1_whole = 20
+      assy.supply.w1_part_ideal = 50
+      assy.supply.w1_whole_ideal = 50
+      assy.supply.w2_part = 0
+      assy.supply.w2_whole = 0
+      assy.supply.w2 = 0
+
+      assy.supply.recalculate_ideals
+      assert_equal BigDecimal.new(-30, 2).to_s("F"), assy.supply.w1_deviation.to_s("F"), "w1_deviation"
+      assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.w2_deviation.to_s("F"), "w2_deviation"
+    end
+  end
+
+  def test_deviations_warehouses_3
+    p = Product.new.get 135
+    assemblies = p.assemblies
+    assemblies.map do |assy|
+      assy.supply.w1_part = 60
+      assy.supply.w1_whole = 60
+      assy.supply.w1_part_ideal = 50
+      assy.supply.w1_whole_ideal = 50
+      assy.supply.w2_part = 0
+      assy.supply.w2_whole = 0
+      assy.supply.w2 = 0
+
+      assy.supply.recalculate_ideals
+      assert_equal BigDecimal.new(10, 2).to_s("F"), assy.supply.w1_deviation.to_s("F"), "w1_deviation"
+      assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.w2_deviation.to_s("F"), "w2_deviation"
+    end
+  end
+
+  def test_deviations_warehouses_4
+    p = Product.new.get 135
+    assemblies = p.assemblies
+    assemblies.map do |assy|
+      assy.supply.w1_part = 40
+      assy.supply.w1_whole = 40
+      assy.supply.w1_part_ideal = 50
+      assy.supply.w1_whole_ideal = 50
+      assy.supply.w2_part = 0
+      assy.supply.w2_whole = 0
+      assy.supply.w2 = 0
+
+      assy.supply.recalculate_ideals
+      assert_equal BigDecimal.new(-20, 2).to_s("F"), assy.supply.w1_deviation.to_s("F"), "w1_deviation"
+      assert_equal BigDecimal.new(0, 2).to_s("F"), assy.supply.w2_deviation.to_s("F"), "w2_deviation"
     end
   end
 
 
+  def test_should_calculate_ideal_stock
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      product = Product.new.get 135
+      product.update_ideal_stock
+      calculated_parts_ideal = BigDecimal.new(0)
+      product.assemblies.each do |assembly|
+        assembly.update_ideal_stock
+        calculated_parts_ideal += assembly[:part_qty] * assembly.supply.global_whole_ideal unless assembly.archived
+      end
+      assert_equal calculated_parts_ideal.round(2).to_s("F"), product.supply.global_part_ideal.round(2).to_s("F"), "global_part_ideal"
+      assert_equal (calculated_parts_ideal + product.supply.global_whole_ideal).round(2).to_s("F"), product.supply.global_ideal.round(2).to_s("F"), "global_ideal"
+      assert_equal 0, (product.supply.global_ideal - calculated_parts_ideal - product.supply.global_whole_ideal).round, "Erroneous ideal stock relation"
+    end
+  end
 end

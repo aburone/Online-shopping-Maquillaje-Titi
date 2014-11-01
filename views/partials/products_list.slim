@@ -35,7 +35,6 @@
 - else
   - show_filters = true if show_filters.nil?
   - focus = true if focus.nil?
-  == slim :table_global_filter, locals: {show_filters: show_filters, focus: focus} if show_filters
   - tablesorter_class = show_filters ? "tablesorter" : "tablesorter_nofilter"
   - caption = show_filters ? t.tablesorter.default_caption : caption unless !caption.nil?
   table class="items #{tablesorter_class}"
