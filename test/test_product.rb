@@ -585,8 +585,8 @@ class ProductTest < Test::Unit::TestCase
       product.sale_cost = cost
       hash = {sale_cost: nil, buy_cost: nil}
       product.update_from_hash hash
-      assert_equal cost.to_s("F"), product.sale_cost.to_s("F")
-      assert_equal cost.to_s("F"), product.buy_cost.to_s("F")
+      assert_equal cost.to_s("F"), product.sale_cost.to_s("F"), "sale_cost"
+      assert_equal cost.to_s("F"), product.buy_cost.to_s("F"), "buy_cost"
     end
   end
 

@@ -93,16 +93,19 @@ class Product < Sequel::Model
   def materials_cost= cost
     self[:materials_cost] = cost
     recalculate_sale_cost
+    super cost
   end
 
   def parts_cost= cost
     self[:parts_cost] = cost
     recalculate_sale_cost
+    super cost
   end
 
   def buy_cost= cost
     self[:buy_cost] = cost
     recalculate_sale_cost
+    super cost
   end
 
   def sale_cost
@@ -285,17 +288,18 @@ class Product < Sequel::Model
   def update_from_hash(hash_values)
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
 
+    #yadda deprecated supply keys
     numerical_keys = [ :direct_ideal_stock, :indirect_ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :stock_deviation, :buy_cost, :materials_cost, :parts_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
     hash_values.select do |key, value|
       if numerical_keys.include? key.to_sym
         unless value.nil? or (value.class == String and value.length == 0)
           if Utils::is_numeric? value.to_s.gsub(',', '.')
-            self[key.to_sym] = Utils::as_number value
+            self[key.to_sym] = BigDecimal.new(value, 2)
           end
         end
       end
     end
-    cast
+
 
     alpha_keys = [ :c_id, :p_short_name, :packaging, :size, :color, :sku, :public_sku, :description, :notes, :img, :img_extra ]
     hash_values.select { |key, value| eval("self.#{key}=value.to_s") if alpha_keys.include? key.to_sym unless value.nil?}
@@ -317,12 +321,13 @@ class Product < Sequel::Model
 
     self[:p_name] = ""
     [self[:p_short_name], self[:br_name], self[:packaging], self[:size], self[:color], self[:public_sku] ].map  { |part| self[:p_name] += " " + part unless part.nil?}
-    cast
+    # cast #yadda
+    @values[:ideal_stock] = @values[:direct_ideal_stock] + @values[:indirect_ideal_stock]
     self
   end
 
   private
-    def cast
+    def cast #yadda
       @values[:buy_cost] = @values[:buy_cost] ? BigDecimal.new(@values[:buy_cost], 0) : BigDecimal.new(0, 2)
       @values[:materials_cost] = @values[:materials_cost] ? BigDecimal.new(@values[:materials_cost], 0) : BigDecimal.new(0, 2)
       @values[:parts_cost] = @values[:parts_cost] ? BigDecimal.new(@values[:parts_cost], 0) : BigDecimal.new(0, 2)
@@ -342,7 +347,6 @@ class Product < Sequel::Model
 
       @values[:direct_ideal_stock] = @values[:direct_ideal_stock] ? BigDecimal.new(@values[:direct_ideal_stock], 0) : BigDecimal.new(0, 2)
       @values[:indirect_ideal_stock] = @values[:indirect_ideal_stock] ? BigDecimal.new(@values[:indirect_ideal_stock], 0) : BigDecimal.new(0, 2)
-      @values[:ideal_stock] = @values[:direct_ideal_stock] + @values[:indirect_ideal_stock]
 
       @values[:stock_deviation] = @values[:stock_deviation] ? BigDecimal.new(@values[:stock_deviation], 0) : BigDecimal.new(0, 2)
       @values[:stock_store_1] = @values[:stock_store_1] ? BigDecimal.new(@values[:stock_store_1], 0) : BigDecimal.new(0, 2)

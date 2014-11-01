@@ -249,12 +249,6 @@ class Product < Sequel::Model
 
     supply.recalculate_ideals
 
-    # ideal_stock = direct_ideal_stock * 2 + indirect_ideal_stock
-    # p "ideal_stock: #{ideal_stock.to_s("F")}" if debug
-
-    # self.stock_deviation = inventory(1).global.deviation
-
-
     self
   end
 
