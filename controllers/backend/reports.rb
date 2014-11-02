@@ -22,11 +22,8 @@ class Backend < AppController
         months_with_activity << month[:qty] if month[:qty] > 0
       end
 
-      ap product.p_name
       sales[:median] = months_with_activity.median
       sales[:standard_deviation] = months_with_activity.standard_deviation
-      Qty + 1.644 * Qty^(0.5)
-
 
       product[:sales] = sales
       product[:distributors] = product.distributors
