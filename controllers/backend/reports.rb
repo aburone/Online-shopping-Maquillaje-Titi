@@ -2,7 +2,7 @@ class Backend < AppController
   require 'descriptive_statistics'
   DescriptiveStatistics.empty_collection_default_value = 0.0
 
-  get '/administration/reports/sales' do
+  get '/administration/reports/montly' do
     sales_report = []
     Product.new.get_live.order(:p_name).all.each do |product|
       raw_sales = DB.fetch("
@@ -22,15 +22,20 @@ class Backend < AppController
         months_with_activity << month[:qty] if month[:qty] > 0
       end
 
-      sales[:median] = months_with_activity.median
-      sales[:standard_deviation] = months_with_activity.standard_deviation
+      last_six_months = months_with_activity.last 6
+
+      sales[:median] = last_six_months.median
+      sales[:standard_deviation] = last_six_months.standard_deviation
+      sales[:recomended] = ((sales[:median] + (sales[:standard_deviation] / 2)) * 2).round / 2.0
+
 
       product[:sales] = sales
       product[:distributors] = product.distributors
       sales_report << product
     end
 
-    slim :sales_report, layout: :layout_backend, locals: {title: "reporte de ventas", sec_nav: :nav_administration, products: sales_report, months: prev_year_months}
+    @sec_nav = :nav_administration
+    slim :sales_report, layout: :layout_backend, locals: {title: "reporte de ventas", products: sales_report, months: prev_year_months}
   end
 
   get '/administration/reports/price_list' do
