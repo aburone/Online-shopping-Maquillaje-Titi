@@ -205,6 +205,8 @@ class Product < Sequel::Model
   many_to_many :products_parts , left_key: :p_id, right_key: :p_id, join_table: :products_parts
   many_to_many :distributors , left_key: :p_id, right_key: :d_id, join_table: :products_to_distributors
 
+
+  NUMERICAL_ATTRIBUTES = [ :direct_ideal_stock, :indirect_ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :stock_deviation, :buy_cost, :materials_cost, :parts_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
   ATTRIBUTES = [:p_id, :c_id, :p_name, :p_short_name, :br_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :on_request, :non_saleable, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :published, :archived, :tercerized, :end_of_life, :description, :notes, :img, :img_extra, :created_at, :price_updated_at]
   # same as ATTRIBUTES but with the neccesary table references for get_ functions
   COLUMNS = [:products__p_id, :c_id, :p_name, :p_short_name, :br_id, :packaging, :size, :color, :sku, :public_sku, :notes, :direct_ideal_stock, :indirect_ideal_stock, :ideal_stock, :stock_deviation, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :buy_cost, :parts_cost, :materials_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro, :published_price, :tercerized, :published, :on_request, :non_saleable, :archived, :end_of_life, :products__img, :img_extra, :products__created_at, :products__price_updated_at, :products__description, :brands__br_name]
@@ -254,8 +256,7 @@ class Product < Sequel::Model
 
     supply.s1_whole = BigDecimal.new Product.select{count(i_id).as(stock_store_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S1).where(products__p_id: @values[:p_id]).first[:stock_store_1]
       self.stock_store_1 = supply.s1_whole
-    supply.s1_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_store_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1).where(products__p_id: @values[:p_id]).first[:en_route_stock_store_1]
-      @en_route_stock_store_1 = supply.s1_whole_en_route
+    supply.s1_whole_en_route = BigDecimal.new Product.select{count(i_id).as(s1_whole_en_route)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S1).where(products__p_id: @values[:p_id]).first[:s1_whole_en_route]
     supply.s1_whole_future = supply.s1_whole + supply.s1_whole_en_route
     "s1_whole_ideal"
     "s1_whole_deviation"
@@ -272,8 +273,7 @@ class Product < Sequel::Model
 
     supply.s2_whole = BigDecimal.new Product.select{count(i_id).as(stock_store_2)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::S2).where(products__p_id: @values[:p_id]).first[:stock_store_2]
       self.stock_store_2 = supply.s2_whole
-    supply.s2_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_store_2)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S2).where(products__p_id: @values[:p_id]).first[:en_route_stock_store_2]
-      @en_route_stock_store_2 = supply.s2_whole_en_route
+    supply.s2_whole_en_route = BigDecimal.new Product.select{count(i_id).as(s2_whole_en_route)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::S2).where(products__p_id: @values[:p_id]).first[:s2_whole_en_route]
     supply.s2_whole_future = supply.s2_whole + supply.s2_whole_en_route
     "s2_whole_ideal"
     "s2_whole_deviation"
@@ -306,8 +306,7 @@ class Product < Sequel::Model
 
     supply.w1_whole = BigDecimal.new Product.select{count(i_id).as(stock_warehouse_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W1).where(products__p_id: @values[:p_id]).first[:stock_warehouse_1]
       self.stock_warehouse_1 = supply.w1_whole
-    supply.w1_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_warehouse_1)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::W1).where(products__p_id: @values[:p_id]).first[:en_route_stock_warehouse_1]
-      @en_route_stock_warehouse_1 = supply.w1_whole_en_route
+    supply.w1_whole_en_route = BigDecimal.new Product.select{count(i_id).as(w1_whole_en_route)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::W1).where(products__p_id: @values[:p_id]).first[:w1_whole_en_route]
     supply.w1_whole_future = supply.w1_whole + supply.w1_whole_en_route
     "w1_whole_ideal"
     "w1_whole_deviation"
@@ -324,8 +323,7 @@ class Product < Sequel::Model
 
     supply.w2_whole = BigDecimal.new Product.select{count(i_id).as(stock_warehouse_2)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::READY, i_loc: Location::W2).where(products__p_id: @values[:p_id]).first[:stock_warehouse_2]
       self.stock_warehouse_2 = supply.w2_whole
-    supply.w2_whole_en_route = BigDecimal.new Product.select{count(i_id).as(en_route_stock_warehouse_2)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::W2).where(products__p_id: @values[:p_id]).first[:en_route_stock_warehouse_2]
-      @en_route_stock_warehouse_2 = supply.w2_whole_en_route
+    supply.w2_whole_en_route = BigDecimal.new Product.select{count(i_id).as(w2_whole_en_route)}.left_join(:items, products__p_id: :items__p_id, i_status: Item::MUST_VERIFY, i_loc: Location::W2).where(products__p_id: @values[:p_id]).first[:w2_whole_en_route]
     supply.w2_whole_future = supply.w2_whole + supply.w2_whole_en_route
     "w2_whole_ideal"
     "w2_whole_deviation"

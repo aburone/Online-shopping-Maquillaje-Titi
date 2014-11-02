@@ -1,4 +1,7 @@
 class Backend < AppController
+  require 'descriptive_statistics'
+  DescriptiveStatistics.empty_collection_default_value = 0.0
+
   get '/administration/reports/sales' do
     sales_report = []
     Product.new.get_live.order(:p_name).all.each do |product|
@@ -13,9 +16,18 @@ class Backend < AppController
         ").all
       raw_sales ||= []
       sales = {}
+      months_with_activity = []
       raw_sales.each do |month|
         sales[month[:date]] = month[:qty]
+        months_with_activity << month[:qty] if month[:qty] > 0
       end
+
+      ap product.p_name
+      sales[:median] = months_with_activity.median
+      sales[:standard_deviation] = months_with_activity.standard_deviation
+      Qty + 1.644 * Qty^(0.5)
+
+
       product[:sales] = sales
       product[:distributors] = product.distributors
       sales_report << product
@@ -28,6 +40,7 @@ class Backend < AppController
     @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
     slim :products_list, layout: :layout_backend, locals: {title: "Lista de precios", sec_nav: :nav_administration,
       status_col: true,
+      price_pro_col: false,
       show_filters: false
     }
   end
@@ -63,8 +76,7 @@ class Backend < AppController
   end
 
   get '/production/reports/to_package/:mode' do
-    list = Product.new.get_all_but_archived.where(tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name)
-    @products = Product.new.deprecated_update_stock_of_products list
+    products = Product.new.get_all.where(archived: false, tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name).all
     months = 0
     case params[:mode].upcase
       when Product::STORE_ONLY_1
@@ -86,29 +98,31 @@ class Backend < AppController
         months = 3
         locations = 2
     end
-    ap params
-    ap months
-    ap locations
 
-    @products.map do |product|
+    products.map do |product|
 
       if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
-        product[:stock_deviation] = product.inventory(months).store_1.v_deviation
-        product[:stock_deviation_percentile] = product.inventory(months).store_1.v_deviation_percentile
+        calculated_ideal = product.supply.s1_ideal * months
+        calculated_deviation = product.supply.s1 - calculated_ideal
+        product[:calculated_deviation] = calculated_deviation
+        product[:calculated_deviation_percentile] = calculated_deviation * 100 / calculated_ideal
       else
-        product[:stock_deviation] = product.inventory(months).global.v_deviation + product.inventory(months).global.in_assemblies
-        product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
+        calculated_ideal = product.supply.global_ideal * months
+        calculated_deviation = product.supply.global - calculated_ideal
+        product[:calculated_deviation] = calculated_deviation
+        product[:calculated_deviation_percentile] = calculated_deviation * 100 / calculated_ideal
       end
 
     end
     if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
-      @products.sort_by! { |product| [ product.inventory(months).store_1.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-      @products.delete_if { |product| product.inventory(months).store_1.v_deviation_percentile >= 0} # don't overpackage
+      products.sort_by! { |product| [ product.inventory(months).store_1.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
+      products.delete_if { |product| product.inventory(months).store_1.v_deviation_percentile >= 0} # don't overpackage
     else
-      @products.sort_by! { |product| [ product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-      @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= 0} # don't overpackage
+      products.sort_by! { |product| [ product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
+      products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= 0} # don't overpackage
     end
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
+      products: products,
       show_edit_button: false,
       show_hide_button: true,
       brand_col: false,
@@ -119,7 +133,6 @@ class Backend < AppController
       multi_stock_col: true,
       use_virtual_stocks: true,
       stock_deviation_col: true,
-
       months: months,
       locations: locations
     }
@@ -132,10 +145,8 @@ class Backend < AppController
     reports_products_to_buy months
   end
   def reports_products_to_buy months
-    list = Product.new.get_all_but_archived.where(tercerized: true, end_of_life: false).order(:categories__c_name, :products__p_name).all
-    @products = Product.new.deprecated_update_stock_of_products list
+    @products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).order(:categories__c_name, :products__p_name).all
     @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= 0} # don't overbuy
-
     distributors = Distributor.all
     distributors.map do |distributor|
       distributor[:stock_deviation] = 0
@@ -143,23 +154,12 @@ class Backend < AppController
       distributor[:ponderated_deviation] = 0
     end
 
-
+    money_total = 0
     @products.map do |product|
-
-      # product.virtual_stock_store_1 = product.inventory(months).store_1.virtual
-
-
-      # p "s1_future"
-      # ap product.virtual_stock_store_1
-      # ap product.supply.s1_future
-      # p "e"
-      product[:ideal_stock] = product.inventory(months).global.ideal
-      # ap product[:ideal_stock]
-      # # product[:stock_deviation] = product.inventory(months).global.v_deviation
-      # ap product[:stock_deviation]
+      product[:stock_deviation] = product.inventory(months).global.v_deviation
+      money_total += product[:stock_deviation] * product[:buy_cost] * -1 if product[:stock_deviation] < 0
       product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
-      # ap product[:stock_deviation_percentile]
-
+      product[:total_cost] = product[:stock_deviation] < 0 ? product.buy_cost * product[:stock_deviation] * -1 : 0
       product[:distributor] = product.distributors.first
       if product[:distributor]
         distributors.map do |distributor|
@@ -178,11 +178,32 @@ class Backend < AppController
         product[:distributor] = Distributor.new
         product[:distributor][:ponderated_deviation] = -101
       end
+      product[:ponderated_deviation] = product[:distributor] && product[:distributor][:ponderated_deviation] ? product[:distributor][:ponderated_deviation] : 0
     end
 
     @products.sort_by! { |product| [ product[:distributor][:ponderated_deviation], product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-    slim :reports_products_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration, months: months, ponderated_deviation_col: true}
+    slim :reports_products_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration, months: months, locations: 2, money_total: money_total}
   end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   route :get, :post, '/administration/reports/materials_to_buy' do

@@ -23,6 +23,7 @@ gem "rubytree"
 gem "awesome_print"
 gem "pdfkit"
 gem "wkhtmltopdf-binary"
+gem "descriptive_statistics"
 
 group :development, :test do
   gem "rb-inotify"

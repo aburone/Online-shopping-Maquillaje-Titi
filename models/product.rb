@@ -48,8 +48,6 @@ class Product < Sequel::Model
   DEVIATION_CALCULATION_MODES = [STORE_ONLY_1, STORE_ONLY_2, STORE_ONLY_3, ALL_LOCATIONS_1, ALL_LOCATIONS_2, ALL_LOCATIONS_3]
 
   @inventory = nil
-  @en_route_stock_store_1
-  attr_reader :en_route_stock_store_1
 
   require_relative 'product_sql.rb'
   require_relative 'product_perms.rb'
@@ -59,50 +57,50 @@ class Product < Sequel::Model
     @inventory = OpenStruct.new
     @inventory_months = for_months
     store_1 = OpenStruct.new
-    store_1.stock = self.stock_store_1
-    store_1.en_route = @en_route_stock_store_1.nil? ? BigDecimal.new(0, 2) : BigDecimal.new(@en_route_stock_store_1, 2)
-    store_1.virtual =  BigDecimal.new(store_1.stock + store_1.en_route, 2)
-    store_1.ideal = self.direct_ideal_stock * for_months # TODO: null pointer if Product.new set_life_point: archived
-    store_1.deviation = store_1.stock - store_1.ideal
-    store_1.deviation_percentile = store_1.deviation * 100 / store_1.ideal
+    store_1.stock = supply.s1_whole
+    store_1.en_route = supply.s1_whole_en_route
+    store_1.virtual =  supply.s1_future
+    store_1.ideal = supply.s1_whole_ideal * for_months # HERE !!!
+    store_1.deviation = supply.s1_whole - store_1.ideal
+    store_1.deviation_percentile = supply.s1_deviation * 100 / store_1.ideal
     store_1.deviation_percentile = BigDecimal.new(0, 2) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
-    store_1.v_deviation = BigDecimal.new(store_1.virtual - store_1.ideal, 2)
+    store_1.v_deviation = supply.s1_future - store_1.ideal
     store_1.v_deviation_percentile = store_1.v_deviation * 100 / store_1.ideal
     store_1.v_deviation_percentile = BigDecimal.new(0, 2) if store_1.v_deviation_percentile.nan? or store_1.v_deviation_percentile.infinite? or store_1.v_deviation_percentile.nil?
 
     warehouse_1 = OpenStruct.new
-    warehouse_1.stock = BigDecimal.new self.stock_warehouse_1, 2
-    warehouse_1.en_route = 0
-    warehouse_1.virtual = warehouse_1.stock + warehouse_1.en_route
+    warehouse_1.stock = supply.w1_whole
+    warehouse_1.en_route = supply.w1_whole_en_route
+    warehouse_1.virtual = supply.w1_whole_future
 
     warehouse_2 = OpenStruct.new
-    warehouse_2.stock = BigDecimal.new self.stock_warehouse_2, 2
-    warehouse_2.en_route = 0
-    warehouse_2.virtual = warehouse_2.stock + warehouse_2.en_route
+    warehouse_2.stock = supply.w2_whole
+    warehouse_2.en_route = supply.w2_whole_en_route
+    warehouse_2.virtual = supply.w2_whole_future
 
     warehouses = OpenStruct.new
-    warehouses.stock = warehouse_1.stock + warehouse_2.stock
-    warehouses.virtual =  warehouse_1.virtual + warehouse_2.virtual
+    warehouses.stock = supply.warehouses_whole
+    warehouses.virtual =  supply.warehouses_whole_future
+    warehouses.ideal = supply.warehouses_whole_ideal * for_months + supply.warehouses_part_ideal * for_months # HERE !!!
+    warehouses.deviation = (supply.warehouses_whole - warehouses.ideal) * for_months
 
-    warehouses.ideal = self.direct_ideal_stock * for_months + self.indirect_ideal_stock * for_months
-    warehouses.deviation = warehouses.stock - warehouses.ideal
     warehouses.deviation_percentile = warehouses.deviation * 100 / warehouses.ideal
     warehouses.deviation_percentile = BigDecimal.new(0, 2) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil?
-    warehouses.v_deviation = warehouses.virtual - warehouses.ideal
+    warehouses.v_deviation = supply.warehouses_whole_future - warehouses.ideal
     warehouses.v_deviation_percentile = warehouses.v_deviation * 100 / warehouses.ideal
     warehouses.v_deviation_percentile = BigDecimal.new(0, 2) if warehouses.v_deviation_percentile.nan? or warehouses.v_deviation_percentile.infinite? or warehouses.v_deviation_percentile.nil?
 
     global = OpenStruct.new
-    global.stock = warehouses.stock + store_1.stock
-    global.en_route = store_1.en_route + warehouse_1.en_route + warehouse_2.en_route
-    global.virtual = global.stock + global.en_route
+    global.stock = supply.global_whole
+    global.en_route = supply.global_whole_en_route
+    global.virtual = supply.global_whole_future
     global.ideal = store_1.ideal + warehouses.ideal
-    global.in_assemblies = PartsToAssemblies.get_items_via_assembly_part_p_id(self.p_id).all.count
+    global.in_assemblies = supply.global_part
 
-    global.deviation = global.stock - global.ideal
+    global.deviation = supply.global_whole - global.ideal
     global.deviation_percentile = global.deviation * 100 / global.ideal
     global.deviation_percentile = BigDecimal.new(0, 2) if global.deviation_percentile.nan? or global.deviation_percentile.infinite? or global.deviation_percentile.nil?
-    global.v_deviation = global.virtual - global.ideal
+    global.v_deviation = supply.global_whole_future - global.ideal
     global.v_deviation_percentile = global.v_deviation * 100 / global.ideal
     global.v_deviation_percentile = BigDecimal.new(0, 2) if global.v_deviation_percentile.nan? or global.v_deviation_percentile.infinite? or global.v_deviation_percentile.nil?
 
@@ -321,10 +319,8 @@ class Product < Sequel::Model
   def update_from_hash(hash_values)
     raise ArgumentError, t.errors.nil_params if hash_values.nil?
 
-    #yadda deprecated supply keys
-    numerical_keys = [ :direct_ideal_stock, :indirect_ideal_stock, :stock_store_1, :stock_store_2, :stock_warehouse_1, :stock_warehouse_2, :stock_deviation, :buy_cost, :materials_cost, :parts_cost, :sale_cost, :ideal_markup, :real_markup, :exact_price, :price, :price_pro]
     hash_values.select do |key, value|
-      if numerical_keys.include? key.to_sym
+      if Product::NUMERICAL_ATTRIBUTES.include? key.to_sym
         unless value.nil? or (value.class == String and value.length == 0)
           if Utils::is_numeric? value.to_s.gsub(',', '.')
             self[key.to_sym] = BigDecimal.new(value, 2)
@@ -359,6 +355,10 @@ class Product < Sequel::Model
   end
 
   private
+
+    def cast
+      Product::NUMERICAL_ATTRIBUTES.each { |key| self[key] = BigDecimal.new(0, 2) if self[key].nil?}
+    end
 
     def must_be_archived?
       self.end_of_life and supply.global == 0

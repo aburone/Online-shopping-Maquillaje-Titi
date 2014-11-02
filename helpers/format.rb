@@ -5,7 +5,9 @@ module Utils
         ret = empty_replacement
       else
         ret = sprintf("%0.#{dec}f", number.round(dec))
-        ret = ret.gsub('.', ',')
+        ret = ret.gsub(/(\d)(?=\d{3}+\.)/, '\1,') if dec > 0
+        ret = sprintf("%0.#{dec}f", number.round(dec)).gsub(/(\d)(?=\d{3}+$)/, '\1,') if dec == 0
+        ret = ret.tr(',.','.,')
       end
       ret
     end
