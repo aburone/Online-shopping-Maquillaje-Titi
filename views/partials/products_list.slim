@@ -3,10 +3,9 @@
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
 - stock_col = multi_stock_col ? false : stock_col
 - use_virtual_stocks = false if use_virtual_stocks.nil? unless use_virtual_stocks == true
-- stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
 - real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
 - ideal_markup_col = false if ideal_markup_col.nil? unless ideal_markup_col == true
-- markup_deviation_percentile_col = false if markup_deviation_percentile_col.nil?
+- markup_deviation_percentile_col ||= false
 - to_move_col = false if to_move_col.nil? unless to_move_col == true
 - show_edit_button = false if show_edit_button.nil? || State.current_user.can_edit_products? == false
 - edit_link ||= "void"
@@ -20,12 +19,13 @@
 - flags_cols ||= false
 - show_hide_button ||= false
 - distributor_col ||= false
+- deviation_for_period_col ||= false
 - category_col ||= true unless category_col === false
 - brand_col ||= true unless brand_col === false
 - months ||= 1
 - locations ||= 1
 - is_report_to_buy ||= false
-- money_total ||= BigDecimal(0, 2)
+- total_cost ||= BigDecimal(0, 2)
 - products ||= []
 - products = @products unless @products.nil?
 
@@ -74,7 +74,7 @@
             th.sm_cell = t.locations.short.VIRTUAL_STORE_1
         - if stock_col or multi_stock_col
           th.sm_cell.filter-false Ideal
-        - if stock_deviation_col
+        - if deviation_for_period_col
           th.sm_cell.filter-false Desvio
           th.sm_cell.filter-false.small_content %
         - if is_report_to_buy
@@ -82,7 +82,7 @@
           th.smm_cell.small_content #{t.product.fields.total_cost}
 
         - if to_move_col
-          th.filter-false Enviar
+          th.sm_cell.filter-false Enviar
         - if status_col
           th Estado
         - if price_updated_at_col
@@ -100,8 +100,8 @@
         - colspan += 1 if State.current_user.can_edit_products? && show_edit_button
         - colspan += 2 if full_row
         - count_text = t.products.count(products.count).to_s
-        - count_text = "#{count_text} #{Utils::money_format money_total, 2} " if money_total > 0
-        - count_text = "#{count_text} (#{money_total.to_words})" if money_total > 0
+        - count_text = "#{count_text} #{Utils::money_format total_cost, 2} " if total_cost > 0
+        - count_text = "#{count_text} (#{total_cost.to_words})" if total_cost > 0
         td.row_count colspan="#{colspan}" = count_text
     tbody
       - ajax_item = State.current_user.can_edit_products? && show_edit_button ? " ajax_item" : ""
@@ -148,17 +148,19 @@
             - if use_virtual_stocks
                 td.number #{Utils::number_format product.supply.s1_whole_future, 0}
           - if stock_col or multi_stock_col
-            - calculated_ideal = product.supply.s1_ideal * months * locations
-            td.number #{Utils::number_format calculated_ideal, 1, 0}
-          - if stock_deviation_col
-            - col_class = (product[:calculated_deviation] > 0) ? "number overstocked" : (product[:calculated_deviation] < 0) ? "number understocked" : "number"
+            - product[:ideal_for_period] ||= product.supply.s1_ideal * months * locations
+            td.number #{Utils::number_format(product[:ideal_for_period], 1, 0)}
 
-            td class="#{col_class}" = Utils::number_format(product[:calculated_deviation].round, 0, "-")
-            - col_class = (product[:calculated_deviation_percentile] > 0) ? "number overstocked" : (product[:calculated_deviation_percentile] < 0) ? "number understocked" : "number"
-            td class="#{col_class}" = "#{Utils::number_format(product[:calculated_deviation_percentile], 0)} %"
+
+          - if deviation_for_period_col
+            - col_class = (product[:deviation_for_period] > 0) ? "number overstocked" : (product[:deviation_for_period] < 0) ? "number understocked" : "number"
+            td class="#{col_class}" = Utils::number_format(product[:deviation_for_period].round, 0, "-")
+
+            - col_class = (product[:deviation_for_period_percentile] > 0) ? "number overstocked" : (product[:deviation_for_period_percentile] < 0) ? "number understocked" : "number"
+            td class="#{col_class}" = "#{Utils::number_format(product[:deviation_for_period_percentile], 0)} %"
 
             - if is_report_to_buy
-              td.number #{Utils::number_format product[:ponderated_deviation], 0} %
+              td.number #{Utils::number_format product[:distributor][:ponderated_deviation], 0} %
               td.number #{Utils::money_format product[:total_cost], 2}
 
 

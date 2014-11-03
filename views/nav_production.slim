@@ -32,10 +32,10 @@ nav role="navigation"
 
     li: ul
       li.subsection
-        spam class="#{inside?("/admin/transport")} #{inside?("/admin/production/reports/products_to_move")}" = t.nav.backend.transport
+        spam class="#{inside?("/admin/transport")} #{inside?("/admin/production/reports/products_to_move_s1")}" = t.nav.backend.transport
       li: ul
         li
-          a class="#{inside?("/admin/production/reports/products_to_move")}" href=url('/production/reports/products_to_move') = t.nav.backend.reports.products_to_transport
+          a class="#{inside?("/admin/production/reports/products_to_move_s1")}" href=url('/production/reports/products_to_move_s1') = t.nav.backend.reports.products_to_transport
       li: ul
         li
           span class="#{inside?("/admin/transport/departures")}" Salidas

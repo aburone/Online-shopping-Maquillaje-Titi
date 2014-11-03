@@ -11,4 +11,4 @@ form.grid-form action=url("/administration/reports/products_to_buy") method="pos
         label for="submit" &nbsp;
         input type="submit" value="Recalcular"
 
-== slim :products_list, locals: {full_row: true, buy_cost_col: true, price_col: false, price_pro_col: false, stock_col: false, multi_stock_col: true, use_virtual_stocks: true, stock_deviation_col: true, distributor_col: true, brand_col: false, is_report_to_buy: true, months: months, locations: locations, money_total: money_total }
+== slim :products_list, locals: {full_row: true, buy_cost_col: true, price_col: false, price_pro_col: false, stock_col: false, multi_stock_col: true, use_virtual_stocks: true, deviation_for_period_col: true, distributor_col: true, brand_col: false, is_report_to_buy: true, months: months, locations: locations, total_cost: total_cost, products: products }

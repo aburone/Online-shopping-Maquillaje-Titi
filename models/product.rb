@@ -57,57 +57,56 @@ class Product < Sequel::Model
     @inventory = OpenStruct.new
     @inventory_months = for_months
     store_1 = OpenStruct.new
-    store_1.stock = supply.s1_whole
-    store_1.en_route = supply.s1_whole_en_route
-    store_1.virtual =  supply.s1_future
-    store_1.ideal = supply.s1_whole_ideal * for_months # HERE !!!
-    store_1.deviation = supply.s1_whole - store_1.ideal
-    store_1.deviation_percentile = supply.s1_deviation * 100 / store_1.ideal
-    store_1.deviation_percentile = BigDecimal.new(0, 2) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
-    store_1.v_deviation = supply.s1_future - store_1.ideal
-    store_1.v_deviation_percentile = store_1.v_deviation * 100 / store_1.ideal
-    store_1.v_deviation_percentile = BigDecimal.new(0, 2) if store_1.v_deviation_percentile.nan? or store_1.v_deviation_percentile.infinite? or store_1.v_deviation_percentile.nil?
+    # store_1.stock = supply.s1
+    # store_1.en_route = supply.s1_en_route
+    # store_1.virtual =  supply.s1_future
+    # store_1.ideal = supply.s1_ideal * for_months # HERE !!!
+    # store_1.deviation = supply.s1 - store_1.ideal
+    # store_1.deviation_percentile = supply.s1_deviation * 100 / store_1.ideal
+    #                                store_1.deviation_percentile = BigDecimal.new(0, 2) if store_1.deviation_percentile.nan? or store_1.deviation_percentile.infinite? or store_1.deviation_percentile.nil?
+    # store_1.v_deviation = supply.s1_future - store_1.ideal
+    # store_1.v_deviation_percentile = store_1.v_deviation * 100 / store_1.ideal
+    #                                  store_1.v_deviation_percentile = BigDecimal.new(0, 2) if store_1.v_deviation_percentile.nan? or store_1.v_deviation_percentile.infinite? or store_1.v_deviation_percentile.nil?
 
-    warehouse_1 = OpenStruct.new
-    warehouse_1.stock = supply.w1_whole
-    warehouse_1.en_route = supply.w1_whole_en_route
-    warehouse_1.virtual = supply.w1_whole_future
+    # warehouse_1 = OpenStruct.new
+    # warehouse_1.stock = supply.w1
+    # warehouse_1.en_route = supply.w1_whole_en_route
+    # warehouse_1.virtual = supply.w1_whole_future
 
-    warehouse_2 = OpenStruct.new
-    warehouse_2.stock = supply.w2_whole
-    warehouse_2.en_route = supply.w2_whole_en_route
-    warehouse_2.virtual = supply.w2_whole_future
+    # warehouse_2 = OpenStruct.new
+    # warehouse_2.stock = supply.w2_whole
+    # warehouse_2.en_route = supply.w2_whole_en_route
+    # warehouse_2.virtual = supply.w2_whole_future
 
-    warehouses = OpenStruct.new
-    warehouses.stock = supply.warehouses_whole
-    warehouses.virtual =  supply.warehouses_whole_future
-    warehouses.ideal = supply.warehouses_whole_ideal * for_months + supply.warehouses_part_ideal * for_months # HERE !!!
-    warehouses.deviation = (supply.warehouses_whole - warehouses.ideal) * for_months
+    # warehouses = OpenStruct.new
+    # warehouses.stock = supply.warehouses
+    # warehouses.virtual =  supply.warehouses_future
+    # warehouses.ideal = supply.warehouses_ideal * for_months # HERE !!!
+    # warehouses.deviation = supply.warehouses - warehouses.ideal
 
-    warehouses.deviation_percentile = warehouses.deviation * 100 / warehouses.ideal
-    warehouses.deviation_percentile = BigDecimal.new(0, 2) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil?
-    warehouses.v_deviation = supply.warehouses_whole_future - warehouses.ideal
-    warehouses.v_deviation_percentile = warehouses.v_deviation * 100 / warehouses.ideal
-    warehouses.v_deviation_percentile = BigDecimal.new(0, 2) if warehouses.v_deviation_percentile.nan? or warehouses.v_deviation_percentile.infinite? or warehouses.v_deviation_percentile.nil?
+    # warehouses.deviation_percentile = warehouses.deviation * 100 / warehouses.ideal
+    # warehouses.deviation_percentile = BigDecimal.new(0, 2) if warehouses.deviation_percentile.nan? or warehouses.deviation_percentile.infinite? or warehouses.deviation_percentile.nil?
+    # warehouses.v_deviation = supply.warehouses_whole_future - warehouses.ideal
+    # warehouses.v_deviation_percentile = warehouses.v_deviation * 100 / warehouses.ideal
+    # warehouses.v_deviation_percentile = BigDecimal.new(0, 2) if warehouses.v_deviation_percentile.nan? or warehouses.v_deviation_percentile.infinite? or warehouses.v_deviation_percentile.nil?
 
     global = OpenStruct.new
-    global.stock = supply.global_whole
-    global.en_route = supply.global_whole_en_route
-    global.virtual = supply.global_whole_future
-    global.ideal = store_1.ideal + warehouses.ideal
-    global.in_assemblies = supply.global_part
+    # global.stock = supply.global_whole
+    # global.en_route = supply.global_whole_en_route
+    # global.virtual = supply.global_whole_future
+    global.ideal = supply.global_ideal * for_months
+    # global.in_assemblies = supply.global_part
 
-    global.deviation = supply.global_whole - global.ideal
-    global.deviation_percentile = global.deviation * 100 / global.ideal
-    global.deviation_percentile = BigDecimal.new(0, 2) if global.deviation_percentile.nan? or global.deviation_percentile.infinite? or global.deviation_percentile.nil?
-    global.v_deviation = supply.global_whole_future - global.ideal
+    # global.deviation = supply.global - global.ideal
+    # global.deviation_percentile = global.deviation * 100 / global.ideal
+    # global.deviation_percentile = BigDecimal.new(0, 2) if global.deviation_percentile.nan? or global.deviation_percentile.infinite? or global.deviation_percentile.nil?
+    global.v_deviation = supply.global_future - global.ideal
     global.v_deviation_percentile = global.v_deviation * 100 / global.ideal
-    global.v_deviation_percentile = BigDecimal.new(0, 2) if global.v_deviation_percentile.nan? or global.v_deviation_percentile.infinite? or global.v_deviation_percentile.nil?
+                                    global.v_deviation_percentile = BigDecimal.new(0, 2) if global.v_deviation_percentile.nan? or global.v_deviation_percentile.infinite? or global.v_deviation_percentile.nil?
+
+
 
     @inventory.store_1 = store_1
-    @inventory.warehouse_1 = warehouse_1
-    @inventory.warehouse_2 = warehouse_2
-    @inventory.warehouses = warehouses
     @inventory.global = global
     @inventory
   end

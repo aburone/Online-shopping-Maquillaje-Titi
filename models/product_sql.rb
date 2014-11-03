@@ -213,6 +213,8 @@ class Product < Sequel::Model
   EXCLUDED_ATTRIBUTES_IN_DUPLICATION = [:p_id, :end_of_life, :archived, :published, :img, :img_extra, :sku, :public_sku, :stock_warehouse_1, :stock_warehouse_2, :stock_store_1, :stock_store_2, :stock_deviation, :created_at, :price_updated_at]
 
   @supply = nil
+  @distributors = nil
+
   def supply
     return @supply unless @supply.nil?
     @supply = Supply.new.get p_id
@@ -430,8 +432,7 @@ class Product < Sequel::Model
                     .select_group(*Distributor::COLUMNS, *ProductDistributor::COLUMNS)
                     .join(:products_to_distributors, distributors__d_id: :products_to_distributors__d_id, products_to_distributors__p_id: self.p_id)
                     .order(:products_to_distributors__ptd_id)
-    return [] if distributors.nil?
-    distributors
+    @distributors = distributors
   end
 
   def d_name

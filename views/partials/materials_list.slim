@@ -1,11 +1,11 @@
 - id ||= ""
 - show_edit_button ||= false
-- sku_col = false if sku_col.nil? unless sku_col == true
-- stock_col = true if stock_col.nil?
+- sku_col ||= false
+- stock_col ||= true if stock_col.nil?
 - ideal_stock_col ||= false
-- multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
+- multi_stock_col ||= false
 - stock_col = multi_stock_col ? false : stock_col
-- stock_deviation_col = false if stock_deviation_col.nil? unless stock_deviation_col == true
+- deviation_for_period_col ||= false
 - price_updated_at_col ||= false
 - distributor_col ||= false
 - price_col ||= true unless price_col === false
@@ -52,7 +52,7 @@
           th.sm_cell = t.locations.short.STORE_1
         - if multi_stock_col
           th = t.material.fields.ideal_stock
-        - if stock_deviation_col
+        - if deviation_for_period_col
           th.sm_cell = t.material.fields.stock_deviation
           th.sm_cell.small_content = t.material.fields.stock_deviation_percentile
         - if show_edit_button
@@ -88,7 +88,7 @@
           - if multi_stock_col
             td.number == Utils::number_format material[:m_ideal_stock], 0
 
-          - if stock_deviation_col
+          - if deviation_for_period_col
             - col_class = (material[:stock_deviation] > 0) ? "number overstocked" : (material[:stock_deviation] < 0) ? "number understocked" : "number"
             - stock_deviation = material[:stock_deviation] == 0 ? "-" : Utils::number_format(material[:stock_deviation], 0)
             td.sm_cell class="#{col_class}" #{stock_deviation}

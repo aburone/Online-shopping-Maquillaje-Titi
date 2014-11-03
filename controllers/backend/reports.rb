@@ -21,13 +21,10 @@ class Backend < AppController
         sales[month[:date]] = month[:qty]
         months_with_activity << month[:qty] if month[:qty] > 0
       end
-
       last_six_months = months_with_activity.last 6
-
       sales[:median] = last_six_months.median
       sales[:standard_deviation] = last_six_months.standard_deviation
       sales[:recomended] = ((sales[:median] + (sales[:standard_deviation] / 2)) * 2).round / 2.0
-
 
       product[:sales] = sales
       product[:distributors] = product.distributors
@@ -40,6 +37,7 @@ class Backend < AppController
 
   get '/administration/reports/price_list' do
     @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
+    @sec_nav = :nav_administration
     slim :products_list, layout: :layout_backend, locals: {title: "Lista de precios", sec_nav: :nav_administration,
       status_col: true,
       price_pro_col: false,
@@ -53,6 +51,7 @@ class Backend < AppController
 
   get '/administration/reports/products_flags' do
     @products = Product.new.get_all.order(:categories__c_name, :products__p_name).all
+    @sec_nav = :nav_administration
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de flags", sec_nav: :nav_administration,
       show_edit_button: true, edit_link: :edit_product,
       price_col: true,
@@ -66,7 +65,8 @@ class Backend < AppController
   get '/administration/reports/markups' do
     @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
     @products.sort_by! { |product| product[:markup_deviation_percentile] }
-    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups", sec_nav: :nav_administration,
+    @sec_nav = :nav_administration
+    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups",
       show_edit_button: true, edit_link: :edit_product,
       price_pro_col: false,
       stock_col: false,
@@ -76,6 +76,23 @@ class Backend < AppController
       price_updated_at_col: true
     }
   end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   get '/production/reports/to_package/:mode' do
     products = Product.new.get_all.where(archived: false, tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name).all
@@ -104,25 +121,21 @@ class Backend < AppController
     products.map do |product|
 
       if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
-        calculated_ideal = product.supply.s1_ideal * months
-        calculated_deviation = product.supply.s1 - calculated_ideal
-        product[:calculated_deviation] = calculated_deviation
-        product[:calculated_deviation_percentile] = calculated_deviation * 100 / calculated_ideal
+        product[:ideal_for_period] = product.supply.s1_ideal * months
+        product[:deviation_for_period] = product.supply.s1 - product[:ideal_for_period]
+        product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
       else
-        calculated_ideal = product.supply.global_ideal * months
-        calculated_deviation = product.supply.global - calculated_ideal
-        product[:calculated_deviation] = calculated_deviation
-        product[:calculated_deviation_percentile] = calculated_deviation * 100 / calculated_ideal
+        product[:ideal_for_period] = product.supply.global_ideal * months
+        product[:deviation_for_period] = product.supply.global - product[:ideal_for_period]
+        product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
       end
+      product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
+      product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
+    end
 
-    end
-    if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
-      products.sort_by! { |product| [ product.inventory(months).store_1.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-      products.delete_if { |product| product.inventory(months).store_1.v_deviation_percentile >= 0} # don't overpackage
-    else
-      products.sort_by! { |product| [ product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-      products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= 0} # don't overpackage
-    end
+    products.sort_by! { |product| [ product[:deviation_for_period_percentile], product[:deviation_for_period] ] }
+    products.delete_if { |product| product[:deviation_for_period_percentile] >= 0} # don't overpackage
+    @sec_nav = :nav_production
     slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
       products: products,
       show_edit_button: false,
@@ -130,11 +143,12 @@ class Backend < AppController
       brand_col: false,
       full_row: true,
 
+      price_col: false,
       price_pro_col: false,
       stock_col: false,
       multi_stock_col: true,
       use_virtual_stocks: true,
-      stock_deviation_col: true,
+      deviation_for_period_col: true,
       months: months,
       locations: locations
     }
@@ -144,65 +158,48 @@ class Backend < AppController
   route :get, :post, '/administration/reports/products_to_buy' do
     months = params[:months].to_i unless params[:months].nil? || params[:months] == 0
     months ||= settings.desired_months_worth_of_items_in_store
-    reports_products_to_buy months
-  end
-  def reports_products_to_buy months
-    @products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).order(:categories__c_name, :products__p_name).all
-    @products.delete_if { |product| product.inventory(months).global.v_deviation_percentile >= 0} # don't overbuy
+    products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).order(:categories__c_name, :products__p_name).all
     distributors = Distributor.all
-    distributors.map do |distributor|
-      distributor[:stock_deviation] = 0
-      distributor[:ideal_stock] = 0
-      distributor[:ponderated_deviation] = 0
-    end
 
-    money_total = 0
-    @products.map do |product|
-      product[:stock_deviation] = product.inventory(months).global.v_deviation
-      money_total += product[:stock_deviation] * product[:buy_cost] * -1 if product[:stock_deviation] < 0
-      product[:stock_deviation_percentile] = product.inventory(months).global.v_deviation_percentile
-      product[:total_cost] = product[:stock_deviation] < 0 ? product.buy_cost * product[:stock_deviation] * -1 : 0
-      product[:distributor] = product.distributors.first
-      if product[:distributor]
+    total_cost = 0
+    products.map do |product|
+
+      product[:ideal_for_period] = product.supply.global_ideal * months
+      product[:deviation_for_period] = product.supply.global_future - product[:ideal_for_period]
+      product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
+
+      product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
+      product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
+
+      product[:total_cost] = product[:deviation_for_period] < 0 ? product.buy_cost * product[:deviation_for_period] * -1 : 0
+      total_cost += product[:total_cost]
+
+      if product.distributors.first
         distributors.map do |distributor|
-          if distributor.d_id == product[:distributor].d_id
-            distributor[:ideal_stock] += product.inventory(months).global.ideal
-            distributor[:stock_deviation] += product.inventory(months).global.deviation
-            distributor[:ponderated_deviation] = (distributor[:stock_deviation] / distributor[:ideal_stock]) * 100
+          if distributor.d_id == product.distributors.first.d_id
+            distributor[:ideal_for_period] = product.supply.global_ideal * months
+            distributor[:deviation_for_period] = product.supply.global_whole - distributor[:ideal_for_period]
+            distributor[:ponderated_deviation] = (distributor[:deviation_for_period] / distributor[:ideal_for_period]) * 100
+            product[:distributor] = distributor
           end
         end
       end
     end
-    @products.map do |product|
-      if product[:distributor]
-        product[:distributor] = distributors.find { |distributor| distributor.d_id == product[:distributor].d_id}
-      else
+    products.delete_if { |product| product[:deviation_for_period] >= 0} # don't overbuy
+
+    products.map do |product|
+      unless product[:distributor]
         product[:distributor] = Distributor.new
+        product[:distributor][:ideal_for_period] = 0
+        product[:distributor][:deviation_for_period] = 0
+        product[:distributor][:ponderated_deviation] = 0
         product[:distributor][:ponderated_deviation] = -101
       end
-      product[:ponderated_deviation] = product[:distributor] && product[:distributor][:ponderated_deviation] ? product[:distributor][:ponderated_deviation] : 0
     end
 
-    @products.sort_by! { |product| [ product[:distributor][:ponderated_deviation], product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-    slim :reports_products_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration, months: months, locations: 2, money_total: money_total}
+    products.sort_by! { |product| [ product[:distributor][:ponderated_deviation], product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
+    slim :reports_products_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration, months: months, locations: 2, total_cost: total_cost, products: products}
   end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -226,34 +223,31 @@ class Backend < AppController
   end
 
 
-  route :get, :post, '/production/reports/products_to_move' do
-    months = params[:months].to_i unless params[:months].nil? || params[:months] == 0
+  route :get, :post, '/production/reports/products_to_move_s1' do
+    months = params[:months].to_i unless params[:months].nil?
     months ||= settings.desired_months_worth_of_items_in_store
-    reports_products_to_move months
-  end
-  def reports_products_to_move months
-    list = Product.new.get_all_but_archived.where(non_saleable: 0).order(:categories__c_name, :products__p_name)
-    products = Product.new.deprecated_update_stock_of_products(list)
-    @products = []
-    products.map do |product|
-      product[:stock_deviation] = product.inventory(months).store_1.v_deviation
-      product[:stock_deviation_percentile] = product.inventory(months).store_1.v_deviation_percentile
-      product[:ideal_stock] = product.inventory(months).store_1.ideal
-      product[:to_move] = BigDecimal.new(0)
-      product[:to_move] = product.inventory(months).store_1.v_deviation * -1 unless product.inventory(months).store_1.virtual >= product.inventory(months).store_1.ideal
-      stock_in_current_location = eval("product.inventory(months).#{current_location[:name].downcase}.stock")
-      product[:to_move] = stock_in_current_location if product[:to_move] > stock_in_current_location
-      if stock_in_current_location > 0 and (product.end_of_life or product.ideal_stock == 0)
-        product[:stock_deviation] = stock_in_current_location * -1
-        product[:stock_deviation_percentile] = -100
+    raw_products = Product.new.get_all.where(archived: false, non_saleable: false).order(:categories__c_name, :products__p_name).all
+    products ||= []
+
+    raw_products.each do |product|
+      product[:ideal_for_period] = product.supply.s1_whole_ideal * months
+      product[:deviation_for_period] = product.supply.s1_whole - product[:ideal_for_period]
+      product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
+      product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
+      product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
+      stock_in_current_location = State.current_location_name == Location::W1 ? product.supply.w1_whole : product.supply.w2_whole
+      product[:to_move] = product[:ideal_stock] > stock_in_current_location ? stock_in_current_location : product[:ideal_stock] - product.supply.s1_whole
+
+      if stock_in_current_location > 0 && (product.end_of_life || product.ideal_stock == 0)
+        product[:deviation_for_period] = stock_in_current_location * -1
+        product[:deviation_for_period_percentile] = -100
         product[:to_move] = stock_in_current_location
       end
-      @products << product unless product[:to_move] == 0
-
+      products << product unless product[:to_move] <= 0
     end
-    @products.sort_by! { |product| [ product[:stock_deviation_percentile], product[:stock_deviation] ] }
-    @products.delete_if { |product| product[:stock_deviation_percentile] >= settings.reports_percentage_threshold}
-    slim :reports_products_to_move, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_move(months, current_location[:translation]), sec_nav: :nav_production, months: months}
+    products.sort_by! { |product| [ product[:deviation_for_period_percentile], product[:deviation_for_period] ] }
+    products.delete_if { |product| product[:deviation_for_period_percentile] >= settings.reports_percentage_threshold}
+    slim :reports_products_to_move, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_move(months, current_location[:translation]), sec_nav: :nav_production, products: products, months: months, locations: 1}
   end
 
 end
