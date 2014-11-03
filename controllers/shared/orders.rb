@@ -34,6 +34,7 @@ module Orders
       credits = @order.credits
       slim :credit_note, layout: session[:layout], locals: {order: @order, credits: credits, sec_nav: :nav_orders, base_url: request.env['REQUEST_PATH']}
     else
+      @sec_nav = :nav_orders
       slim :orders, layout: session[:layout],
         locals: {sec_nav: :nav_orders, base_url: request.env['REQUEST_PATH'], title: t.orders.title, payments_total: payments_total, payment_type: payment_type}
     end
