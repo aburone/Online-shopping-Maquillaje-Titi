@@ -9,4 +9,4 @@ nav role="navigation"
             ul
               - location[:types].each do |type|
                 li
-                  a class="#{inside?("/admin/orders/#{location[:name]}/#{type}")}" href=url("/orders/#{location[:name]}/#{type}") = ConstantsTranslator.new(type).t
+                  a class="#{inside?("/admin/orders/#{location[:name]}/#{type}")} #{inside?("/sales/orders/#{location[:name]}/#{type}")}" href=url("/orders/#{location[:name]}/#{type}") = ConstantsTranslator.new(type).t

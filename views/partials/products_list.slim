@@ -149,15 +149,15 @@
                 td.number #{Utils::number_format product.supply.s1_whole_future, 0}
           - if stock_col or multi_stock_col
             - product[:ideal_for_period] ||= product.supply.s1_ideal * months * locations
-            td.number #{Utils::number_format(product[:ideal_for_period], 1, 0)}
+            td.number #{Utils::number_format(product[:ideal_for_period], 2, 0)}
 
 
           - if deviation_for_period_col
             - col_class = (product[:deviation_for_period] > 0) ? "number overstocked" : (product[:deviation_for_period] < 0) ? "number understocked" : "number"
-            td class="#{col_class}" = Utils::number_format(product[:deviation_for_period].round, 0, "-")
+            td class="#{col_class}" = Utils::number_format(product[:deviation_for_period].round, 2, "-")
 
             - col_class = (product[:deviation_for_period_percentile] > 0) ? "number overstocked" : (product[:deviation_for_period_percentile] < 0) ? "number understocked" : "number"
-            td class="#{col_class}" = "#{Utils::number_format(product[:deviation_for_period_percentile], 0)} %"
+            td class="#{col_class}" = "#{Utils::number_format(product[:deviation_for_period_percentile], 2)} %"
 
             - if is_report_to_buy
               td.number #{Utils::number_format product[:distributor][:ponderated_deviation], 0} %

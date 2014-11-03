@@ -122,7 +122,7 @@ class Backend < AppController
 
       if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
         product[:ideal_for_period] = product.supply.s1_ideal * months
-        product[:deviation_for_period] = product.supply.s1 - product[:ideal_for_period]
+        product[:deviation_for_period] = product.supply.global - product[:ideal_for_period]
         product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
       else
         product[:ideal_for_period] = product.supply.global_ideal * months
