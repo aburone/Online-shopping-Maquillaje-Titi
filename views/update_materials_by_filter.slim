@@ -64,7 +64,6 @@ form.grid-form action=url("/administration/adjustments/materials/by_filter") met
         tr
           td.sm_cell = material.m_id
           td.bg_cell = material.m_name
-
           td.sm_cell.number = Utils::number_format material[:old_buy_cost], 2
           td.sm_cell.number = Utils::number_format material[:new_buy_cost], 2
           td.sm_cell.number #{Utils::number_format (material[:new_buy_cost] * 100 / material[:old_buy_cost])-100, 2} %

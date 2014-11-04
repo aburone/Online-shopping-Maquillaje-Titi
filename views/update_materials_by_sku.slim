@@ -79,8 +79,7 @@ form.grid-form action=url("/administration/adjustments/materials/by_sku") method
 
           td.sm_cell.number = Utils::number_format material.m_price, 3
           td.sm_cell.number = Utils::number_format material[:new_m_price], 3
-          td.sm_cell.number #{Utils::number_format (material[:new_m_price] / material.m_price - 1 ), 3} %
-
+          td.sm_cell.number #{Utils::number_format (material[:new_m_price] / material.m_price - 1 ) * 100, 3} %
 
           td.sm_cell
             a href="/admin/materials/#{material.m_id}"
