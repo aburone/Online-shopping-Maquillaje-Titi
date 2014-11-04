@@ -2,14 +2,10 @@ require_relative 'prerequisites'
 
 class ActionsLogTest < Test::Unit::TestCase
 
-  def setup
-    @valid
-  end
-
   def test_create_log_template
     #  DB.transaction(rollback: :always, isolation: :uncommitted) do
-    # current_user_id =  User.new.current_user_id
-    # current_location = User.new.current_location[:name]
+    # current_user_id =  State.current_user.user_id
+    # current_location = State.current_location_name
     # message = "#{R18n.t.actions.changed_item_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}"
     # log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl: ActionsLog::NOTICE, i_id: @values[:i_id], o_id: order.o_id)
     # end
@@ -31,5 +27,13 @@ class ActionsLogTest < Test::Unit::TestCase
     assert_false( log.valid?, "Accepts an invalid bulk_id" )
   end
 
+  def test_full_text_search
+    str =  "marron petaca chatelet recalculando 1071"
+    terms = str.scan(/[\w'-]+/)
+    terms = terms.map { |term| "+#{term}"}
+    placeholder = DB[:actions_log].full_text_sql(:msg, terms, {boolean: true})
+    msg = ActionsLog.select(:msg).filter{ placeholder }.first[:msg]
+    assert_equal "Recalculando producto 1071: Sombra individual Chatelet Petaca Individual 3gr Marron Nro 31", msg
+  end
 
 end
