@@ -28,9 +28,9 @@ class ActionsLogTest < Test::Unit::TestCase
   end
 
   def test_full_text_search
-    str =  "marron petaca chatelet recalculando 1071"
+    str =  "marron petaca chatelet recalculan 1071"
     terms = str.scan(/[\w'-]+/)
-    terms = terms.map { |term| "+#{term}"}
+    terms = terms.map { |term| "+#{term}*"}
     placeholder = DB[:actions_log].full_text_sql(:msg, terms, {boolean: true})
     msg = ActionsLog.select(:msg).filter{ placeholder }.first[:msg]
     assert_equal "Recalculando producto 1071: Sombra individual Chatelet Petaca Individual 3gr Marron Nro 31", msg

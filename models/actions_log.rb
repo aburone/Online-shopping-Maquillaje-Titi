@@ -66,7 +66,7 @@ class ActionsLog < Sequel::Model(:actions_log)
     end
     if params[:msg].to_s
       str =  params[:msg].to_s
-      terms = str.scan(/[\w'-]+/).map { |term| "+#{term}"}
+      terms = str.scan(/[\w'-]+/).map { |term| "+#{term}*"}
       placeholder = DB[:actions_log].full_text_sql(:msg, terms, {boolean: true})
       logs = logs.where{ placeholder }
     end
