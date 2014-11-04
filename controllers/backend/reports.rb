@@ -95,7 +95,7 @@ class Backend < AppController
 
 
   get '/production/reports/to_package/:mode' do
-    products = Product.new.get_all.where(archived: false, tercerized: false, end_of_life: false).order(:categories__c_name, :products__p_name).all
+    products = Product.new.get_all.where(archived: false, tercerized: false, end_of_life: false).all
     months = 0
     case params[:mode].upcase
       when Product::STORE_ONLY_1
@@ -158,7 +158,7 @@ class Backend < AppController
   route :get, :post, '/administration/reports/products_to_buy' do
     months = params[:months].to_i unless params[:months].nil? || params[:months] == 0
     months ||= settings.desired_months_worth_of_items_in_store
-    products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).order(:categories__c_name, :products__p_name).all
+    products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).all
     distributors = Distributor.all
 
     total_cost = 0
@@ -226,7 +226,7 @@ class Backend < AppController
   route :get, :post, '/production/reports/products_to_move_s1' do
     months = params[:months].to_i unless params[:months].nil?
     months ||= settings.desired_months_worth_of_items_in_store
-    raw_products = Product.new.get_all.where(archived: false, non_saleable: false).order(:categories__c_name, :products__p_name).all
+    raw_products = Product.new.get_all.where(archived: false, non_saleable: false).all
     products ||= []
 
     raw_products.each do |product|
