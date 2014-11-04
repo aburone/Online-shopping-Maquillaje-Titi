@@ -103,11 +103,14 @@ class Supply < Sequel::Model
     @values[:s1_whole_ideal] = ideal
     @values[:w1_whole_ideal] = ideal
     super ideal
+    recalculate_ideals
   end
   def w1_whole_ideal= ideal # business logic
     @values[:s1_whole_ideal] = ideal
     @values[:w1_whole_ideal] = ideal
     s1_whole_ideal= ideal
+    super ideal
+    recalculate_ideals
   end
 
   def s1_part_ideal= ideal # business logic
@@ -115,11 +118,14 @@ class Supply < Sequel::Model
     @values[:s1_part_ideal] = ideal
     @values[:w1_part_ideal] = ideal
     super ideal
+    recalculate_ideals
   end
   def w1_part_ideal= ideal # business logic
     @values[:s1_part_ideal] = ideal
     @values[:w1_part_ideal] = ideal
     s1_part_ideal= ideal
+    super ideal
+    recalculate_ideals
   end
 
 
