@@ -56,6 +56,7 @@ class Backend < AppController
       redirect to("/production/assembly/#{params[:o_id]}")
     end
 
+    product = order.get_assembly
     i_id = params[:i_id].to_s.strip
     label =  Label.new.get_printed_by_id i_id, order.o_id
     if label.errors.count > 0
@@ -66,7 +67,6 @@ class Backend < AppController
     end
     item = label
 
-    product = order.get_assembly
     assigned_msg = product.add_item item, order.o_id
     if product.errors.count > 0
       flash[:error_add_item] = product.errors
