@@ -13,7 +13,7 @@ html lang="es"
 
     section.messages
       == styled_flash
-    - sec_nav = @sec_nav || false
+    - sec_nav ||= @sec_nav
     - if sec_nav
       section.sec_nav
         == slim sec_nav
