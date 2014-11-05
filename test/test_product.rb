@@ -590,4 +590,10 @@ class ProductTest < Test::Unit::TestCase
     end
   end
 
+  def test_should_set_ideal_to_zero_when_marked_as_on_request
+    product = Product.where(on_request: false).first
+    product.set_sale_mode :on_request
+    product.supply.each { |k, v| assert_equal BigDecimal.new(0, 2), v, k if k.to_s.include? "ideal" }
+  end
+
 end

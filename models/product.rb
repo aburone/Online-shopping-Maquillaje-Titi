@@ -244,6 +244,11 @@ class Product < Sequel::Model
     return :active
   end
 
+  def on_request= truth
+    self.supply.s1_whole_ideal = 0 if truth
+    super truth
+  end
+
   def set_sale_mode sale_mode
     return self if sale_mode.nil?
     case sale_mode.to_sym

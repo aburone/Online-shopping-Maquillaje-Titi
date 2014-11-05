@@ -19,49 +19,6 @@ class Supply < Sequel::Model
     stock_warehouse_1: :w1_whole,
     stock_warehouse_2: :w2_whole
   }
-  INVENTORY_EQ = {
-    :store_1 => {
-                         stock: :s1_whole,
-                      en_route: :s1_whole_en_route,
-                       virtual: :s1_future,
-                         ideal: :s1_ideal,
-                     deviation: :s1_deviation
-        #   deviation_percentile: ,
-        #            v_deviation: ,
-        # v_deviation_percentile:
-    },
-    :warehouse_1 => {
-                         stock: :w1_whole,
-                      en_route: :w1_whole_en_route,
-                       virtual: :w1_future
-    },
-    :warehouse_2 => {
-                         stock: :w2_whole,
-                      en_route: :w2_whole_en_route,
-                       virtual: :w2_future
-    },
-     :warehouses => {
-                         stock: :warehouses_whole,
-                       virtual: :warehouses_future,
-                         ideal: :warehouses_ideal,
-                     deviation: :warehouses_deviation
-        #   deviation_percentile: :,
-        #            v_deviation: :,
-        # v_deviation_percentile: :
-    },
-         :global => {
-                         stock: :global_whole,
-                      en_route: :global_en_route,
-                       virtual: :global_future,
-                         ideal: :global_ideal,
-                 in_assemblies: :global_part,
-                     deviation: :global_deviation
-        #   deviation_percentile: :,
-        #            v_deviation: :,
-        # v_deviation_percentile: :
-    }
-
-  }
 
   @supply = nil
 
@@ -77,19 +34,6 @@ class Supply < Sequel::Model
     Sequel::Plugins::DefaultsSetter.configure(self.class)
     Supply.default_values.each { |key, val| self.send("#{key}=", val) } # default setter
     self
-
-
-# p ""
-# p "init"
-#     NUMERIC_ATTRIBUTES.map { |key| @values[key.to_sym] = typecast_value(key.to_sym, 999) if @values[key.to_sym].nil? }
-#     self.p_id = product.p_id
-#     self.s1_whole_ideal = product.direct_ideal_stock || 0
-
-    # ap "product.direct_ideal_stock: #{product.direct_ideal_stock}"
-    # ap product.direct_ideal_stock.class
-    # ap "self.s1_whole_ideal"
-    # ap self.s1_whole_ideal
-
     @supply = self
     self
   end
@@ -103,11 +47,14 @@ class Supply < Sequel::Model
     @values[:s1_whole_ideal] = ideal
     @values[:w1_whole_ideal] = ideal
     super ideal
+    recalculate_ideals
   end
   def w1_whole_ideal= ideal # business logic
     @values[:s1_whole_ideal] = ideal
     @values[:w1_whole_ideal] = ideal
     s1_whole_ideal= ideal
+    super ideal
+    recalculate_ideals
   end
 
   def s1_part_ideal= ideal # business logic
@@ -115,11 +62,14 @@ class Supply < Sequel::Model
     @values[:s1_part_ideal] = ideal
     @values[:w1_part_ideal] = ideal
     super ideal
+    recalculate_ideals
   end
   def w1_part_ideal= ideal # business logic
     @values[:s1_part_ideal] = ideal
     @values[:w1_part_ideal] = ideal
     s1_part_ideal= ideal
+    super ideal
+    recalculate_ideals
   end
 
 

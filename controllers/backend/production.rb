@@ -40,6 +40,8 @@ class Backend < AppController
   post '/production/assembly/:o_id/allocate' do
     order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::ASSEMBLY, Order::OPEN, params[:o_id].to_i)
     redirect_if_nil_order order, params[:o_id].to_i, "/production/allocation/select"
+    product = order.get_assembly
+    redirect_if_empty_or_nil product, params[:o_id].to_i, "/production/allocation/select"
 
     if params[:i_id].to_s.strip == ""
       flash[:error_add_item] = t.item.invalid
@@ -56,7 +58,6 @@ class Backend < AppController
       redirect to("/production/assembly/#{params[:o_id]}")
     end
 
-    product = order.get_assembly
     i_id = params[:i_id].to_s.strip
     label =  Label.new.get_printed_by_id i_id, order.o_id
     if label.errors.count > 0
