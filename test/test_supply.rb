@@ -192,24 +192,22 @@ class SupplyTest < Test::Unit::TestCase
       "global_deviation"
 
 
-      "global_whole"
-      "global_whole_en_route"
-      "global_whole_future"
-      "global_whole_ideal"
+      assert_equal p.supply.warehouses_whole + p.supply.stores_whole, p.supply.global_whole, "global_whole"
+      assert_equal p.supply.warehouses_whole_en_route + p.supply.stores_whole_en_route, p.supply.global_whole_en_route, "global_whole_en_route"
+      assert_equal p.supply.global_whole + p.supply.global_whole_en_route, p.supply.global_whole_future, "global_whole_future"
+      assert_equal p.supply.warehouses_whole_ideal + p.supply.stores_whole_ideal, p.supply.global_whole_ideal, "global_whole_ideal"
       "global_whole_deviation"
-      "global_part"
-      "global_part_en_route"
-      "global_part_future"
-      "global_part_ideal"
+      assert_equal p.supply.warehouses_part + p.supply.stores_part, p.supply.global_part, "global_part"
+      assert_equal p.supply.warehouses_part_en_route + p.supply.stores_part_en_route, p.supply.global_part_en_route, "global_part_en_route"
+      assert_equal p.supply.global_part + p.supply.global_part_en_route, p.supply.global_part_future, "global_part_future"
+      assert_equal p.supply.warehouses_part_ideal + p.supply.stores_part_ideal, p.supply.global_part_ideal, "global_part_ideal"
       "global_part_deviation"
-      "global"
-      "global_en_route"
-      "global_future"
-      "global_ideal"
+      assert_equal p.supply.warehouses + p.supply.stores, p.supply.global, "global"
+      assert_equal p.supply.warehouses_en_route + p.supply.stores_en_route, p.supply.global_en_route, "global_en_route"
+      assert_equal p.supply.global + p.supply.global_en_route, p.supply.global_future, "global_future"
+      assert_equal p.supply.warehouses_ideal + p.supply.stores_ideal, p.supply.global_ideal, "global_ideal"
       "global_deviation"
 
-
-      p.supply.keys.each { |key| ap "#{key}: #{p.supply[key].to_s('F')}" if p.supply[key] == 999} # yadda
     end
   end
 
