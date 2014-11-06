@@ -5,9 +5,11 @@ class UserTest < Test::Unit::TestCase
   def setup
     @active_username = "aburone"
     @active_password = "1234"
+    @active_hash = "$2a$04$Sa0R4lz7t3RJ/z2K5A2FMe7kB/g/l2AQcOvwBUHrq3Mp5Yh6YHOtu"
 
     @inactive_username = "veronica"
     @inactive_password = "qwe123"
+    @inactive_hash = "$2a$04$ql61.LzmofNn5plOO4VlouoSwopoHylx2pl03APsTz2Hg7YmWg03e"
   end
 
   def how_to
@@ -32,18 +34,34 @@ class UserTest < Test::Unit::TestCase
   end
 
   def test_should_validate_good_password
-    assert_equal User.new.valid?( @active_username, @active_password ), User.new.get_user( @active_username )
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      user = User.new.get_user( @active_username )
+      user[:password] = @active_hash
+      user.save
+      assert_equal User.new.valid?( @active_username, @active_password ), user
+    end
   end
 
   def test_should_reject_inactive_user
-    assert_false User.new.valid? @inactive_username, @inactive_password
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      user = User.new.get_user( @inactive_username )
+      user[:password] = @inactive_hash
+      user.save
+      assert_false User.new.valid? @inactive_username, @inactive_password
   end
+    end
 
   def test_should_reject_password
-    assert_false User.new.valid?( @active_username, "INVALID" )
+    DB.transaction(rollback: :always, isolation: :uncommitted) do
+      user = User.new.get_user( @active_username )
+      user[:password] = @inactive_hash
+      user.save
+      assert_false User.new.valid?( @active_username, "INVALID" )
+    end
   end
 
   def create_passwords
-    pass =  BCrypt::Password.create("****", {cost: 16})
+    pass =  BCrypt::Password.create("qwe123", {cost: 2})
+    ap pass
   end
 end
