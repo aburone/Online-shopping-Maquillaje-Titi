@@ -1,7 +1,7 @@
-nav.main_nav role="navigation"
-  dl
-    dt Menu
-    - if authorized?
+- if authorized?
+  nav.main_nav role="navigation"
+    dl
+      dt Menu
       dd.lnk
         span class="current" href="#" = ("#{current_user.username}@#{current_location[:translation]}" if current_user.username and current_location)
 
@@ -19,7 +19,7 @@ nav.main_nav role="navigation"
         a class="#{inside?("/admin/logs")}" href=url('/logs') = t.nav.backend.logs
       dd.lnk
         a href=url('/logout') = t.nav.backend.logout
-    - else
-      dd.lnk
-        a class="#{current?("/admin/login")}" href=url('/login') = t.nav.backend.login
 
+  - if sec_nav
+    aside
+      == slim sec_nav

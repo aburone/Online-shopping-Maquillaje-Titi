@@ -9,14 +9,10 @@ html lang="es"
     - date = Time.now.strftime("%Y%m%d")
     link rel="stylesheet" href="/backend.css?#{date}"
   body
-    == slim :nav_sales
+    == slim :nav_sales, locals: {sec_nav: sec_nav ||= false}
 
     section.messages
       == styled_flash
-    - sec_nav ||= @sec_nav
-    - if sec_nav
-      section.sec_nav
-        == slim sec_nav
 
     article
       h1=title

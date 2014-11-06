@@ -31,63 +31,59 @@ class Backend < AppController
       sales_report << product
     end
 
-    @sec_nav = :nav_administration
-    slim :sales_report, layout: :layout_backend, locals: {title: "reporte de ventas", products: sales_report, months: prev_year_months}
+    slim :sales_report, layout: :layout_backend, locals: {
+      title: "reporte de ventas", sec_nav: :nav_administration,
+      products: sales_report,
+      months: prev_year_months
+    }
   end
 
   get '/administration/reports/price_list' do
-    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
-    @sec_nav = :nav_administration
-    slim :products_list, layout: :layout_backend, locals: {title: "Lista de precios", sec_nav: :nav_administration,
+    products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
+
+    slim :products_list, layout: :layout_backend, locals: {
+      title: "Lista de precios", sec_nav: :nav_administration,
       status_col: true,
       price_pro_col: false,
-      show_filters: false
+      show_filters: false,
+      products: products
     }
   end
 
   route :get, '/administration/reports/logins/:username' do
+    include Logs
     get_and_render_logins params[:username]
   end
 
   get '/administration/reports/products_flags' do
-    @products = Product.new.get_all.order(:categories__c_name, :products__p_name).all
-    @sec_nav = :nav_administration
-    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de flags", sec_nav: :nav_administration,
+    products = Product.new.get_all.order(:categories__c_name, :products__p_name).all
+    slim :products_list, layout: :layout_backend, locals: {
+      title: "Reporte de flags", sec_nav: :nav_administration,
       show_edit_button: true, edit_link: :edit_product,
       price_col: true,
       price_pro_col: false,
       stock_col: false,
       price_updated_at_col: true,
-      flags_cols: true
+      flags_cols: true,
+      products: products
     }
   end
 
   get '/administration/reports/markups' do
-    @products = Product.new.get_live.order(:categories__c_name, :products__p_name).all
-    @products.sort_by! { |product| product[:markup_deviation_percentile] }
-    @sec_nav = :nav_administration
-    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de markups",
+    products = Product.new.get_live.all
+    products.sort_by! { |product| product[:markup_deviation_percentile] }
+    slim :products_list, layout: :layout_backend, locals: {
+      title: "Reporte de markups", sec_nav: :nav_administration,
       show_edit_button: true, edit_link: :edit_product,
       price_pro_col: false,
       stock_col: false,
       real_markup_col: true,
       ideal_markup_col: true,
       markup_deviation_percentile_col: true,
-      price_updated_at_col: true
+      price_updated_at_col: true,
+      products: products
     }
   end
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -119,7 +115,6 @@ class Backend < AppController
     end
 
     products.map do |product|
-
       if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
         product[:ideal_for_period] = product.supply.s1_ideal * months
         product[:deviation_for_period] = product.supply.global - product[:ideal_for_period]
@@ -133,16 +128,14 @@ class Backend < AppController
       product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
     end
 
-    products.sort_by! { |product| [ product[:deviation_for_period_percentile], product[:deviation_for_period] ] }
     products.delete_if { |product| product[:deviation_for_period_percentile] >= 0} # don't overpackage
-    @sec_nav = :nav_production
-    slim :products_list, layout: :layout_backend, locals: {title: "Reporte de productos por envasar", sec_nav: :nav_production,
-      products: products,
+    products.sort_by! { |product| [ product[:deviation_for_period_percentile], product[:deviation_for_period] ] }
+    slim :products_list, layout: :layout_backend, locals: {
+      title: "Reporte de productos por envasar", sec_nav: :nav_production,
       show_edit_button: false,
       show_hide_button: true,
       brand_col: false,
       full_row: true,
-
       price_col: false,
       price_pro_col: false,
       stock_col: false,
@@ -150,7 +143,8 @@ class Backend < AppController
       use_virtual_stocks: true,
       deviation_for_period_col: true,
       months: months,
-      locations: locations
+      locations: locations,
+      products: products
     }
   end
 
@@ -163,7 +157,6 @@ class Backend < AppController
 
     total_cost = 0
     products.map do |product|
-
       product[:ideal_for_period] = product.supply.global_ideal * months
       product[:deviation_for_period] = product.supply.global_future - product[:ideal_for_period]
       product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
@@ -198,7 +191,14 @@ class Backend < AppController
     end
 
     products.sort_by! { |product| [ product[:distributor][:ponderated_deviation], product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-    slim :reports_products_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration, months: months, locations: 2, total_cost: total_cost, products: products}
+
+    slim :reports_products_to_buy, layout: :layout_backend, locals: {
+      title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration,
+      months: months,
+      locations: 2,
+      total_cost: total_cost,
+      products: products
+    }
   end
 
 
@@ -208,18 +208,19 @@ class Backend < AppController
   route :get, :post, '/administration/reports/materials_to_buy' do
     months = params[:months].to_i unless params[:months].nil? || params[:months] == 0
     months ||= settings.desired_months_worth_of_bulk_in_warehouse
-    reports_materials_to_buy months
-  end
-  def reports_materials_to_buy months
-    @materials = Material.new.get_list([Location::W1, Location::W2]).all
-    @materials.map do |material|
+    materials = Material.new.get_list([Location::W1, Location::W2]).all
+    materials.map do |material|
       material.update_stocks
       material.recalculate_ideals months
       material[:distributors] = material.distributors.all
     end
-    @materials.sort_by! { |material| [ material[:stock_deviation_percentile], material[:stock_deviation] ] }
-    @materials.delete_if { |material| material[:stock_deviation_percentile] >= 0} # don't overbuy
-    slim :reports_materials_to_buy, layout: :layout_backend, locals: {title: R18n.t.reports_materials_to_buy(months), sec_nav: :nav_administration, months: months}
+    materials.delete_if { |material| material[:stock_deviation_percentile] >= 0} # don't overbuy
+    materials.sort_by! { |material| [ material[:stock_deviation_percentile], material[:stock_deviation] ] }
+    slim :reports_materials_to_buy, layout: :layout_backend, locals: {
+      title: R18n.t.reports_materials_to_buy(months), sec_nav: :nav_administration,
+      months: months,
+      materials: materials
+    }
   end
 
 

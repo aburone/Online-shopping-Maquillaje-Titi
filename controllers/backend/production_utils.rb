@@ -2,16 +2,12 @@
 class Backend < AppController
 
   get '/production/labels' do
-    @labels = Label.new.get_unprinted.all
-    @sec_nav = :nav_production
-    slim :labels, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.labels.title}
+    slim :labels, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.labels.title, labels: Label.new.get_unprinted.all}
   end
   get '/production/labels/list' do
     unprinted = Label.new.get_unprinted.all
     printed = Label.new.get_printed.all
-    @labels = unprinted + printed
-    @sec_nav = :nav_production
-    slim :labels, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.labels.title}
+    slim :labels, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.labels.title, labels: unprinted + printed}
   end
   post '/production/labels/csv/?' do
     require 'tempfile'

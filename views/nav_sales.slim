@@ -33,3 +33,6 @@ nav.main_nav role="navigation"
       dd.lnk
         a class="#{current?("/sales/login")}" href=url('/login') = t.nav.sales.login
 
+- if sec_nav
+  section.sec_nav
+    == slim sec_nav
