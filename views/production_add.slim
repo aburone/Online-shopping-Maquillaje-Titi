@@ -68,8 +68,7 @@
       input type="submit" value="#{t.actions.ok}"
 
     h2 = t.production.select_product
-    - @products = products
-    == slim :products_list, locals: {price_pro_col: false, full_rows: false, show_edit_button: true, edit_link: "#{order.type.downcase}_add", order: order}
+    == slim :products_list, locals: {price_pro_col: false, full_rows: false, show_edit_button: true, edit_link: "#{order.type.downcase}_add", order: order, products: products}
 
 
 

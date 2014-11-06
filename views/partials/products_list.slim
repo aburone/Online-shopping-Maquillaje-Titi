@@ -7,7 +7,7 @@
 - ideal_markup_col = false if ideal_markup_col.nil? unless ideal_markup_col == true
 - markup_deviation_percentile_col ||= false
 - to_move_col = false if to_move_col.nil? unless to_move_col == true
-- show_edit_button = false if show_edit_button.nil? || State.current_user.can_edit_products? == false
+- show_edit_button ||= false
 - edit_link ||= "void"
 - item_class = "" if item_class.nil?
 - status_col ||= false
@@ -91,20 +91,19 @@
           th #{t.product.fields.life_cycle.life_phase}
           th #{t.product.fields.sale_mode.mode}
           th #{t.product.fields.tercerized}
-        - if State.current_user.can_edit_products?
-          - if show_edit_button || show_hide_button
-            th.smm_cell.filter-false.sorter-false = t.actions.actions
+        - if show_edit_button || show_hide_button
+          th.smm_cell.filter-false.sorter-false = t.actions.actions
     tfoot
       tr
         - colspan = 4
-        - colspan += 1 if State.current_user.can_edit_products? && show_edit_button
+        - colspan += 1 if show_hide_button || show_edit_button
         - colspan += 2 if full_row
         - count_text = t.products.count(products.count).to_s
         - count_text = "#{count_text} #{Utils::money_format total_cost, 2} " if total_cost > 0
         - count_text = "#{count_text} (#{total_cost.to_words})" if total_cost > 0
         td.row_count colspan="#{colspan}" = count_text
     tbody
-      - ajax_item = State.current_user.can_edit_products? && show_edit_button ? " ajax_item" : ""
+      - ajax_item = show_edit_button ? " ajax_item" : ""
       - ajax_item = sku_col ? "" : ajax_item
       - products.each do |product|
         tr class="item#{ajax_item} #{item_class}"
@@ -175,23 +174,22 @@
             td #{eval("t.product.fields.life_cycle.#{product.life_phase}")}
             td #{eval("t.product.fields.sale_mode.#{product.sale_mode}")}
             td #{product.tercerized ? t.product.fields.is_tercerized : t.product.fields.non_tercerized}
-          - if State.current_user.can_edit_products?
-            - if show_edit_button || show_hide_button
-              td.actions
-                - if show_edit_button
-                  - if edit_link == "void"
-                    a.text_icon href="#" ✎
-                  - if edit_link.to_sym == :edit_product
-                    a.text_icon href="/admin/products/#{product.p_id}" ✎
-                  - if edit_link == "sales_inventory_review"
-                    a.text_icon href="/sales/admin/inventory_review/#{order.o_id}/#{product.p_id}" ✎
-                  - if edit_link == "admin_inventory_review"
-                    a.text_icon href="/admin/inventory/inventory_review/#{order.o_id}/#{product.p_id}" ✎
-                  - if edit_link == "packaging_add"
-                    a.text_icon href="/admin/production/packaging/#{order.o_id}/#{product.p_id}" ✎
-                  - if edit_link == "assembly_add"
-                    a.text_icon href="/admin/production/assembly/#{order.o_id}/#{product.p_id}" ✎
-                  - if edit_link == "transmutation_select_product"
-                    a.text_icon href="/admin/inventory/transmute_items/#{@item.i_id}/#{product.p_id}" ✎
-                - if show_hide_button
-                  a.text_icon.ajax_hide_parent_on_click data-tag="tr" href="#" ✓
+          - if show_edit_button || show_hide_button
+            td.actions
+              - if show_edit_button
+                - if edit_link == "void"
+                  a.text_icon href="#" ✎
+                - if edit_link.to_sym == :edit_product && State.current_user.can_edit_products?
+                  a.text_icon href="/admin/products/#{product.p_id}" ✎
+                - if edit_link == "sales_inventory_review"
+                  a.text_icon href="/sales/admin/inventory_review/#{order.o_id}/#{product.p_id}" ✎
+                - if edit_link == "admin_inventory_review"
+                  a.text_icon href="/admin/inventory/inventory_review/#{order.o_id}/#{product.p_id}" ✎
+                - if edit_link == "packaging_add"
+                  a.text_icon href="/admin/production/packaging/#{order.o_id}/#{product.p_id}" ✎
+                - if edit_link == "assembly_add"
+                  a.text_icon href="/admin/production/assembly/#{order.o_id}/#{product.p_id}" ✎
+                - if edit_link == "transmutation_select_product"
+                  a.text_icon href="/admin/inventory/transmute_items/#{@item.i_id}/#{product.p_id}" ✎
+              - if show_hide_button
+                a.text_icon.ajax_hide_parent_on_click data-tag="tr" href="#" ✓
