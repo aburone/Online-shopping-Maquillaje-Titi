@@ -62,9 +62,9 @@ class ActionsLog < Sequel::Model(:actions_log)
   def get_with_hash params
     logs = ActionsLog
     params.each do |key, value|
-      logs = logs.where( key.to_sym => value) if ["at", "lvl", "b_id", "m_id", "i_id", "p_id", "o_id", "u_id", "l_id"].include? key unless value.nil? or value.to_s.strip.empty?
+      logs = logs.where( key.to_sym => value.strip) if ["at", "lvl", "b_id", "m_id", "i_id", "p_id", "o_id", "u_id", "l_id"].include? key unless value.nil? or value.to_s.strip.empty?
     end
-    if params[:msg].to_s
+    unless params[:msg].to_s.strip.empty?
       str =  params[:msg].to_s
       terms = str.scan(/[\w'-]+/).map { |term| "+#{term}*"}
       placeholder = DB[:actions_log].full_text_sql(:msg, terms, {boolean: true})
