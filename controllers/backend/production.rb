@@ -41,7 +41,7 @@ class Backend < AppController
     order = Order.new.get_orders_at_location_with_type_status_and_id(current_location[:name], Order::ASSEMBLY, Order::OPEN, params[:o_id].to_i)
     redirect_if_nil_order order, params[:o_id].to_i, "/production/allocation/select"
     product = order.get_assembly
-    redirect_if_empty_or_nil product, params[:o_id].to_i, "/production/allocation/select"
+    redirect_if_empty_or_nil product, "/production/allocation/select"
 
     if params[:i_id].to_s.strip == ""
       flash[:error_add_item] = t.item.invalid
