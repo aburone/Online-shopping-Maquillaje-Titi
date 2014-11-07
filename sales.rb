@@ -10,7 +10,14 @@ class Sales < AppController
   helpers ApplicationHelper
 
   before do
-    session.each { |key, value| session.delete(key.to_sym)} if Location.new.warehouses.include? current_location # logout if logged in from warehouse
+    # warehouses_names = []
+    # Location.new.warehouses.each { |w| warehouses_names << w[:name] }
+    # ap my_session
+
+    # session.each { |key, value| session.delete(key.to_sym)} if warehouses_names.include? State.current_location_name # logout if logged in from warehouse
+
+
+
     set_locale
     session[:login_path] = "/sales/login"
     session[:root_path] = "../sales"

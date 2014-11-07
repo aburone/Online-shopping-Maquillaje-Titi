@@ -16,7 +16,8 @@ class Backend < AppController
   set :name, "Backend"
   helpers ApplicationHelper
   before do
-    session.each { |key, value| session.delete(key.to_sym)} if Location.new.stores.include? current_location
+    # session.each { |key, value| session.delete(key.to_sym)} if Location.new.stores.include? current_location
+
     session[:login_path] = "/admin/login"
     session[:root_path] = "../admin"
     session[:layout] = :layout_backend
