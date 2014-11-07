@@ -75,8 +75,8 @@
         - if stock_col or multi_stock_col
           th.sm_cell.filter-false Ideal
         - if deviation_for_period_col
-          th.sm_cell.filter-false Desvio
-          th.sm_cell.filter-false.small_content %
+          th.sm_cell.filter-false Desvio~
+          th.sm_cell.filter-false.small_content % ~
         - if is_report_to_buy
           th.sm_cell.small_content %p
           th.smm_cell.small_content #{t.product.fields.total_cost}
@@ -153,10 +153,10 @@
 
           - if deviation_for_period_col
             - col_class = (product[:deviation_for_period] > 0) ? "number overstocked" : (product[:deviation_for_period] < 0) ? "number understocked" : "number"
-            td class="#{col_class}" = Utils::number_format(product[:deviation_for_period].round, 2, "-")
+            td class="#{col_class}" = Utils::number_format(product[:deviation_for_period].round, 0, "-")
 
             - col_class = (product[:deviation_for_period_percentile] > 0) ? "number overstocked" : (product[:deviation_for_period_percentile] < 0) ? "number understocked" : "number"
-            td class="#{col_class}" = "#{Utils::number_format(product[:deviation_for_period_percentile], 2)} %"
+            td class="#{col_class}" = "#{Utils::number_format(product[:deviation_for_period_percentile], 0)} %"
 
             - if is_report_to_buy
               td.number #{Utils::number_format product[:distributor][:ponderated_deviation], 0} %
