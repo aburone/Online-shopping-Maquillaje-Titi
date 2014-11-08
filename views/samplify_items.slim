@@ -1,6 +1,6 @@
 -# coding: UTF-8
-- @title = t.samplify_items.title
-- if @items.nil?
+- items ||= []
+- if items.empty?
   form action=url("/inventory/samplify_items") method="post"
     == Rack::Csrf.tag(env)
 
@@ -22,11 +22,21 @@
     br
     img src="/media/scan_barcode.jpg"
 
-- if @items
-  h3 = t.samplify_items.samplified_items
-
-  ul
-    - @items.each do |item|
-      li #{item.i_id} #{item.p_name}
+- else
 
   p.action = t.samplify_items.how_to_use
+
+  table class="items "
+    thead
+      tr
+        th.md_cell = t.item.fields.id
+        th = t.product.fields.name
+    tfoot
+      tr
+        td.counter colspan="7" = t.items.count(items.count)
+    tbody
+      - items.each do |item|
+        tr.item
+          td = item.i_id
+          td = item.p_name
+

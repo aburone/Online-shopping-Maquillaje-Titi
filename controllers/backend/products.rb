@@ -1,5 +1,15 @@
 class Backend < AppController
 
+  route :get, :post, '/inventory/samplify_items' do
+    if params[:i_ids].nil? and params[:reason].nil?
+      slim :samplify_items, layout: :layout_backend, locals: {
+        title: t.samplify_items.title,
+        sec_nav: :nav_administration
+      }
+    else
+      samplify_items
+    end
+  end
 
   def samplify_items
     i_ids = Item.new.split_input_into_ids(params[:i_ids])
@@ -15,9 +25,11 @@ class Backend < AppController
       messages = []
       items.each { |item| messages << item.samplify!(params[:reason]) }
       flash.now[:notice] = messages.flatten.to_s
-      @title = "Conversion a muestra correcta"
-      @items = items
-      slim :samplify_items, layout: :layout_backend, locals: {sec_nav: :nav_administration}
+      slim :samplify_items, layout: :layout_backend, locals: {
+        title: "Conversion a muestra correcta",
+        sec_nav: :nav_administration,
+        items: items
+      }
     rescue SecurityError => e
       flash[:error] = e.message
       redirect to('/inventory/samplify_items')
@@ -27,13 +39,6 @@ class Backend < AppController
     end
   end
 
-  route :get, :post, '/inventory/samplify_items' do
-    if params[:i_ids].nil? and params[:reason].nil?
-      slim :samplify_items, layout: :layout_backend, locals: {sec_nav: :nav_administration}
-    else
-      samplify_items
-    end
-  end
 
 
 
