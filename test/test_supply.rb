@@ -402,4 +402,14 @@ class SupplyTest < Test::Unit::TestCase
       assert_equal 0, (product.supply.global_ideal - calculated_parts_ideal - product.supply.global_whole_ideal).round, "Erroneous ideal stock relation"
     end
   end
+
+  def test_nan
+    number = BigDecimal.new( 5, 0)
+    res = number / 0 || BigDecimal.new(0, 0)
+    ap res
+
+    res = number + "a"
+    ap res
+
+  end
 end

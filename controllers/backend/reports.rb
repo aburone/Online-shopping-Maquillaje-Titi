@@ -233,21 +233,21 @@ class Backend < AppController
     raw_products.each do |product|
       product[:ideal_for_period] = product.supply.s1_whole_ideal * months
       product[:deviation_for_period] = product.supply.s1_whole - product[:ideal_for_period]
-      product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
       product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
+      product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
       product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
-      stock_in_current_location = State.current_location_name == Location::W1 ? product.supply.w1_whole : product.supply.w2_whole
-      product[:to_move] = product[:ideal_stock] > stock_in_current_location ? stock_in_current_location : product[:ideal_stock] - stock_in_current_location
 
-      if stock_in_current_location > 0 && (product.end_of_life || product.ideal_stock == 0)
-        product[:deviation_for_period] = stock_in_current_location * -1
+      avail_in_current_location = State.current_location_name == Location::W1 ? product.supply.w1_whole : product.supply.w2_whole
+      product[:to_move] = product[:ideal_for_period] > avail_in_current_location ? avail_in_current_location : product[:ideal_for_period] - avail_in_current_location
+
+      if avail_in_current_location > 0 && (product.end_of_life || product.ideal_stock == 0)
+        product[:deviation_for_period] = avail_in_current_location * -1
         product[:deviation_for_period_percentile] = -100
-        product[:to_move] = stock_in_current_location
+        product[:to_move] = avail_in_current_location
       end
-      products << product unless product[:to_move] <= 0
+      products << product if product[:deviation_for_period_percentile] < settings.reports_percentage_threshold
     end
     products.sort_by! { |product| [ product[:deviation_for_period_percentile], product[:deviation_for_period] ] }
-    products.delete_if { |product| product[:deviation_for_period_percentile] >= settings.reports_percentage_threshold}
     slim :reports_products_to_move, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_move(months, current_location[:translation]), sec_nav: :nav_production, products: products, months: months, locations: 1}
   end
 
