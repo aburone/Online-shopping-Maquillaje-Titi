@@ -92,39 +92,21 @@ class Backend < AppController
 
   get '/production/reports/to_package/:mode' do
     products = Product.new.get_all.where(archived: false, tercerized: false, end_of_life: false).all
-    months = 0
-    case params[:mode].upcase
-      when Product::STORE_ONLY_1
-        months = 1
-        locations = 1
-      when Product::ALL_LOCATIONS_1
-        months = 1
-        locations = 2
-      when Product::STORE_ONLY_2
-        months = 2
-        locations = 1
-      when Product::ALL_LOCATIONS_2
-        months = 2
-        locations = 2
-      when Product::STORE_ONLY_3
-        months = 3
-        locations = 1
-      when Product::ALL_LOCATIONS_3
-        months = 3
-        locations = 2
-    end
+
+    mode = params[:mode].upcase
+    locations = mode.include?("STORE_ONLY") ? BigDecimal.new(1) : BigDecimal.new(2)
+    months = BigDecimal.new(mode[-1])
 
     products.map do |product|
-      if [Product::STORE_ONLY_1, Product::STORE_ONLY_2, Product::STORE_ONLY_3].include? params[:mode].upcase
-        product[:ideal_for_period] = product.supply.s1_ideal * months
-        product[:deviation_for_period] = product.supply.global - product[:ideal_for_period]
-        product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
+      if locations == 1
+        product[:ideal_for_period] = product.supply.stores_ideal * months
+        product[:deviation_for_period] = product.supply.stores_future - product[:ideal_for_period]
       else
         product[:ideal_for_period] = product.supply.global_ideal * months
-        product[:deviation_for_period] = product.supply.global - product[:ideal_for_period]
-        product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
+        product[:deviation_for_period] = product.supply.global_future - product[:ideal_for_period]
       end
       product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
+      product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
       product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
     end
 
@@ -132,13 +114,11 @@ class Backend < AppController
     products.sort_by! { |product| [ product[:deviation_for_period_percentile], product[:deviation_for_period] ] }
     slim :products_list, layout: :layout_backend, locals: {
       title: "Reporte de productos por envasar", sec_nav: :nav_production,
-      show_edit_button: false,
       show_hide_button: true,
       brand_col: false,
       full_row: true,
       price_col: false,
       price_pro_col: false,
-      stock_col: false,
       multi_stock_col: true,
       use_virtual_stocks: true,
       deviation_for_period_col: true,

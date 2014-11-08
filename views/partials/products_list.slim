@@ -1,15 +1,15 @@
-- sku_col = false if sku_col.nil? unless sku_col == true
-- stock_col = false if stock_col.nil? unless stock_col == true
+- sku_col ||= false
+- stock_col ||= false
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
 - stock_col = multi_stock_col ? false : stock_col
-- use_virtual_stocks = false if use_virtual_stocks.nil? unless use_virtual_stocks == true
-- real_markup_col = false if real_markup_col.nil? unless real_markup_col == true
-- ideal_markup_col = false if ideal_markup_col.nil? unless ideal_markup_col == true
+- use_virtual_stocks ||= false
+- real_markup_col ||= false
+- ideal_markup_col ||= false
 - markup_deviation_percentile_col ||= false
-- to_move_col = false if to_move_col.nil? unless to_move_col == true
+- to_move_col ||= false
 - show_edit_button ||= false
 - edit_link ||= "void"
-- item_class = "" if item_class.nil?
+- item_class ||= ""
 - status_col ||= false
 - buy_cost_col ||= false
 - full_row ||= true unless full_row === false
@@ -140,8 +140,8 @@
           - if stock_col
             td.number #{Utils::number_format product[:qty], 0}
           - if multi_stock_col
-            td.number #{Utils::number_format product.supply.w1_whole, 0}
-            td.number #{Utils::number_format product.supply.w2_whole, 0}
+            td.number #{Utils::number_format product.supply.w1_whole_future, 0}
+            td.number #{Utils::number_format product.supply.w2_whole_future, 0}
             - if !use_virtual_stocks
               td.number #{Utils::number_format product.supply.s1_whole, 0}
             - if use_virtual_stocks
