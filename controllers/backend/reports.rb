@@ -237,7 +237,7 @@ class Backend < AppController
       product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
       product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
       stock_in_current_location = State.current_location_name == Location::W1 ? product.supply.w1_whole : product.supply.w2_whole
-      product[:to_move] = product[:ideal_stock] > stock_in_current_location ? stock_in_current_location : product[:ideal_stock] - product.supply.s1_whole
+      product[:to_move] = product[:ideal_stock] > stock_in_current_location ? stock_in_current_location : product[:ideal_stock] - stock_in_current_location
 
       if stock_in_current_location > 0 && (product.end_of_life || product.ideal_stock == 0)
         product[:deviation_for_period] = stock_in_current_location * -1
