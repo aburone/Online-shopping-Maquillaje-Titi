@@ -18,6 +18,7 @@ class Item < Sequel::Model
   RETURNING   ="RETURNING"
   ERROR       ="ERROR"
   VOID        ="VOID"
+  SAMPLE      ="SAMPLE"
 
   @sale_id = 666
 
@@ -108,6 +109,38 @@ class Item < Sequel::Model
 
     current_user_id =  User.new.current_user_id
     message = "#{R18n.t.actions.changed_item_status(ConstantsTranslator.new(Item::VOID).t)}. Razon: #{reason}"
+    log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl: ActionsLog::NOTICE, i_id: @values[:i_id], o_id: order.o_id)
+    log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
+    log.save
+
+    product = Product[self.p_id]
+    product.update_stocks.save unless product.nil?
+
+    order.change_status Order::FINISHED
+    message
+  end
+
+  def samplify! reason
+    reason = check_reason reason
+    begin
+      DB.transaction do
+        self.orders.dup.each do |order|
+          order.remove_item self unless order.o_status == Order::VOID || order.o_status == Order::FINISHED || self.i_status == Item::IN_ASSEMBLY
+        end
+      end
+      change_status_security_check Item::SAMPLE, 0
+    rescue SecurityError => e
+      raise SecurityError, e.message
+    end
+    order = Order.new.create_samplification self.i_loc
+    origin = @values[:i_loc].dup
+    @values[:i_loc] = Location::VOID
+    @values[:i_status] = Item::SAMPLE
+    order.add_item self
+    save validate: false
+
+    current_user_id =  User.new.current_user_id
+    message = "#{R18n.t.actions.changed_item_status(ConstantsTranslator.new(Item::SAMPLE).t)}. Razon: #{reason}"
     log = ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl: ActionsLog::NOTICE, i_id: @values[:i_id], o_id: order.o_id)
     log.set(p_id: @values[:p_id]) unless @values[:p_id].nil?
     log.save

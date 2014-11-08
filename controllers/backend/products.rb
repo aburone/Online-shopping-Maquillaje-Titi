@@ -1,5 +1,43 @@
 class Backend < AppController
 
+
+  def samplify_items
+    i_ids = Item.new.split_input_into_ids(params[:i_ids])
+    items = Item.filter(i_id: i_ids).all
+    errors = Item.new.check_io(i_ids, items)
+    unless errors.empty?
+      flash[:error] = "Algunos ID especificados son invalidos #{errors.flatten.to_s}"
+      redirect to('/inventory/samplify_items')
+      return false
+    end
+
+    begin
+      messages = []
+      items.each { |item| messages << item.samplify!(params[:reason]) }
+      flash.now[:notice] = messages.flatten.to_s
+      @title = "Conversion a muestra correcta"
+      @items = items
+      slim :samplify_items, layout: :layout_backend, locals: {sec_nav: :nav_administration}
+    rescue SecurityError => e
+      flash[:error] = e.message
+      redirect to('/inventory/samplify_items')
+    rescue => e
+      flash[:error] = e.message
+      redirect to('/inventory/samplify_items')
+    end
+  end
+
+  route :get, :post, '/inventory/samplify_items' do
+    if params[:i_ids].nil? and params[:reason].nil?
+      slim :samplify_items, layout: :layout_backend, locals: {sec_nav: :nav_administration}
+    else
+      samplify_items
+    end
+  end
+
+
+
+
   post '/products/update_all' do
     Product.order(:p_name).all.each { |product| enqueue product }
     flash[:warning] = R18n.t.products.updating_in_background
@@ -138,13 +176,13 @@ class Backend < AppController
 
 
   get '/products/items' do
-    @items = Item.new.get_items_at_location current_location[:name]
-    slim :items, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.items.title}
+    items = Item.new.get_items_at_location current_location[:name]
+    slim :items, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.items.title, items: items}
   end
   get '/products/items/:p_name' do
     p_name = params[:p_name].to_s
-    @items = Item.new.get_items_at_location(current_location[:name]).where(Sequel.like(:items__p_name, "%#{p_name}%")  )
-    slim :items, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.items.title}
+    items = Item.new.get_items_at_location(current_location[:name]).where(Sequel.like(:items__p_name, "%#{p_name}%")  )
+    slim :items, layout: :layout_backend, locals: {sec_nav: :nav_production, title: t.items.title, items: items}
   end
 
   get '/products/relationships' do

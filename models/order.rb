@@ -320,6 +320,16 @@ class Order < Sequel::Model
     order
   end
 
+
+  def create_samplification origin
+    current_user_id =  User.new.current_user_id
+    order = Order.create(type: Order::SAMPLIFICATION, o_status: Order::OPEN, u_id: current_user_id, o_loc: origin, o_dst: Location::VOID)
+    message = R18n.t.order.created(order.type)
+    ActionsLog.new.set(msg: message, u_id: current_user_id, l_id: origin, lvl:  ActionsLog::NOTICE, o_id: order.o_id).save
+    order
+  end
+
+
   def create_or_load_sale
     create_new Order::SALE
   end

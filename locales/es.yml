@@ -19,6 +19,7 @@ actions:
   confirm: Confirmar
   void: Invalidar
   transmute: Transmutar
+  samplify: A muestra
   actions: Acciónes
   filter: Filtrar
   click_to_toggle: Click para ver/ocultar detalles
@@ -116,6 +117,7 @@ nav:
     items: Items disponibles
     void_items: Invalidacion de items
     transmute_items: Transmutacion de items
+    samplify_items: Convertir items a muestra
     pendig_items: Items pendientes
     labels: Impresion de etiquetas
     credits: "Notas de Crédito"
@@ -320,6 +322,14 @@ transmute_items:
   reason_example: "ej: Mal etiquetado"
   sure?: "Esto va a transmutar el item"
   title_transmuted: Item transmutado
+
+samplify_items:
+  title: Conversion a muestra de items
+  write_reason: Escriba la razon
+  reason_example: "ej: frasco dañado"
+  sure?: "Esto va a convertir el item en una muestra. No se va a poder hacer ningun tipo de operacion sobre el."
+  samplified_items: Items convertidos a muestra
+  how_to_use: Estos items solo pueden ser utilizados para muestra. El sistema no va a permitir ningun tipo de operacion sobre ellos
 
 cart:
   fields:
@@ -567,6 +577,7 @@ constant:
   SOLD: Vendido
   RETURNING: En devolución
   SAMPLE: Muestra
+  SAMPLIFICATION: A Muestra
 
 location:
   title: Ubicacion
