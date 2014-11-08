@@ -1,9 +1,9 @@
 require "singleton"
-    require 'encrypted_cookie'
-    require "rack/csrf"
-    use Rack::Session::EncryptedCookie, secret: 'sdfdsfgdfsgdfsg', expire_after: 3600
+  require 'encrypted_cookie'
+  require "rack/csrf"
+  use Rack::Session::EncryptedCookie, secret: 'sdfdsfgdfsgdfsg', expire_after: 3600
 
-class Session
+  class Session
   include Singleton
 
   def initialize

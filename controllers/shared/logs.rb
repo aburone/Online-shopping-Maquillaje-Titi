@@ -36,3 +36,4 @@ class Sales < AppController
   include Logs
   get '/logs' do get_and_render_logs end
 end
+

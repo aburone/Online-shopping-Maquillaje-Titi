@@ -15,32 +15,30 @@ class Backend < AppController
 
   set :name, "Backend"
   helpers ApplicationHelper
-  before do
-    # session.each { |key, value| session.delete(key.to_sym)} if Location.new.stores.include? current_location
 
+  before do
+    ap "Before backend"
+    if Location.new.stores.include? session[:current_location]
+      ap session[:current_location]
+      ap Location.new.stores.include? session[:current_location]
+      State.clear
+      session.each do |key, value|
+        p "deleting #{key}"
+        session.delete(key.to_sym)
+      end
+      ap "state after cleared session"
+      ap State.current_user
+      ap State.current_location
+    end
+
+    set_locale
     session[:login_path] = "/admin/login"
     session[:root_path] = "../admin"
     session[:layout] = :layout_backend
-    set_locale
     unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"]
-    protected! unless (request.env["REQUEST_PATH"].nil? or unprotected_routes.include? request.env["REQUEST_PATH"])
+    protected! unless (unprotected_routes.include? request.env["REQUEST_PATH"])
+    ap State.current_user.username
   end
-
-  route :get, ['/', '/administration'] do
-    protected! # needed by cucumber
-    if current_user.level > 2
-      nav = :nav_administration
-      title = t.administration.title
-    else
-      redirect to ("/production")
-    end
-    slim :admin, layout: session[:layout], locals: {sec_nav: nav, title: title}
-  end
-
-  get '/log' do
-    enqueue ActionsLog.new.set(msg: rand, u_id: current_user_id, l_id: current_location[:name], lvl: ActionsLog::INFO)
-  end
-
 
   Dir["controllers/backend/*.rb"].each { |file| require_relative file }
   Dir["controllers/shared/*.rb"].each { |file| require_relative file }

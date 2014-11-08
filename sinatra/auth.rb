@@ -8,17 +8,6 @@ module Sinatra
 
   module Auth
     module Helpers
-      @my_session = "State"
-
-      def my_session= new_session
-        @my_session = new_session
-      end
-
-      def my_session
-        ap "my session"
-        @my_session
-      end
-
 
       def authorized?
         user = session[:user_id] ? User.new.get_by_id(session[:user_id]) : User.new
@@ -36,14 +25,12 @@ module Sinatra
       def set_user user, location
         session[:user_id] = user.user_id
         session[:current_location] = location
-        ap "set_user"
-        my_session= "setting new session"
-        ap my_session
-        ap "set_user session"
-        ap session
+        State.current_user = user
+        State.current_location = location
       end
       def unset_user
         session.keys.each { |key| session[key] = nil}
+        State.clear
       end
     end
 

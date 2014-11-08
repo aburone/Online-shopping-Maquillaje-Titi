@@ -1,18 +1,8 @@
 require_relative 'userAuth'
 class User < UserAuth
 
-  def print
-    out = "\n"
-    out += "#{self.class} #{sprintf("%x", self.object_id)}:\n"
-    out += "\t user_id:  #{@values[:user_id]}\n"
-    out += "\t username:  #{@values[:username]}\n"
-    out += "\t user_real_name:  #{@values[:user_real_name]}\n"
-    out += "\t user_email:  #{@values[:user_email]}\n"
-    out += "\t user_real_name:  #{@values[:user_real_name]}\n"
-    out += "\t is_active:  #{@values[:is_active]}\n"
-    out += "\t session_length:  #{@values[:session_length]}\n"
-    out += "\t password:  #{@values[:password]}\n"
-    out += "\t level:  #{@values[:level]}\n"
+  def username
+    @values[:username].nil? ? "nobody" : @values[:username]
   end
 
   def empty?

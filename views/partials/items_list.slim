@@ -15,7 +15,7 @@
     caption #{caption}
     thead
       tr
-        th.smm_cell = t.item.fields.id
+        th.md_cell = t.item.fields.id
         th.mdd_cell = t.item.fields.status
         th = t.item.fields.location
         th.sm_cell ID p
@@ -30,7 +30,7 @@
     tbody
       - items.each do |item|
         tr.item
-          td.smm_cell #{item[:i_id]}
+          td.md_cell #{item[:i_id]}
           td.mdd_cell = ConstantsTranslator.new(item[:i_status]).t
           td = ConstantsTranslator.new(item[:i_loc]).t
           td #{item[:p_id]}
