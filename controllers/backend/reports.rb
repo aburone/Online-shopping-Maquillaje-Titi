@@ -225,7 +225,7 @@ class Backend < AppController
         product[:deviation_for_period_percentile] = -100
         product[:to_move] = avail_in_current_location
       end
-      products << product if product[:deviation_for_period_percentile] < settings.reports_percentage_threshold
+      products << product if product[:deviation_for_period_percentile] < settings.reports_percentage_threshold && avail_in_current_location > 0
     end
     products.sort_by! { |product| [ product[:deviation_for_period_percentile], product[:deviation_for_period] ] }
     slim :reports_products_to_move, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_move(months, current_location[:translation]), sec_nav: :nav_production, products: products, months: months, locations: 1}
