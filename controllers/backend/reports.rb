@@ -204,10 +204,12 @@ class Backend < AppController
   end
 
 
+
+
   route :get, :post, '/production/reports/products_to_move_s1' do
     months = params[:months].to_i unless params[:months].nil?
     months ||= settings.desired_months_worth_of_items_in_store
-    raw_products = Product.new.get_all.where(archived: false, non_saleable: false).all
+    raw_products = Product.new.get_all.where(archived: false, non_saleable: false).where(p_id: 1229).all
     products ||= []
 
     raw_products.each do |product|
@@ -217,9 +219,12 @@ class Backend < AppController
       product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
       product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
 
-      avail_in_current_location = State.current_location_name == Location::W1 ? product.supply.w1_whole : product.supply.w2_whole
-      avail_in_current_location = product.supply.warehouses_whole
+      # avail_in_current_location = State.current_location_name == Location::W1 ? product.supply.w1_whole : product.supply.w2_whole
+      avail_in_current_location = product.supply.warehouses_whole_future
 
+ap product
+ap product[:ideal_for_period]
+ap avail_in_current_location
       if product[:ideal_for_period] >= avail_in_current_location
         product[:to_move] = avail_in_current_location
       elsif avail_in_current_location >= product[:ideal_for_period]
@@ -236,7 +241,12 @@ class Backend < AppController
       products << product if product[:deviation_for_period_percentile] < settings.reports_percentage_threshold && product.supply.warehouses_whole > 0
     end
     products.sort_by! { |product| [ product[:deviation_for_period_percentile], product[:deviation_for_period] ] }
-    slim :reports_products_to_move, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_move(months, current_location[:translation]), sec_nav: :nav_production, products: products, months: months, locations: 1}
+    slim :reports_products_to_move, layout: :layout_backend, locals: {
+      title: R18n.t.reports_products_to_move(months, current_location[:translation]), sec_nav: :nav_production,
+      products: products,
+      months: months,
+      locations: 1
+    }
   end
 
 end

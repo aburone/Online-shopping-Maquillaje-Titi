@@ -137,6 +137,8 @@
               - markup_deviation_percentile = "Invalido"
             td class="#{col_class}" #{markup_deviation_percentile}
 
+
+
           - if stock_col
             td.number #{Utils::number_format product[:qty], 0}
           - if multi_stock_col
@@ -153,10 +155,17 @@
 
           - if deviation_for_period_col
             - col_class = (product[:deviation_for_period] > 0) ? "number overstocked" : (product[:deviation_for_period] < 0) ? "number understocked" : "number"
-            td class="#{col_class}" = Utils::number_format(product[:deviation_for_period].round, 0, "-")
+            td class="#{col_class}" = Utils::number_format(product[:deviation_for_period], 2, "-")
 
             - col_class = (product[:deviation_for_period_percentile] > 0) ? "number overstocked" : (product[:deviation_for_period_percentile] < 0) ? "number understocked" : "number"
-            td class="#{col_class}" = "#{Utils::number_format(product[:deviation_for_period_percentile], 0)} %"
+            td class="#{col_class}" = "#{Utils::number_format(product[:deviation_for_period_percentile], 2)} %"
+
+          - if to_move_col
+            td.number #{Utils::number_format product[:to_move], 2}
+
+
+
+
 
             - if is_report_to_buy
               td.number #{Utils::number_format product[:distributor][:ponderated_deviation], 0} %
@@ -164,8 +173,6 @@
 
 
 
-          - if to_move_col
-            td.number #{Utils::number_format product[:to_move], 0}
           - if status_col
             td #{product.status}
           - if price_updated_at_col
