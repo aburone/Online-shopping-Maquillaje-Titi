@@ -218,14 +218,22 @@ class Backend < AppController
       product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
 
       avail_in_current_location = State.current_location_name == Location::W1 ? product.supply.w1_whole : product.supply.w2_whole
-      product[:to_move] = product[:ideal_for_period] > avail_in_current_location ? avail_in_current_location : product[:ideal_for_period] - avail_in_current_location
+      avail_in_current_location = product.supply.warehouses_whole
+
+      if product[:ideal_for_period] >= avail_in_current_location
+        product[:to_move] = avail_in_current_location
+      elsif avail_in_current_location >= product[:ideal_for_period]
+        product[:to_move] = product[:ideal_for_period]
+      else
+        product[:to_move] = product[:ideal_for_period] - avail_in_current_location
+      end
 
       if avail_in_current_location > 0 && (product.end_of_life || product.ideal_stock == 0)
         product[:deviation_for_period] = avail_in_current_location * -1
         product[:deviation_for_period_percentile] = -100
         product[:to_move] = avail_in_current_location
       end
-      products << product if product[:deviation_for_period_percentile] < settings.reports_percentage_threshold && product.supply.warehouses_whole > 0 && product[:to_move] > 0
+      products << product if product[:deviation_for_period_percentile] < settings.reports_percentage_threshold && product.supply.warehouses_whole > 0
     end
     products.sort_by! { |product| [ product[:deviation_for_period_percentile], product[:deviation_for_period] ] }
     slim :reports_products_to_move, layout: :layout_backend, locals: {title: R18n.t.reports_products_to_move(months, current_location[:translation]), sec_nav: :nav_production, products: products, months: months, locations: 1}
