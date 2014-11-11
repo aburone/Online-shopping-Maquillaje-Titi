@@ -2,7 +2,7 @@
 - stock_col ||= false
 - multi_stock_col = false if multi_stock_col.nil? unless multi_stock_col == true
 - stock_col = multi_stock_col ? false : stock_col
-- use_virtual_stocks ||= false
+- show_future_availability ||= false
 - real_markup_col ||= false
 - ideal_markup_col ||= false
 - markup_deviation_percentile_col ||= false
@@ -66,12 +66,14 @@
         - if stock_col
           th.smm_cell = t.product.fields.qty
         - if multi_stock_col
-          th.sm_cell = t.locations.short.WAREHOUSE_1
-          th.sm_cell = t.locations.short.WAREHOUSE_2
-          - if !use_virtual_stocks
+          - if !show_future_availability
+            th.sm_cell = t.locations.short.WAREHOUSE_1
+            th.sm_cell = t.locations.short.WAREHOUSE_2
             th.sm_cell = t.locations.short.STORE_1
-          - if use_virtual_stocks
-            th.sm_cell = t.locations.short.VIRTUAL_STORE_1
+          - if show_future_availability
+            th.sm_cell = t.locations.short.WAREHOUSE_1_FUTURE
+            th.sm_cell = t.locations.short.WAREHOUSE_2_FUTURE
+            th.sm_cell = t.locations.short.STORE_1_FUTURE
         - if stock_col or multi_stock_col
           th.sm_cell.filter-false Ideal
         - if deviation_for_period_col
@@ -142,23 +144,23 @@
           - if stock_col
             td.number #{Utils::number_format product[:qty], 0}
           - if multi_stock_col
-            td.number #{Utils::number_format product.supply.w1_whole_future, 0}
-            td.number #{Utils::number_format product.supply.w2_whole_future, 0}
-            - if !use_virtual_stocks
+
+            - if !show_future_availability
+              td.number #{Utils::number_format product.supply.w1_whole, 0}
+              td.number #{Utils::number_format product.supply.w2_whole, 0}
               td.number #{Utils::number_format product.supply.s1_whole, 0}
-            - if use_virtual_stocks
-                td.number #{Utils::number_format product.supply.s1_whole_future, 0}
+            - if show_future_availability
+              td.number #{Utils::number_format product.supply.w1_whole_future, 0}
+              td.number #{Utils::number_format product.supply.w2_whole_future, 0}
+              td.number #{Utils::number_format product.supply.s1_whole_future, 0}
           - if stock_col or multi_stock_col
             - product[:ideal_for_period] ||= product.supply.s1_ideal * months * locations
-            td.number #{Utils::number_format(product[:ideal_for_period], 2, 0)}
+            td.number #{Utils::number_format(product[:ideal_for_period], 1, 0)}
 
 
           - if deviation_for_period_col
-            - col_class = (product[:deviation_for_period] > 0) ? "number overstocked" : (product[:deviation_for_period] < 0) ? "number understocked" : "number"
-            td class="#{col_class}" = Utils::number_format(product[:deviation_for_period], 2, "-")
-
-            - col_class = (product[:deviation_for_period_percentile] > 0) ? "number overstocked" : (product[:deviation_for_period_percentile] < 0) ? "number understocked" : "number"
-            td class="#{col_class}" = "#{Utils::number_format(product[:deviation_for_period_percentile], 2)} %"
+            td.number.understocked = Utils::number_format(product[:deviation_for_period], 0, "-")
+            td.number.understocked = "#{Utils::number_format(product[:deviation_for_period_percentile], 0)} %"
 
           - if to_move_col
             td.number #{Utils::number_format product[:to_move], 0}

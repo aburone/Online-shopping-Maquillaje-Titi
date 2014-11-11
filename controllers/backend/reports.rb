@@ -120,7 +120,7 @@ class Backend < AppController
       price_col: false,
       price_pro_col: false,
       multi_stock_col: true,
-      use_virtual_stocks: true,
+      show_future_availability: true,
       deviation_for_period_col: true,
       months: months,
       locations: locations,
@@ -209,58 +209,23 @@ class Backend < AppController
   route :get, :post, '/production/reports/products_to_move_s1' do
     months = params[:months].to_i unless params[:months].nil?
     months ||= settings.desired_months_worth_of_items_in_store
-    raw_products = Product.new.get_all.where(archived: false, non_saleable: false).all
     products ||= []
-
+    raw_products = Product.new.get_all.where(archived: false, non_saleable: false).all
     raw_products.each do |product|
       product[:ideal_for_period] = product.supply.s1_whole_ideal * months
       product[:missing_for_period] = product[:ideal_for_period] >= product.supply.s1_whole_future ? product[:ideal_for_period] - product.supply.s1_whole_future : BigDecimal.new(0)
-
       product[:deviation_for_period] = product.supply.s1_whole - product[:ideal_for_period]
-
-
       product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
       product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
       product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
-
-      # avail_in_warehouses = State.current_location_name == Location::W1 ? product.supply.w1_whole : product.supply.w2_whole
       avail_in_warehouses = product.supply.warehouses_whole_future
-
-ap product
-ap "product[:ideal_for_period]"
-ap product[:ideal_for_period]
-ap "s1_whole_ideal"
-ap product.supply.s1_whole_ideal
-ap "s1_whole"
-ap product.supply.s1_whole
-ap "s1_whole_future"
-ap product.supply.s1_whole_future
-
-ap "ideal_for_period"
-ap product[:ideal_for_period]
-ap "missing_for_period"
-ap product[:missing_for_period]
-ap "deviation_for_period"
-ap product[:deviation_for_period]
-ap "avail_in_warehouses"
-ap avail_in_warehouses
-
-      if product[:missing_for_period] >= avail_in_warehouses
-        ap "1"
-        product[:to_move] = avail_in_warehouses
-      elsif avail_in_warehouses >= product[:missing_for_period]
-        ap "2"
-        product[:to_move] = product[:missing_for_period]
-      end
-ap product[:to_move]
-      #product[:missing_for_period] - avail_in_warehouses
-
+      product[:to_move] = product[:missing_for_period] >= avail_in_warehouses ? avail_in_warehouses : product[:missing_for_period]
       if avail_in_warehouses > 0 && (product.end_of_life || product.ideal_stock == 0)
         product[:deviation_for_period] = avail_in_warehouses * -1
         product[:deviation_for_period_percentile] = -100
         product[:to_move] = avail_in_warehouses
       end
-      products << product if product[:deviation_for_period_percentile] < settings.reports_percentage_threshold && product.supply.warehouses_whole > 0
+      products << product if product[:deviation_for_period_percentile] < settings.reports_percentage_threshold && avail_in_warehouses > 0
     end
     products.sort_by! { |product| [ product[:deviation_for_period_percentile], product[:deviation_for_period] ] }
     slim :reports_products_to_move, layout: :layout_backend, locals: {

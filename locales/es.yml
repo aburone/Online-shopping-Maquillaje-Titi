@@ -589,10 +589,13 @@ locations:
   STORE_2: Local 2
   short:
     WAREHOUSE_1: Dep 1
+    WAREHOUSE_1_FUTURE: Dep 1 (f)
     WAREHOUSE_2: Dep 2
+    WAREHOUSE_2_FUTURE: Dep 2 (f)
     STORE_1: Loc 1
-    VIRTUAL_STORE_1: Loc 1 (v)
+    STORE_1_FUTURE: Loc 1 (f)
     STORE_2: Loc 2
+    STORE_2_FUTURE: Loc 2 (f)
 
 sales:
   title: Punto de venta
