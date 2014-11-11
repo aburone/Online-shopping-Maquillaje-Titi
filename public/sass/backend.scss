@@ -16,6 +16,7 @@ $odd_rows: rgba(200,200,200,0.3);
 @import "plugins";
 @import "flexbox";
 @import "flash";
+@import url(http://fonts.googleapis.com/css?family=Inconsolata);
 
 .visually_hidden {visibility: hidden; position: absolute; top: -9999px; left: -9999px;}
 [disabled="disabled"] {background-color: #eee; color: #555}
@@ -90,7 +91,7 @@ body:after {
 .items td {padding:0.3em 1em 0.1em 0; vertical-align: middle}
 .items tr td:first-child, .items th:first-child{padding-left: 1em}
 .items tr td:first-child.no_padding {padding-left: 0}
-.item td {vertical-align:top;font-size: 13px;font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,serif; }
+.item td {vertical-align:top;font-size: 14px;font-family: Inconsolata,Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,serif; }
 .ajax_item:hover {cursor: pointer}
 .actions {white-space: nowrap}
 .actions:hover {cursor: default}
@@ -98,8 +99,8 @@ body:after {
 .tall {border-top: 1px solid silver}
 tbody tr:nth-child(odd), .odd {background: $odd_rows}
 .overpriced {color: rgb(200, 166, 30); font-weight: bold}
-.understocked, .underpriced {color: rgb(255, 100, 100); font-weight: bold}
-.overstocked { color: rgb(200, 166, 30); font-weight: bold}
+.understocked, .underpriced {color: #d33}
+.overstocked { color: rgb(200, 166, 30)}
 
 a {color: darkblue;}
 :focus, .focus {@include focused}

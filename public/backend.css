@@ -1,4 +1,5 @@
 @charset "UTF-8";
+@import url(http://fonts.googleapis.com/css?family=Inconsolata);
 * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -46,7 +47,7 @@ blockquote, q {
   quotes: "" ""; }
 
 code {
-  font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,serif;
+  font-family: Inconsolata, Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,serif;
   background-color: #EEE; }
 
 /* Base */
@@ -902,8 +903,8 @@ body:after {
 
 .item td {
   vertical-align: top;
-  font-size: 13px;
-  font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,serif; }
+  font-size: 14px;
+  font-family: Inconsolata,Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,serif; }
 
 .ajax_item:hover {
   cursor: pointer; }
@@ -925,12 +926,10 @@ tbody tr:nth-child(odd), .odd {
   font-weight: bold; }
 
 .understocked, .underpriced {
-  color: #ff6464;
-  font-weight: bold; }
+  color: #d33; }
 
 .overstocked {
-  color: #c8a61e;
-  font-weight: bold; }
+  color: #c8a61e; }
 
 a {
   color: darkblue; }
