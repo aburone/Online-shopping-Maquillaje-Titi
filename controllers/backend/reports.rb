@@ -209,7 +209,7 @@ class Backend < AppController
   route :get, :post, '/production/reports/products_to_move_s1' do
     months = params[:months].to_i unless params[:months].nil?
     months ||= settings.desired_months_worth_of_items_in_store
-    raw_products = Product.new.get_all.where(archived: false, non_saleable: false).all
+    raw_products = Product.new.get_all.where(archived: false, non_saleable: false).where(p_id: 672).all
     products ||= []
 
     raw_products.each do |product|
