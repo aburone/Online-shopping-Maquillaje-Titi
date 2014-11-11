@@ -161,7 +161,7 @@
             td class="#{col_class}" = "#{Utils::number_format(product[:deviation_for_period_percentile], 2)} %"
 
           - if to_move_col
-            td.number #{Utils::number_format product[:to_move], 2}
+            td.number #{Utils::number_format product[:to_move], 0}
 
 
 
