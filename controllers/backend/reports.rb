@@ -214,29 +214,51 @@ class Backend < AppController
 
     raw_products.each do |product|
       product[:ideal_for_period] = product.supply.s1_whole_ideal * months
+      product[:missing_for_period] = product[:ideal_for_period] >= product.supply.s1_whole_future ? product[:ideal_for_period] - product.supply.s1_whole_future : BigDecimal.new(0)
+
       product[:deviation_for_period] = product.supply.s1_whole - product[:ideal_for_period]
+
+
       product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
       product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
       product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
 
-      # avail_in_current_location = State.current_location_name == Location::W1 ? product.supply.w1_whole : product.supply.w2_whole
-      avail_in_current_location = product.supply.warehouses_whole_future
+      # avail_in_warehouses = State.current_location_name == Location::W1 ? product.supply.w1_whole : product.supply.w2_whole
+      avail_in_warehouses = product.supply.warehouses_whole_future
 
 ap product
+ap "product[:ideal_for_period]"
 ap product[:ideal_for_period]
-ap avail_in_current_location
-      if product[:ideal_for_period] >= avail_in_current_location
-        product[:to_move] = avail_in_current_location
-      elsif avail_in_current_location >= product[:ideal_for_period]
-        product[:to_move] = product[:ideal_for_period]
-      else
-        product[:to_move] = product[:ideal_for_period] - avail_in_current_location
-      end
+ap "s1_whole_ideal"
+ap product.supply.s1_whole_ideal
+ap "s1_whole"
+ap product.supply.s1_whole
+ap "s1_whole_future"
+ap product.supply.s1_whole_future
 
-      if avail_in_current_location > 0 && (product.end_of_life || product.ideal_stock == 0)
-        product[:deviation_for_period] = avail_in_current_location * -1
+ap "ideal_for_period"
+ap product[:ideal_for_period]
+ap "missing_for_period"
+ap product[:missing_for_period]
+ap "deviation_for_period"
+ap product[:deviation_for_period]
+ap "avail_in_warehouses"
+ap avail_in_warehouses
+
+      if product[:missing_for_period] >= avail_in_warehouses
+        ap "1"
+        product[:to_move] = avail_in_warehouses
+      elsif avail_in_warehouses >= product[:missing_for_period]
+        ap "2"
+        product[:to_move] = product[:missing_for_period]
+      end
+ap product[:to_move]
+      #product[:missing_for_period] - avail_in_warehouses
+
+      if avail_in_warehouses > 0 && (product.end_of_life || product.ideal_stock == 0)
+        product[:deviation_for_period] = avail_in_warehouses * -1
         product[:deviation_for_period_percentile] = -100
-        product[:to_move] = avail_in_current_location
+        product[:to_move] = avail_in_warehouses
       end
       products << product if product[:deviation_for_period_percentile] < settings.reports_percentage_threshold && product.supply.warehouses_whole > 0
     end
