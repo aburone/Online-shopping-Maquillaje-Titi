@@ -47,13 +47,15 @@ class AppController < Sinatra::Base
     while @@running
       task = @@queue.pop
       begin
-        p "pop #{task.class} #{task.name}"
+        print "Performing #{task.class} #{task.name}"
         task.validate
+        print "."
         if task.errors.count > 0
           ap task
         end
-        ap "Performing #{task.name}..."
+        print "."
         task.perform
+        puts "."
       rescue => e
         ap e.message
         ap e.class
