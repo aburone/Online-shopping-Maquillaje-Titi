@@ -167,11 +167,9 @@
 
 
 
-
-
-            - if is_report_to_buy
-              td.number #{Utils::number_format product[:distributor][:ponderated_deviation], 0} %
-              td.number #{Utils::money_format product[:total_cost], 2}
+          - if is_report_to_buy
+            td.number #{Utils::number_format product[:distributor][:ponderated_deviation], 0} %
+            td.number #{Utils::money_format product[:total_cost], 2}
 
 
 
