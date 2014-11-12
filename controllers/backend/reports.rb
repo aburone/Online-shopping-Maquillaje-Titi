@@ -160,7 +160,7 @@ class Backend < AppController
     raw_products.each do |product|
       product[:ideal_for_period] = product.supply.s1_whole_ideal * months
       product[:missing_for_period] = product[:ideal_for_period] >= product.supply.s1_whole_future ? product[:ideal_for_period] - product.supply.s1_whole_future : BigDecimal.new(0)
-      product[:deviation_for_period] = product.supply.s1_whole - product[:missing_for_period]
+      product[:deviation_for_period] = product.supply.s1_whole - product[:ideal_for_period]
       product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
       product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
       product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
