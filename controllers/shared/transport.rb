@@ -1,5 +1,11 @@
 module Transport
 
+  def enqueue_products order
+    p_ids = Set.new
+    order.items.each { |item| p_ids.add item.p_id }
+    Product.where(p_id: p_ids.to_a).all.each { |product| enqueue product }
+  end
+
   def redir_if_erroneous_item order, item # TODO: kill
     if item.errors.count > 0
       message = item.errors.to_a.flatten.join(": ")
@@ -56,6 +62,9 @@ module Transport
       rescue => e
         flash[:error] = e.message
       end
+
+      enqueue_products order
+
       redirect to("/transport/arrivals/select")
     end
   end
@@ -285,6 +294,9 @@ class Sales < AppController
     rescue => e
       flash[:error] = e.message
     end
+
+    enqueue_products order
+
     redirect to "/transport/departures/#{order.type.downcase}/select"
   end
 
@@ -494,6 +506,9 @@ class Backend < AppController
     rescue => e
       flash[:error] = e.message
     end
+
+    enqueue_products order
+
     redirect to "/transport/departures/#{order.type.downcase}/select"
   end
 end
