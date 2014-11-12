@@ -220,7 +220,7 @@ class Backend < AppController
         product[:distributor][:ideal_for_period] = 0
         product[:distributor][:deviation_for_period] = 0
         product[:distributor][:ponderated_deviation] = 0
-        product[:distributor][:ponderated_deviation] = -101
+        product[:distributor][:ponderated_deviation] = -999
       end
     end
 
