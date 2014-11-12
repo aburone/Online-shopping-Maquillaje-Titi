@@ -184,13 +184,14 @@ class Backend < AppController
 
 
   route :get, :post, '/administration/reports/products_to_buy' do
-    months = params[:months].to_i unless params[:months].nil? || params[:months] == 0
+    months = params[:months].to_i unless params[:months].nil?
     months ||= settings.desired_months_worth_of_items_in_store
-    products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).all
+    products ||= []
+    raw_products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).all
     distributors = Distributor.all
 
     total_cost = 0
-    products.map do |product|
+    raw_products.each do |product|
       product[:ideal_for_period] = product.supply.global_ideal * months
       product[:deviation_for_period] = product.supply.global_future - product[:ideal_for_period]
       product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
@@ -210,19 +211,16 @@ class Backend < AppController
             product[:distributor] = distributor
           end
         end
-      end
-    end
-    products.delete_if { |product| product[:deviation_for_period] >= 0} # don't overbuy
-
-    products.map do |product|
-      unless product[:distributor]
+      else
         product[:distributor] = Distributor.new
         product[:distributor][:ideal_for_period] = 0
         product[:distributor][:deviation_for_period] = 0
         product[:distributor][:ponderated_deviation] = 0
         product[:distributor][:ponderated_deviation] = -999
       end
+      products << product if product[:deviation_for_period] < 0
     end
+
 
     products.sort_by! { |product| [ product[:distributor][:ponderated_deviation], product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
 
