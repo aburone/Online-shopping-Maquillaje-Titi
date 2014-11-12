@@ -129,60 +129,6 @@ class Backend < AppController
   end
 
 
-  route :get, :post, '/administration/reports/products_to_buy' do
-    months = params[:months].to_i unless params[:months].nil? || params[:months] == 0
-    months ||= settings.desired_months_worth_of_items_in_store
-    products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).all
-    distributors = Distributor.all
-
-    total_cost = 0
-    products.map do |product|
-      product[:ideal_for_period] = product.supply.global_ideal * months
-      product[:deviation_for_period] = product.supply.global_future - product[:ideal_for_period]
-      product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
-
-      product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
-      product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
-
-      product[:total_cost] = product[:deviation_for_period] < 0 ? product.buy_cost * product[:deviation_for_period] * -1 : 0
-      total_cost += product[:total_cost]
-
-      if product.distributors.first
-        distributors.map do |distributor|
-          if distributor.d_id == product.distributors.first.d_id
-            distributor[:ideal_for_period] = product.supply.global_ideal * months
-            distributor[:deviation_for_period] = product.supply.global_whole - distributor[:ideal_for_period]
-            distributor[:ponderated_deviation] = (distributor[:deviation_for_period] / distributor[:ideal_for_period]) * 100
-            product[:distributor] = distributor
-          end
-        end
-      end
-    end
-    products.delete_if { |product| product[:deviation_for_period] >= 0} # don't overbuy
-
-    products.map do |product|
-      unless product[:distributor]
-        product[:distributor] = Distributor.new
-        product[:distributor][:ideal_for_period] = 0
-        product[:distributor][:deviation_for_period] = 0
-        product[:distributor][:ponderated_deviation] = 0
-        product[:distributor][:ponderated_deviation] = -101
-      end
-    end
-
-    products.sort_by! { |product| [ product[:distributor][:ponderated_deviation], product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
-
-    slim :reports_products_to_buy, layout: :layout_backend, locals: {
-      title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration,
-      months: months,
-      locations: 2,
-      total_cost: total_cost,
-      products: products
-    }
-  end
-
-
-
 
 
   route :get, :post, '/administration/reports/materials_to_buy' do
@@ -236,4 +182,56 @@ class Backend < AppController
     }
   end
 
+
+  route :get, :post, '/administration/reports/products_to_buy' do
+    months = params[:months].to_i unless params[:months].nil? || params[:months] == 0
+    months ||= settings.desired_months_worth_of_items_in_store
+    products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).all
+    distributors = Distributor.all
+
+    total_cost = 0
+    products.map do |product|
+      product[:ideal_for_period] = product.supply.global_ideal * months
+      product[:deviation_for_period] = product.supply.global_future - product[:ideal_for_period]
+      product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
+
+      product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?
+      product[:deviation_for_period_percentile] = BigDecimal.new(0) if product[:deviation_for_period_percentile].nan?
+
+      product[:total_cost] = product[:deviation_for_period] < 0 ? product.buy_cost * product[:deviation_for_period] * -1 : 0
+      total_cost += product[:total_cost]
+
+      if product.distributors.first
+        distributors.map do |distributor|
+          if distributor.d_id == product.distributors.first.d_id
+            distributor[:ideal_for_period] = product.supply.global_ideal * months
+            distributor[:deviation_for_period] = product.supply.global_whole - distributor[:ideal_for_period]
+            distributor[:ponderated_deviation] = (distributor[:deviation_for_period] / distributor[:ideal_for_period]) * 100
+            product[:distributor] = distributor
+          end
+        end
+      end
+    end
+    products.delete_if { |product| product[:deviation_for_period] >= 0} # don't overbuy
+
+    products.map do |product|
+      unless product[:distributor]
+        product[:distributor] = Distributor.new
+        product[:distributor][:ideal_for_period] = 0
+        product[:distributor][:deviation_for_period] = 0
+        product[:distributor][:ponderated_deviation] = 0
+        product[:distributor][:ponderated_deviation] = -101
+      end
+    end
+
+    products.sort_by! { |product| [ product[:distributor][:ponderated_deviation], product.inventory(months).global.v_deviation_percentile, product.inventory(months).global.v_deviation ] }
+
+    slim :reports_products_to_buy, layout: :layout_backend, locals: {
+      title: R18n.t.reports_products_to_buy(months), sec_nav: :nav_administration,
+      months: months,
+      locations: 2,
+      total_cost: total_cost,
+      products: products
+    }
+  end
 end
