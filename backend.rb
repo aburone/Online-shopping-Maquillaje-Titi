@@ -17,18 +17,12 @@ class Backend < AppController
   helpers ApplicationHelper
 
   before do
-    ap "Before backend"
     if Location.new.stores.include? session[:current_location]
-      ap session[:current_location]
-      ap Location.new.stores.include? session[:current_location]
       State.clear
       session.each do |key, value|
         p "deleting #{key}"
         session.delete(key.to_sym)
       end
-      ap "state after cleared session"
-      ap State.current_user
-      ap State.current_location
     end
 
     set_locale
@@ -37,7 +31,6 @@ class Backend < AppController
     session[:layout] = :layout_backend
     unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"]
     protected! unless (unprotected_routes.include? request.env["REQUEST_PATH"])
-    ap State.current_user.username
   end
 
   Dir["controllers/backend/*.rb"].each { |file| require_relative file }

@@ -27,7 +27,7 @@ end
 
 Given /^I am logged-in into (.+) with location (.+)$/ do |page_name, location|
   visit path_to(page_name)
-  LogInPage.new.log_in_as( SimpleUser.new("aburone", "1234"), location)
+  LogInPage.new.log_in_as( SimpleUser.new("aburone", "1234"), location) # IMPORTANT set password to 1234 in developmant. DON'T use production passwords here!!!
   expect(page).to have_content( t.auth.loggedin )
 end
 

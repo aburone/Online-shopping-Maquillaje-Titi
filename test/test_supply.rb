@@ -86,7 +86,8 @@ class SupplyTest < Test::Unit::TestCase
       assert_equal p.supply.s1_part + p.supply.s1_part_en_route, p.supply.s1_part_future, "s1_part_future"
       "s1_part_ideal"
       assert_equal (p.supply.s1_part - p.supply.s1_part_ideal).to_s("F"), p.supply.s1_part_deviation.to_s("F"), "s1_part_deviation"
-      assert_equal (p.supply.s1_whole_future + p.supply.s1_part_future).to_s("F"), p.supply.s1.to_s("F"), "s1"
+      assert_equal (p.supply.s1_whole + p.supply.s1_part).to_s("F"), p.supply.s1.to_s("F"), "s1"
+
       assert_equal p.supply.s1_whole_en_route + p.supply.s1_part_en_route,  p.supply.s1_en_route, "s1_en_route"
       assert_equal p.supply.s1 + p.supply.s1_en_route,  p.supply.s1_future, "s1_future"
       assert_equal (p.supply.s1_whole_ideal + p.supply.s1_part_ideal).to_s("F"), p.supply.s1_ideal.to_s("F"), "s1_ideal"
@@ -403,13 +404,4 @@ class SupplyTest < Test::Unit::TestCase
     end
   end
 
-  def test_nan
-    number = BigDecimal.new( 5, 0)
-    res = number / 0 || BigDecimal.new(0, 0)
-    ap res
-
-    res = number + "a"
-    ap res
-
-  end
 end

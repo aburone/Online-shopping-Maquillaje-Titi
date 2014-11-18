@@ -187,13 +187,14 @@ class Backend < AppController
     months = params[:months].to_i unless params[:months].nil?
     months ||= settings.desired_months_worth_of_items_in_store
     products ||= []
-    raw_products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).all
+    raw_products = Product.new.get_all.where(archived: false, tercerized: true, end_of_life: false, on_request: false).limit(50).all
     distributors = Distributor.all
 
     total_cost = 0
     raw_products.each do |product|
       product[:ideal_for_period] = product.supply.global_ideal * months
-      product[:deviation_for_period] = product[:ideal_for_period].round == 0 ? product.supply.global_future - product[:ideal_for_period].ceil : product.supply.global_future - product[:ideal_for_period].round
+      product[:deviation_for_period] = product.supply.global_future - product[:ideal_for_period]
+      product[:deviation_for_period] = (-1...0) == product[:deviation_for_period] ? product[:deviation_for_period].floor(1) : product[:deviation_for_period].round(0)
       product[:deviation_for_period_percentile] = product[:deviation_for_period] * 100 / product[:ideal_for_period]
 
       product[:deviation_for_period] = BigDecimal.new(0) if product[:deviation_for_period].nan?

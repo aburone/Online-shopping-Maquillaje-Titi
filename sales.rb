@@ -17,18 +17,12 @@ class Sales < AppController
   helpers ApplicationHelper
 
   before do
-    ap "Before sales"
     if Location.new.warehouses.include? session[:current_location]
-      ap session[:current_location]
-      ap Location.new.warehouses.include? session[:current_location]
       State.clear
       session.each do |key, value|
         p "deleting #{key}"
         session.delete(key.to_sym)
       end
-      ap "state after cleared session"
-      ap State.current_user
-      ap State.current_location
     end
 
     set_locale
@@ -37,12 +31,12 @@ class Sales < AppController
     session[:layout] = :layout_sales
     unprotected_routes = ["/admin/login", "/admin/logout", "/sales/login", "/sales/logout"]
     protected! unless (unprotected_routes.include? request.env["REQUEST_PATH"])
-    ap State.current_user.username
   end
 
   Dir["controllers/sales/*.rb"].each { |file| require_relative file }
   Dir["controllers/shared/*.rb"].each { |file| require_relative file }
-d  run! if __FILE__ == $0
+
+  run! if __FILE__ == $0
 
 end
 

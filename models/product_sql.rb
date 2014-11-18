@@ -8,7 +8,7 @@ class Supply < Sequel::Model
   COLUMNS = [:supplies__p_id, :supplies__updated_at] + NUMERIC_ATTRIBUTES
 
 
-
+  # TODO: delete these columns
   PRODUCT_EQ = {
     direct_ideal_stock: :s1_whole_ideal,
     indirect_ideal_stock: :stores_part,
