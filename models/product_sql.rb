@@ -377,6 +377,7 @@ class Product < Sequel::Model
   end
 
   def distributors
+    # TODO: cache this dataset
     return [] unless self.p_id.to_i > 0
     distributors = Distributor
                     .select_group(*Distributor::COLUMNS, *ProductDistributor::COLUMNS)
