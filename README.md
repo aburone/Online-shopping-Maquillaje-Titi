@@ -1,4 +1,5 @@
 Maquillajes Titi
 ====
 
-A POS / Inventory / Manufacturig assistant / Finantial book keeper I brote for a store who manufactured makeups for artists.
+POS / Inventory / Manufacturig and inventory assistant / Finantial book keeper / webpage
+Complete management system for a store who manufactured makeups and related products for artists.
